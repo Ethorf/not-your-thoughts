@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import './prompt.scss';
 
 
+
 export default class Prompt extends React.Component {
   randomNum = (max) =>{
     return Math.floor(Math.random() * max)
@@ -15,7 +16,7 @@ export default class Prompt extends React.Component {
       "Reflect on some obstacles you have recently overcome"
     ]
 
-     promptContent = this.promptArr[this.randomNum(4)]
+     promptContent = this.promptArr[this.randomNum(this.promptArr.length-1)]
 
     render(){
         return (

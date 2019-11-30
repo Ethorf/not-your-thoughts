@@ -2,11 +2,21 @@ import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import './landing.scss'
 import Main from '../main/main'
+import {Transition} from 'react-spring/renderprops'
+import anime from 'animejs'
+
 
 export default class Landing extends React.Component {
+
+
     render() {
+        anime({
+            targets: '.landing__you-are',
+            translateX: 250
+          });
         return (
             <div className="landing">
+      
               <h2 className="landing__you-are">You are</h2>
               <h1 className="landing__title">Not Your Thoughts</h1>
                 <div className="landing__description-container">

@@ -8,6 +8,8 @@ import moment from 'moment'
 import pillarTest from '../../assets/pillarTest.png'
 import pillarTop from   '../../assets/pillarTop.png'
 import CrawlingBoxL1 from '../../assets/CrawlingBoxL-1.png'
+import CrawlingBoxT1 from '../../assets/CrawlingBoxT-1.png'
+
 import CrawlingBox2 from '../../assets/CrawlingBox-2.png'
 import CrawlingBox3 from '../../assets/CrawlingBox-3.png'
 
@@ -26,7 +28,9 @@ export default class Main extends React.Component {
     
   p1CBoxArr = [CrawlingBoxL1,CrawlingBox2,CrawlingBox3]
 
-  
+  randomNum = (max) =>{
+    return Math.floor(Math.random() * max)
+  }
 
   state = {
     wordCount:0,
@@ -34,10 +38,6 @@ export default class Main extends React.Component {
     limitReached:false, 
     date:moment().format("MM/DD/YYYY"),
     isVisible: true, 
-    pillar1CharLimit:94,
-    pillar2CharLimit:590,
-    pillar3CharLimit:1035,
-    pillar4CharLimit:1400,
     pillar1WordLimit:100,
     pillar2WordLimit:200,
     pillar3WordLimit:300,
@@ -57,13 +57,13 @@ export default class Main extends React.Component {
     }
     pillarLeftStyleHeight = () =>{
       const testStyle = {
-        height:`${(this.state.wordCount +1)*5.5}px`,
-        bottom:`${(this.state.wordCount +5)*5.5}px`,
-        opacity:`${this.state.wordCount/80}`
+        height:`${(this.state.wordCount +1)*3.8}px`,
+        bottom:`${(this.state.wordCount +1)*3.8}px`,
+        opacity:`${this.state.wordCount/40}`
       };
       const limit = {
-        height:`580px`,
-        bottom:'580px'
+        height:`380px`,
+        bottom:'380px'
       }
       if (this.state.wordCount <= this.state.pillar1WordLimit){
         return testStyle
@@ -94,40 +94,38 @@ export default class Main extends React.Component {
     }
     pillarRightStyleHeight = () =>{
       const testStyle = {
-        height:`${(-842 + this.state.charCount )*3}px`,
-        opacity:`${this.state.charCount/80}`
+        height:`${(-200 + this.state.wordCount )*3.6}px`
       };
       const start = {
-        height:`0px`,
+        height:`0px`
       }
       const limit = {
-        height:`100%`,
+        height:`380px`,
       }
-      if (this.state.charCount <= this.state.pillar2CharLimit){
+      if (this.state.wordCount <= this.state.pillar2WordLimit){
         return start
-      } else if(this.state.charCount >= this.state.pillar2CharLimit && this.state.charCount <= this.state.pillar3CharLimit  ) {
+      } else if(this.state.wordCount >= this.state.pillar2WordLimit && this.state.wordCount <= this.state.pillar3WordLimit  ) {
         return testStyle
       }
       else{
         return limit
       }
     }
-
     pillarBottomStyleWidth = () =>{
       const testStyle = {
-        width:`${-3100+(this.state.charCount +1)*3}px`,
-        left:`${4300 -( this.state.charCount*3)}px`,
-        opacity:`${this.state.charCount/80}`
+        width:`${-3850+(this.state.wordCount +1)*12.7}px`,
+        left:`${5100 -( this.state.wordCount*12.7)}px`,
+        opacity:`${this.state.wordCount/600}`
       };
       const start = {
         width:`0px`,
       }
       const limit = {
-        width:`1103px`,left:'100px'
+        width:`1303px`,left:'20px'
       }
-      if (this.state.charCount <= this.state.pillar3CharLimit){
+      if (this.state.wordCount <= this.state.pillar3WordLimit){
         return start
-      } else if(this.state.charCount >= this.state.pillar3CharLimit && this.state.charCount <= this.state.pillar4CharLimit  ) {
+      } else if(this.state.wordCount >= this.state.pillar3WordLimit && this.state.wordCount <= this.state.pillar4WordLimit  ) {
         return testStyle
       }
       else{
@@ -154,27 +152,21 @@ export default class Main extends React.Component {
         });
       }, 20);
     }
-
-    // componentDidUpdate(){
-    //   this.set
-    // }
     render(){
-  // console.log(this.pillarRightStyleHeight())
+  console.log(this.pillarRightStyleHeight())
   // console.log(this.pillarTopStyleWidth())
-  console.log(this.pillarBottomStyleWidth())
-
+  // console.log(this.pillarBottomStyleWidth())
 
       return (
         <div className="main">
           <Header pose={this.state.isVisible ? 'visible' : 'hidden'} className="main__header">
             Not Your Thoughts
           </Header>
-          <Prompt className="main__prompt" />
+          <Prompt />
           <div className="main__pillar-top-container">
             <img className="main__pillar-top-outline" src={pillarTop} alt='pillar Shadow thing'></img>
-            <div className="main__pillar-top" style={this.pillarTopStyleWidth()}></div>
-            {/* <img src={this.CrawlingBox1} className="main__pillar-top" style={this.pillarTopStyleWidth()} alt="william"></img>                 */}
-
+            {/* <div className="main__pillar-top" style={this.pillarTopStyleWidth()}></div> */}
+            <img src={CrawlingBoxT1} className="main__pillar-top" style={this.pillarTopStyleWidth()} alt="william"></img>                
           </div>
 
           <div className="main__pillars-date-goal-wordcount-textarea-container">
