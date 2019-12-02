@@ -9,9 +9,10 @@ import pillarTest from '../../assets/pillarTest.png'
 import pillarTop from   '../../assets/pillarTop.png'
 import CrawlingBoxL1 from '../../assets/CrawlingBoxL-1.png'
 import CrawlingBoxT1 from '../../assets/CrawlingBoxT-1.png'
-
 import CrawlingBox2 from '../../assets/CrawlingBox-2.png'
 import CrawlingBox3 from '../../assets/CrawlingBox-3.png'
+import AudioPlayer from '../../components/audioPlayer/audioPlayer.js'
+import keySFXFile from '../../assets/Sounds/Not-Your-Thoughts-Keyboard-SFX-1.mp3'
 
 
 
@@ -20,13 +21,11 @@ const Header = posed.div({
   visible: { opacity: 1 }
 });
 
-const fiHund = 30;
-
-
 
 export default class Main extends React.Component {
     
   p1CBoxArr = [CrawlingBoxL1,CrawlingBox2,CrawlingBox3]
+  keySFX1 = new Audio(keySFXFile)
 
   randomNum = (max) =>{
     return Math.floor(Math.random() * max)
@@ -46,20 +45,11 @@ export default class Main extends React.Component {
     pillar1ActiveCBox:this.p1CBoxArr[this.randomNum(2)]
   } 
 
-  
-
-    styleChamp = () =>{
-      const testStyle = {
-        fontSize:`${this.state.wordCount + 30}px`,
-      };
-      return testStyle
-
-    }
     pillarLeftStyleHeight = () =>{
       const testStyle = {
         height:`${(this.state.wordCount +1)*3.8}px`,
         bottom:`${(this.state.wordCount +1)*3.8}px`,
-        opacity:`${this.state.wordCount/40}`
+        opacity:`${this.state.wordCount/10}`
       };
       const limit = {
         height:`380px`,
@@ -113,9 +103,9 @@ export default class Main extends React.Component {
     }
     pillarBottomStyleWidth = () =>{
       const testStyle = {
-        width:`${-3850+(this.state.wordCount +1)*12.7}px`,
-        left:`${5100 -( this.state.wordCount*12.7)}px`,
-        opacity:`${this.state.wordCount/600}`
+        width:`${-3850+(this.state.wordCount +1)*12.8}px`,
+        left:`${5150 -( this.state.wordCount*12.8)}px`
+        // opacity:`${this.state.wordCount/600}`
       };
       const start = {
         width:`0px`,
@@ -134,16 +124,18 @@ export default class Main extends React.Component {
     }
     textNum = (e) => {
         e.preventDefault()
+        this.keySFX1.play()
         this.setState({
           wordCount: e.target.value.split(' ').length -1,
           charCount: e.target.value.split('').length
         })
 
-        if (this.state.wordCount >= 10){
+        if (this.state.wordCount >= this.state.goal){
            this.setState({
                limitReached:true
            })
         }
+
     }
     componentDidMount(){
       setInterval(() => {
@@ -153,12 +145,14 @@ export default class Main extends React.Component {
       }, 20);
     }
     render(){
-  console.log(this.pillarRightStyleHeight())
+  // console.log(this.pillarRightStyleHeight())
   // console.log(this.pillarTopStyleWidth())
   // console.log(this.pillarBottomStyleWidth())
 
+
       return (
         <div className="main">
+            
           <Header pose={this.state.isVisible ? 'visible' : 'hidden'} className="main__header">
             Not Your Thoughts
           </Header>
@@ -194,6 +188,7 @@ export default class Main extends React.Component {
               <img className="main__pillar-bottom-outline" src={pillarTop} alt='pillar Shadow thing'></img>
               <div className="main__pillar-bottom" style={this.pillarBottomStyleWidth()}>billy hilly</div>                
             </div>
+            <AudioPlayer />
           </div>
 
       );

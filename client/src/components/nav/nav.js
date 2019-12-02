@@ -13,8 +13,8 @@ export default class Nav extends React.Component {
                     <img className="nav__logo" src={logo} alt="instock logo"></img>
                 </Link>
                 <div className="nav__links-container">
-                    <NavLink exact to="/" activeClassName="active" className="nav__inventory-link">Inventory</NavLink>
-                    <NavLink exact to="/locations" activeClassName="active" className="nav__location-link">Locations</NavLink>
+                    <NavLink exact to="/main" activeClassName="nav__active" className="nav__home-link">Inventory</NavLink>
+                    <NavLink exact to="/profile" activeClassName="nav__active" className="nav__profile-link">Locations</NavLink>
                 </div>
             </header>
         )

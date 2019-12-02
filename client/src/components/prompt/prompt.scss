@@ -1,11 +1,13 @@
 @import '../../styles/mixins.scss';
 @import url('https://fonts.googleapis.com/css?family=Maven+Pro:400,500,700,900&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Montserrat&display=swap');
 @import '../../styles/mixins.scss';
 @import '../../styles/variables.scss';
 @import '../../styles/base.scss';
 
 .prompt{
     display:flex;
+    font-family: 'Montserrat', sans-serif;
     justify-content: center;
     text-align:center;
     width:60%;
