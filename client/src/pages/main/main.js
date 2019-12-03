@@ -9,8 +9,6 @@ import NavBarSide from '../../components/nav/navBarSide.js'
 import { TweenMax } from "gsap/all";
 import { Transition } from "react-transition-group";
 
-
-
 import pillarTest from '../../assets/pillarTest.png'
 import pillarTop from   '../../assets/pillarTop.png'
 import CrawlingBoxL1 from '../../assets/CrawlingBoxL-1.png'
@@ -19,6 +17,24 @@ import CrawlingBox2 from '../../assets/CrawlingBox-2.png'
 import CrawlingBox3 from '../../assets/CrawlingBox-3.png'
 import AudioPlayer from '../../components/audioPlayer/audioPlayer.js'
 import keySFXFile from '../../assets/Sounds/Not-Your-Thoughts-Keyboard-SFX-1.mp3'
+import progressSound25File from '../../assets/Sounds/ProgressSounds/Not-Your-Thoughts-25-progressSound.mp3'
+import progressSound50File from '../../assets/Sounds/ProgressSounds/Not-Your-Thoughts-50-progressSound.mp3'
+import progressSound75File from '../../assets/Sounds/ProgressSounds/Not-Your-Thoughts-75-progressSound.mp3'
+import progressSound100File from '../../assets/Sounds/ProgressSounds/Not-Your-Thoughts-100-progressSound.mp3'
+
+
+
+import { TimelineLite, CSSPlugin } from "gsap/all";
+
+//animation vars
+const progressNumberContainer = null;
+const progressNumberTween = null;
+const progressWordContainer = null;
+const progressWordTween = null;
+// audio files
+const keySFX1 = new Audio(keySFXFile)
+
+
 
 
 
@@ -27,29 +43,23 @@ const Header = posed.div({
   visible: { opacity: 1 }
 });
 
-const startState = { autoAlpha: 0, y: -1000 };
 
 
 
 export default class Main extends React.Component {
-  
+
+
+   startState = { autoAlpha: 0, y: -1000 };
+  progressSound25 = new Audio(progressSound25File)
+  progressSound50 = new Audio(progressSound50File)
+  progressSound75 = new Audio(progressSound75File)
+  progressSound100 = new Audio(progressSound100File)
+
   p1CBoxArr = [CrawlingBoxL1,CrawlingBox2,CrawlingBox3]
-  keySFX1 = new Audio(keySFXFile)
 
   randomNum = (max) =>{
     return Math.floor(Math.random() * max)
   }
-
-  // const pillarAnim = () => {
-  //   let increasing = true;
-  //   if (increasing = true){
-  //     for (let i = 0; i <=10; i++){
-  //       console.log(i)
-
-  //     }
-  //   }
-  // }
-  // console.log(pillarAnim())
 
   state = {
     wordCount:0,
@@ -63,7 +73,21 @@ export default class Main extends React.Component {
     pillar4WordLimit:400,
     goal:400,
     pillar1ActiveCBox:this.p1CBoxArr[this.randomNum(2)]
+
   } 
+
+  percentCalc = (wordCount) => {
+    if (wordCount === 100){
+      return "25%"
+    } else if (wordCount === 200){
+      return "50%"
+    }
+    else if (wordCount === 300){
+      return "75%"
+    } else if (wordCount === 400){
+      return "100%"
+    }
+  }
 
     pillarLeftStyleHeight = () =>{
       const testStyle = {
@@ -125,10 +149,11 @@ export default class Main extends React.Component {
       const testStyle = {
         width:`${-3850+(this.state.wordCount +1)*12.8}px`,
         left:`${5150 -( this.state.wordCount*12.8)}px`
-        // opacity:`${this.state.wordCount/600}`
+        // , transition:'all 1s'
+        ,opacity:"1"
       };
       const start = {
-        width:`0px`,
+        width:`0px`,left:'5120',opacity:"0"
       }
       const limit = {
         width:`1303px`,left:'20px'
@@ -144,7 +169,6 @@ export default class Main extends React.Component {
     }
     textNum = (e) => {
         e.preventDefault()
-        this.keySFX1.play()
         this.setState({
           wordCount: e.target.value.split(' ').length -1,
           charCount: e.target.value.split('').length
@@ -163,38 +187,71 @@ export default class Main extends React.Component {
           pillar1ActiveCBox:this.p1CBoxArr[this.randomNum(2)]
         });
       }, 20);
-    }
-    render(){
-  // console.log(this.pillarRightStyleHeight())
-  // console.log(this.pillarTopStyleWidth())
-  // console.log(this.pillarBottomStyleWidth())
 
+      this.progressNumberTween = new TimelineLite({ paused:true })
+      .to(this.progressNumberContainer, {duration:1.5,opacity:1 })
+
+      this.progressWordTween = new TimelineLite({ paused:true })
+      .to(this.progressWordContainer, {duration:1.5,opacity:1 })
+
+    }
+
+    progressAnimation = () => {
+      this.progressNumberTween.play()
+
+      setTimeout(()=>{
+        this.progressWordTween.play()
+        },1000)
+      setTimeout(()=>{
+      this.progressNumberTween.reverse()
+      this.progressWordTween.reverse()
+      },1500)
+    }
+
+    componentDidUpdate(){
+
+      if (this.state.wordCount === 100 ){
+            this.progressSound25.play()
+            this.progressAnimation()
+      } else if ( this.state.wordCount === 200){
+        this.progressSound50.play()
+        this.progressAnimation()
+      }else if ( this.state.wordCount === 300){
+        this.progressSound75.play()
+        this.progressAnimation()
+    }else if ( this.state.wordCount === 400){
+      this.progressSound100.play()
+      this.progressAnimation()
+    }
+  }
+    render(){
 
       return (
-        <Transition
-            unmountOnExit
-            in={this.props.show}
-            timeout={1000}
-            onEnter={node => TweenMax.set(node,startState)}
-            addEndListener={ (node, done) => {
-              TweenMax.to(node, 0.5, {
-                autoAlpha: this.props.show ? 1 : 0,
-                y: this.props.show ? 0 : 50,
-                onComplete: done
-              });
-            }}>
+        // <Transition
+        //     unmountOnExit
+        //     in={this.props.show}
+        //     timeout={1000}
+        //     onEnter={node => TweenMax.set(node,this.startState)}
+        //     addEndListener={ (node, done) => {
+        //       TweenMax.to(node, 0.5, {
+        //         autoAlpha: this.props.show ? 1 : 0,
+        //         y: this.props.show ? 0 : 50,
+        //         onComplete: done
+        //       });
+        //     }}>
       <div className="main__all-container">
       <NavBarSide />
         
         <div className="main">
-
           <Header pose={this.state.isVisible ? 'visible' : 'hidden'} className="main__header">
             Not Your Thoughts
           </Header>
           <Prompt />
+          <h2 ref={h2=> this.progressNumberContainer = h2} className="main__progress-number">{this.percentCalc(this.state.wordCount)}</h2>
+          <h2 ref={h2=> this.progressWordContainer = h2} className="main__progress-word">Complete</h2>
+
           <div className="main__pillar-top-container">
             <img className="main__pillar-top-outline" src={pillarTop} alt='pillar Shadow thing'></img>
-            {/* <div className="main__pillar-top" style={this.pillarTopStyleWidth()}></div> */}
             <img src={CrawlingBoxT1} className="main__pillar-top" style={this.pillarTopStyleWidth()} alt="william"></img>                
           </div>
 
@@ -206,8 +263,7 @@ export default class Main extends React.Component {
               <div className="main__date-goal-wordcount-textarea-container">
                 <div className="main__date-goal-wordcount-container">
                     <h3 className="main__date">{this.state.date}</h3>
-                    <h2 className="main__goal" >{`Goal:${this.state.goal} words`}</h2>
-                    {/* <h2 className="main__goal" >{`chars:${this.state.charCount}`}</h2> */}
+                    <h2 className="main__goal" >{`Goal:  ${this.state.goal} words`}</h2>
                     <h3 className={`main__wordcount ${this.state.limitReached ? "main__limit":""}`}>
                     {this.state.wordCount} Words</h3>
                 </div>
@@ -221,13 +277,13 @@ export default class Main extends React.Component {
             </div>
             <div className="main__pillar-bottom-container">
               <img className="main__pillar-bottom-outline" src={pillarTop} alt='pillar Shadow thing'></img>
-              <div className="main__pillar-bottom" style={this.pillarBottomStyleWidth()}>billy hilly</div>                
+              <div className="main__pillar-bottom" style={this.pillarBottomStyleWidth()}></div>                
             </div>
             <AudioPlayer />
           </div>
       </div>
 
-        </Transition>
+    // </Transition>
 
 
       );

@@ -40,7 +40,7 @@ export default class NavBarSide extends React.Component {
     }
     componentDidMount(){
         this.navBarTween = new TimelineLite({ paused:true })
-        .to(this.navBarContainer, {duration:1, x: 45,ease: "power2.out" })
+        .to(this.navBarContainer, {duration:0.4, x: 45,ease: "power1.out" })
 
         this.linksTween = new TimelineLite({ paused:true })
         .to(this.linksContainer, {duration:1,x:0,opacity:1 })

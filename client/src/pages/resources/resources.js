@@ -13,12 +13,15 @@ import { Transition } from "react-transition-group";
 export default class Resources extends React.Component{
 
     pillarAnim = (max) => {
-        let one = 1
-        let two = 2
-        // for (let i =0;i <=max;i++){
-        //     j.push(i)
-        // }
-        return one;
+            let nums = [1,2,3]
+                // let n =0
+        // while (n < max) {
+        //   n++, return n
+        //   }
+        nums.forEach(i => {return nums[i]})
+
+
+        //   return n
     }
     render(){
 
@@ -27,13 +30,30 @@ export default class Resources extends React.Component{
             <div className="resources">
 
                 < NavBarSide />
-                <div className="resources__mindfulness-container">
-                    <h1 className="resources__mindfulness-title">Mindfulness</h1>
+                <h1 className="resources__title">Resources</h1>
+
+            <div className="resources__content-container">
+                    
+                    
+                    <div className="resources__mindfulness-container">
+                        <h2 className="resources__mindfulness-title">Mindfulness / Meditation</h2>
                         <div className="resources__mindfulness-content">
-                            <h2 className="resources__mindfulness-title">10% Happier</h2>
-                            <h3 className="resources__mindfulness-authour">Dan Harris</h3>
+                            <h4 className="resources__mindfulness-content-title">10% Happier - Dan Harris</h4>
                         </div>    
-                    </div>   
+                    </div>
+                    <div className="resources__journalling-container">
+                        <h2 className="resources__journalling-title">Journalling</h2>
+                        <div className="resources__journalling-content">
+                            <h4 className="resources__journalling-content-title">10% Happier - Dan Harris</h4>
+                        </div>    
+                    </div>
+                    <div className="resources__gamification-container">
+                        <h2 className="resources__gamification-title">Gamification</h2>
+                        <div className="resources__gamification-content">
+                            <h4 className="resources__gamification-content-title">Superbetter - Jane McGonigal</h4>
+                        </div>    
+                    </div>
+                </div>       
             </div>
             
         )

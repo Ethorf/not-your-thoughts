@@ -36,12 +36,18 @@ export default class AudioPlayer extends React.Component {
       music = new Audio(Song)
 
       decreaseVolume=() => {
+        if (this.music.volume <= 0.9){
         this.music.volume = this.music.volume+0.1;
-        console.log(this.music.volume)
+        } else {
+        this.music.volume = 1;
+        }
       }
       increaseVolume=() => {
+        if (this.music.volume > 0.1){
         this.music.volume = this.music.volume-0.1;
-        console.log(this.music.volume)
+        } else {
+            this.music.volume = 0;
+        }
       }
 
     
@@ -78,13 +84,13 @@ export default class AudioPlayer extends React.Component {
         this.music.volume = 0.5;
 
         this.audioPlayerAllTween = new TimelineLite({ paused:true })
-        .to(this.audioPlayerAllContainer, {duration:2, x: -150,ease: "power1.out" })
+        .to(this.audioPlayerAllContainer, {duration:1.5, x: -105,ease: "power1.out" })
 
         this.controlsTween = new TimelineLite({ paused:true })
         .to(this.controlsContainer, {duration:1,x:0,opacity:1 })
 
         this.speakerTween = new TimelineLite({ paused:true })
-        .to(this.speakerContainer, {duration:2,rotation: -180 ,opacity:1,color:"white" })
+        .to(this.speakerContainer, {duration:1.5,rotation: -180 ,opacity:1,color:"white" })
 
 
         

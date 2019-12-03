@@ -3,22 +3,70 @@
 @import '../../styles/base.scss';
 
 .resources{
+    transition:1s all;
     color:silver;
-    font-family: 'Comfortaa', cursive;
+    font-family: 'Montserrat', sans-serif;
     display:flex;
+    flex-direction:column;
+    width:100%;
 
 
+    &__content-container{
+        display:flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        width:76%;
+    }
+    &__title{
+        width:100%;
+        margin-left:170px;
+        font-size:3.3rem;   
+    }
     &__mindfulness-container{
-        margin-left:300px;
+        margin-left:170px;
+        display:flex;
+        flex-direction:column;
+        justify-content: flex-start;
 
+    }
+
+    &__mindfulness-title{
+        text-decoration:underline;
     }
 
     &__mindfulness-content{
     }
 
-    &__mindfulness-title{
+
+    &__journalling-container{
+        margin-left:170px;
+        display:flex;
+        flex-direction:column;
+        justify-content: flex-start;
+
     }
 
-    &__mindfulness-authour{
+    &__journalling-title{
+        text-decoration:underline;
     }
+
+    &__journalling-content{
+    }
+
+    &__gamification-container{
+        margin-left:170px;
+        display:flex;
+        flex-direction:column;
+        justify-content: flex-start;
+
+    }
+
+    &__gamification-title{
+        text-decoration:underline;
+    }
+
+    &__gamification-content{
+    }
+
+    
 }

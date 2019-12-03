@@ -23,16 +23,16 @@
     &__speaker{
         height:30px;
         width:30px;
+
+
         
     }
 
     &__speaker-container{
-
-
         background-color:black;
         border:none;
         outline:none;
-
+      
         
     }
 
@@ -42,15 +42,25 @@
         width:30px;
         border:none;
         margin-left:10px;
+        outline:none;
         margin-right:10px;
+
+        &:hover{
+            color:white;
+        }
     }
 
     &__increase-vol{
         color:silver;
         font-size:1.8rem;
         border:none;
+        outline:none;
         background-color:black;
         margin-right:10px;
+
+        &:hover{
+            color:white;
+        }
 
     }
     
@@ -58,8 +68,14 @@
         color:silver;
         font-size:1.8rem;
         border:none;
+        outline:none;
+
         background-color:black;
         margin-right:10px;
+
+        &:hover{
+            color:white;
+        }
 
     }
     

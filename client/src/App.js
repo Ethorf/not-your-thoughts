@@ -7,27 +7,42 @@ import Landing from './pages/landing/landing'
 import Main from './pages/main/main'
 import Profile from './pages/profile/profile'
 import Resources from './pages/resources/resources'
+import { CSSTransition, TransitionGroup } from "react-transition-group";
+
 
 
 class App extends React.Component {
+ 
   render(){
     return (
       <div className="App">
         <BrowserRouter>
-          <Switch>
-            <Route path='/' exact>
-            { ({ match }) =>  <Landing show={match !== null} /> }
-            </Route>
-            <Route path='/main' exact>
-            { ({ match }) =>  <Main show={match !== null} /> }
-            </Route>
-            <Route path='/profile' exact>
-            { ({ match }) =>  <Profile show={match !== null} /> }
-            </Route>
-            <Route path='/resources' exact>
-            { ({ match }) =>  <Resources show={match !== null} /> }
-            </Route>
-          </Switch>
+          <Route render={({location})=>(
+             <TransitionGroup>
+             <CSSTransition
+              key={location.key}
+               timeout={1000}
+               classNames="fade"> 
+                 <Switch location={location}>
+                   <Route path='/' exact>
+                   { ({ match }) =>  <Landing show={match !== null} /> }
+                   </Route>
+                   <Route path='/main' exact>
+                   { ({ match }) =>  <Main show={match !== null} /> }
+                   </Route>
+                   <Route path='/profile'>
+                   { ({ match }) =>  <Profile show={match !== null} /> }
+                   </Route>
+                   <Route path='/resources' exact>
+                   { ({ match }) =>  <Resources show={match !== null} /> }
+                   </Route>
+                 </Switch>
+             </CSSTransition>
+           </TransitionGroup>
+          )}>
+          </Route>
+         
+          
         </BrowserRouter>
 
       </div>

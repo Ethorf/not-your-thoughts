@@ -5,21 +5,16 @@
 
 
 .nav{
+    transition:1s all;
     position:absolute;
-    // border:1px solid silver;
     display:flex;
     flex-direction:column;
-    // border-bottom:1px solid silver;
     font-family: 'Maven Pro', sans-serif;
     width:50px;
     height:100%;
-    
-    // &:hover{
-    //     transition:all 2s;
-    //     height:60px;
-    // }
+ 
     &__links-container{
-        opacity:0.1;
+        opacity:0;
         display:flex;
         flex-direction:column;
         font-size:1.3rem;
@@ -73,6 +68,7 @@
     color:silver;
     transition:all 2s;
     margin-bottom:8px;
+    // list-style-type:lao;
 
 
     &:hover{
