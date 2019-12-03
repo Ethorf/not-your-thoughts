@@ -5,6 +5,12 @@ import '../../styles/mixins.scss'
 import Prompt from '../../components/prompt/prompt'
 import posed from 'react-pose';
 import moment from 'moment'
+import NavBarSide from '../../components/nav/navBarSide.js'
+import { TweenMax } from "gsap/all";
+import { Transition } from "react-transition-group";
+
+
+
 import pillarTest from '../../assets/pillarTest.png'
 import pillarTop from   '../../assets/pillarTop.png'
 import CrawlingBoxL1 from '../../assets/CrawlingBoxL-1.png'
@@ -17,19 +23,33 @@ import keySFXFile from '../../assets/Sounds/Not-Your-Thoughts-Keyboard-SFX-1.mp3
 
 
 const Header = posed.div({
-  hidden: { opacity: 0.9 },
+  hidden: { opacity: 0.4 },
   visible: { opacity: 1 }
 });
 
+const startState = { autoAlpha: 0, y: -1000 };
+
+
 
 export default class Main extends React.Component {
-    
+  
   p1CBoxArr = [CrawlingBoxL1,CrawlingBox2,CrawlingBox3]
   keySFX1 = new Audio(keySFXFile)
 
   randomNum = (max) =>{
     return Math.floor(Math.random() * max)
   }
+
+  // const pillarAnim = () => {
+  //   let increasing = true;
+  //   if (increasing = true){
+  //     for (let i = 0; i <=10; i++){
+  //       console.log(i)
+
+  //     }
+  //   }
+  // }
+  // console.log(pillarAnim())
 
   state = {
     wordCount:0,
@@ -151,8 +171,23 @@ export default class Main extends React.Component {
 
 
       return (
+        <Transition
+            unmountOnExit
+            in={this.props.show}
+            timeout={1000}
+            onEnter={node => TweenMax.set(node,startState)}
+            addEndListener={ (node, done) => {
+              TweenMax.to(node, 0.5, {
+                autoAlpha: this.props.show ? 1 : 0,
+                y: this.props.show ? 0 : 50,
+                onComplete: done
+              });
+            }}>
+      <div className="main__all-container">
+      <NavBarSide />
+        
         <div className="main">
-            
+
           <Header pose={this.state.isVisible ? 'visible' : 'hidden'} className="main__header">
             Not Your Thoughts
           </Header>
@@ -190,6 +225,10 @@ export default class Main extends React.Component {
             </div>
             <AudioPlayer />
           </div>
+      </div>
+
+        </Transition>
+
 
       );
   }

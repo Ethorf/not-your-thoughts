@@ -1,0 +1,83 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/variables.scss';
+@import '../../styles/base.scss';
+
+.nav{
+    display:flex;
+    flex-direction:column;
+    // border-bottom:1px solid silver;
+    width:100%;
+    margin-top:-40px;
+    
+    // &:hover{
+    //     transition:all 2s;
+    //     height:60px;
+    // }
+    &__links-container{
+        display:flex;
+        justify-content:center;
+        font-size:1.2rem;
+        align-items:center;
+        width:100%;
+        background-color:black;
+        color:silver;
+        // border-bottom:1px solid silver;
+        padding:10px;
+    }
+
+    &__active{
+        border-bottom:1px solid white;
+    }
+   
+
+    &__hamburger-container{
+        background-color:black;
+        border:none;
+    }
+    &__hamburger{
+        color:silver;
+        // border:1px solid red;
+        background-color:silver;
+        outline:none;
+        // &:hover{
+        //     transition:all 2s;
+        //     height:30px;
+        // }
+    }
+
+    &__main-link{
+    text-decoration:none;
+    color:silver;
+    margin-right:20px;
+
+    &:hover{
+        transition:all 2s;
+        color:white;
+    }
+    }
+
+    &__profile-link{
+        text-decoration:none;
+        color:silver;
+        margin-right:20px;
+
+        &:hover{
+            transition:all 2s;
+            color:white;
+        }
+
+    }   
+
+    &__resources-link{
+        text-decoration:none;
+        color:silver;
+        margin-right:20px;
+
+        &:hover{
+            transition:all 2s;
+            color:white;
+        }
+    }
+}
+
+

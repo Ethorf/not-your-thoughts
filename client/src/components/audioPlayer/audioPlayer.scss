@@ -3,14 +3,65 @@
 @import '../../styles/base.scss';
 
 .audioPlayer{
+
     display:flex;
-    justify-content: center;
+    position:absolute;
+    top:350px;
+    left:110px;
+    justify-content: flex-end;
     align-items:center;
-    flex-direction:column;
+    justify-items:space-between;
+    flex-direction:row;
     width:100%;
     height:100%;
     color:silver;
     font-family: 'Maven Pro', sans-serif;
-    margin:0 auto;
+    margin-right:-230px;
+    z-index:4;
+
+
+    &__speaker{
+        height:30px;
+        width:30px;
+        
+    }
+
+    &__speaker-container{
+
+
+        background-color:black;
+        border:none;
+        outline:none;
+
+        
+    }
+
+    &__play-pause{
+        background-color:black;
+        height:30px;
+        width:30px;
+        border:none;
+        margin-left:10px;
+        margin-right:10px;
+    }
+
+    &__increase-vol{
+        color:silver;
+        font-size:1.8rem;
+        border:none;
+        background-color:black;
+        margin-right:10px;
+
+    }
     
+    &__decrease-vol{
+        color:silver;
+        font-size:1.8rem;
+        border:none;
+        background-color:black;
+        margin-right:10px;
+
+    }
+    
+
 }

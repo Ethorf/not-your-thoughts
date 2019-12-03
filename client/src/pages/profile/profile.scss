@@ -1,0 +1,20 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/variables.scss';
+@import '../../styles/base.scss';
+
+.profile{
+    color:silver;
+    font-family: 'Comfortaa', cursive;
+    display:flex;
+
+
+    &__content{
+        margin-left:300px;
+
+    }
+
+    &__user{
+        margin-top:100px;
+    }
+
+}

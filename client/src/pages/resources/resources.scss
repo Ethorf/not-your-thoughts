@@ -1,0 +1,24 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/variables.scss';
+@import '../../styles/base.scss';
+
+.resources{
+    color:silver;
+    font-family: 'Comfortaa', cursive;
+    display:flex;
+
+
+    &__mindfulness-container{
+        margin-left:300px;
+
+    }
+
+    &__mindfulness-content{
+    }
+
+    &__mindfulness-title{
+    }
+
+    &__mindfulness-authour{
+    }
+}
