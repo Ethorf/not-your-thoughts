@@ -1,0 +1,33 @@
+// .overlay{
+//     position: fixed;
+//     top: 0;
+//     left: 0;
+//     right: 0;
+//     bottom: 0;
+//     background-color: rgba(0, 0, 0, 0.65);
+//   }
+
+//   .content{
+//     position: absolute;
+//     z-index:1;
+//     // opacity:0;
+//     top: 30%;
+//     left: 30%;
+//     border: 1px solid #ccc;
+//     border-radius:10%;
+//     background: black;
+//     color:white;
+//     overflow: auto;
+//     webkit-overflow-scrolling:touch;
+//     border-radius: 4px;
+//     outline: none;
+//     padding: 20px;
+//     transition:all 1s;
+//   }
+
+  .modal{
+    display:flex;
+    flex-direction:column;
+    justify-content: center;
+    align-items: center;
+  }

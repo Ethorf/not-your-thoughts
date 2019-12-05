@@ -5,7 +5,10 @@
   font-family: 'Maven Pro';
   src: url("https://fonts.googleapis.com/css?family=Maven+Pro:400,500,700,900&display=swap");
 }
-
+@import url('https://fonts.googleapis.com/css?family=Maven+Pro:400,500,700,900&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Comfortaa&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Audiowide|Lalezar&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Lekton|Marmelad|Rambla|Syncopate&display=swap');
 //Screen Sizes
 @mixin tablet-size {
   @media (min-width: 768px) {

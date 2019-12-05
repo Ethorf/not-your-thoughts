@@ -24,6 +24,7 @@ const controlsContainer = null;
 const controlsTween = null;
 
 
+
 export default class AudioPlayer extends React.Component {
 
 
@@ -56,6 +57,7 @@ export default class AudioPlayer extends React.Component {
         this.setState({ play: !this.state.play }, () => {
           this.state.play ? this.music.play() : this.music.pause();
         }); 
+        this.music.loop = true;
         console.log(this.music.volume)
       }
 

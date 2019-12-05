@@ -2,12 +2,10 @@ import React from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import './profile.scss';
 import '../../styles/mixins.scss'
-import Prompt from '../../components/prompt/prompt'
-import posed from 'react-pose';
 import moment from 'moment'
 import NavBarSide from '../../components/nav/navBarSide.js'
 import { TweenMax } from "gsap/all";
-import { Transition } from "react-transition-group";
+
 
 
 export default class Profile extends React.Component{

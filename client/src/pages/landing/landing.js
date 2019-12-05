@@ -1,10 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './landing.scss'
-import Main from '../main/main'
+// import Main from '../main/main'
 import { TimelineLite, CSSPlugin } from "gsap/all";
-import { TweenMax, TweenLite } from "gsap/all";
-import { Transition } from "react-transition-group";
+// import { TweenMax, TweenLite } from "gsap/all";
+// import { Transition } from "react-transition-group";
 
 
 // declaring all initial animation vars
@@ -59,28 +59,12 @@ export default class Landing extends React.Component {
             .to(this.allContainer, {duration:6, y: -100, opacity:1 })
             setTimeout(()=>{this.allTween.play()},5000)
 
-
-
             setTimeout(()=>{this.logoTween.reverse()},2700)
 
         }
     render() {
-       
- 
+
         return (
-            <Transition
-                unmountOnExit
-                in={this.props.show}
-                timeout={1000}
-                onEnter={ node => TweenLite.set(node, startState) }
-                addEndListener={ (node, done) => {
-                TweenLite.to(node, 0.5, {
-                autoAlpha: this.props.show ? 1 : 0,
-                y: this.props.show ? 0 : 50,
-                onComplete: done
-                    });
-                }}
-                >
 
             <div ref={ div => this.allContainer = div } className="landing">
               <h2 ref={ img => this.logoContainer = img } className="landing__you-are">You are</h2>
@@ -90,10 +74,10 @@ export default class Landing extends React.Component {
                 <div className="landing__title-thoughts" ref={h1 => this.thoughtsContainer = h1}>Thoughts{" "}</div>
             </h1>
                 <div className="landing__description-container">
-                    <p ref={ p => this.descriptionContainer = p } className="landing__description">Not Your Thoughts is a mindfulness-based gamified journalling website 
+                    <p ref={ p => this.descriptionContainer = p } className="landing__description">Not Your Thoughts is a mindfulness-based gamified journaling website 
                         dedicated to empowering the average human to develop a
                         healthy relationship with the whirlwind of thoughts they find themselves inside daily. Through a
-                        consistent daily journalling practice and engagement with mindfulness prompts,
+                        consistent daily journaling practice and engagement with mindfulness prompts,
                          the user will unlock new modes, features, and achievements as they progress towards
                           the solidification of their practice.
                           </p>
@@ -103,7 +87,6 @@ export default class Landing extends React.Component {
                     </button>
             </div>
 
-        </Transition>
 
         )
     }

@@ -12,23 +12,10 @@ import { Transition } from "react-transition-group";
 
 export default class Resources extends React.Component{
 
-    pillarAnim = (max) => {
-            let nums = [1,2,3]
-                // let n =0
-        // while (n < max) {
-        //   n++, return n
-        //   }
-        nums.forEach(i => {return nums[i]})
-
-
-        //   return n
-    }
     render(){
 
-        console.log(this.pillarAnim(10))
         return(
             <div className="resources">
-
                 < NavBarSide />
                 <h1 className="resources__title">Resources</h1>
 

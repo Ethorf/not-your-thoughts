@@ -9,7 +9,13 @@
     position:absolute;
     display:flex;
     flex-direction:column;
-    font-family: 'Maven Pro', sans-serif;
+    // font-family: 'Maven Pro', sans-serif;
+    // font-family: 'Marmelad', sans-serif;
+    font-family: 'Comfortaa', cursive;
+
+
+    // font-family: 'Montserrat', cursive;
+
     width:50px;
     height:100%;
  
@@ -28,7 +34,8 @@
 
     &__active{
         display: list-item;          /* This has to be "list-item"                                               */
-        list-style-type: disc;       /* See https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type     */
+        // list-style-type: disc;
+        // list-style-image:url('../../assets/down-arrow-grey-weird.png/');       /* See https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type     */
         list-style-position: outside;
 
     }
