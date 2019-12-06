@@ -25,10 +25,11 @@ class SuccessModal extends React.Component {
         return (
             <>
 			<div className="modal">
-				<h2>Congratulations {this.props.firstName}!</h2>
+				<h2 className="modal__congratulations">CONGRATULATIONS {this.props.firstName.toUpperCase()}!</h2>
 				<h2>You've reached your goal for today</h2>
 				<h3>You have completed {this.props.conDays} days in a row, and {this.props.totDays} days total</h3>
-
+				<h4>Keep it up!</h4>
+				<button onClick={this.props.close} className="modal__close-button">Close</button>
 			</div>
             </>
         )

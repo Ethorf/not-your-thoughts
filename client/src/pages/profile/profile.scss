@@ -2,20 +2,69 @@
 @import '../../styles/variables.scss';
 @import '../../styles/base.scss';
 
+.strikethrough{
+    text-decoration:line-through;
+
+}
 .profile{
     transition:1s all;
     color:silver;
     font-family: 'Comfortaa', cursive;
     display:flex;
 
+    &__header{
+        font-family: 'Syncopate', sans-serif;
+        font-size: 2.5rem;
+        margin-top:70px;
+        margin-bottom:50px;
+    }
+
 
     &__content{
         margin-left:300px;
-
     }
 
     &__user{
-        margin-top:100px;
+        margin-top:10px;
+        font-size:1.7rem;
+    }
+    &__achievments-unlocked{
+        text-decoration: underline;
+    }
+    
+    &__achievement-container{
+        display:flex;
+        align-items: center;
+    }
+    &__rubber-ducky-title{
+        margin-left:10px;
+        margin-right:20px;
+        color:yellow;
+
+    }
+    &__rubber-ducky-activate-button{
+        outline:none;
+        color:black;
+        font-size:0.9rem;
+        font-family: 'Syncopate', sans-serif;
+        border-radius:9%;
+        padding-left: 20px;
+        padding-right: 20px;
+        height:40px;
+        transition:all 2s;
+
+
+        &:hover{
+            text-shadow:3px 3px 3px black;
+            font-size:1.2rem;
+            // background-image:url('../../assets/Background-Images/background-texture-bigPan-flat-blurred.png');
+            // background-position: center;
+            // background-size: cover;
+            background-color:yellow;
+            transition:all 2s;
+        }
+
+
     }
 
 }

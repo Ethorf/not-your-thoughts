@@ -86,7 +86,7 @@ export default class AudioPlayer extends React.Component {
         this.music.volume = 0.5;
 
         this.audioPlayerAllTween = new TimelineLite({ paused:true })
-        .to(this.audioPlayerAllContainer, {duration:1.5, x: -105,ease: "power1.out" })
+        .to(this.audioPlayerAllContainer, {duration:1.5, x: -115,ease: "power1.out" })
 
         this.controlsTween = new TimelineLite({ paused:true })
         .to(this.controlsContainer, {duration:1,x:0,opacity:1 })
@@ -102,16 +102,18 @@ export default class AudioPlayer extends React.Component {
         this.music.removeEventListener('ended', () => this.setState({ play: false }));  
       }
     render(){
-        // console.log(keyPress)
         return (
             <div className="audioPlayer" ref={div=> this.audioPlayerAllContainer = div}>
-            <button className="audioPlayer__speaker-container" onClick={this.state.navOpen? this.closeNav : this.openNav } >
+            <button className={this.props.rubberDucky ? 'rubberDucky__speaker-container' : "audioPlayer__speaker-container "} onClick={this.state.navOpen? this.closeNav : this.openNav } >
             <img src={speaker} ref={img=> this.speakerContainer = img} alt='speaker' className="audioPlayer__speaker"></img>
             </button>
                 <div className="audioPlayer__controls-container" ref={div => this.controlsContainer = div}>
-                    <button className="audioPlayer__play-pause" onClick={this.togglePlay}><img src={this.state.play ? pause : play}></img></button>
-                    <button className="audioPlayer__increase-vol" onClick={this.increaseVolume}>-</button>
-                    <button className="audioPlayer__decrease-vol" onClick={this.decreaseVolume}>+</button>
+                    <button className={this.props.rubberDucky ? 'rubberDucky__play-pause' : "audioPlayer__play-pause"}
+                             onClick={this.togglePlay}>
+                             <img src={this.state.play ? pause : play}></img>
+                             </button>
+                    <button className={this.props.rubberDucky ? 'rubberDucky__increase-vol' : "audioPlayer__increase-vol"} onClick={this.increaseVolume}>-</button>
+                    <button className={this.props.rubberDucky ? 'rubberDucky__decrease-vol' : "audioPlayer__decrease-vol"} onClick={this.decreaseVolume}>+</button>
                 </div>
                 
             </div>

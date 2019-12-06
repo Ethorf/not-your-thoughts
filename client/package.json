@@ -19,6 +19,7 @@
     "react-transition-group": "^4.3.0",
     "sass": "^1.23.7",
     "soundmanager2": "^2.97.20170602",
+    "styled-components": "^4.4.1",
     "uifx": "^2.0.3"
   },
   "scripts": {

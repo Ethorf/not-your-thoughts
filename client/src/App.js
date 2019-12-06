@@ -12,7 +12,30 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 
 class App extends React.Component {
- 
+ state={
+   currentUser:{
+      firstName:"Eric",
+      lastName:"Thorfinnson",
+      conDays:2,
+      totDays:3,
+      rubberDuckyUnlocked:false
+
+    }
+ }
+
+ increaseDays = (curCon,curTot)=>{
+   setTimeout(()=>{
+    this.setState({
+      currentUser:{
+        firstName:"Eric",
+        lastName:"Thorfinnson",
+        conDays:curCon+1,
+        totDays:curTot+1
+    }
+     })
+   },70)
+   
+ }
   render(){
     return (
       <div className="App">
@@ -29,25 +52,24 @@ class App extends React.Component {
                    </Route>
                    
                    <Route path='/main' exact> 
-                   { ({ match }) =>  <Main show={match !== null} /> }
+                   { ({ match }) =>  <Main increaseDays={this.increaseDays} currentUser={this.state.currentUser} show={match !== null} /> }
                    </Route>
                    <Route path='/profile'>
-                   { ({ match }) =>  <Profile show={match !== null} /> }
+                   { ({ match }) =>  <Profile rubberDuckyUnlocked={this.state.rubberDuckyUnlocked} increaseDays={this.increaseDays} currentUser={this.state.currentUser} show={match !== null} /> }
                    </Route>
                    <Route path='/resources' exact>
                    { ({ match }) =>  <Resources show={match !== null} /> } 
                     </Route>
 
-{/* 
-                    <Route path='/mainContainer' exact>
-                   { ({ match }) =>  <MainContainer show={match !== null} /> }
+                    <Route path='/mainContainer/' exact>
+                   { ({ match }) =>  <MainContainer currentUser={this.state.currentUser} show={match !== null} /> }
                    </Route>
-                   <Route path='/mainContainer/profile' component={Profile}>
-                   { ({ match }) =>  <Profile show={match !== null} /> } 
+                   {/* <Route path='/mainContainer/profile' component={Profile}>
+                   { ({ match }) =>  <Profile currentUser={this.state.currentUser} show={match !== null} /> } 
                    </Route> 
                    <Route path='/mainContainer/resources' exact component={Resources}>
-                   { ({ match }) =>  <Resources show={match !== null} /> } 
-                   </Route> */}
+                   { ({ match }) =>  <Resources currentUser={this.state.currentUser} show={match !== null} /> } 
+                   </Route>  */}
 
 
                  </Switch>

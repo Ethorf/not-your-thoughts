@@ -1,8 +1,4 @@
-@import '../../styles/mixins.scss';
-// @import url('https://fonts.googleapis.com/css?family=Maven+Pro:400,500,700,900&display=swap');
-// @import url('https://fonts.googleapis.com/css?family=Comfortaa&display=swap');
-// @import url('https://fonts.googleapis.com/css?family=Audiowide|Lalezar&display=swap');
-// @import url('https://fonts.googleapis.com/css?family=Lekton|Marmelad|Rambla|Syncopate&display=swap');
+
 @import '../../styles/mixins.scss';
 @import '../../styles/variables.scss';
 @import '../../styles/base.scss';
@@ -18,14 +14,12 @@ body{
 
 }
 
-.rubberDucky{
-    background-color:yellow;
-
-}
 
 .main{
     // background-image:url('../../assets/Background-Images/background-texture-bigPan-white-blur.png');
-    font-family: 'Comfortaa', cursive;
+    // font-family: 'Comfortaa', cursive;
+    font-family: 'Maven Pro', sans-serif;
+
     // font-family: 'Marmelad', sans-serif;
     // font-family: 'Rambla', sans-serif;
     // font-family: 'Lekton', sans-serif;
@@ -74,16 +68,11 @@ body{
     }
     &__header{
         font-size:2.6rem;
-        margin-top:35px;
+        margin-top:45px;
         margin-bottom:5px;
         transform-origin: 50% 50%;
         text-shadow: 2px 1px 5px silver;
-        // font-family: 'Comfortaa', cursive;
-        // font-family: 'Audiowide', cursive;
         font-family: 'Syncopate',sans-serif;
-         // font-family: 'Montserrat', sans-serif;
-        // font-family: 'Lalezar', cursive;
-
     }
     &__goal{
         display:flex;
@@ -94,8 +83,7 @@ body{
     }
     &__prompt{
         overflow:hidden;
-    font-family: 'Maven Pro', sans-serif;
-
+        font-family: 'Maven Pro', sans-serif;
         width:60%;
         margin:0;
     }
@@ -252,11 +240,11 @@ body{
         z-index:8;
         opacity:1;
         top:0px;
-        left:400px;
-        right:400px;
-        bottom:500px;
-        border: 1px solid #ccc;
-        border-radius:10%;
+        left:500px;
+        right:500px;
+        bottom:450px;
+        border: 1px solid silver;
+        border-radius:100px;
         background: black;
         opacity:0;
         color:white;
@@ -296,10 +284,9 @@ body{
 .modalTest{
     position: absolute;
     z-index:9;
-    
 }
 *{
-    z-index:4
+    z-index:4;
 
 }
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink} from 'react-router-dom';
+import '../../styles/rubberDucky.scss'
 import './navBarSide.scss'
 import arrow from '../../assets/down-arrow-grey-weird.png'
 
@@ -52,13 +53,13 @@ export default class NavBarSide extends React.Component {
         return (
             <>
             <header ref={header => this.navBarContainer = header} className="nav">
-            <button className="nav__arrow-container" onClick={this.state.navOpen? this.closeNav : this.openNav }>
-                    <img ref={img => this.arrowContainer = img} className="nav__arrow" src={arrow} alt="hamburger"></img>
+            <button className={this.props.rubberDucky ? 'rubberDucky__nav-arrow-container' : "nav__arrow-container "} onClick={this.state.navOpen? this.closeNav : this.openNav }>
+                    <img ref={img => this.arrowContainer = img} className={this.props.rubberDucky ? 'rubberDucky__nav-arrow' : "nav__arrow "} src={arrow} alt="hamburger"></img>
                  </button>
-                <div className="nav__links-container" ref={div => this.linksContainer = div}>
-                    <NavLink exact to="/main" activeClassName="nav__active" className="nav__main-link">Main</NavLink>
-                    <NavLink exact to="/profile" activeClassName="nav__active" className="nav__profile-link">Profile</NavLink>
-                    <NavLink exact to="/resources" activeClassName="nav__active" className="nav__resources-link">Resources</NavLink>
+                <div className={this.props.rubberDucky ? 'rubberDucky__nav-links-container' : "nav__links-container "} ref={div => this.linksContainer = div}>
+                    <NavLink exact to="/main" activeClassName="nav__active" className={this.props.rubberDucky ? 'rubberDucky__link' : "nav__main-link "}>Main</NavLink>
+                    <NavLink exact to="/profile" activeClassName="nav__active" className={this.props.rubberDucky ? 'rubberDucky__link' : "nav__profile-link "}>Profile</NavLink>
+                    <NavLink exact to="/resources" activeClassName="nav__active" className={this.props.rubberDucky ? 'rubberDucky__link' : "nav__resources-link "}>Resources</NavLink>
                 </div>
                
             </header>

@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import './landing.scss'
 // import Main from '../main/main'
 import { TimelineLite, CSSPlugin } from "gsap/all";
+import buttonBg from '../../assets/Background-Images/background-texture-bigPan-flat-blurred.png'
+import bgOverlayTextureWhite from '../../assets/Background-Images/background-texture-bigPan-white-blur.png'
 // import { TweenMax, TweenLite } from "gsap/all";
 // import { Transition } from "react-transition-group";
 
@@ -24,6 +26,8 @@ const descriptionTween = null;
 const buttonContainer = null;
 const buttonTween = null;
 const startState = { autoAlpha: 0, y: -1000 };
+const bgImgContainer = null;
+const bgImgTween = null;
 
 
 export default class Landing extends React.Component {
@@ -49,24 +53,34 @@ export default class Landing extends React.Component {
 
             this.descriptionTween = new TimelineLite({ paused:true })
             .to(this.descriptionContainer, {duration:3,y:-1, opacity:1 })
-            setTimeout(()=>{this.descriptionTween.play()},4200)
+            setTimeout(()=>{this.descriptionTween.play()},3700)
 
             this.buttonTween = new TimelineLite({ paused:true })
-            .to(this.buttonContainer, {duration:5,y:-1,ease: "slow(0.7, 0.7, false)", opacity:1 })
+            .to(this.buttonContainer, {duration:3.5,y:-1,ease: "slow(0.7, 0.7, false)", opacity:1 })
             setTimeout(()=>{this.buttonTween.play()},9000)
 
             this.allTween = new TimelineLite({ paused:true })
-            .to(this.allContainer, {duration:6, y: -100, opacity:1 })
-            setTimeout(()=>{this.allTween.play()},5000)
+            .to(this.allContainer, {duration:5, y: -100, opacity:1 })
+            setTimeout(()=>{this.allTween.play()},4500)
 
-            setTimeout(()=>{this.logoTween.reverse()},2700)
+            this.bgImgTween = new TimelineLite({ paused:true })
+            .to(this.bgImgContainer, {duration:2,opacity:0.55 })
+
+            setTimeout(()=>{this.logoTween.reverse()},2100)
+            setTimeout(()=>{this.bgImgTween.play()},4500)
+            setTimeout(()=>{this.bgImgTween.reverse()},6500)
+
+
 
         }
     render() {
 
         return (
 
+
             <div ref={ div => this.allContainer = div } className="landing">
+            <img ref={img=> this.bgImgContainer = img}  className="landing__bg-img" src={bgOverlayTextureWhite}></img>
+
               <h2 ref={ img => this.logoContainer = img } className="landing__you-are">You are</h2>
               <h1 className="landing__title">
                 <div className="landing__title-not" ref={h1 => this.notContainer = h1}>Not</div>
@@ -78,13 +92,13 @@ export default class Landing extends React.Component {
                         dedicated to empowering the average human to develop a
                         healthy relationship with the whirlwind of thoughts they find themselves inside daily. Through a
                         consistent daily journaling practice and engagement with mindfulness prompts,
-                         the user will unlock new modes, features, and achievements as they progress towards
-                          the solidification of their practice.
+                        the user will unlock new modes, features, and achievements as they progress towards
+                        the solidification of their practice.
                           </p>
                 </div>
-                    <button ref={ button => this. buttonContainer = button } className="landing__start-button-container">
-                        <Link to="/main" exact className="landing__start-button">Start</Link>
-                    </button>
+                <button ref={ button => this. buttonContainer = button } className="landing__start-button-container">
+                    <Link to="/main" exact className="landing__start-button">Start</Link>
+                </button>
             </div>
 
 

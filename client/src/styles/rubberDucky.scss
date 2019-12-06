@@ -1,0 +1,185 @@
+@import './mixins.scss';
+@import './variables.scss';
+@import './base.scss';
+
+
+.rubberDucky{
+    background-color:yellow;
+
+    &__blackText{
+        color:black;
+        background-color:yellow;
+        border:none;
+
+    }
+
+    &__pillar-hidden{
+        display:none;
+        }   
+
+        &__icon{
+            position:absolute;
+            left:260px;
+            bottom:0px;
+            width:100px;
+            height:100px;
+            z-index:8;
+        }
+ 
+    &__waterFall-left{
+        height:100%;
+        width:50%;
+        margin-left:100px;
+        transform:rotate(180deg);
+        z-index:1;
+        border-radius:10px;
+
+
+    }
+
+    &__waterFall-top{
+        height:250px;
+        margin-left:170px;
+        margin-top:-100px;
+        border-radius:10px;
+        transform:rotate(-90deg);
+    }
+    &__waterFall-top2{
+        margin-left:-20px;
+             height:250px;
+        margin-left:116px;
+        margin-top:-80px;
+        // border-radius:10px;
+        transform:rotate(-90deg);
+  
+
+    }
+    &__waterFall-top6{
+        margin-left:-30px;
+        height:250px;
+        margin-left:8px;
+        margin-top:-80px;
+        transform:rotate(-90deg);
+    }
+
+    &__waterFall-right{
+        // position: absolute;
+        height:100%;
+        width:50%;
+        margin-left:32px;
+        z-index:2;
+        border-radius:10px;
+    }
+
+    &__waterFall-bottom{
+        height:250px;
+        // width:100%;
+        margin-left:170px;
+        margin-top:-80px;
+        border-radius:10px;
+        transform:rotate(90deg);
+
+    }
+    &__waterFall-bottom2{
+        height:250px;
+        // width:100%;
+        margin-left:116px;
+        margin-top:-80px;
+        border-radius:10px;
+        transform:rotate(90deg);
+
+    }
+    &__waterFall-bottom6{
+        height:250px;
+        // width:100%;
+        margin-left:13px;
+        margin-top:-80px;
+        border-radius:10px;
+        transform:rotate(90deg);
+
+    }
+    &__hidden{
+        display:none;
+    }
+
+    ///Nav Stuff
+
+    &__nav-arrow-container{
+        background-color:yellow;
+        color:yellow;
+        margin-top:20px;
+        border:none;
+        outline:none;
+    }
+    &__nav-arrow{
+        background-color:yellow;
+        color:black;
+        opacity: 1;
+        outline:none;
+        height:30px;
+        width:30px;
+
+    }
+    &__nav-links-container{
+        opacity:0;
+        display:flex;
+        flex-direction:column;
+        font-size:1.3rem;
+        width:100%;
+        padding:10px;
+        margin-left:-25px;
+        background-color:yellow;
+        color:black;
+    }
+    &__link{
+        color:black;
+        text-decoration: none;
+        transition:all 2s;
+        margin-bottom:8px;
+    }
+    &__speaker-container{
+        background-color:yellow;
+        border:none;
+        outline:none;
+    }
+
+    &__play-pause{
+        background-color:black;
+        color:black;
+        height:40px;
+        width:30px;
+        border:1px solid black;
+        border-radius:10px;
+        margin-left:10px;
+        outline:none;
+        margin-right:10px;
+        margin-bottom:5px;
+
+    }
+
+    &__increase-vol{
+        margin-bottom:5px;
+        color:silver;
+        font-size:1.8rem;
+        height:40px;
+        outline:none;
+        border:1px solid black;
+        border-radius:10px;
+        background-color:black;
+        margin-right:10px;
+
+    }
+
+    &__decrease-vol{
+        color:silver;
+        font-size:1.8rem;
+        height:40px;
+        outline:none;
+        border:1px solid black;
+        border-radius:10px;
+        background-color:black;
+        margin-top:10px;
+        padding-top:-10px;
+
+    }
+}
