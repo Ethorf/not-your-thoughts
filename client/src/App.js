@@ -13,13 +13,13 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 class App extends React.Component {
  state={
+  rubberDuckyUnlocked:false,
    currentUser:{
       firstName:"Eric",
       lastName:"Thorfinnson",
       conDays:2,
       totDays:3,
-      rubberDuckyUnlocked:false
-
+      rubberDucky:false
     }
  }
 
@@ -34,8 +34,24 @@ class App extends React.Component {
     }
      })
    },70)
-   
  }
+
+ rubberDuckyToggle=(prevProps,prevState)=>{
+  this.setState(prevState => ({
+    rubberDucky: !prevState.rubberDucky
+  }));
+  console.log(this.state.rubberDucky)
+}
+  componentDidMount(){
+    if (this.state.conDays >= 3){
+      this.setState({
+
+        rubberDuckyUnlocked:true
+
+      })
+    }
+  }
+
   render(){
     return (
       <div className="App">
@@ -52,10 +68,10 @@ class App extends React.Component {
                    </Route>
                    
                    <Route path='/main' exact> 
-                   { ({ match }) =>  <Main increaseDays={this.increaseDays} currentUser={this.state.currentUser} show={match !== null} /> }
+                   { ({ match }) =>  <Main rubberDuckyToggle={this.rubberDuckyToggle}  rubberDucky={this.state.rubberDucky} increaseDays={this.increaseDays} currentUser={this.state.currentUser} show={match !== null} /> }
                    </Route>
                    <Route path='/profile'>
-                   { ({ match }) =>  <Profile rubberDuckyUnlocked={this.state.rubberDuckyUnlocked} increaseDays={this.increaseDays} currentUser={this.state.currentUser} show={match !== null} /> }
+                   { ({ match }) =>  <Profile conDays={this.state.conDays} rubberDuckyToggle={this.rubberDuckyToggle} rubberDucky={this.state.rubberDucky} rubberDuckyUnlocked={this.state.rubberDuckyUnlocked} increaseDays={this.increaseDays} currentUser={this.state.currentUser} show={match !== null} /> }
                    </Route>
                    <Route path='/resources' exact>
                    { ({ match }) =>  <Resources show={match !== null} /> } 

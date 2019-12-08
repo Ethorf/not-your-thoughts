@@ -30,6 +30,7 @@
     &__mindfulness-container{
         margin-left:300px;
         display:flex;
+        width:35%;
         flex-direction:column;
         justify-content: flex-start;
 
@@ -40,6 +41,8 @@
     }
 
     &__mindfulness-content{
+        display:flex;
+        flex-direction:column;
     }
 
 
@@ -56,6 +59,8 @@
     }
 
     &__journalling-content{
+        display:flex;
+        flex-direction:column;
     }
 
     &__gamification-container{
@@ -71,7 +76,13 @@
     }
 
     &__gamification-content{
+        display:flex;
+        flex-direction:column;
     }
 
-    
+    &__link{
+        font-size:1.3rem;
+        margin-bottom:20px;
+        text-decoration: none;
+    }
 }

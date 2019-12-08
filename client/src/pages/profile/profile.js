@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import './profile.scss';
 import '../../styles/mixins.scss'
+import '../../styles/rubberDucky.scss'
 import moment from 'moment'
 import NavBarSide from '../../components/nav/navBarSide.js'
 import { TweenMax } from "gsap/all";
@@ -9,26 +10,25 @@ import { TweenMax } from "gsap/all";
 
 
 export default class Profile extends React.Component{
-    onClick = () => {
-        console.log("bob")
-    }
+
     render(){
         return(
-            <div className="profile">
+            <div className={`profile ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>
 
-            < NavBarSide />
-                <div className="profile__content">
-                    <header className="profile__header">User Profile</header>
-                    <h2 className="profile__user">User: {this.props.currentUser.firstName} Thorfinnson</h2>
-                    <h2 className="profile__consecutive-days">Consecutive Days Completed: {this.props.currentUser.conDays}</h2>
-                    <h2 className="profile__total-days">Total Days Completed: {this.props.currentUser.totDays}</h2>
-                    <h2 className="profile__achievements-unlocked">Achievments Unlocked</h2>
+            < NavBarSide rubberDucky={this.props.rubberDucky} />
+                <div className={`profile__content ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>
+                    <header className={`profile__header ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>User Profile</header>
+                    <h2 className={`profile__user ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>User: {this.props.currentUser.firstName} Thorfinnson</h2>
+                    <h2 className={`profile__consecutive-days ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>Consecutive Days Completed: {this.props.currentUser.conDays}</h2>
+                    <h2 className={`profile__total-days ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>Total Days Completed: {this.props.currentUser.totDays}</h2>
+                    <h2 className={`profile__achievements-unlocked ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>Achievments Unlocked</h2>
                     <div className="profile__achievement-container">
-                        <h2 className="profile__rubber-ducky-requirement">3 Consecutive Days--->  </h2>
-                        <h2 className={`profile__rubber-ducky-title ${this.props.rubberDuckyUnlocked ? " " : "strikethrough"}`}> Rubber Ducky Mode</h2>
-                        <button onClick={this.props.increaseDays} className="profile__rubber-ducky-activate-button">Activate</button>
+                        <h2 className={`profile__rubber-ducky-requirement ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>3 Consecutive Days--->  </h2>
+                        <h2 className={`profile__rubber-ducky-title ${this.props.currentUser.conDays >= 3 ? " " : "strikethrough"}`}> Rubber Ducky Mode</h2>
+                        <button onClick={this.props.rubberDuckyToggle} className={`profile__rubber-ducky-activate-button ${this.props.currentUser.conDays >= 3 ? " " : "rubberDucky__hidden"}`}>{`${this.props.rubberDucky ? "Deactivate" : "Activate"}`}</button>
                     </div>
-                </div>    
+                </div>
+                <div className={`profile__bottom-chunk ${this.props.rubberDucky ? "yellow" : ""}`}></div>    
             </div>
             
         )
