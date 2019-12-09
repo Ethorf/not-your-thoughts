@@ -3,7 +3,6 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import './main.scss';
 import '../../styles/mixins.scss'
 import '../../styles/rubberDucky.scss'
-
 import Prompt from '../../components/prompt/prompt'
 import posed from 'react-pose';
 import moment from 'moment'
@@ -12,8 +11,7 @@ import { TweenMax } from "gsap/all";
 import { Transition } from "react-transition-group";
 import SuccessModal from '../../components/successModal/successModal';
 import '../../components/successModal/successModal.scss';
-import pillarTest from '../../assets/pillarTest.png'
-import pillarTop from   '../../assets/pillarTop.png'
+import pillarTop from   '../../assets/Pillars/PillarTop-4-shadowboi.png'
 import CrawlingBoxT1 from '../../assets/CrawlingBoxT-1.png'
 import bgOverlayTextureWhite from '../../assets/Background-Images/bgImg-donut1.png'
 import waveAnimation from '../../assets/waveAnimationFull.gif'
@@ -25,12 +23,9 @@ import progressSound75File from '../../assets/Sounds/ProgressSounds/Not-Your-Tho
 import progressSound100File from '../../assets/Sounds/ProgressSounds/Not-Your-Thoughts-100-progressSound.mp3'
 import WaterfallUp from '../../assets/RubberDucky/waterFall.gif'
 import duckIcon from '../../assets/RubberDucky/duckIcon-nolegs.gif'
-import nuPillarLeft from '../../assets/nuPillarLeft-1.png'
-
-
-import { TimelineLite, CSSPlugin } from "gsap/all";
-
-
+import nuPillarLeft from '../../assets/Pillars/PillarLeft-5-shadowboi.png'
+import crawBox from '../../assets/Pillars/nuCrawBoxAnim-1.gif'
+import { TimelineLite} from "gsap/all";
 
 //animation vars
 const progressNumberContainer = null;
@@ -117,13 +112,13 @@ export default class Main extends React.Component {
     }
     pillarTopStyleWidth = () =>{
       const testStyle = {
-        width:`${(-100 + this.state.wordCount)+1}%`
+        width:`${(-100 + this.state.wordCount)-1}%`
       };
       const start = {
         width:`0%`
       }
       const limit = {
-        width:`100%`
+        width:`98%`
       }
       if (this.state.wordCount <= this.state.pillar1WordLimit){
         return start
@@ -155,11 +150,9 @@ export default class Main extends React.Component {
         left:`${99-((-300 + this.state.wordCount)+1)}%`
       };
       const start = {
-        width:`1%`, left:"99%"
-      }
+        width:`0%`, left:"99%"}
       const limit = {
-        width:`100%`
-      }
+        width:`99%`, left:"0%"}
       if (this.state.wordCount <= this.state.pillar3WordLimit){
         return start
       } else if(this.state.wordCount >= this.state.pillar3WordLimit && this.state.wordCount <= this.state.pillar4WordLimit  ) {
@@ -169,21 +162,20 @@ export default class Main extends React.Component {
         return limit
       }
     }
-
     ////////  Rubber Ducky Functions / Animations 
 
     duckAnimationStyle = () =>{
 
       const upStyle = {
-        bottom:`${100+(this.state.wordCount*5)+5}px`,
+        top:`${67-(this.state.wordCount/2.2)}%`,
       };
       const rightStyle = {
-        bottom:'595px',
-        left:`${-785+(this.state.wordCount*10.5)}px`
+        top:'22%',
+        left:`${-54+(this.state.wordCount/1.5)}%`
       };
       const downStyle = {
-        top:`${-780 +(this.state.wordCount*4.5)}px`,
-        left:`1300px`,
+        top:`${22 -(this.state.wordCount/1.6)}%`,
+        left:`79%`,
       };
       const leftStyle = {
         top:`657px`,        
@@ -329,10 +321,13 @@ export default class Main extends React.Component {
     }
   }
     render(){
+      // console.log(this.duckAnimationStyle())
       return (  
        
       <div className="main__all-container modalize">
-      <NavBarSide rubberDucky={this.props.rubberDucky} />
+                <img src={duckIcon} alt="duck boi" style={this.duckAnimationStyle()} className={this.props.rubberDucky ? 'rubberDucky__icon' : 'rubberDucky__hidden'}></img>
+
+      {/* <NavBarSide rubberDucky={this.props.rubberDucky} /> */}
         <img ref={img=> this.bgImgContainer = img}  className={`main__bg-img ${this.props.rubberDucky? 'rubberDucky__hidden' : ''}`} src={bgOverlayTextureWhite}></img>
         <div className={`main ${this.props.rubberDucky ? 'rubberDucky' : 'black'}`}>
           <Header rubberDucky={this.props.rubberDucky} pose={this.state.isVisible ? 'visible' : 'hidden'}
@@ -353,8 +348,9 @@ export default class Main extends React.Component {
               {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
                  <img src={WaterfallUp} className= 
               {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
-                  <img src={WaterfallUp} className= 
-              {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
+                  <img src={WaterfallUp} className= {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
+                  <img src={WaterfallUp} className= {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
+
             <img className={`main__pillar-top-outline 
               ${this.props.rubberDucky ? 'rubberDucky__pillar-hidden' : ''}`} src={pillarTop} alt='pillar Shadow thing'></img>
             <img src={CrawlingBoxT1} className={`main__pillar-top ${this.props.rubberDucky ? 'rubberDucky__hidden' : ''}`} style={this.pillarTopStyleWidth()} alt="william"></img>               
@@ -365,14 +361,13 @@ export default class Main extends React.Component {
               <div className={`main__pillar-left-container 
                 ${this.props.rubberDucky ? 'rubberDucky__pillar-left-container' : ''}`}>
                 {/* DUCK ICON */}
-                <img src={duckIcon} alt="duck boi" style={this.duckAnimationStyle()} className={this.props.rubberDucky ? 'rubberDucky__icon' : 'rubberDucky__hidden'}></img>
                 <img src={WaterfallUp} className= 
                 {this.props.rubberDucky ? 'rubberDucky__waterFall-left' : 'rubberDucky__hidden'} alt="rubberducky waterfall"></img>
               {/* Pillar Left Outline */}
                 <img className={`main__pillar-left-outline 
                 ${this.props.rubberDucky ? 'rubberDucky__pillar-hidden' : ''}`} src={this.props.rubberDucky ? WaterfallUp : nuPillarLeft} alt='pillar Shadow thing'></img>
                 {/* Actual Pillar Left */}
-                <img src={waveAnimation} className={`main__pillar-left ${this.props.rubberDucky ? 'rubberDucky__hidden' : ''}`} style={this.pillarLeftStyleHeight()} alt="left pillar"></img>                
+                <img src={crawBox} className={`main__pillar-left ${this.props.rubberDucky ? 'rubberDucky__hidden' : ''}`} style={this.pillarLeftStyleHeight()} alt="left pillar"></img>                
               </div>
               <div className="main__date-goal-wordcount-textarea-container">
                 <div className="main__date-goal-wordcount-container">
@@ -389,11 +384,11 @@ export default class Main extends React.Component {
               {/* Pillar Right Starts */}
               <div className={`main__pillar-right-container 
                 ${this.props.rubberDucky ? 'rubberDucky__pillar-right-container' : ''}`}>
-                 <img src={duckIcon} alt="duck boi" style={this.duckAnimationStyle()} className={this.props.rubberDucky ? 'rubberDucky__icon' : 'rubberDucky__hidden'}></img>
+                 {/* <img src={duckIcon} alt="duck boi" style={this.duckAnimationStyle()} className={this.props.rubberDucky ? 'rubberDucky__icon' : 'rubberDucky__hidden'}></img> */}
                 <img src={WaterfallUp} className= {this.props.rubberDucky ? 'rubberDucky__waterFall-right' :
                  'rubberDucky__hidden'}></img>
                   <img className={`main__pillar-right-outline 
-                ${this.props.rubberDucky ? 'rubberDucky__pillar-hidden' : ''}`} src={pillarTest} alt='pillar Shadow thing'></img>
+                ${this.props.rubberDucky ? 'rubberDucky__pillar-hidden' : ''}`} src={nuPillarLeft} alt='pillar Shadow thing'></img>
                 < img src={waveAnimation} className={`main__pillar-right ${this.props.rubberDucky ? 'rubberDucky__hidden' : ''}`} style={this.pillarRightStyleHeight()} alt="right pillar"></img>                
 
               </div>
@@ -402,7 +397,7 @@ export default class Main extends React.Component {
             {/* Pillar Bottom Starts Here */}
             <div className="main__pillar-bottom-container">
             {/* Pillar Bottom Rubber Ducky Images */}
-            <img src={duckIcon} alt="duck boi" style={this.duckAnimationStyle()} className={this.props.rubberDucky ? 'rubberDucky__icon' : 'rubberDucky__hidden'}></img>
+            {/* <img src={duckIcon} alt="duck boi" style={this.duckAnimationStyle()} className={this.props.rubberDucky ? 'rubberDucky__icon' : 'rubberDucky__hidden'}></img> */}
 
             <img src={WaterfallUp} className= 
               {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom' : 'rubberDucky__hidden'}></img>
@@ -414,13 +409,15 @@ export default class Main extends React.Component {
               {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
                             <img src={WaterfallUp} className= 
               {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
+              <img src={WaterfallUp} className= 
+              {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
 
               <img className={`main__pillar-bottom-outline 
                 ${this.props.rubberDucky ? 'rubberDucky__pillar-hidden' : ''}`} src={pillarTop} alt='pillar Shadow thing'></img>
                 <img src={CrawlingBoxT1} className={`main__pillar-bottom ${this.props.rubberDucky ? 'rubberDucky__hidden' : ''}`} style={this.pillarBottomStyleWidth()} alt="william"></img>               
             </div>
-            <AudioPlayer rubberDucky={this.props.rubberDucky} />
-            {/* <button onClick={this.props.rubberDuckyToggle}>BILLLLYYY</button>          */}
+            {/* <AudioPlayer rubberDucky={this.props.rubberDucky} /> */}
+            <button onClick={this.props.rubberDuckyToggle}>BILLLLYYY</button>         
           </div>
           {/* Modal stuff is here */}
           <div className={`${this.state.modalIsOpen? "main__modal2OverlayOpen" : "main__modal2OverlayClosed"  }`} ref={div => this.modalOverlayContainer = div}></div>

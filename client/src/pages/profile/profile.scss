@@ -42,8 +42,14 @@
     
     &__achievement-container{
         display:flex;
-        align-items: center;
+        flex-direction: column;
     }
+
+    &__achievement-mode-container{
+        display:flex;
+        flex-direction: row;
+    }
+
     &__rubber-ducky-title{
         margin-left:10px;
         margin-right:20px;

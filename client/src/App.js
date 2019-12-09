@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import './App.scss';
+import NavBarSide from './components/nav/navBarSide.js'
+import AudioPlayer from './components/audioPlayer/audioPlayer.js'
 
 import Landing from './pages/landing/landing'
 import Main from './pages/main/main'
@@ -8,7 +10,6 @@ import MainContainer from './pages/main-container/main-container.js'
 import Profile from './pages/profile/profile'
 import Resources from './pages/resources/resources'
 import { CSSTransition, TransitionGroup } from "react-transition-group";
-
 
 
 class App extends React.Component {
@@ -47,7 +48,6 @@ class App extends React.Component {
       this.setState({
 
         rubberDuckyUnlocked:true
-
       })
     }
   }
@@ -56,6 +56,9 @@ class App extends React.Component {
     return (
       <div className="App">
         <BrowserRouter>
+        <NavBarSide rubberDucky={this.state.rubberDucky} />
+        <AudioPlayer rubberDucky={this.state.rubberDucky} />
+
           <Route render={({location})=>(
              <TransitionGroup>
              <CSSTransition

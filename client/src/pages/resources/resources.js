@@ -16,7 +16,7 @@ export default class Resources extends React.Component{
 
         return(
             <div className="resources">
-                < NavBarSide rubberDucky={this.props.rubberDucky}  />
+                {/* < NavBarSide rubberDucky={this.props.rubberDucky}  /> */}
                 <h1 className="resources__title">Resources</h1>
             <div className="resources__content-container">
                     <div className="resources__mindfulness-container">
