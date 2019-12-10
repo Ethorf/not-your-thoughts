@@ -17,15 +17,12 @@ class SuccessModal extends React.Component {
 
 	}
 	
-
-	// this.modalTween = new TimelineLite({ paused:true })
-	// .to(this.modalContainer, {duration:1.5,opacity:1 })
-
     render() {
+
         return (
             <>
 			<div className="modal">
-				<h2 className="modal__congratulations">CONGRATULATIONS {this.props.firstName.toUpperCase()}!</h2>
+				<h2 className="modal__congratulations">CONGRATULATIONS {this.props.firstName}!</h2>
 				<h2>You've reached your goal for today</h2>
 				<h3>You have completed {this.props.conDays} days in a row, and {this.props.totDays} days total</h3>
 				<h4>Keep it up!</h4>

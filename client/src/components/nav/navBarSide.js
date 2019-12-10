@@ -48,6 +48,8 @@ export default class NavBarSide extends React.Component {
 
         this.arrowTween = new TimelineLite({ paused:true })
         .to(this.arrowContainer, {duration:1,rotation: -180 ,opacity:1,color:"white" })
+
+     
     }
     render() {
         return (

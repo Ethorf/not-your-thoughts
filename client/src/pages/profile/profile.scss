@@ -7,7 +7,7 @@
 
 }
 .profile{
-    transition:1s all;
+    // transition:1s all;
     color:silver;
     font-family: 'Comfortaa', cursive;
     display:flex;
@@ -49,10 +49,21 @@
         display:flex;
         flex-direction: row;
     }
+    &__bullshittify-title{
+        text-shadow:2px 2px 2px black;
+        // color:black;
+    }
+
+    &__rpg-title{
+        text-shadow:2px 2px 2px black;
+
+    }
 
     &__rubber-ducky-title{
         margin-left:10px;
         margin-right:20px;
+        text-shadow:2px 2px 2px black;
+
         color:yellow;
 
     }

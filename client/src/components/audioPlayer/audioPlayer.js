@@ -1,20 +1,13 @@
 import React from 'react';
 import './audioPlayer.scss'
 import Song from '../../assets/Sounds/Not-Your-Thoughts-Ambient-Track-1.mp3'
-import UIfx from 'uifx'
-import keyPressFile1 from '../../assets/Sounds/Not-Your-Thoughts-Keyboard-SFX-1.mp3'
+import RubberDuckySong from '../../assets/Sounds/RubberDuckySong-2.mp3'
 import pause from '../../assets/Icon-pause.png'
 import play from '../../assets/Icon-play.png'
 import speaker from '../../assets/speaker.png'
-import { TimelineLite, CSSPlugin } from "gsap/all";
+import { TimelineLite } from "gsap/all";
 
 
-
-
-const keyPress = new UIfx(keyPressFile1,{
-    volume: 0.5, // value must be between 0.0 ⇔ 1.0
-    throttleMs: 50
-  });
 
 const audioPlayerAllContainer = null;
 const audioPlayerAllTween = null;
@@ -27,27 +20,30 @@ const controlsTween = null;
 
 export default class AudioPlayer extends React.Component {
 
+    music = new Audio(Song)
+    rubberDuckyMusic = new Audio(RubberDuckySong)
 
     state = {
         play: false,
         volume:0.5,
-        navOpen : false
+        navOpen : false,
+        activeSong:this.music
       }
 
-      music = new Audio(Song)
+   
 
       decreaseVolume=() => {
-        if (this.music.volume <= 0.9){
-        this.music.volume = this.music.volume+0.1;
+        if (this.state.activeSong.volume <= 0.9){
+        this.state.activeSong.volume = this.state.activeSong.volume+0.1;
         } else {
-        this.music.volume = 1;
+        this.state.activeSong.volume = 1;
         }
       }
       increaseVolume=() => {
-        if (this.music.volume > 0.1){
-        this.music.volume = this.music.volume-0.1;
+        if (this.state.activeSong.volume > 0.1){
+        this.state.activeSong.volume = this.state.activeSong.volume-0.1;
         } else {
-            this.music.volume = 0;
+            this.state.activeSong.volume = 0;
         }
       }
 
@@ -55,10 +51,9 @@ export default class AudioPlayer extends React.Component {
     
       togglePlay = () => {
         this.setState({ play: !this.state.play }, () => {
-          this.state.play ? this.music.play() : this.music.pause();
+          this.state.play ? this.state.activeSong.play() : this.state.activeSong.pause();
         }); 
-        this.music.loop = true;
-        console.log(this.music.volume)
+        console.log(this.state.activeSong.volume)
       }
 
 
@@ -82,8 +77,12 @@ export default class AudioPlayer extends React.Component {
     }
  
     componentDidMount() {
-        this.music.addEventListener('ended', () => this.setState({ play: false }));
-        this.music.volume = 0.5;
+
+
+        this.state.activeSong.loop = true;
+
+        this.state.activeSong.addEventListener('ended', () => this.setState({ play: false }));
+        this.state.activeSong.volume = 0.4;
 
         this.audioPlayerAllTween = new TimelineLite({ paused:true })
         .to(this.audioPlayerAllContainer, {duration:1.5, x: -115,ease: "power1.out" })
@@ -94,20 +93,34 @@ export default class AudioPlayer extends React.Component {
         this.speakerTween = new TimelineLite({ paused:true })
         .to(this.speakerContainer, {duration:1.5,rotation: -180 ,opacity:1,color:"white" })
 
-
-        
+    
+      }
+    componentDidUpdate(prevProps,prevState){
+      if (prevProps !== this.props){
+        if (this.props.rubberDucky === true){
+          this.setState({
+              activeSong:this.rubberDuckyMusic
+          })
+      } else {
+        this.setState({
+          activeSong:this.music
+      })
+      }
       }
     
+    }
       componentWillUnmount() {
-        this.music.removeEventListener('ended', () => this.setState({ play: false }));  
+        this.state.activeSong.removeEventListener('ended', () => this.setState({ play: false }));  
       }
     render(){
+      console.log(this.state.activeSong)
         return (
             <div className="audioPlayer" ref={div=> this.audioPlayerAllContainer = div}>
             <button className={this.props.rubberDucky ? 'rubberDucky__speaker-container' : "audioPlayer__speaker-container "} onClick={this.state.navOpen? this.closeNav : this.openNav } >
             <img src={speaker} ref={img=> this.speakerContainer = img} alt='speaker' className="audioPlayer__speaker"></img>
             </button>
                 <div className="audioPlayer__controls-container" ref={div => this.controlsContainer = div}>
+                    {/* <h3 className="audioPlayer__volume">Volume : {this.state.activeSong.volume}</h3> */}
                     <button className={this.props.rubberDucky ? 'rubberDucky__play-pause' : "audioPlayer__play-pause"}
                              onClick={this.togglePlay}>
                              <img src={this.state.play ? pause : play}></img>

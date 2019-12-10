@@ -1,6 +1,8 @@
-[{"01":{"id":"01",
-  "name":"Eric Thorfinnson",
-  "consecutiveDays":"2",
-  "totalDays":"3"
-    
-}}]
+[{
+  "firstName":"Eric",
+  "lastName":"Thorfinnson",
+  "conDays":"2",
+  "totDays":"3",
+  "rubberDucky":"false"
+
+}]

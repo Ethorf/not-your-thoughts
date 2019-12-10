@@ -3,12 +3,13 @@
 @import '../../styles/base.scss';
 
 .resources{
-    transition:1s all;
+    // transition:1s all;
     color:silver;
     font-family: 'Montserrat', sans-serif;
     display:flex;
     flex-direction:column;
     width:100%;
+    height:1000px;
 
 
     &__content-container{
@@ -16,6 +17,7 @@
         align-items: flex-start;
         justify-content: space-between;
         width:76%;
+        height:100%;
     }
     &__title{
         width:100%;
