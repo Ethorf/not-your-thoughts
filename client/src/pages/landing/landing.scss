@@ -22,19 +22,14 @@
         height:120%;
         z-index:3;
     }
-
     &__you-are{
         width:100%;
         text-align:center;
         font-size:3rem;
-        // margin-top:-50px;
-        // opacity:0;
         opacity: 0;
         margin-bottom:90px;
         border-radius: 2% 50%;
         font-family: 'Syncopate',sans-serif;
-
-
     }
 
     &__title{
@@ -43,44 +38,33 @@
         font-size:4.5rem;
         width:100%;
         text-align:center;
-        // margin-top:340;
-        // margin-left:300px;
-
     }
-
     &__title div{
         margin-right:20px;
     }
-
     &__title-not{
         opacity:0;
         margin-right:-20px;
         font-family: 'Syncopate',sans-serif;
-
     }
-
     &__title-your{
         margin-left:150px;
         margin-top:100px;
         opacity:0;
         font-family: 'Syncopate',sans-serif;
-
     }
 
     &__title-thoughts{
          margin-left:100px;
         opacity:0;
         font-family: 'Syncopate',sans-serif;
-
     }
-
     &__description-container{
         display:flex;
         justify-content: center;
         flex-wrap:wrap;
         margin-right:0;
         width:100%;
-
     }
     &__description{
         margin-top:-100px;
@@ -108,10 +92,8 @@
         width:100%;
         color:black;
         font-size:1.4rem;
-        // font-family: 'Syncopate',sans-serif;
         font-family: 'Maven Pro', sans-serif;
         border-radius:9%;
-
         &:hover{
             transition:all 1s;
             color:white ;

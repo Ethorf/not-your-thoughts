@@ -4,39 +4,26 @@ import '../../styles/rubberDucky.scss'
 import './prompt.scss';
 import axios from 'axios'
 
-
-
-
 export default class Prompt extends React.Component {
-
   state={
-    // prompts:[]
     promptContent:""
-  }
+    }
 
-
-  getComments=()=>{
+  getPrompts=()=>{
     axios.get("http://localhost:8080/prompts/" ).then(response => {
       this.setState({
         promptContent:response.data[this.randomNum(response.data.length-1)]
       })
-    }).catch(error=>console.log(error, "you had errorboi getComments"))
+    }).catch(error=>console.log(error, "you had errorboi getPrompts"))
   }
-  
+
   randomNum = (max) =>{
     return Math.floor(Math.random() * max)
   }
-
-
-    //     {"id":"01","content":""},
-  // promptContent = []
-  // promptContent = this.state.prompts
-
-  // 
-    componentDidMount(){
-      this.getComments()
-
-    }
+  
+  componentDidMount(){
+    this.getPrompts()
+  }
     render(){
         return (
 

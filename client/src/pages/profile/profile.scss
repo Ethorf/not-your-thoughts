@@ -7,7 +7,6 @@
 
 }
 .profile{
-    // transition:1s all;
     color:silver;
     font-family: 'Comfortaa', cursive;
     display:flex;
@@ -20,12 +19,9 @@
         margin-top:70px;
         margin-bottom:50px;
     }
-
-
     &__content{
         margin-left:300px;
     }
-
     &__user{
         margin-top:10px;
         font-size:1.9rem;
@@ -37,35 +33,26 @@
         margin-top:20px;
         font-size:1.8rem;
         text-decoration: underline;
-
     }
-    
     &__achievement-container{
         display:flex;
         flex-direction: column;
     }
-
     &__achievement-mode-container{
         display:flex;
         flex-direction: row;
     }
     &__bullshittify-title{
         text-shadow:2px 2px 2px black;
-        // color:black;
     }
-
     &__rpg-title{
         text-shadow:2px 2px 2px black;
-
     }
-
     &__rubber-ducky-title{
         margin-left:10px;
         margin-right:20px;
         text-shadow:2px 2px 2px black;
-
         color:yellow;
-
     }
     &__rubber-ducky-activate-button{
         outline:none;
@@ -77,16 +64,12 @@
         padding-right: 20px;
         height:40px;
         transition:all 1s;
-
-
         &:hover{
             text-shadow:3px 3px 3px black;
             font-size:1.2rem;
             background-color:yellow;
             transition:all 2s;
         }
-
-
     }
     &__bottom-chunk{
         display:flex;

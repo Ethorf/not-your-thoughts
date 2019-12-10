@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 
-
 class SuccessModal extends React.Component {
  
     changeHandler = (event) => {
@@ -13,7 +12,6 @@ class SuccessModal extends React.Component {
     submitHandler = (event) => {
         event.preventDefault();
 	}
-	
     render() {
         return (
             <>

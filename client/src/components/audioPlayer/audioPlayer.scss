@@ -3,7 +3,6 @@
 @import '../../styles/base.scss';
 
 .audioPlayer{
-
     display:flex;
     position:absolute;
     top:15px;
@@ -19,12 +18,10 @@
     margin-right:-230px;
     z-index:8;
 
-
     &__speaker{
         height:30px;
         width:30px;
     }
-
     &__speaker-container{
         background-color:black;
         border:none;
@@ -43,7 +40,6 @@
             color:white;
         }
     }
-
     &__increase-vol{
         color:silver;
         font-size:1.8rem;
@@ -52,12 +48,10 @@
         outline:none;
         background-color:black;
         margin-right:10px;
-
         &:hover{
             color:white;
         }
     }
-    
     &__decrease-vol{
         color:silver;
         font-size:1.8rem;
@@ -70,5 +64,4 @@
             color:white;
         }
     }
-
 }

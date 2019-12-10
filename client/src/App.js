@@ -19,22 +19,15 @@ class App extends React.Component {
    currentUser:{}
  }
 
-//  {
-//   firstName:"Eric",
-//   lastName:"Thorfinnson",
-//   conDays:2,
-//   totDays:3,
-//   rubberDucky:false
-// }
  increaseDays = (curCon,curTot)=>{
    setTimeout(()=>{
     this.setState({
-      currentUser:{
-        firstName:"Eric",
-        lastName:"Thorfinnson",
-        conDays:curCon+1,
-        totDays:curTot+1
-    }
+        currentUser:{
+          firstName:"Eric",
+          lastName:"Thorfinnson",
+          conDays:curCon+1,
+          totDays:curTot+1
+        }
      })
    },70)
  }
@@ -46,22 +39,14 @@ class App extends React.Component {
   console.log(this.state.rubberDucky)
 }
 
-getUserData=()=>{
-  axios.get("http://localhost:8080/users" ).then(response => {
-    console.log(response.data)
-    this.setState({
-      currentUser:response.data[0]
-    })
-  }).catch(error=>console.log(error, "you had errorboi getUserData"))
-}
-// getResourcesData=()=>{
-//   axios.get("http://localhost:8080/users" ).then(response => {
-//     console.log(response.data)
-//     this.setState({
-//       currentUser:response.data[0]
-//     })
-//   }).catch(error=>console.log(error, "you had errorboi getResources"))
-// }
+  getUserData=()=>{
+    axios.get("http://localhost:8080/users" ).then(response => {
+      console.log(response.data)
+      this.setState({
+        currentUser:response.data[0]
+      })
+    }).catch(error=>console.log(error, "you had errorboi getUserData"))
+  }
   componentDidMount(){
     this.getUserData()
     if (this.state.conDays >= 3){

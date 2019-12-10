@@ -3,19 +3,12 @@
 @import '../../styles/base.scss';
 @import url('https://fonts.googleapis.com/css?family=Maven+Pro:400,500,700,900&display=swap');
 
-
 .nav{
     transition:1s all;
     position:absolute;
     display:flex;
     flex-direction:column;
-    // font-family: 'Maven Pro', sans-serif;
-    // font-family: 'Marmelad', sans-serif;
     font-family: 'Comfortaa', cursive;
-
-
-    // font-family: 'Montserrat', cursive;
-
     width:50px;
     height:100%;
  
@@ -27,58 +20,37 @@
         width:100%;
         background-color:black;
         color:silver;
-        // border-bottom:1px solid silver;
         padding:10px;
         margin-left:-25px;
     }
-
     &__active{
-        display: list-item;          /* This has to be "list-item"                                               */
-        // list-style-type: disc;
-        // list-style-image:url('../../assets/down-arrow-grey-weird.png/');       /* See https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type     */
+        display: list-item;        
         list-style-position: outside;
-
     }
-   
-
     &__arrow-container{
         margin-top:20px;
         background-color:black;
         border:none;
         outline:none;
-
     }
-
     &__arrow{
         color:silver;
         border:none;
-        // border:1px solid red;
         background-color:black;
         opacity: 1;
         outline:none;
         height:30px;
         width:30px;
-        // &:hover{
-        //     transition:all 2s;
-        //     height:30px;
-        // }
-
         &:focus{
         border:none;
         outline:none;
-
-
         }
     }
-
     &__main-link{
     text-decoration:none;
     color:silver;
     transition:all 2s;
     margin-bottom:8px;
-    // list-style-type:lao;
-
-
     &:hover{
         transition:all 2s;
         color:white;
@@ -90,25 +62,16 @@
         color:silver;
         transition:all 2s;
         margin-bottom:8px;
-
-
-
-
         &:hover{
             transition:all 2s;
             color:white;
         }
-
     }   
-
     &__resources-link{
         text-decoration:none;
         color:silver;
         transition:all 2s;
         margin-bottom:8px;
-
-
-
         &:hover{
             transition:all 2s;
             color:white;

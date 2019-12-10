@@ -22,11 +22,6 @@ import crawBoxBottom from '../../assets/Pillars/NuCrawBoxAnim-2-bottom.gif'
 import '../../styles/rubberDucky.scss'
 import finishLine from '../../assets/RubberDucky/finish.png'
 import startLine from '../../assets/RubberDucky/start.png'
-
-
-
-
-
 import { TimelineLite} from "gsap/all";
 
 //animation vars
@@ -43,25 +38,21 @@ const bgImgContainer = null;
 const bgImgTween = null;
 const pillarContainer = null;
 const pillarTween = null;
-// audio files
 
-
+//Header animation
 const Header = posed.div({
   hidden: { opacity: 0.4 },
   visible: { opacity: 1 }
 });
 
-
 export default class Main extends React.Component {
 
   startState = { autoAlpha: 0, y: -1000 };
-
   //Audio Progress Variables
   progressSound25 = new Audio(progressSound25File)
   progressSound50 = new Audio(progressSound50File)
   progressSound75 = new Audio(progressSound75File)
   progressSound100 = new Audio(progressSound100File)
-
 
   randomNum = (max) =>{
     return Math.floor(Math.random() * max)
@@ -119,18 +110,13 @@ export default class Main extends React.Component {
         opacity:`${this.state.wordCount/200}`
 
       };
-      const start = {
-        width:`0%`
-      }
-      const limit = {
-        width:`98%`
-      }
+      const start = { width:`0%`}
+      const limit = {width:`98%`}
       if (this.state.wordCount <= this.state.pillar1WordLimit){
         return start
       } else if (this.state.wordCount >= this.state.pillar1WordLimit && this.state.wordCount <= this.state.pillar2WordLimit  ) {
         return testStyle
-      }
-      else{
+      } else {
         return limit
       }
     }
@@ -144,8 +130,7 @@ export default class Main extends React.Component {
         return start
       } else if(this.state.wordCount >= this.state.pillar2WordLimit && this.state.wordCount <= this.state.pillar3WordLimit  ) {
         return testStyle
-      }
-      else{
+      } else {
         return limit
       }
     }
@@ -162,8 +147,7 @@ export default class Main extends React.Component {
         return start
       } else if(this.state.wordCount >= this.state.pillar3WordLimit && this.state.wordCount <= this.state.pillar4WordLimit  ) {
         return testStyle
-      }
-      else{
+      } else {
         return limit
       }
     }
@@ -202,10 +186,7 @@ export default class Main extends React.Component {
       }
     }
 
-
-
     //Text input Variables and Function
-
 
     textNum = (e) => {
         e.preventDefault()
@@ -217,41 +198,12 @@ export default class Main extends React.Component {
           e.target.value = e.target.value + " ";
         }
     }
+      //Modal and Misc Animations
     bgPulse = () => {
-        this.bgImgTween.play()
-          setTimeout(()=>{
-            this.bgImgTween.reverse()
-          },1800)
-    }
-
-    componentDidMount(){
-      setInterval(() => {
-        this.setState({ isVisible: !this.state.isVisible, 
-        })
-      }, 20);
-      setInterval(()=>{
-        this.bgPulse()
-
-      },12000)
-
-      this.progressNumberTween = new TimelineLite({ paused:true })
-      .to(this.progressNumberContainer, {duration:1.5,opacity:1 })
-
-      this.progressWordTween = new TimelineLite({ paused:true })
-      .to(this.progressWordContainer, {duration:1.5,opacity:1 })
-
-      this.modalContentTween = new TimelineLite({ paused:true })
-      .to(this.modalContentContainer, {duration:1,y:100,opacity:1 })
-
-      this.modalOverlayTween = new TimelineLite({ paused:true })
-      .to(this.modalOverlayContainer, {duration:1,opacity:1 })
-
-      this.bgImgTween = new TimelineLite({ paused:true })
-      .to(this.bgImgContainer, {duration:3.3,opacity:0.45 })
-
-      this.pillarTween = new TimelineLite({ paused:true })
-      .to(this.pillarContainer, {duration:2.3,opacity:0.15 })
-
+      this.bgImgTween.play()
+        setTimeout(()=>{
+          this.bgImgTween.reverse()
+        },1800)
     }
     modalAnimation = () =>{
       this.setState({
@@ -276,6 +228,39 @@ export default class Main extends React.Component {
         this.progressWordTween.reverse()
     }
 
+    componentDidMount(){
+      setInterval(() => {
+        this.setState({ isVisible: !this.state.isVisible, 
+        })
+      }, 20);
+
+      //Background Img pulsing
+      setInterval(()=>{
+        this.bgPulse()
+      },12000)
+
+      //Animation containers / Declarations
+      this.progressNumberTween = new TimelineLite({ paused:true })
+      .to(this.progressNumberContainer, {duration:1.5,opacity:1 })
+
+      this.progressWordTween = new TimelineLite({ paused:true })
+      .to(this.progressWordContainer, {duration:1.5,opacity:1 })
+
+      this.modalContentTween = new TimelineLite({ paused:true })
+      .to(this.modalContentContainer, {duration:1,y:100,opacity:1 })
+
+      this.modalOverlayTween = new TimelineLite({ paused:true })
+      .to(this.modalOverlayContainer, {duration:1,opacity:1 })
+
+      this.bgImgTween = new TimelineLite({ paused:true })
+      .to(this.bgImgContainer, {duration:3.3,opacity:0.45 })
+
+      this.pillarTween = new TimelineLite({ paused:true })
+      .to(this.pillarContainer, {duration:2.3,opacity:0.15 })
+
+    }
+
+    
     componentDidUpdate(){
 
       if (this.state.wordCount === 100){
@@ -283,28 +268,22 @@ export default class Main extends React.Component {
             this.progressSound25.play()
             this.progressAnimation()
       } 
-      
       else if (this.state.wordCount === 105){
         this.progressAnimationReverse()
       }
-      
       else if ( this.state.wordCount === 200){
         this.progressSound50.volume = 0.3
         this.progressSound50.play()
         this.progressAnimation()
       }
-
       else if (this.state.wordCount === 208){
         this.progressAnimationReverse()
       }
-      
-
       else if ( this.state.wordCount === 300){
         this.progressSound75.volume = 0.3
         this.progressSound75.play()
         this.progressAnimation()
     }
-    
     else if (this.state.wordCount === 305){
       this.progressAnimationReverse()
     }
@@ -324,119 +303,110 @@ export default class Main extends React.Component {
       },4000)
 
       setTimeout(()=>{this.props.increaseDays(this.props.currentUser.conDays,this.props.currentUser.totDays)},6000)
-
- 
     }
   }
     render(){
-      // console.log(this.duckAnimationStyle())
       return (  
-       
-      <div className="main__all-container modalize">
-                <img src={duckIcon} alt="duck boi" style={this.duckAnimationStyle()} className={this.props.rubberDucky ? 'rubberDucky__icon' : 'rubberDucky__hidden'}></img>
+        <div className="main__all-container modalize">
+                  <img src={duckIcon} alt="duck boi" style={this.duckAnimationStyle()} className={this.props.rubberDucky ? 'rubberDucky__icon' : 'rubberDucky__hidden'}></img>
 
-      {/* <NavBarSide rubberDucky={this.props.rubberDucky} /> */}
-        <img ref={img=> this.bgImgContainer = img}  className={`main__bg-img ${this.props.rubberDucky? 'rubberDucky__hidden' : ''}`} src={bgOverlayTextureWhite}></img>
-        <div className={`main ${this.props.rubberDucky ? 'rubberDucky' : 'black'}`}>
-          <Header rubberDucky={this.props.rubberDucky} pose={this.state.isVisible ? 'visible' : 'hidden'}
-                   className={`main__header ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>
-            Not Your Thoughts
-          </Header >
-          <Prompt rubberDucky={this.props.rubberDucky} />
-          <h2 ref={h2=> this.progressNumberContainer = h2} className={` ${this.props.rubberDucky ? "rubberDucky__blackText-prognum" : "main__progress-number"}`}>{this.percentCalc(this.state.wordCount)}</h2>
-          <h2 ref={h2=> this.progressWordContainer = h2} className={` ${this.props.rubberDucky ? "rubberDucky__blackText-progword" : "main__progress-word"}`}>Complete</h2>
-          {/* Pillar TOP container */}
-          <div className="main__pillar-top-container">
-          {/* Pillar TOP Rubber Ducky Images Start */}
-            <img src={WaterfallUp} className= 
-              {this.props.rubberDucky ? 'rubberDucky__waterFall-top' : 'rubberDucky__hidden'}></img>
+        {/* <NavBarSide rubberDucky={this.props.rubberDucky} /> */}
+          <img ref={img=> this.bgImgContainer = img}  className={`main__bg-img ${this.props.rubberDucky? 'rubberDucky__hidden' : ''}`} src={bgOverlayTextureWhite}></img>
+          <div className={`main ${this.props.rubberDucky ? 'rubberDucky' : 'black'}`}>
+            <Header rubberDucky={this.props.rubberDucky} pose={this.state.isVisible ? 'visible' : 'hidden'}
+                    className={`main__header ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>
+              Not Your Thoughts
+            </Header >
+            <Prompt rubberDucky={this.props.rubberDucky} />
+            <h2 ref={h2=> this.progressNumberContainer = h2} className={` ${this.props.rubberDucky ? "rubberDucky__blackText-prognum" : "main__progress-number"}`}>{this.percentCalc(this.state.wordCount)}</h2>
+            <h2 ref={h2=> this.progressWordContainer = h2} className={` ${this.props.rubberDucky ? "rubberDucky__blackText-progword" : "main__progress-word"}`}>Complete</h2>
+            {/* Pillar TOP container */}
+            <div className="main__pillar-top-container">
+            {/* Pillar TOP Rubber Ducky Images Start */}
               <img src={WaterfallUp} className= 
-              {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
+                {this.props.rubberDucky ? 'rubberDucky__waterFall-top' : 'rubberDucky__hidden'}></img>
                 <img src={WaterfallUp} className= 
-              {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
-                 <img src={WaterfallUp} className= 
-              {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
-                  <img src={WaterfallUp} className= {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
-                  <img src={WaterfallUp} className= {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
+                {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
+                  <img src={WaterfallUp} className= 
+                {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
+                  <img src={WaterfallUp} className= 
+                {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
+                    <img src={WaterfallUp} className= {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
+                    <img src={WaterfallUp} className= {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
 
-            <img className={`main__pillar-top-outline 
-              ${this.props.rubberDucky ? 'rubberDucky__pillar-hidden' : ''}`} src={pillarTop} alt='pillar Shadow thing'></img>
-            <img ref={img=> this.pillarContainer = img} src={crawBoxTop} className={`main__pillar-top ${this.props.rubberDucky ? 'rubberDucky__hidden' : ''}`} style={this.pillarTopStyleWidth()} alt="william"></img>               
-          </div>
-
-          <div className="main__pillars-date-goal-wordcount-textarea-container">
-          {/* Pillar LEFT starts here */}
-          <img src={startLine} className= 
-              {this.props.rubberDucky ? 'rubberDucky__startLine' : 'rubberDucky__hidden'}></img>
-              <div className={`main__pillar-left-container 
-                ${this.props.rubberDucky ? 'rubberDucky__pillar-left-container' : ''}`}>
-                {/* DUCK ICON */}
-                <img src={WaterfallUp} className= 
-                {this.props.rubberDucky ? 'rubberDucky__waterFall-left' : 'rubberDucky__hidden'} alt="rubberducky waterfall"></img>
-              {/* Pillar Left Outline */}
-                <img className={`main__pillar-left-outline 
-                ${this.props.rubberDucky ? 'rubberDucky__pillar-hidden' : ''}`} src={this.props.rubberDucky ? WaterfallUp : nuPillarLeft} alt='pillar Shadow thing'></img>
-                {/* Actual Pillar Left */}
-                <img ref={img=> this.pillarContainer = img} src={crawBox} className={`main__pillar-left ${this.props.rubberDucky ? 'rubberDucky__hidden' : ''}`} style={this.pillarLeftStyleHeight()} alt="left pillar"></img>                
-              </div>
-              <div className="main__date-goal-wordcount-textarea-container">
-                <div className="main__date-goal-wordcount-container">
-                    <h3 className={`main__date ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>{this.state.date}</h3>
-                    <h2 className={`main__goal ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`} >{`Goal:  ${this.state.goal} words`}</h2>
-                    <h3 className={`main__wordcount ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>
-                    {this.state.wordCount} Words</h3>
-                </div>
-                <textarea ref={textArea => this.textAreaContainer = textArea}
-                 onChange={this.textNum}
-                 className={`main__textarea ${this.props.rubberDucky ? "rubberDucky__blackText" : "textarea-black"}`}
-                placeholder="note those thoughts here"></textarea>
-              </div>
-              {/* Pillar Right Starts */}
-              <div className={`main__pillar-right-container 
-                ${this.props.rubberDucky ? 'rubberDucky__pillar-right-container' : ''}`}>
-                 {/* <img src={duckIcon} alt="duck boi" style={this.duckAnimationStyle()} className={this.props.rubberDucky ? 'rubberDucky__icon' : 'rubberDucky__hidden'}></img> */}
-                <img src={WaterfallUp} className= {this.props.rubberDucky ? 'rubberDucky__waterFall-right' :
-                 'rubberDucky__hidden'}></img>
-                  <img className={`main__pillar-right-outline 
-                ${this.props.rubberDucky ? 'rubberDucky__pillar-hidden' : ''}`} src={nuPillarLeft} alt='pillar Shadow thing'></img>
-                < img ref={img=> this.pillarContainer = img} src={crawBoxRight} className={`main__pillar-right ${this.props.rubberDucky ? 'rubberDucky__hidden' : ''}`} style={this.pillarRightStyleHeight()} alt="right pillar"></img>                
-
-              </div>
-            </div>
-
-            {/* Pillar Bottom Starts Here */}
-            <div className="main__pillar-bottom-container">
-            {/* Pillar Bottom Rubber Ducky Images */}
-            {/* <img src={duckIcon} alt="duck boi" style={this.duckAnimationStyle()} className={this.props.rubberDucky ? 'rubberDucky__icon' : 'rubberDucky__hidden'}></img> */}
-
-            <img src={WaterfallUp} className= 
-              {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom' : 'rubberDucky__hidden'}></img>
-                 <img src={WaterfallUp} className= 
-              {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
-                        <img src={WaterfallUp} className= 
-              {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
-                            <img src={WaterfallUp} className= 
-              {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
-                            <img src={WaterfallUp} className= 
-              {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
-              <img src={WaterfallUp} className= 
-              {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
-                   <img src={finishLine} className= 
-              {this.props.rubberDucky ? 'rubberDucky__finishLine' : 'rubberDucky__hidden'}></img>
-              
-              <img className={`main__pillar-bottom-outline 
+              <img className={`main__pillar-top-outline 
                 ${this.props.rubberDucky ? 'rubberDucky__pillar-hidden' : ''}`} src={pillarTop} alt='pillar Shadow thing'></img>
-                <img ref={img=> this.pillarContainer = img} src={crawBoxBottom} className={`main__pillar-bottom ${this.props.rubberDucky ? 'rubberDucky__hidden' : ''}`} style={this.pillarBottomStyleWidth()} alt="william"></img>               
+              <img ref={img=> this.pillarContainer = img} src={crawBoxTop} className={`main__pillar-top ${this.props.rubberDucky ? 'rubberDucky__hidden' : ''}`} style={this.pillarTopStyleWidth()} alt="william"></img>               
             </div>
-            {/* <AudioPlayer rubberDucky={this.props.rubberDucky} /> */}
-            {/* <button onClick={this.props.rubberDuckyToggle}>BILLLLYYY</button>         */}
-          </div>
-          {/* Modal stuff is here */}
-          <div className={`${this.state.modalIsOpen? "main__modal2OverlayOpen" : "main__modal2OverlayClosed"  }`} ref={div => this.modalOverlayContainer = div}></div>
-          <div className={`${this.state.modalIsOpen? "main__modal2" : "main__modal2Closed" }`} ref={div => this.modalContentContainer = div} >
-            <SuccessModal close={this.modalCloseAnimation} firstName={this.props.currentUser.firstName} conDays={this.props.currentUser.conDays} totDays={this.props.currentUser.totDays} />
-          </div>
-      </div>
+
+            <div className="main__pillars-date-goal-wordcount-textarea-container">
+            {/* Pillar LEFT starts here */}
+            <img src={startLine} className= 
+                {this.props.rubberDucky ? 'rubberDucky__startLine' : 'rubberDucky__hidden'}></img>
+                <div className={`main__pillar-left-container 
+                  ${this.props.rubberDucky ? 'rubberDucky__pillar-left-container' : ''}`}>
+                  {/* DUCK ICON */}
+                  <img src={WaterfallUp} className= 
+                  {this.props.rubberDucky ? 'rubberDucky__waterFall-left' : 'rubberDucky__hidden'} alt="rubberducky waterfall"></img>
+                {/* Pillar Left Outline */}
+                  <img className={`main__pillar-left-outline 
+                  ${this.props.rubberDucky ? 'rubberDucky__pillar-hidden' : ''}`} src={this.props.rubberDucky ? WaterfallUp : nuPillarLeft} alt='pillar Shadow thing'></img>
+                  {/* Actual Pillar Left */}
+                  <img ref={img=> this.pillarContainer = img} src={crawBox} className={`main__pillar-left ${this.props.rubberDucky ? 'rubberDucky__hidden' : ''}`} style={this.pillarLeftStyleHeight()} alt="left pillar"></img>                
+                </div>
+                <div className="main__date-goal-wordcount-textarea-container">
+                  <div className="main__date-goal-wordcount-container">
+                      <h3 className={`main__date ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>{this.state.date}</h3>
+                      <h2 className={`main__goal ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`} >{`Goal:  ${this.state.goal} words`}</h2>
+                      <h3 className={`main__wordcount ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>
+                      {this.state.wordCount} Words</h3>
+                  </div>
+                  <textarea ref={textArea => this.textAreaContainer = textArea}
+                  onChange={this.textNum}
+                  className={`main__textarea ${this.props.rubberDucky ? "rubberDucky__blackText" : "textarea-black"}`}
+                  placeholder="note those thoughts here"></textarea>
+                </div>
+                {/* Pillar Right Starts */}
+                <div className={`main__pillar-right-container 
+                  ${this.props.rubberDucky ? 'rubberDucky__pillar-right-container' : ''}`}>
+                  <img src={WaterfallUp} className= {this.props.rubberDucky ? 'rubberDucky__waterFall-right' :
+                  'rubberDucky__hidden'}></img>
+                    <img className={`main__pillar-right-outline 
+                  ${this.props.rubberDucky ? 'rubberDucky__pillar-hidden' : ''}`} src={nuPillarLeft} alt='pillar Shadow thing'></img>
+                  < img ref={img=> this.pillarContainer = img} src={crawBoxRight} className={`main__pillar-right ${this.props.rubberDucky ? 'rubberDucky__hidden' : ''}`} style={this.pillarRightStyleHeight()} alt="right pillar"></img>                
+
+                </div>
+              </div>
+              {/* Pillar Bottom Starts Here */}
+              <div className="main__pillar-bottom-container">
+              {/* Pillar Bottom Rubber Ducky Images */}
+              <img src={WaterfallUp} className= 
+                {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom' : 'rubberDucky__hidden'}></img>
+                  <img src={WaterfallUp} className= 
+                {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
+                          <img src={WaterfallUp} className= 
+                {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
+                              <img src={WaterfallUp} className= 
+                {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
+                              <img src={WaterfallUp} className= 
+                {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
+                <img src={WaterfallUp} className= 
+                {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
+                    <img src={finishLine} className= 
+                {this.props.rubberDucky ? 'rubberDucky__finishLine' : 'rubberDucky__hidden'}></img>
+                
+                <img className={`main__pillar-bottom-outline 
+                  ${this.props.rubberDucky ? 'rubberDucky__pillar-hidden' : ''}`} src={pillarTop} alt='pillar Shadow thing'></img>
+                  <img ref={img=> this.pillarContainer = img} src={crawBoxBottom} className={`main__pillar-bottom ${this.props.rubberDucky ? 'rubberDucky__hidden' : ''}`} style={this.pillarBottomStyleWidth()} alt="william"></img>               
+              </div>
+              {/* <button onClick={this.props.rubberDuckyToggle}>BILLLLYYY</button>         */}
+            </div>
+            {/* Modal stuff is here */}
+            <div className={`${this.state.modalIsOpen? "main__modal2OverlayOpen" : "main__modal2OverlayClosed"  }`} ref={div => this.modalOverlayContainer = div}></div>
+            <div className={`${this.state.modalIsOpen? "main__modal2" : "main__modal2Closed" }`} ref={div => this.modalContentContainer = div} >
+              <SuccessModal close={this.modalCloseAnimation} firstName={this.props.currentUser.firstName} conDays={this.props.currentUser.conDays} totDays={this.props.currentUser.totDays} />
+            </div>
+        </div>
 
 
 
