@@ -14,6 +14,7 @@ import axios from 'axios'
 class App extends React.Component {
 
  state={
+   resources:[],
   rubberDuckyUnlocked:false,
    currentUser:{}
  }
@@ -51,13 +52,20 @@ getUserData=()=>{
     this.setState({
       currentUser:response.data[0]
     })
-  }).catch(error=>console.log(error, "you had errorboi getComments"))
+  }).catch(error=>console.log(error, "you had errorboi getUserData"))
 }
+// getResourcesData=()=>{
+//   axios.get("http://localhost:8080/users" ).then(response => {
+//     console.log(response.data)
+//     this.setState({
+//       currentUser:response.data[0]
+//     })
+//   }).catch(error=>console.log(error, "you had errorboi getResources"))
+// }
   componentDidMount(){
     this.getUserData()
     if (this.state.conDays >= 3){
       this.setState({
-
         rubberDuckyUnlocked:true
       })
     }
@@ -67,42 +75,36 @@ getUserData=()=>{
     return (
       <div className="App">
         <BrowserRouter>
-        <NavBarSide rubberDucky={this.state.rubberDucky} />
-        <AudioPlayer rubberDucky={this.state.rubberDucky} />
-
+          <NavBarSide rubberDucky={this.state.rubberDucky} />
+          <AudioPlayer rubberDucky={this.state.rubberDucky} />
           <Route render={({location})=>(
-             <TransitionGroup>
-             <CSSTransition
+              <TransitionGroup>
+              <CSSTransition
               key={location.key}
-               timeout={1000}
-               classNames="fade"> 
-                 <Switch location={location}>
-                   <Route path='/' exact>
-                   { ({ match }) =>  <Landing show={match !== null} /> }
-                   </Route>
-                   
-                   <Route path='/main' exact> 
-                   { ({ match }) =>  <Main rubberDuckyToggle={this.rubberDuckyToggle}  rubberDucky={this.state.rubberDucky} increaseDays={this.increaseDays} currentUser={this.state.currentUser} show={match !== null} /> }
-                   </Route>
-                   <Route path='/profile'>
-                   { ({ match }) =>  <Profile conDays={this.state.currentUser.conDays} rubberDuckyToggle={this.rubberDuckyToggle} rubberDucky={this.state.rubberDucky} rubberDuckyUnlocked={this.state.rubberDuckyUnlocked} increaseDays={this.increaseDays} currentUser={this.state.currentUser} show={match !== null} /> }
-                   </Route>
-                   <Route path='/resources' exact>
-                   { ({ match }) =>  <Resources rubberDucky={this.state.rubberDucky} show={match !== null} /> } 
+                timeout={1000}
+                classNames="fade"> 
+                  <Switch location={location}>
+                    <Route path='/' exact>
+                    { ({ match }) =>  <Landing show={match !== null} /> }
                     </Route>
-                 </Switch>
-             </CSSTransition>
-           </TransitionGroup>
+                    <Route path='/main' exact> 
+                    { ({ match }) =>  <Main rubberDuckyToggle={this.rubberDuckyToggle}  rubberDucky={this.state.rubberDucky} increaseDays={this.increaseDays} currentUser={this.state.currentUser} show={match !== null} /> }
+                    </Route>
+                    <Route path='/profile'>
+                    { ({ match }) =>  <Profile conDays={this.state.currentUser.conDays} rubberDuckyToggle={this.rubberDuckyToggle} rubberDucky={this.state.rubberDucky} rubberDuckyUnlocked={this.state.rubberDuckyUnlocked} increaseDays={this.increaseDays} currentUser={this.state.currentUser} show={match !== null} /> }
+                    </Route>
+                    <Route path='/resources' exact>
+                    { ({ match }) =>  <Resources rubberDucky={this.state.rubberDucky} show={match !== null} /> } 
+                    </Route>
+                  </Switch>
+              </CSSTransition>
+            </TransitionGroup>
           )}>
-          </Route>
-         
-          
+            </Route>
         </BrowserRouter>
-
       </div>
     );
   }
- 
 }
 
 export default App;

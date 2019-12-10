@@ -1,9 +1,8 @@
 import React, { Component } from "react";
-import { TimelineLite, CSSPlugin } from "gsap/all";
+
 
 class SuccessModal extends React.Component {
  
-
     changeHandler = (event) => {
         if (event.target.value !== '') {
             this.setState({
@@ -11,14 +10,11 @@ class SuccessModal extends React.Component {
             })
         }
     }
-
     submitHandler = (event) => {
         event.preventDefault();
-
 	}
 	
     render() {
-
         return (
             <>
 			<div className="modal">

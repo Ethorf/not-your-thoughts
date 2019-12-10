@@ -223,12 +223,7 @@ export default class Main extends React.Component {
             this.bgImgTween.reverse()
           },1800)
     }
-  //   pillarPulse = () => {
-  //     this.pillarTween.play()
-  //       setTimeout(()=>{
-  //         this.pillarTween.reverse()
-  //       },1800)
-  // }
+
     componentDidMount(){
       setInterval(() => {
         this.setState({ isVisible: !this.state.isVisible, 
@@ -238,11 +233,6 @@ export default class Main extends React.Component {
         this.bgPulse()
 
       },12000)
-
-      // setInterval(()=>{
-      //   this.pillarPulse()
-
-      // },6000)
 
       this.progressNumberTween = new TimelineLite({ paused:true })
       .to(this.progressNumberContainer, {duration:1.5,opacity:1 })
@@ -285,8 +275,6 @@ export default class Main extends React.Component {
         this.progressNumberTween.reverse()
         this.progressWordTween.reverse()
     }
-
-   
 
     componentDidUpdate(){
 
