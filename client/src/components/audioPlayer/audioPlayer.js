@@ -53,7 +53,6 @@ export default class AudioPlayer extends React.Component {
         this.setState({ play: !this.state.play }, () => {
           this.state.play ? this.state.activeSong.play() : this.state.activeSong.pause();
         }); 
-        console.log(this.state.activeSong.volume)
       }
 
 
@@ -107,15 +106,13 @@ export default class AudioPlayer extends React.Component {
       })
       }
       }
-    
     }
       componentWillUnmount() {
         this.state.activeSong.removeEventListener('ended', () => this.setState({ play: false }));  
       }
     render(){
-      console.log(this.state.activeSong)
         return (
-            <div className="audioPlayer" ref={div=> this.audioPlayerAllContainer = div}>
+            <div className={this.props.rubberDucky ? 'rubberDucky__audioPlayer' : "audioPlayer "} ref={div=> this.audioPlayerAllContainer = div}>
             <button className={this.props.rubberDucky ? 'rubberDucky__speaker-container' : "audioPlayer__speaker-container "} onClick={this.state.navOpen? this.closeNav : this.openNav } >
             <img src={speaker} ref={img=> this.speakerContainer = img} alt='speaker' className="audioPlayer__speaker"></img>
             </button>

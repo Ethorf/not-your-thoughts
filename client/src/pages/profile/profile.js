@@ -1,21 +1,14 @@
 import React from 'react';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import './profile.scss';
 import '../../styles/mixins.scss'
 import '../../styles/rubberDucky.scss'
-import moment from 'moment'
-import NavBarSide from '../../components/nav/navBarSide.js'
-import { TweenMax } from "gsap/all";
 
 
 
 export default class Profile extends React.Component{
-
     render(){
         return(
             <div className={`profile ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>
-
-            {/* < NavBarSide rubberDucky={this.props.rubberDucky} /> */}
                 <div className={`profile__content ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>
                     <header className={`profile__header ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>User Profile</header>
                     <h2 className={`profile__user ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>User: {this.props.currentUser.firstName} Thorfinnson</h2>
@@ -36,7 +29,6 @@ export default class Profile extends React.Component{
                             <h2 className={`profile__rubber-ducky-requirement ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>7 Consecutive Days--->  </h2>
                             <h2 className={`profile__rpg-title ${this.props.currentUser.conDays >= 7 ? " " : "strikethrough"}`}> RPG Mode</h2>
                         </div>
-                        
                     </div>
                 </div>
                 <div className={`profile__bottom-chunk ${this.props.rubberDucky ? "yellow" : ""}`}></div>    

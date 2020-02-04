@@ -6,7 +6,6 @@ import posed from 'react-pose';
 import moment from 'moment'
 import SuccessModal from '../../components/successModal/successModal';
 import '../../components/successModal/successModal.scss';
-import pillarTop from   '../../assets/Pillars/PillarTop-5-shadowboi.png'
 import bgOverlayTextureWhite from '../../assets/Background-Images/bgImg-donut1.png'
 import progressSound25File from '../../assets/Sounds/ProgressSounds/Not-Your-Thoughts-25-progressSound.mp3'
 import progressSound50File from '../../assets/Sounds/ProgressSounds/Not-Your-Thoughts-50-progressSound.mp3'
@@ -15,6 +14,7 @@ import progressSound100File from '../../assets/Sounds/ProgressSounds/Not-Your-Th
 import WaterfallUp from '../../assets/RubberDucky/waterFall.gif'
 import duckIcon from '../../assets/RubberDucky/duckIcon-nolegs.gif'
 import nuPillarLeft from '../../assets/Pillars/PillarLeft-5-shadowboi.png'
+import pillarTop from   '../../assets/Pillars/PillarTop-7-shadowboi.png'
 import crawBox from '../../assets/Pillars/nuCrawBoxAnim-1.gif'
 import crawBoxTop from '../../assets/Pillars/NuCrawBoxAnim-2-top.gif'
 import crawBoxRight from '../../assets/Pillars/NuCrawBoxAnim-2-right.gif'
@@ -23,6 +23,9 @@ import '../../styles/rubberDucky.scss'
 import finishLine from '../../assets/RubberDucky/finish.png'
 import startLine from '../../assets/RubberDucky/start.png'
 import { TimelineLite} from "gsap/all";
+import { pillarLeftStyleHeight } from "../../functions/pillarFunctions.js"
+import { randomNum } from "../../functions/miscFunctions.js"
+
 
 //animation vars
 const progressNumberContainer = null;
@@ -39,6 +42,7 @@ const bgImgTween = null;
 const pillarContainer = null;
 const pillarTween = null;
 
+
 //Header animation
 const Header = posed.div({
   hidden: { opacity: 0.4 },
@@ -47,20 +51,14 @@ const Header = posed.div({
 
 export default class Main extends React.Component {
 
-  startState = { autoAlpha: 0, y: -1000 };
   //Audio Progress Variables
   progressSound25 = new Audio(progressSound25File)
   progressSound50 = new Audio(progressSound50File)
   progressSound75 = new Audio(progressSound75File)
   progressSound100 = new Audio(progressSound100File)
 
-  randomNum = (max) =>{
-    return Math.floor(Math.random() * max)
-  }
-
   state = {
     wordCount:0,
-    charCount:0,
     limitReached:false, 
     date:moment().format("MM/DD/YYYY"),
     bgIsVisible: true, 
@@ -72,9 +70,8 @@ export default class Main extends React.Component {
     goal:400,
     modalIsOpen: false,
     goalReached:false,
-    
-   
   } 
+
   //Progress Animation Calculations 
   percentCalc = (wordCount) => {
     if (wordCount >=100 && wordCount <= 110){
@@ -192,7 +189,6 @@ export default class Main extends React.Component {
         e.preventDefault()
         this.setState({
           wordCount: e.target.value.split(' ').length -1,
-          charCount: e.target.value.split('').length
         })
         if (this.state.wordCount > 400){
           e.target.value = e.target.value + " ";
@@ -214,7 +210,7 @@ export default class Main extends React.Component {
     }
     modalCloseAnimation = () =>{
       this.setState({
-        modalIsOpen:false
+        modalIsOpen:false 
       })
       this.modalContentTween.reverse()
       this.modalOverlayTween.reverse()
@@ -253,7 +249,7 @@ export default class Main extends React.Component {
       .to(this.modalOverlayContainer, {duration:1,opacity:1 })
 
       this.bgImgTween = new TimelineLite({ paused:true })
-      .to(this.bgImgContainer, {duration:3.3,opacity:0.45 })
+      .to(this.bgImgContainer, {duration:3.3,opacity:0.48 })
 
       this.pillarTween = new TimelineLite({ paused:true })
       .to(this.pillarContainer, {duration:2.3,opacity:0.15 })
@@ -311,12 +307,13 @@ export default class Main extends React.Component {
                   <img src={duckIcon} alt="duck boi" style={this.duckAnimationStyle()} className={this.props.rubberDucky ? 'rubberDucky__icon' : 'rubberDucky__hidden'}></img>
 
         {/* <NavBarSide rubberDucky={this.props.rubberDucky} /> */}
-          <img ref={img=> this.bgImgContainer = img}  className={`main__bg-img ${this.props.rubberDucky? 'rubberDucky__hidden' : ''}`} src={bgOverlayTextureWhite}></img>
+          <img alt="" ref={img=> this.bgImgContainer = img}  className={`main__bg-img ${this.props.rubberDucky? 'rubberDucky__hidden' : ''}`} src={bgOverlayTextureWhite}></img>
           <div className={`main ${this.props.rubberDucky ? 'rubberDucky' : 'black'}`}>
             <Header rubberDucky={this.props.rubberDucky} pose={this.state.isVisible ? 'visible' : 'hidden'}
                     className={`main__header ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>
               Not Your Thoughts
             </Header >
+           
             <Prompt rubberDucky={this.props.rubberDucky} />
             <h2 ref={h2=> this.progressNumberContainer = h2} className={` ${this.props.rubberDucky ? "rubberDucky__blackText-prognum" : "main__progress-number"}`}>{this.percentCalc(this.state.wordCount)}</h2>
             <h2 ref={h2=> this.progressWordContainer = h2} className={` ${this.props.rubberDucky ? "rubberDucky__blackText-progword" : "main__progress-word"}`}>Complete</h2>
@@ -324,15 +321,15 @@ export default class Main extends React.Component {
             <div className="main__pillar-top-container">
             {/* Pillar TOP Rubber Ducky Images Start */}
               <img src={WaterfallUp} className= 
-                {this.props.rubberDucky ? 'rubberDucky__waterFall-top' : 'rubberDucky__hidden'}></img>
+                {this.props.rubberDucky ? 'rubberDucky__waterFall-top' : 'rubberDucky__hidden'} alt=""></img>
                 <img src={WaterfallUp} className= 
-                {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
+                {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}alt=""></img>
                   <img src={WaterfallUp} className= 
-                {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
+                {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}alt=""></img>
                   <img src={WaterfallUp} className= 
-                {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
-                    <img src={WaterfallUp} className= {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
-                    <img src={WaterfallUp} className= {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}></img>
+                {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'}alt=""></img>
+                    <img src={WaterfallUp} className= {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'} alt=""></img>
+                    <img src={WaterfallUp} className= {this.props.rubberDucky ? 'rubberDucky__waterFall-top2' : 'rubberDucky__hidden'} alt=""></img>
 
               <img className={`main__pillar-top-outline 
                 ${this.props.rubberDucky ? 'rubberDucky__pillar-hidden' : ''}`} src={pillarTop} alt='pillar Shadow thing'></img>
@@ -341,7 +338,7 @@ export default class Main extends React.Component {
 
             <div className="main__pillars-date-goal-wordcount-textarea-container">
             {/* Pillar LEFT starts here */}
-            <img src={startLine} className= 
+            <img alt="" src={startLine} className= 
                 {this.props.rubberDucky ? 'rubberDucky__startLine' : 'rubberDucky__hidden'}></img>
                 <div className={`main__pillar-left-container 
                   ${this.props.rubberDucky ? 'rubberDucky__pillar-left-container' : ''}`}>
@@ -369,7 +366,7 @@ export default class Main extends React.Component {
                 {/* Pillar Right Starts */}
                 <div className={`main__pillar-right-container 
                   ${this.props.rubberDucky ? 'rubberDucky__pillar-right-container' : ''}`}>
-                  <img src={WaterfallUp} className= {this.props.rubberDucky ? 'rubberDucky__waterFall-right' :
+                  <img alt="" src={WaterfallUp} className= {this.props.rubberDucky ? 'rubberDucky__waterFall-right' :
                   'rubberDucky__hidden'}></img>
                     <img className={`main__pillar-right-outline 
                   ${this.props.rubberDucky ? 'rubberDucky__pillar-hidden' : ''}`} src={nuPillarLeft} alt='pillar Shadow thing'></img>
@@ -380,19 +377,19 @@ export default class Main extends React.Component {
               {/* Pillar Bottom Starts Here */}
               <div className="main__pillar-bottom-container">
               {/* Pillar Bottom Rubber Ducky Images */}
-              <img src={WaterfallUp} className= 
+              <img alt="" src={WaterfallUp} className= 
                 {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom' : 'rubberDucky__hidden'}></img>
-                  <img src={WaterfallUp} className= 
+              <img alt="" src={WaterfallUp} className= 
                 {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
-                          <img src={WaterfallUp} className= 
+              <img alt="" src={WaterfallUp} className= 
                 {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
-                              <img src={WaterfallUp} className= 
+              <img alt="" src={WaterfallUp} className= 
                 {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
-                              <img src={WaterfallUp} className= 
+              <img alt="" src={WaterfallUp} className= 
                 {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
-                <img src={WaterfallUp} className= 
+              <img alt="" src={WaterfallUp} className= 
                 {this.props.rubberDucky ? 'rubberDucky__waterFall-bottom2' : 'rubberDucky__hidden'}></img>
-                    <img src={finishLine} className= 
+              <img alt="" src={finishLine} className= 
                 {this.props.rubberDucky ? 'rubberDucky__finishLine' : 'rubberDucky__hidden'}></img>
                 
                 <img className={`main__pillar-bottom-outline 

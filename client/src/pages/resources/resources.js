@@ -1,26 +1,12 @@
 import React from 'react';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import './resources.scss';
 import '../../styles/mixins.scss'
-import Prompt from '../../components/prompt/prompt'
-import posed from 'react-pose';
-import moment from 'moment'
-import NavBarSide from '../../components/nav/navBarSide.js'
-import { TweenMax } from "gsap/all";
-import { Transition } from "react-transition-group";
-
 
 export default class Resources extends React.Component{
-
     render(){
-
         return(
-
             <div className={`resources ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>
-
-                {/* < NavBarSide rubberDucky={this.props.rubberDucky}  /> */}
                 <h1 className={`resources__title ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>Resources</h1>
-
                 <div className={`resources__content-container ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>
                     <div className="resources__mindfulness-container">
                         <h2 className={`resources__mindfulness-title ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>Mindfulness / Meditation</h2>

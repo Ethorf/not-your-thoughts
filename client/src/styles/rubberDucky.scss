@@ -144,11 +144,12 @@
         background-color:yellow;
         color:yellow;
         margin-top:20px;
-        border:none;
+        border:1px solid yellow;
+        border-radius:5px;
         outline:none;
     }
     &__nav-arrow{
-        background-color:yellow;
+        // background-color:yellow;
         color:black;
         opacity: 1;
         outline:none;
@@ -164,7 +165,7 @@
         width:100%;
         padding:10px;
         margin-left:-25px;
-        background-color:yellow;
+        // background-color:yellow;
         color:black;
     }
     &__link{
@@ -173,23 +174,42 @@
         transition:all 2s;
         margin-bottom:8px;
     }
+    /// Audio Player Stuff
+    &__audioPlayer{
+        display:flex;
+        position:absolute;
+        top:15px;
+        right:118px;
+        justify-content: flex-end;
+        align-items:flex-start;
+        justify-items:space-between;
+        flex-direction:row;
+        width:40%;
+        height:40px;
+        color:silver;
+        font-family: 'Maven Pro', sans-serif;
+        margin-right:-230px;
+        z-index:8;
+    }
     &__speaker-container{
         background-color:yellow;
-        border:none;
+        border:1px solid yellow;
+        border-radius:5px;
         outline:none;
     }
 
     &__play-pause{
         background-color:black;
         color:black;
-        height:40px;
+        height:38px;
         width:30px;
+        // margin-top:-100px;
         border:1px solid black;
         border-radius:10px;
         margin-left:10px;
         outline:none;
         margin-right:10px;
-        margin-bottom:5px;
+        padding: 10%;
 
     }
 
@@ -205,7 +225,6 @@
         margin-right:10px;
 
     }
-
     &__decrease-vol{
         color:silver;
         font-size:1.8rem;
@@ -214,11 +233,8 @@
         border:1px solid black;
         border-radius:10px;
         background-color:black;
-        margin-top:10px;
         padding-top:-10px;
-
     }
-
     &__finishLine{
         position:relative;
         z-index:10;
@@ -235,6 +251,5 @@
         left:5.7%;
         height:60px;
         width:129px;
-
     }
 }
