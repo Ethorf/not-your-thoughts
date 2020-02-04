@@ -1,35 +1,52 @@
 import {
-    SET_CURRENT_USER,
-    USER_LOADING
-  } from "../constants/action-types";
+  REGISTER_SUCCESS,
+  REGISTER_FAIL,
+  USER_LOADED,
+  AUTH_ERROR,
+  LOGIN_SUCCESS,
+  LOGIN_FAIL,
+  LOGOUT,
+} from '../actions/action-types';
 
+const initialState = {
+  token: localStorage.getItem('token'),
+  isAuthenticated: null,
+  loading: true,
+  user: null
+};
 
-  // these reducers seem to be utilizing a different inital state in every one of them, 
-  //perhaps this is just to separate concerns and to always have the initial state as a thing, 
-  // then once that is authd it will return the state and append the current user object to the store state value??
+export default function(state = initialState, action) {
+  const { type, payload } = action;
 
-  
-  const isEmpty = require("is-empty");
-  const initialState = {
-    isAuthenticated: false,
-    user: {},
-    loading: false
-  };
-
-  export default function(state = initialState, action) {
-    switch (action.type) {
-      case SET_CURRENT_USER:
-        return {
-          ...state,
-          isAuthenticated: !isEmpty(action.payload),
-          user: action.payload
-        };
-      case USER_LOADING:
-        return {
-          ...state,
-          loading: true
-        };
-      default:
-        return state;
-    }
+  switch (type) {
+    case USER_LOADED:
+      return {
+        ...state,
+        isAuthenticated: true,
+        loading: false,
+        user: payload
+      };
+    case REGISTER_SUCCESS:
+    case LOGIN_SUCCESS:
+      localStorage.setItem('token', payload.token);
+      return {
+        ...state,
+        ...payload,
+        isAuthenticated: true,
+        loading: false
+      };
+    case REGISTER_FAIL:
+    case AUTH_ERROR:
+    case LOGIN_FAIL:
+    case LOGOUT:
+      localStorage.removeItem('token');
+      return {
+        ...state,
+        token: null,
+        isAuthenticated: false,
+        loading: false
+      };
+    default:
+      return state;
   }
+}

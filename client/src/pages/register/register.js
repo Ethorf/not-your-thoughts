@@ -1,165 +1,103 @@
-import React, { Component } from "react";
-import { Link, withRouter } from "react-router-dom";
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
-import { registerUser } from "../../redux/actions/authActions";
-import classnames from "classnames";
+import React, { Fragment, useState } from 'react';
+import { connect } from 'react-redux';
+import { Link, Redirect } from 'react-router-dom';
+import { setAlert } from '../../redux/actions/alert';
+import { register } from '../../redux/actions/authActions';
+import PropTypes from 'prop-types';
 
-//proptypes is a package to check that everything is what it's supposed to be
-// is this kind of a TDD thing? 
-
-class Register extends Component {
-  constructor() {
-    super();
-
-    this.state = {
-      name: "",
-      email: "",
-      password: "",
-      password2: "",
-      errors: {}
-    };
-  }
-  componentDidMount() {
-    // If logged in and user navigates to Register page, should redirect them to dashboard
-    if (this.props.auth.isAuthenticated) {
-      this.props.history.push("/main");
-    }
-  }
-onChange = e => {
-    this.setState({ [e.target.id]: e.target.value });
-  };
-
-  //so instead of doing an axios request in 
-  //the onsubmit method now we are doing it with a redux connection at the bottom
-  onSubmit = e => {
-    e.preventDefault();
-const newUser = {
-      name: this.state.name,
-      email: this.state.email,
-      password: this.state.password,
-      password2: this.state.password2
-    };
-    //adding the register user function received from our props
-this.props.registerUser(newUser, this.props.history); 
-console.log(newUser);
-
-  };
-
-render() {
-    const { errors } = this.state;
-return (
-    <div className="container">
-    <div className="row">
-      <div className="col s8 offset-s2">
-        <Link to="/" className="btn-flat waves-effect">
-          <i className="material-icons left">keyboard_backspace</i> Back to
-          home
-        </Link>
-        <div className="col s12" style={{ paddingLeft: "11.250px" }}>
-          <h4>
-            <b>Register</b> below
-          </h4>
-          <p className="grey-text text-darken-1">
-            Already have an account? <Link to="/login">Log in</Link>
-          </p>
-        </div>
-        <form noValidate onSubmit={this.onSubmit}>
-          <div className="input-field col s12">
-            <input
-              onChange={this.onChange}
-              value={this.state.name}
-              error={errors.name}
-              id="name"
-              type="text"
-              className={classnames("", {
-                invalid: errors.name
-              })}
-            />
-            <label htmlFor="name">Name</label>
-            <span className="red-text">{errors.name}</span>
-          </div>
-          <div className="input-field col s12">
-            <input
-              onChange={this.onChange}
-              value={this.state.email}
-              error={errors.email}
-              id="email"
-              type="email"
-              className={classnames("", {
-                invalid: errors.email
-              })}
-            />
-            <label htmlFor="email">Email</label>
-            <span className="red-text">{errors.email}</span>
-          </div>
-          <div className="input-field col s12">
-            <input
-              onChange={this.onChange}
-              value={this.state.password}
-              error={errors.password}
-              id="password"
-              type="password"
-              className={classnames("", {
-                invalid: errors.password
-              })}
-            />
-            <label htmlFor="password">Password</label>
-            <span className="red-text">{errors.password}</span>
-          </div>
-          <div className="input-field col s12">
-            <input
-              onChange={this.onChange}
-              value={this.state.password2}
-              error={errors.password2}
-              id="password2"
-              type="password"
-              className={classnames("", {
-                invalid: errors.password2
-              })}
-            />
-            <label htmlFor="password2">Confirm Password</label>
-            <span className="red-text">{errors.password2}</span>
-          </div>
-          <div className="col s12" style={{ paddingLeft: "11.250px" }}>
-            <button
-              style={{
-                width: "150px",
-                borderRadius: "3px",
-                letterSpacing: "1.5px",
-                marginTop: "1rem"
-              }}
-              type="submit"
-              className="btn btn-large waves-effect waves-light hoverable blue accent-3"
-            >
-              Sign up
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-);
-}
-}
-
-
-
-Register.propTypes = {
-    registerUser: PropTypes.func.isRequired,
-    auth: PropTypes.object.isRequired,
-    errors: PropTypes.object.isRequired
-  };
-//defining MSTP here using the state object to retreive auth and errors 
-//via our connect statement below
-const mapStateToProps = state => ({
-    auth: state.auth,
-    errors: state.errors
+const Register = ({ setAlert, register, isAuthenticated }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    password2: ''
   });
 
-//in our connect statement we are using our MSTP function as the first arg
-//of connect, second arg is our 
+  const { name, email, password, password2 } = formData;
+
+  const onChange = e =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const onSubmit = async e => {
+    e.preventDefault();
+    if (password !== password2) {
+      setAlert('Passwords do not match', 'danger');
+    } else {
+      register({ name, email, password });
+    }
+  };
+
+  if (isAuthenticated) {
+    return <Redirect to='/dashboard' />;
+  }
+
+  return (
+    <Fragment>
+      <h1 className='large text-primary'>Sign Up</h1>
+      <p className='lead'>
+        <i className='fas fa-user' /> Create Your Account
+      </p>
+      <form className='form' onSubmit={e => onSubmit(e)}>
+        <div className='form-group'>
+          <input
+            type='text'
+            placeholder='Name'
+            name='name'
+            value={name}
+            onChange={e => onChange(e)}
+          />
+        </div>
+        <div className='form-group'>
+          <input
+            type='email'
+            placeholder='Email Address'
+            name='email'
+            value={email}
+            onChange={e => onChange(e)}
+          />
+          <small className='form-text'>
+            This site uses Gravatar so if you want a profile image, use a
+            Gravatar email
+          </small>
+        </div>
+        <div className='form-group'>
+          <input
+            type='password'
+            placeholder='Password'
+            name='password'
+            value={password}
+            onChange={e => onChange(e)}
+          />
+        </div>
+        <div className='form-group'>
+          <input
+            type='password'
+            placeholder='Confirm Password'
+            name='password2'
+            value={password2}
+            onChange={e => onChange(e)}
+          />
+        </div>
+        <input type='submit' className='btn btn-primary' value='Register' />
+      </form>
+      <p className='my-1'>
+        Already have an account? <Link to='/login'>Sign In</Link>
+      </p>
+    </Fragment>
+  );
+};
+
+Register.propTypes = {
+  setAlert: PropTypes.func.isRequired,
+  register: PropTypes.func.isRequired,
+  isAuthenticated: PropTypes.bool
+};
+
+const mapStateToProps = state => ({
+  isAuthenticated: state.auth.isAuthenticated
+});
+
 export default connect(
-    mapStateToProps,
-    { registerUser }
-  )(withRouter(Register));
+  mapStateToProps,
+  { setAlert, register }
+)(Register);

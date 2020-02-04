@@ -12,18 +12,17 @@ function mapDispatchToProps(dispatch) {
   }
   
 
-class ConnectedTextEntry extends Component {
+const TextEntry =()=> {
 
-    onLogoutClick = e => {
-      e.preventDefault();
-      this.props.logoutUser();
-    };
+    // onLogoutClick = e => {
+    //   e.preventDefault();
+    //   this.props.logoutUser();
+    // };
 
-    textNum = (e) => {
+    const textNum = (e) => {
         e.preventDefault();
         this.props.changeWordCount(e.target.value.split(' ').filter(item => item !== '').length)
     }
-    render(){
       const { user } = this.props.auth;
         return(
             
@@ -64,21 +63,18 @@ class ConnectedTextEntry extends Component {
            );
     }
     
-} 
 
-
-
-  // this below is very estupid
 
 const mapStateToProps = state => ({
   auth: state.auth,
   wordCount: state.wordCount.wordCount
 });
 
-const TextEntry = connect(mapStateToProps,mapDispatchToProps)(ConnectedTextEntry);
-export default TextEntry;
 
 TextEntry.propTypes = {
   logoutUser: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired
 };
+
+
+export default connect(mapStateToProps,mapDispatchToProps)(TextEntry);

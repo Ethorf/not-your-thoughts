@@ -1,11 +1,7 @@
-import { ADD_ARTICLE } from "../constants/action-types";
-import { CHANGE_WORDCOUNT } from "../constants/action-types";
 
+import { CHANGE_WORDCOUNT } from "./action-types";
 
-
-export function addArticle(payload) {
-  return { type: ADD_ARTICLE, payload };
-}
+//I feel like these should actualy be reducers
 
 export const changeWordCount = (payload) => {
     return {

@@ -1,4 +1,4 @@
-import { CHANGE_WORDCOUNT } from "../constants/action-types";
+import { CHANGE_WORDCOUNT } from "../actions/action-types";
 
   const initialState = {
     wordCount:0
@@ -15,8 +15,6 @@ import { CHANGE_WORDCOUNT } from "../constants/action-types";
         default:
             return state;
     }
-    
-    return state;
 }
 
 
