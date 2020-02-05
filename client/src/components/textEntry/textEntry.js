@@ -1,80 +1,68 @@
-import React, { Component } from "react";
+import React,  { useRef, useEffect, useState } from "react";
+import { Redirect} from 'react-router-dom'
+import { TweenMax, TimelineLite,Elastic, Back} from "gsap";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { logoutUser } from "../../redux/actions/authActions";
 import { changeWordCount } from "../../redux/actions/index";
+import '../../pages/main/main.scss'
+import bgOverlayTextureWhite from '../../assets/Background-Images/bgImg-donut1.png'
+//Component Imports
+import BgImg from '../../components/bgImage/bgImage.js'
+import Header from '../../components/header/header'
+import BgImage from "../../components/bgImage/bgImage.js";
 
 
-function mapDispatchToProps(dispatch) {
-    return {
-      changeWordCount: words => dispatch(changeWordCount(words))
-    };
+const TextEntry =({auth:{ user }, wordCount, changeWordCount, isAuthenticated})=> {
+
+  if (!isAuthenticated) {
+    return <Redirect to='/login' />;
   }
-  
 
-const TextEntry =()=> {
+  const textNum = (e) => {
+    e.preventDefault();
+    changeWordCount(e.target.value.split(' ').filter(item => item !== '').length)
+}
 
-    // onLogoutClick = e => {
-    //   e.preventDefault();
-    //   this.props.logoutUser();
-    // };
-
-    const textNum = (e) => {
-        e.preventDefault();
-        this.props.changeWordCount(e.target.value.split(' ').filter(item => item !== '').length)
-    }
-      const { user } = this.props.auth;
-        return(
-            
-            <div className="main__date-goal-wordcount-textarea-container">
-
-            <h4>
-              <b>Hey there,</b> {user.name.split(" ")[0]}
-              <p className="flow-text grey-text text-darken-1">
-                You are logged into a full-stack{" "}
-                <span style={{ fontFamily: "monospace" }}>MERN</span> app 👏
-              </p>
-            </h4>
-            <button
-              style={{
-                width: "150px",
-                borderRadius: "3px",
-                letterSpacing: "1.5px",
-                marginTop: "1rem"
-              }}
-              onClick={this.onLogoutClick}
-              className="btn btn-large waves-effect waves-light hoverable blue accent-3"
-            >
-              Logout
-            </button>
-
-
-                <div className="main__date-goal-wordcount-container">
-                    <h3 className={`main__date`}>11/29/2019</h3>
-                    <h2 className={`main__goal`} >{`Goal:400 words`}</h2>
-                    <h3 className={`main__wordcount`}>
-                    {this.props.wordCount} Words</h3>
-            </div>
-            <textarea 
-                onChange={this.textNum}
-                className={`main__textarea`}
-                placeholder="note those thoughts here"></textarea>
+    return(
+    <div className="main__all-container modalize">
+      <BgImage />
+      <div className="main black">
+        <Header/>
+        <div className="main__date-goal-wordcount-container">
+          <h3 className={`main__date`}>11/29/2019</h3>
+          <h2 className={`main__goal`} >{`Goal:400 words`}</h2>
+          <h3 className={`main__wordcount`}>
+          {wordCount} Words</h3>
         </div>
-           );
+        <textarea 
+            onChange={textNum}
+            className={`main__textarea textarea-black`}
+            placeholder="note those thoughts here"></textarea>
+      </div>
+    </div>
+        );
     }
     
 
+TextEntry.propTypes = {
+  auth: PropTypes.object.isRequired,
+  
+};    
 
 const mapStateToProps = state => ({
   auth: state.auth,
-  wordCount: state.wordCount.wordCount
+  wordCount: state.wordCount.wordCount,
+  isAuthenticated: state.auth.isAuthenticated
+
 });
 
+function mapDispatchToProps(dispatch) {
+  return {
+    changeWordCount: words => dispatch(changeWordCount(words))
+  };
+}
 
-TextEntry.propTypes = {
-  logoutUser: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired
-};
+
 
 
 export default connect(mapStateToProps,mapDispatchToProps)(TextEntry);

@@ -13,7 +13,11 @@
     color:silver;
 
     &__title{
-        font-size:2.1rem;
+        font-size:2rem;
+        margin-top:50px;
+
+        font-family: 'Syncopate',sans-serif;
+
     }
 
     &__form{
@@ -22,30 +26,68 @@
         align-items:center;
         flex-direction:column;
     }
-
     &__input-container{
+        display:flex;
+        justify-content: center;
+        align-items:center;
+        flex-direction:column;
         width:40%;
         background-color: black;
-        border:1px solid black;
         border-radius: 10px;
-
-
     }
     &__input{
-        border:1px solid silver;
-        border-radius: 10px;
+        width:50%;
+        padding:2% 1%;
+        border:none;
+        border-bottom:1px solid silver;
+        outline:none;
         color:silver;
+        display:flex;
+        justify-content: center;
         background-color: black;
+        margin:2% 0%;
+        border-radius: 1px;
+        transition:all 2s;
+
+        &:hover{
+        border-bottom:1px solid white;
+        transition:all 2s;
+        border-radius: 3px;            
+        }
     }
 
     &__submit-button{
-        width:20%;
-        padding:1%;
+        width:11%;
+        height:5%;
+        padding:10px 1%;
         border-radius: 7px;
+        font-size:0.9rem;
+        margin-top:1.5%;
+        margin-bottom:2%;
+        font-family: 'Syncopate',sans-serif;
     }
+
+    &__signup-link{
+        text-decoration: none;
+        color:white;
+        margin-left:4px;
+
+        &:hover{
+            transition:all 2s;
+            text-shadow: 1px 0px 1px silver;
+            border-radius: 3px;
+    }
+
+    
 
 }
 
+&__signup{
+    font-family:"Maven Pro";
+    color:grey;
+
+}
+}
 /* Change the white to any color ;) */
 // Okay i've never done any webkit things but this is a good thing to look for
 
@@ -54,4 +96,5 @@ input:-webkit-autofill:hover,
 input:-webkit-autofill:focus, 
 input:-webkit-autofill:active  {
     -webkit-box-shadow: 0 0 0 30px black inset !important;
+    -webkit-text-fill-color: silver;
 }

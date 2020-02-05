@@ -10,7 +10,6 @@ const Login = ({ login, isAuthenticated }) => {
     email: '',
     password: ''
   });
-
   const { email, password } = formData;
 
   const onChange = e =>
@@ -27,9 +26,6 @@ const Login = ({ login, isAuthenticated }) => {
 
   return (
 
-    //Fragments seem to be going with pattern instead of just empty divs, they basically satisfy React's opinions without
-    // modifying the DOM at all and are used in tables and lists so that you can have the content componentized without breaking HTML rules
-    <Fragment>
       <div className="login">
         <h1 className='login__title'>Login</h1>
         <form className='login__form' onSubmit={e => onSubmit(e)}>
@@ -54,14 +50,14 @@ const Login = ({ login, isAuthenticated }) => {
               onChange={e => onChange(e)}
               minLength='6'
             />
+
           </div>
           <input type='submit' className='login__submit-button' value='Login' />
         </form>
-        <p className='my-1'>
-          Don't have an account? <Link to='/register'>Sign Up</Link>
+        <p className='login__signup' >
+          Don't have an account? <Link className='login__signup-link'  to='/register'>Sign Up</Link>
         </p>
       </div>
-    </Fragment>
   );
 };
 

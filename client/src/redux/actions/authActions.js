@@ -41,7 +41,7 @@ export const register = ({ name, email, password }) => async dispatch => {
   const body = JSON.stringify({ name, email, password });
 
   try {
-    const res = await axios.post('http://localhost:8082/api/users', body, config);
+    const res = await axios.post('http://localhost:8082/api/registerUser', body, config);
 
     dispatch({
       type: REGISTER_SUCCESS,
@@ -96,4 +96,5 @@ export const login = (email, password) => async dispatch => {
 // Logout / Clear Profile
 export const logout = () => dispatch => {
   dispatch({ type: LOGOUT });
+  
 };

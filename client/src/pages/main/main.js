@@ -24,7 +24,7 @@ import finishLine from '../../assets/RubberDucky/finish.png'
 import startLine from '../../assets/RubberDucky/start.png'
 import { TimelineLite} from "gsap/all";
 import { pillarLeftStyleHeight } from "../../functions/pillarFunctions.js"
-import { randomNum } from "../../functions/miscFunctions.js"
+
 
 
 //animation vars
@@ -62,7 +62,7 @@ export default class Main extends React.Component {
     limitReached:false, 
     date:moment().format("MM/DD/YYYY"),
     bgIsVisible: true, 
-    isVisible: true, 
+    isVisible: true,
     pillar1WordLimit:100,
     pillar2WordLimit:200,
     pillar3WordLimit:300,
@@ -184,17 +184,7 @@ export default class Main extends React.Component {
     }
 
     //Text input Variables and Function
-
-    textNum = (e) => {
-        e.preventDefault()
-        this.setState({
-          wordCount: e.target.value.split(' ').length -1,
-        })
-        if (this.state.wordCount > 400){
-          e.target.value = e.target.value + " ";
-        }
-    }
-      //Modal and Misc Animations
+    //Modal and Misc Animations
     bgPulse = () => {
       this.bgImgTween.play()
         setTimeout(()=>{
@@ -305,8 +295,6 @@ export default class Main extends React.Component {
       return (  
         <div className="main__all-container modalize">
                   <img src={duckIcon} alt="duck boi" style={this.duckAnimationStyle()} className={this.props.rubberDucky ? 'rubberDucky__icon' : 'rubberDucky__hidden'}></img>
-
-        {/* <NavBarSide rubberDucky={this.props.rubberDucky} /> */}
           <img alt="" ref={img=> this.bgImgContainer = img}  className={`main__bg-img ${this.props.rubberDucky? 'rubberDucky__hidden' : ''}`} src={bgOverlayTextureWhite}></img>
           <div className={`main ${this.props.rubberDucky ? 'rubberDucky' : 'black'}`}>
             <Header rubberDucky={this.props.rubberDucky} pose={this.state.isVisible ? 'visible' : 'hidden'}

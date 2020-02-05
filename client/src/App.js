@@ -11,19 +11,18 @@ import Landing from './pages/landing/landing'
 import Main from './pages/main/main'
 import MainV2 from './pages/main/mainV2'
 import UserDisplayTest from './components/userDisplayTest/userDisplayTest'
+import TextEntry from './components/textEntry/textEntry.js'
 import Login from './pages/login/login.js'
 import Register from './pages/register/register.js'
 import Profile from './pages/profile/profile'
 import Resources from './pages/resources/resources'
 import store from "./redux/store/index";
 import { loadUser } from './redux/actions/authActions';
-
 import setAuthToken from "./utils/setAuthToken"
 
 if (localStorage.token) {
   setAuthToken(localStorage.token);
 }
-
 
 const App = () => {
 
@@ -48,7 +47,7 @@ const App = () => {
                     { ({ match }) =>  <Landing show={match !== null} /> }
                     </Route>
                     <PrivateRoute path='/main' exact> 
-                    { ({ match }) =>  <UserDisplayTest   show={match !== null} /> }
+                    { ({ match }) =>  <TextEntry   show={match !== null} /> }
                     </PrivateRoute>
                     <Route path='/login' exact> 
                     { ({ match }) =>  <Login show={match !== null} /> }
