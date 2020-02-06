@@ -5,11 +5,17 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { changeWordCount } from "../../redux/actions/index";
 import '../../pages/main/main.scss'
-import bgOverlayTextureWhite from '../../assets/Background-Images/bgImg-donut1.png'
+import moment from 'moment'
 //Component Imports
-import BgImg from '../../components/bgImage/bgImage.js'
 import Header from '../../components/header/header'
 import BgImage from "../../components/bgImage/bgImage.js";
+import Prompt from '../prompt/prompt.js'
+import PillarTop from '../pillars/pillarTop.js'
+import PillarLeft from '../pillars/pillarLeft.js'
+import PillarRight from '../pillars/pillarRight.js'
+import PillarBottom from '../pillars/pillarBottom.js'
+
+
 
 
 const TextEntry =({auth:{ user }, wordCount, changeWordCount, isAuthenticated})=> {
@@ -25,19 +31,31 @@ const TextEntry =({auth:{ user }, wordCount, changeWordCount, isAuthenticated})=
 
     return(
     <div className="main__all-container modalize">
-      <BgImage />
+      {/* <BgImage /> */}
       <div className="main black">
         <Header/>
-        <div className="main__date-goal-wordcount-container">
-          <h3 className={`main__date`}>11/29/2019</h3>
-          <h2 className={`main__goal`} >{`Goal:400 words`}</h2>
-          <h3 className={`main__wordcount`}>
-          {wordCount} Words</h3>
+        <Prompt/>
+        <PillarTop/>
+        <div className="main__pillars-date-goal-wordcount-textarea-container">
+        <PillarLeft />
+
+          <div className="main__date-goal-wordcount-textarea-container">
+            <div className="main__date-goal-wordcount-container">
+              <h3 className={`main__date`}>{moment().format("MM/DD/YYYY")}</h3>
+              <h2 className={`main__goal`} >{`Goal:400 words`}</h2>
+              <h3 className={`main__wordcount`}>{wordCount} Words</h3>
+              
+            </div>
+            <textarea 
+                onChange={textNum}
+                className={`main__textarea textarea-black`}
+                placeholder="note those thoughts here"></textarea>
+          </div>
+          <PillarRight />    
+
         </div>
-        <textarea 
-            onChange={textNum}
-            className={`main__textarea textarea-black`}
-            placeholder="note those thoughts here"></textarea>
+          <PillarBottom />
+
       </div>
     </div>
         );
@@ -46,6 +64,7 @@ const TextEntry =({auth:{ user }, wordCount, changeWordCount, isAuthenticated})=
 
 TextEntry.propTypes = {
   auth: PropTypes.object.isRequired,
+
   
 };    
 

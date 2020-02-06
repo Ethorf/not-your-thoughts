@@ -6,11 +6,11 @@ import axios from 'axios'
 
 export default class Prompt extends React.Component {
   state={
-    promptContent:""
+    promptContent:"The Milk is the Bag that you have become all along"
     }
 
   getPrompts=()=>{
-    axios.get("http://localhost:8080/prompts/" ).then(response => {
+    axios.get("http://localhost:8082/prompts/" ).then(response => {
       this.setState({
         promptContent:response.data[this.randomNum(response.data.length-1)]
       })
@@ -27,7 +27,7 @@ export default class Prompt extends React.Component {
     render(){
         return (
 
-            <div className={`prompt ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>
+            <div className={`main__prompt prompt ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>
               <h2 className={` ${this.props.rubberDucky ? "rubberDucky__blackText" : ""}`}>{this.state.promptContent}</h2>
             </div>
           );

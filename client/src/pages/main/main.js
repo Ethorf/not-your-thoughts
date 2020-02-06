@@ -23,7 +23,7 @@ import '../../styles/rubberDucky.scss'
 import finishLine from '../../assets/RubberDucky/finish.png'
 import startLine from '../../assets/RubberDucky/start.png'
 import { TimelineLite} from "gsap/all";
-import { pillarLeftStyleHeight } from "../../functions/pillarFunctions.js"
+
 
 
 

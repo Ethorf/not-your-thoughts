@@ -1,25 +1,41 @@
 import React,  { Fragment, useRef, useEffect, useState } from "react";
-import { TweenMax, TimelineLite,Elastic, Back} from "gsap";
+import { TweenMax, TimelineMax,Elastic, Back} from "gsap";
 import '../../pages/main/main.scss'
 import bgOverlayTextureWhite from '../../assets/Background-Images/bgImg-donut1.png'
 
 const BgImage = () => {
 
-    // const [bgImgAnimation, setBgImgAnimation] = useState();
+    const [bgAnimation, setBgAnimation] = useState();
+    const [tl] = useState(new TimelineMax({ paused:true }));
+
+
   
-    // const bgPulse = () => {
-    //   this.bgImgTween.play()
-    //     setTimeout(()=>{
-    //       this.bgImgTween.reverse()
-    //     },1800)
-    // }
-  
-    // // let bgImgTween = useRef(null);
-  
-    // let bgImgTween = new TimelineLite({ paused:true })
-    //     .to(bgImgContainer, {duration:3.3,opacity:0.48 })
-  
+    // let bgImgTween = useRef(null);
     let bgImgContainer = useRef(null);
+    
+    let bgImgTween = new TimelineMax({ paused:true })
+    //     bgImgTween.to(bgImgContainer, {duration:3.3,opacity:0.48 })
+
+
+    //     const bgPulse = () => {
+    //         this.bgImgTween.play()
+    //           setTimeout(()=>{
+    //             bgImgTween.reverse()
+    //           },1800)
+    //       }
+      
+    useEffect(()=>{
+        setBgAnimation(
+            new TweenMax.to(bgImgContainer, {duration:3.3,opacity:0.48 }
+            ).pause()
+          );
+
+        bgAnimation.play()
+        setTimeout(()=>{
+            bgAnimation.reverse()
+        },1800)
+    })
+
     
     return(
         <Fragment>
