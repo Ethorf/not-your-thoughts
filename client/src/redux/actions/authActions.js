@@ -74,7 +74,6 @@ export const login = (email, password) => async dispatch => {
 
   try {
     const res = await axios.post('http://localhost:8082/api/auth', body, config);
-
     dispatch({
       type: LOGIN_SUCCESS,
       payload: res.data
@@ -96,5 +95,4 @@ export const login = (email, password) => async dispatch => {
 // Logout / Clear Profile
 export const logout = () => dispatch => {
   dispatch({ type: LOGOUT });
-  
 };

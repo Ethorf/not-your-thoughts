@@ -1,4 +1,4 @@
-export const ADD_ARTICLE = "ADD_ARTICLE";
+
 export const CHANGE_WORDCOUNT = "CHANGE_WORDCOUNT";
 export const SET_ALERT = 'SET_ALERT';
 export const REMOVE_ALERT = 'REMOVE_ALERT';
@@ -9,3 +9,11 @@ export const AUTH_ERROR = 'AUTH_ERROR';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAIL = 'LOGIN_FAIL';
 export const LOGOUT = 'LOGOUT';
+//Entries stuffs
+export const GET_ENTRIES = 'GET_ENTRIES';
+export const SAVE_ENTRY = 'SAVE_ENTRY';
+export const DELETE_ENTRY = 'DELETE_ENTRY';
+export const ENTRIES_ERROR = 'ENTRIES_ERROR';
+
+
+

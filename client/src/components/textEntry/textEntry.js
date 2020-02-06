@@ -4,6 +4,7 @@ import { TweenMax, TimelineLite,Elastic, Back} from "gsap";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { changeWordCount } from "../../redux/actions/index";
+import { saveEntry } from '../../redux/actions/entryActions.js'
 import '../../pages/main/main.scss'
 import moment from 'moment'
 //Component Imports
@@ -18,16 +19,25 @@ import PillarBottom from '../pillars/pillarBottom.js'
 
 
 
-const TextEntry =({auth:{ user }, wordCount, changeWordCount, isAuthenticated})=> {
+const TextEntry =({auth:{ user }, wordCount, changeWordCount, saveEntry, isAuthenticated})=> {
+  const [entryData,setEntryData] = useState({
+    entry:''
+  })
 
   if (!isAuthenticated) {
     return <Redirect to='/login' />;
   }
-
   const textNum = (e) => {
     e.preventDefault();
+    setEntryData(e.target.value);
     changeWordCount(e.target.value.split(' ').filter(item => item !== '').length)
+
 }
+
+const onSubmit = async e => {
+  e.preventDefault();
+  saveEntry({entry:entryData});
+};
 
     return(
     <div className="main__all-container modalize">
@@ -39,20 +49,23 @@ const TextEntry =({auth:{ user }, wordCount, changeWordCount, isAuthenticated})=
         <div className="main__pillars-date-goal-wordcount-textarea-container">
         <PillarLeft />
 
-          <div className="main__date-goal-wordcount-textarea-container">
+          <form className="main__date-goal-wordcount-textarea-container"
+                onSubmit={e => onSubmit(e)}>
             <div className="main__date-goal-wordcount-container">
               <h3 className={`main__date`}>{moment().format("MM/DD/YYYY")}</h3>
               <h2 className={`main__goal`} >{`Goal:400 words`}</h2>
+              <button type="submit" className="main__save-button">Save Entry</button>
               <h3 className={`main__wordcount`}>{wordCount} Words</h3>
               
             </div>
             <textarea 
                 onChange={textNum}
+                name='textEntry'
+                // value={entry}
                 className={`main__textarea textarea-black`}
                 placeholder="note those thoughts here"></textarea>
-          </div>
+          </form>
           <PillarRight />    
-
         </div>
           <PillarBottom />
 
@@ -64,8 +77,7 @@ const TextEntry =({auth:{ user }, wordCount, changeWordCount, isAuthenticated})=
 
 TextEntry.propTypes = {
   auth: PropTypes.object.isRequired,
-
-  
+  saveEntry:PropTypes.func.isRequired
 };    
 
 const mapStateToProps = state => ({
@@ -77,7 +89,8 @@ const mapStateToProps = state => ({
 
 function mapDispatchToProps(dispatch) {
   return {
-    changeWordCount: words => dispatch(changeWordCount(words))
+    changeWordCount: words => dispatch(changeWordCount(words)),
+    saveEntry: content => dispatch(saveEntry(content))
   };
 }
 

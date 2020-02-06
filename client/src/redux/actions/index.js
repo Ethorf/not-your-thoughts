@@ -21,20 +21,8 @@ export const increaseConsecutiveDays = () => {
     }
 };
 
-export const saveEntry = (payload) => {
-    return {
-        type: 'SAVE_ENTRY', payload
-    }
-};
-
-export const signIn = () => {
-    return {
-        type: 'SIGNIN'
-    }
-};
-
-export const signOut = () => {
-    return {
-        type: 'SIGNOUT'
-    }
-};
+// export const saveEntry = (payload) => {
+//     return {
+//         type: 'SAVE_ENTRY', payload
+//     }
+// };
