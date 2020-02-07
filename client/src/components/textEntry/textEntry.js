@@ -3,6 +3,7 @@ import { Redirect} from 'react-router-dom'
 import { TweenMax, TimelineLite,Elastic, Back} from "gsap";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+//Redux Functions
 import { changeWordCount } from "../../redux/actions/index";
 import { saveEntry } from '../../redux/actions/entryActions.js'
 import '../../pages/main/main.scss'
@@ -15,6 +16,7 @@ import PillarTop from '../pillars/pillarTop.js'
 import PillarLeft from '../pillars/pillarLeft.js'
 import PillarRight from '../pillars/pillarRight.js'
 import PillarBottom from '../pillars/pillarBottom.js'
+import ProgressWord from '../../components/progress/progressRight.js'
 
 
 
@@ -41,10 +43,11 @@ const onSubmit = async e => {
 
     return(
     <div className="main__all-container modalize">
-      {/* <BgImage /> */}
+      <BgImage />
       <div className="main black">
         <Header/>
         <Prompt/>
+        <ProgressWord />
         <PillarTop/>
         <div className="main__pillars-date-goal-wordcount-textarea-container">
         <PillarLeft />

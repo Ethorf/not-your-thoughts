@@ -6,7 +6,7 @@ import '../../pages/main/main.scss'
 
 const HeaderPosed = posed.div({
     hidden: { opacity: 0.7 },
-    visible: { opacity: 1 }
+    visible: { opacity: 0.9 }
   });
 
 export default class Header extends React.Component{

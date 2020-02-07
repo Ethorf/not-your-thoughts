@@ -21,7 +21,8 @@ router.post("/",[auth,[
         const user = await (await User.findById(req.user.id));
         user.entries.push({content:req.body.entry,
                             date:moment().format(`MMMM Do YYYY`),
-                            id:uuidv4()
+                            id:uuidv4(),
+                            numOfWords:req.body.entry.split(' ').filter(item => item !== '').length
                         })
         await user.save()
         res.json(user)

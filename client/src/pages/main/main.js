@@ -249,35 +249,7 @@ export default class Main extends React.Component {
     
     componentDidUpdate(){
 
-      if (this.state.wordCount === 100){
-            this.progressSound25.volume = 0.3
-            this.progressSound25.play()
-            this.progressAnimation()
-      } 
-      else if (this.state.wordCount === 105){
-        this.progressAnimationReverse()
-      }
-      else if ( this.state.wordCount === 200){
-        this.progressSound50.volume = 0.3
-        this.progressSound50.play()
-        this.progressAnimation()
-      }
-      else if (this.state.wordCount === 208){
-        this.progressAnimationReverse()
-      }
-      else if ( this.state.wordCount === 300){
-        this.progressSound75.volume = 0.3
-        this.progressSound75.play()
-        this.progressAnimation()
-    }
-    else if (this.state.wordCount === 305){
-      this.progressAnimationReverse()
-    }
-    else if ( this.state.wordCount === 400){
-      this.progressSound100.volume = 0.5
-      this.progressSound100.play()
-      this.progressAnimation()
-
+      
       setTimeout(()=>{
         this.setState({
           wordCount:401

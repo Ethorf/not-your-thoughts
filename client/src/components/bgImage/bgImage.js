@@ -4,37 +4,22 @@ import '../../pages/main/main.scss'
 import bgOverlayTextureWhite from '../../assets/Background-Images/bgImg-donut1.png'
 
 const BgImage = () => {
-
-    const [bgAnimation, setBgAnimation] = useState();
-    const [tl] = useState(new TimelineMax({ paused:true }));
-
-
-  
-    // let bgImgTween = useRef(null);
     let bgImgContainer = useRef(null);
-    
-    let bgImgTween = new TimelineMax({ paused:true })
-    //     bgImgTween.to(bgImgContainer, {duration:3.3,opacity:0.48 })
+    const [bgAnimation, setBgAnimation] = useState(null);
+    const tl = new TimelineMax({repeat:-1})
 
-
-    //     const bgPulse = () => {
-    //         this.bgImgTween.play()
-    //           setTimeout(()=>{
-    //             bgImgTween.reverse()
-    //           },1800)
-    //       }
-      
-    useEffect(()=>{
+    const bgAnim = () =>{
         setBgAnimation(
-            new TweenMax.to(bgImgContainer, {duration:3.3,opacity:0.48 }
-            ).pause()
-          );
+            tl.fromTo(bgImgContainer,{duration:10,opacity:0.02 },{duration:10,opacity:0.1}
+           ).to(bgImgContainer,{duration:10,opacity:0.01})
+           .play()
+         );
+    }
+    useEffect(()=>{
+        bgAnim()
 
-        bgAnimation.play()
-        setTimeout(()=>{
-            bgAnimation.reverse()
-        },1800)
-    })
+        
+    },[])
 
     
     return(
