@@ -4,8 +4,8 @@ import '../../styles/mixins.scss'
 import Prompt from '../../components/prompt/prompt'
 import posed from 'react-pose';
 import moment from 'moment'
-import SuccessModal from '../../components/successModal/successModal';
-import '../../components/successModal/successModal.scss';
+import SuccessModal from '../../components/Modals/successModal';
+import '../../components/Modals/successModal.scss';
 import bgOverlayTextureWhite from '../../assets/Background-Images/bgImg-donut1.png'
 import progressSound25File from '../../assets/Sounds/ProgressSounds/Not-Your-Thoughts-25-progressSound.mp3'
 import progressSound50File from '../../assets/Sounds/ProgressSounds/Not-Your-Thoughts-50-progressSound.mp3'

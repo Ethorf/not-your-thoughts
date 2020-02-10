@@ -1,10 +1,9 @@
 
 import React,  { useRef, useEffect, useState } from "react";
-import { TweenMax, TimelineMax} from "gsap";
+import {TimelineMax} from "gsap";
 import '../../pages/main/main.scss'
 import PropTypes from 'prop-types'
 import { connect } from "react-redux";
-import wordCountReducer from "../../redux/reducers/wordCountReducer";
 import progressSound25File from '../../assets/Sounds/ProgressSounds/Not-Your-Thoughts-25-progressSound.mp3'
 import progressSound50File from '../../assets/Sounds/ProgressSounds/Not-Your-Thoughts-50-progressSound.mp3'
 import progressSound75File from '../../assets/Sounds/ProgressSounds/Not-Your-Thoughts-75-progressSound.mp3'
@@ -86,8 +85,9 @@ const ProgressWord = (wordCount) => {
 
     return (
         <div>
-            <h2 ref={h2=> progressWordContainer = h2} className="main__progress-word">Complete</h2>
             <h2 ref={h2=> progressNumberContainer = h2} className="main__progress-number">{percentCalc(wordCount.wordCount)}</h2>
+            <h2 ref={h2=> progressWordContainer = h2} className="main__progress-word">Complete</h2>
+
         </div>
     )
 }

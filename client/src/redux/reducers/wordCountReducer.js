@@ -1,7 +1,8 @@
-import { CHANGE_WORDCOUNT } from "../actions/action-types";
+import { CHANGE_WORDCOUNT,GOAL_REACHED } from "../actions/action-types";
 
   const initialState = {
-    wordCount:0
+    wordCount:0,
+    goalReachedStatus:false
   };
 
   
@@ -12,6 +13,11 @@ import { CHANGE_WORDCOUNT } from "../actions/action-types";
             return Object.assign({}, state, {
                 wordCount: action.payload
               });
+        case GOAL_REACHED:
+             return {
+            ...state,
+            goalReachedStatus:true
+            };
         default:
             return state;
     }

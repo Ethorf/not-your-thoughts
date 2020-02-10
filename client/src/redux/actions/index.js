@@ -1,12 +1,18 @@
 
-import { CHANGE_WORDCOUNT } from "./action-types";
+import { CHANGE_WORDCOUNT,GOAL_REACHED } from "./action-types";
 
 //I feel like these should actualy be reducers
 
-export const changeWordCount = (payload) => {
-    return {
+export const changeWordCount = (payload)=> dispatch => {
+    dispatch({
         type: CHANGE_WORDCOUNT, payload
-    }
+    })
+};
+
+export const goalReached = ()=> dispatch => {
+    dispatch({
+        type: GOAL_REACHED
+    })
 };
 
 export const increaseTotalDays = () => {
@@ -20,9 +26,3 @@ export const increaseConsecutiveDays = () => {
         type: 'INCREASECONSECUTIVEDAYS'
     }
 };
-
-// export const saveEntry = (payload) => {
-//     return {
-//         type: 'SAVE_ENTRY', payload
-//     }
-// };

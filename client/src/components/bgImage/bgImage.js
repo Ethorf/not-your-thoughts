@@ -1,5 +1,5 @@
 import React,  { Fragment, useRef, useEffect, useState } from "react";
-import { TweenMax, TimelineMax,Elastic, Back} from "gsap";
+import {TimelineMax} from "gsap";
 import '../../pages/main/main.scss'
 import bgOverlayTextureWhite from '../../assets/Background-Images/bgImg-donut1.png'
 

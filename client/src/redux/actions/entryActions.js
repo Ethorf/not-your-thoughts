@@ -6,6 +6,7 @@ import {
     DELETE_ENTRY,
     GET_ENTRIES,
     ENTRIES_ERROR,
+    SET_ENTRY,
 
   } from './action-types';
 
@@ -35,14 +36,12 @@ export const getEntries = () => async dispatch => {
         'Content-Type': 'application/json'
       }
     };
-    console.log("saveEntry beent called")
     const body = JSON.stringify({ entry });
     try {
       const res = await axios.post('http://localhost:8082/api/updateUser', body, config);
   
       dispatch({
         type: SAVE_ENTRY,
-        //is this payload going to work? 
         payload: res.data
       });
     } catch (err) {
@@ -50,9 +49,14 @@ export const getEntries = () => async dispatch => {
       if (errors) {
         errors.forEach(error => dispatch(setAlert(error.msg, 'danger')));
       }
-  
       dispatch({
         type: ENTRIES_ERROR
       });
     }
   };
+
+  export const setEntry = (payload)=> dispatch => {
+    dispatch({
+        type: SET_ENTRY, payload
+    })
+};

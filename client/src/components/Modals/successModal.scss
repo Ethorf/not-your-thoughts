@@ -13,6 +13,19 @@
     &__congratulations{
         font-size:2.2rem;
         font-family: 'Syncopate',sans-serif;
+        margin-top:4%;
+    }
+    &__mainText{
+      margin:0;
+      display:flex;
+      flex-direction:column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    &__goal{
+      margin-top:0;
+      margin-bottom:10px;
     }
     &__close-button{
         margin-top:15px;

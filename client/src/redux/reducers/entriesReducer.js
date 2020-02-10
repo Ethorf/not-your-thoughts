@@ -1,13 +1,15 @@
 import {
     SAVE_ENTRY,
     DELETE_ENTRY,
+    SET_ENTRY,
     GET_ENTRIES,
     ENTRIES_ERROR
   } from '../actions/action-types';
   
   const initialState = {
     token: localStorage.getItem('token'),
-    entries:[]
+    entries:[],
+    entry:""
   };
   
   export default function(state = initialState, action) {
@@ -24,10 +26,14 @@ import {
           ...state,
           entries:[payload,...state.entries]
         };
+      case SET_ENTRY:
+      return {
+        ...state,
+        entry:payload
+      };
       case ENTRIES_ERROR:
         return {
           ...state,
-
         };
       default:
         return state;

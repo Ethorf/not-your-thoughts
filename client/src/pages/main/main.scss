@@ -231,13 +231,17 @@ body{
 
     ///// Begin Modals \\\\\\\\
     &__modal2{
+        display:flex;
+        flex-direction:column;
+        justify-content: center;
+        align-items: center;
         position: absolute;
         z-index:9;
         opacity:1;
         top:0px;
         left:30%;
         right:30%;
-        bottom:50%;
+        bottom:40%;
         border: 1px solid silver;
         border-radius:100px;
         background: black;
@@ -277,10 +281,7 @@ body{
       }
 
 }      
-.modalTest{
-    position: absolute;
-    z-index:9;
-}
+
 *{
     z-index:4;
 }
