@@ -9,6 +9,7 @@ import { connect } from "react-redux";
 import { changeWordCount } from "../../redux/actions/index";
 import { saveEntry,setEntry } from '../../redux/actions/entryActions.js'
 import { openSuccessModal } from "../../redux/actions/modalActions";
+import {  increaseConsecutiveDays } from '../../redux/actions/authActions.js'
 
 //Component Imports
 import Header from '../../components/header/header'
@@ -29,7 +30,8 @@ const TextEntry =({auth:{ user },
                    changeWordCount, 
                    saveEntry,
                   isAuthenticated,
-                  setEntry
+                  setEntry,
+                  increaseConsecutiveDays
                   })=> {
   const [entryData,setEntryData] = useState({
     entry:''
@@ -56,6 +58,8 @@ const onSubmit = async e => {
     <div className="main__all-container modalize">
       <BgImage />
       <div className="main black">
+      <button onClick={increaseConsecutiveDays}>flent</button>
+
         <Header/>
         <SuccessModal />
         <Prompt/>
@@ -104,4 +108,4 @@ const mapStateToProps = state => ({
 
 
 
-export default connect(mapStateToProps,{saveEntry,openSuccessModal,changeWordCount,setEntry})(TextEntry);
+export default connect(mapStateToProps,{saveEntry,openSuccessModal,changeWordCount,setEntry,increaseConsecutiveDays})(TextEntry);

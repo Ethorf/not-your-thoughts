@@ -24,4 +24,20 @@ router.post("/",auth,
 }
 )
 
+router.post("/consecutive",auth,
+  async (req,res) => {
+
+    try {
+        const user = await (await User.findById(req.user.id));
+        ++user.consecutiveDays
+        await user.save()
+        res.json(user.consecutiveDays)
+    } catch (err){
+
+        console.error(err.message)
+        res.status(500)
+    }
+}
+)
+
 module.exports = router

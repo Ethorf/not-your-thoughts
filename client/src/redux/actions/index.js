@@ -14,15 +14,3 @@ export const goalReached = ()=> dispatch => {
         type: GOAL_REACHED
     })
 };
-
-export const increaseTotalDays = () => {
-    return {
-        type: 'INCREASETOTALDAYS'
-    }
-};
-
-export const increaseConsecutiveDays = () => {
-    return {
-        type: 'INCREASECONSECUTIVEDAYS'
-    }
-};

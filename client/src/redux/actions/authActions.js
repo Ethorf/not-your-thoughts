@@ -8,6 +8,10 @@ import {
   LOGIN_SUCCESS,
   LOGIN_FAIL,
   LOGOUT,
+  INCREASE_CON_DAYS,
+  INCREASE_TOT_DAYS,
+  SET_LAST_DAY_COMPLETE,
+  DAY_INCREASE_ERROR
 } from './action-types';
 
 import setAuthToken from '../../utils/setAuthToken';
@@ -96,3 +100,32 @@ export const login = (email, password) => async dispatch => {
 export const logout = () => dispatch => {
   dispatch({ type: LOGOUT });
 };
+
+
+//// Increase User Consecutive Days \\\ ?? should this be in this section ??
+
+export const increaseConsecutiveDays = () => async dispatch => {
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-auth-token':localStorage.getItem('token'),
+    }
+  };
+  try {
+    const res = await axios.post('http://localhost:8082/api/increaseDays', config);
+
+    dispatch({
+      type: INCREASE_TOT_DAYS,
+      payload: res.data
+    });
+  } catch (err) {
+    const errors = err.response.data.errors;
+    if (errors) {
+      errors.forEach(error => dispatch(setAlert(error.msg, 'danger')));
+    }
+    dispatch({
+      type: DAY_INCREASE_ERROR
+    });
+  }
+};
+

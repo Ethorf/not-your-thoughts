@@ -6,6 +6,7 @@ import {
   LOGIN_SUCCESS,
   LOGIN_FAIL,
   LOGOUT,
+  INCREASE_TOT_DAYS,
 } from '../actions/action-types';
 
 const initialState = {
@@ -14,7 +15,7 @@ const initialState = {
   loading: true,
   user: null
 };
-
+//Our reducers are this is where we modify / update state
 export default function(state = initialState, action) {
   const { type, payload } = action;
 
@@ -25,6 +26,10 @@ export default function(state = initialState, action) {
         isAuthenticated: true,
         loading: false,
         user: payload
+      };
+    case INCREASE_TOT_DAYS:
+      return {
+        ...state
       };
     case REGISTER_SUCCESS:
     case LOGIN_SUCCESS:
