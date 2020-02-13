@@ -6,7 +6,7 @@ import {
   LOGIN_SUCCESS,
   LOGIN_FAIL,
   LOGOUT,
-  INCREASE_TOT_DAYS,
+  INCREASE_DAYS,
 } from '../actions/action-types';
 
 const initialState = {
@@ -27,7 +27,7 @@ export default function(state = initialState, action) {
         loading: false,
         user: payload
       };
-    case INCREASE_TOT_DAYS:
+    case INCREASE_DAYS:
       return {
         ...state
       };

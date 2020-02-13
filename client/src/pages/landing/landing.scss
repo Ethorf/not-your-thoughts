@@ -2,117 +2,137 @@
 @import '../../styles/variables.scss';
 // @import '../../styles/base.scss';
 
-.landing{
-    display:flex;
-    justify-content: center;
-    align-items:center;
-    flex-direction:column;
-    width:100%;
-    height:100%;
-    color:silver;
-    font-family: 'Maven Pro', sans-serif;
-    margin:0 auto;
+.landing {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	color: silver;
+	font-family: 'Maven Pro', sans-serif;
+	margin: 0 auto;
 
-    &__bg-img{
-        position: absolute;
-        transition:all 5s;
-        opacity:0.02;
-        right:100;
-        width:100%;
-        height:120%;
-        z-index:3;
-    }
-    &__you-are{
-        width:100%;
-        text-align:center;
-        font-size:3rem;
-        opacity: 0;
-        margin-bottom:90px;
-        border-radius: 2% 50%;
-        font-family: 'Syncopate',sans-serif;
-    }
+	&__bg-img {
+		position: absolute;
+		transition: all 5s;
+		opacity: 0.02;
+		right: 100;
+		width: 100%;
+		height: 120%;
+		z-index: 3;
+	}
+	&__you-are {
+		width: 100%;
+		text-align: center;
+		font-size: 3rem;
+		opacity: 0;
+		margin-bottom: 90px;
+		border-radius: 2% 50%;
+		font-family: 'Syncopate', sans-serif;
+	}
 
-    &__title{
-        display:flex;
-        justify-content: center;
-        font-size:4.5rem;
-        width:100%;
-        text-align:center;
-    }
-    &__title div{
-        margin-right:20px;
-    }
-    &__title-not{
-        opacity:0;
-        margin-right:-20px;
-        font-family: 'Syncopate',sans-serif;
-    }
-    &__title-your{
-        margin-left:150px;
-        margin-top:100px;
-        opacity:0;
-        font-family: 'Syncopate',sans-serif;
-    }
+	&__title {
+		display: flex;
+		justify-content: center;
+		font-size: 4.5rem;
+		width: 100%;
+		text-align: center;
+	}
+	&__title div {
+		margin-right: 20px;
+	}
+	&__title-not {
+		opacity: 0;
+		margin-right: -20px;
+		font-family: 'Syncopate', sans-serif;
+	}
+	&__title-your {
+		margin-left: 150px;
+		margin-top: 100px;
+		opacity: 0;
+		font-family: 'Syncopate', sans-serif;
+	}
 
-    &__title-thoughts{
-         margin-left:100px;
-        opacity:0;
-        font-family: 'Syncopate',sans-serif;
-    }
-    &__description-container{
-        display:flex;
-        justify-content: center;
-        flex-wrap:wrap;
-        margin-right:0;
-        width:100%;
-    }
-    &__description{
-        margin-top:-100px;
-        font-size:2.3rem;
-        margin-right:0;
-        width:60%;
-        opacity: 0;
-        transition: opacity .6s;
-        text-align: center;
-    }
-    &__start-button-container{
-        display:flex;
-        justify-content: center;
-        border-bottom:4px solid silver;
-        border-left:4px solid silver;
-        border-radius:15px;
-        width:15%;  
-        opacity:0;
-        margin-bottom: 300px;
-    }
-    &__start-button{
-        padding:20px 10%;
-        outline:none;
-        text-decoration: none;
-        width:100%;
-        color:black;
-        font-size:1.4rem;
-        font-family: 'Maven Pro', sans-serif;
-        border-radius:9%;
-        &:hover{
-            transition:all 1s;
-            color:white ;
-            text-shadow: 3px 3px 3px silver;
-            border-radius:19%;
-        }
-    }
-    &__button-bg{
-       height:10px;
-       width:10px;
-    }
+	&__title-thoughts {
+		margin-left: 100px;
+		opacity: 0;
+		font-family: 'Syncopate', sans-serif;
+	}
+	&__description-container {
+		display: flex;
+		justify-content: center;
+		flex-wrap: wrap;
+		margin-right: 0;
+		width: 100%;
+	}
+	&__description {
+		margin-top: -100px;
+		font-size: 2.3rem;
+		margin-right: 0;
+		width: 60%;
+		opacity: 0;
+		transition: opacity 0.6s;
+		text-align: center;
+	}
+	&__all-buttons-container {
+		display: flex;
+		justify-content: center;
+	}
+	&__start-button-container {
+		display: flex;
+		justify-content: center;
+		border-bottom: 4px solid silver;
+		border-left: 4px solid silver;
+		border-radius: 15px;
+		width: 75%;
+		opacity: 0;
+		margin-bottom: 300px;
+		margin-right: 3%;
+	}
+	&__login-button {
+		padding: 20px 30%;
+		margin-right: 3%;
+		outline: none;
+		text-decoration: none;
+		width: 100%;
+		color: black;
+		font-size: 1.4rem;
+		font-family: 'Maven Pro', sans-serif;
+		border-radius: 9%;
+		&:hover {
+			transition: all 1s;
+			color: white;
+			text-shadow: 3px 3px 3px silver;
+			border-radius: 19%;
+		}
+	}
+	&__register-button {
+		padding: 20px 20%;
+		outline: none;
+		text-decoration: none;
+		width: 100%;
+		color: black;
+		font-size: 1.4rem;
+		font-family: 'Maven Pro', sans-serif;
+		border-radius: 9%;
+		&:hover {
+			transition: all 1s;
+			color: white;
+			text-shadow: 3px 3px 3px silver;
+			border-radius: 19%;
+		}
+	}
+	&__button-bg {
+		height: 10px;
+		width: 10px;
+	}
 
-    &__start-button-container:hover{
-        color:white ;
-        color:silver;
-        font-size:1.3rem;
-        background-color:black;
-        transition:all 3s;
-
-    }
-
+	&__start-button-container:hover {
+		color: white;
+		color: silver;
+		font-size: 1.3rem;
+		background-color: black;
+		transition: all 3s;
+	}
 }

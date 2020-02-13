@@ -1,0 +1,58 @@
+.modes {
+	margin-left: 20%;
+	color: silver;
+	font-family: 'Comfortaa', cursive;
+	display: flex;
+	flex-direction: column;
+	height: 1000px;
+	margin-left: 20%;
+	width: 60%;
+
+	&__achievements-unlocked {
+		margin-top: 20px;
+		font-size: 1.8rem;
+		text-decoration: underline;
+	}
+	&__achievement-container {
+		display: flex;
+		flex-direction: column;
+	}
+	&__achievement-mode-container {
+		display: flex;
+		flex-direction: row;
+	}
+	&__bullshittify-title {
+		text-shadow: 2px 2px 2px black;
+	}
+	&__rpg-title {
+		text-shadow: 2px 2px 2px black;
+	}
+	&__rubber-ducky-title {
+		margin-left: 10px;
+		margin-right: 20px;
+		text-shadow: 2px 2px 2px black;
+		color: yellow;
+	}
+	&__rubber-ducky-activate-button {
+		outline: none;
+		color: black;
+		font-size: 0.9rem;
+		font-family: 'Syncopate', sans-serif;
+		border-radius: 9%;
+		padding-left: 20px;
+		padding-right: 20px;
+		height: 40px;
+		transition: all 1s;
+		&:hover {
+			text-shadow: 3px 3px 3px black;
+			font-size: 1.2rem;
+			background-color: yellow;
+			transition: all 2s;
+		}
+	}
+	&__bottom-chunk {
+		display: flex;
+		background-color: red;
+		width: 100px;
+	}
+}

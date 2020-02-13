@@ -1,43 +1,78 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../../middleware/auth.js');
-const {check, validationResult} = require('express-validator');
+const { check, validationResult } = require('express-validator');
 const User = require('../../models/User');
 const moment = require('moment');
 const uuidv4 = require('uuid/v4');
 
+const leapYear = (num) => {
+	if (num % 400 === 0) {
+		return true;
+	} else if (num % 100 === 0) {
+		return false;
+	} else if (num % 4 === 0) {
+		return true;
+	} else {
+		return false;
+	}
+};
 
+router.post('/', auth, async (req, res) => {
+	//   const currentDate = moment().format('L')
+	const curDate = new Date().toLocaleDateString('en-US');
+	const year = parseInt(curDate.split('/')[2], 10);
+	// const year = 2019
 
-router.post("/",auth,
-  async (req,res) => {
+	try {
+		const user = await await User.findById(req.user.id);
+		++user.totalDays;
 
-    try {
-        const user = await (await User.findById(req.user.id));
-        ++user.totalDays
-        await user.save()
-        res.json(user.totalDays)
-    } catch (err){
+		let CDayNum = parseInt(curDate.split('/')[1], 10);
+		let LDCCombo = parseInt(user.lastDayCompleted.split('/')[0] + user.lastDayCompleted.split('/')[1], 10);
+		let CDCombo = parseInt(curDate.split('/')[0] + curDate.split('/')[1], 10);
 
-        console.error(err.message)
-        res.status(500)
-    }
-}
-)
+		//test vars
+		// let LDCCombo = 228;
+		// let CDayNum = 1
+		// let CDCombo = 301
 
-router.post("/consecutive",auth,
-  async (req,res) => {
+		if (leapYear(year) === true && LDCCombo === 229 && CDCombo === 301) {
+			++user.consecutiveDays;
+			console.log('leap year Consec');
+		} else if (leapYear(year) === false && LDCCombo === 228 && CDCombo === 301) {
+			++user.consecutiveDays;
+			console.log('feb Consec');
+		} else if (
+			CDayNum === 1 &&
+			(LDCCombo === 131 ||
+				LDCCombo === 331 ||
+				LDCCombo === 531 ||
+				LDCCombo === 731 ||
+				LDCCombo === 831 ||
+				LDCCombo === 1031 ||
+				LDCCombo === 1231 ||
+				LDCCombo === 430 ||
+				LDCCombo === 630 ||
+				LDCCombo === 930 ||
+				LDCCombo === 1130)
+		) {
+			console.log('its and end of month consec');
+			++user.consecutiveDays;
+		} else if (CDCombo == LDCCombo + 1) {
+			console.log('standard consecuful');
+			++user.consecutiveDays;
+		} else {
+			console.log('those Aint Consecutive at ALL');
+		}
 
-    try {
-        const user = await (await User.findById(req.user.id));
-        ++user.consecutiveDays
-        await user.save()
-        res.json(user.consecutiveDays)
-    } catch (err){
+		user.lastDayCompleted = curDate;
+		await user.save();
+		res.json(user.totalDays);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500);
+	}
+});
 
-        console.error(err.message)
-        res.status(500)
-    }
-}
-)
-
-module.exports = router
+module.exports = router;

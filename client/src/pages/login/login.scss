@@ -2,98 +2,118 @@
 @import '../../styles/variables.scss';
 @import '../../styles/base.scss';
 
-.login{
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    display:flex;
-    justify-content: center;
-    align-items:center;
-    flex-direction:column;
-    width:100%;
-    height:100%;
-    color:silver;
+.login {
+	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana,
+		sans-serif;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	color: silver;
 
-    &__title{
-        font-size:2rem;
-        margin-top:50px;
-        font-family: 'Syncopate',sans-serif;
-    }
+	&__title {
+		font-size: 2rem;
+		margin-top: 50px;
+		font-family: 'Syncopate', sans-serif;
+	}
+	&__alert {
+		color: red;
+		font-family: 'Montserrat', sans-serif;
+		font-size: 1.1rem;
+	}
 
-    &__form{
-        width:70%;
-        display:flex;
-        align-items:center;
-        flex-direction:column;
-    }
-    &__input-container{
-        display:flex;
-        justify-content: center;
-        align-items:center;
-        flex-direction:column;
-        width:40%;
-        background-color: black;
-        border-radius: 10px;
-    }
-    &__input{
-        width:50%;
-        padding:2% 1%;
-        border:none;
-        border-bottom:1px solid silver;
-        outline:none;
-        color:silver;
-        display:flex;
-        justify-content: center;
-        background-color: black;
-        margin:2% 0%;
-        border-radius: 1px;
-        transition:all 2s;
+	&__alert-open {
+		opacity: 1;
+		transition: all 1s;
+	}
 
-        &:hover{
-        border-bottom:1px solid white;
-        transition:all 2s;
-        border-radius: 3px;            
-        }
-    }
+	&__alert-closed {
+		opacity: 0;
+		line-height: 0.2;
+		transition: all 1s;
+	}
 
-    &__submit-button{
-        width:11%;
-        height:5%;
-        padding:10px 1%;
-        border-radius: 7px;
-        font-size:0.9rem;
-        margin-top:1.5%;
-        margin-bottom:2%;
-        font-family: 'Syncopate',sans-serif;
-        outline:none;
-    }
+	&__form {
+		width: 70%;
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+	}
+	&__input-container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+		width: 40%;
+		background-color: black;
+		border-radius: 10px;
+	}
+	&__input {
+		width: 50%;
+		padding: 2% 1%;
+		border: none;
+		border-bottom: 1px solid silver;
+		outline: none;
+		color: silver;
+		display: flex;
+		justify-content: center;
+		background-color: black;
+		margin: 2% 0%;
+		border-radius: 1px;
+		transition: all 2s;
 
-    &__signup-link{
-        text-decoration: none;
-        color:white;
-        margin-left:4px;
+		&:hover {
+			border-bottom: 1px solid white;
+			transition: all 2s;
+			border-radius: 3px;
+		}
+	}
 
-        &:hover{
-            transition:all 2s;
-            text-shadow: 1px 0px 1px silver;
-            border-radius: 3px;
-    }
+	&__submit-button {
+		width: 11%;
+		height: 5%;
+		padding: 10px 1%;
+		border-radius: 7px;
+		font-size: 0.9rem;
+		margin-top: 1.5%;
+		margin-bottom: 2%;
+		font-family: 'Syncopate', sans-serif;
+		transition: all 2s;
+		outline: none;
+		&:hover {
+			transition: all 2s;
+			background-color: black;
+			color: white;
+			text-shadow: 3px 3px 3px silver;
+		}
+	}
 
-    
+	&__signup-link {
+		text-decoration: none;
+		color: white;
+		margin-left: 4px;
 
-}
+		&:hover {
+			transition: all 2s;
+			text-shadow: 1px 0px 1px silver;
+			border-radius: 3px;
+		}
+	}
 
-&__signup{
-    font-family:"Maven Pro";
-    color:grey;
-
-}
+	&__signup {
+		font-family: 'Maven Pro';
+		color: grey;
+	}
 }
 /* Change the white to any color ;) */
 // Okay i've never done any webkit things but this is a good thing to look for
 
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
-input:-webkit-autofill:active  {
-    -webkit-box-shadow: 0 0 0 30px black inset !important;
-    -webkit-text-fill-color: silver;
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+	-webkit-box-shadow: 0 0 0 30px black inset !important;
+	-webkit-text-fill-color: silver;
 }

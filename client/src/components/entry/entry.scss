@@ -1,0 +1,57 @@
+.entry {
+	&__entry-all-container {
+		width: 30%;
+		margin: 5px 0px;
+	}
+	&__entry-date-wordcount-container {
+		display: flex;
+		justify-content: space-between;
+		width: 65%;
+		margin: 5px 0px;
+	}
+
+	&__entry-content {
+		color: white;
+		margin-top: 10%;
+	}
+	&__entry-date-wordcount {
+		margin: 5px 0px;
+	}
+	&__content {
+		margin-left: 300px;
+		width: 50%;
+	}
+	&__entry-open {
+		opacity: 1;
+		height: 100%;
+		margin-top: 2%;
+		line-height: 1.2rem;
+		transition: all 1s;
+	}
+	&__entry-closed {
+		margin: 0;
+		height: 0px;
+		opacity: 0;
+		line-height: 0.1rem;
+		transition: all 1s;
+	}
+	&__entry-arrow {
+		background-color: black;
+		height: 40%;
+		width: 55%;
+	}
+	&__button {
+		background-color: black;
+		border: none;
+		outline: none;
+		width: 10%;
+	}
+	&__button-open {
+		opacity: 1;
+		transform: rotate(180deg);
+		transition: all 1s;
+	}
+	&__button-closed {
+		transition: all 1s;
+	}
+}

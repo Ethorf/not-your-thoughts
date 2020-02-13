@@ -27,7 +27,7 @@ const UserSchema = new mongoose.Schema({
     type: Array
   },
   lastDayCompleted:{
-    type:Date,
+    type:String,
     default:null
   }
 });

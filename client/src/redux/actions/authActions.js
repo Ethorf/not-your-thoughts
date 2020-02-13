@@ -8,9 +8,7 @@ import {
   LOGIN_SUCCESS,
   LOGIN_FAIL,
   LOGOUT,
-  INCREASE_CON_DAYS,
-  INCREASE_TOT_DAYS,
-  SET_LAST_DAY_COMPLETE,
+  INCREASE_DAYS,
   DAY_INCREASE_ERROR
 } from './action-types';
 
@@ -104,7 +102,7 @@ export const logout = () => dispatch => {
 
 //// Increase User Consecutive Days \\\ ?? should this be in this section ??
 
-export const increaseConsecutiveDays = () => async dispatch => {
+export const increaseDays = () => async dispatch => {
   const config = {
     headers: {
       'Content-Type': 'application/json',
@@ -115,9 +113,10 @@ export const increaseConsecutiveDays = () => async dispatch => {
     const res = await axios.post('http://localhost:8082/api/increaseDays', config);
 
     dispatch({
-      type: INCREASE_TOT_DAYS,
+      type: INCREASE_DAYS,
       payload: res.data
     });
+
   } catch (err) {
     const errors = err.response.data.errors;
     if (errors) {
