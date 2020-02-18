@@ -1,289 +1,316 @@
-
 @import '../../styles/mixins.scss';
 @import '../../styles/variables.scss';
 @import '../../styles/base.scss';
 
-body{
-    background-color:black;
+body {
+	background-color: black;
 }
-.black{
-    background-color:black;
-    color:white;
+.black {
+	background-color: black;
+	color: white;
 }
-.textarea-black{
-    background-color:black;
-    color:white;
-    border:1px solid grey;
-}
-
-.main{
-    font-family: "Poppins", sans-serif;
-    height:100%;
-    display:flex;
-    justify-content: center;
-    color:silver;
-    align-items: center;
-    flex-direction: column;
-
-
-    &__list{
-        display:flex;
-        justify-content: center;
-    }
-
-    &__progress-number{
-        position:absolute;
-        left:10%;
-        top:8%;
-        opacity:0;
-        font-size:2.6rem;
-        color:white;
-        z-index: 10;
-    }
-    &__bg-img{
-        position: absolute;
-        opacity:0.002;
-        right:100;
-        width:100%;
-        height:100%;
-        z-index:3;
-    }
-    &__progress-word{
-        position:absolute;
-        right:8%;
-        top:8%;
-        font-size:2.6rem;
-        opacity:0;
-        color:white;
-        z-index: 10;
-        transition:all 1s;
-    }
-    &__header{
-        display:flex;
-        justify-content: center;
-        font-size:2.6rem;
-        margin-top:$top-margin;
-        width:50%;
-        margin-bottom:5px;
-        transform-origin: 50% 50%;
-        font-family: 'Syncopate',sans-serif;
-        color:white;
-    }
-    &__goal{
-        display:flex;
-        font-size:1.6rem;
-    }
-    &__limit{
-        color:silver;
-    }
-    &__prompt{
-        overflow:hidden;
-        font-size:1.3rem;
-
-        font-family: 'Maven Pro', sans-serif;
-        width:60%;
-        margin:0;
-    }
-    &__date{
-        font-size:1.3rem;
-    }
-    &__wordcount{
-        font-size:1.3rem;
-    }
-
-    //// Container-Verse \\\\
-
-    &__pillars-date-goal-wordcount-textarea-container{
-        display:flex;
-        flex-direction:row;
-        justify-content: space-between;
-        height:400px;
-        width:80%;
-    }
-    &__date-goal-wordcount-textarea-container{
-        display:flex;
-        flex-direction: column;
-        height:100%;
-        width:80%;
-    }
-
-    &__date-goal-wordcount-container{
-        display:flex;
-        justify-content: space-between;
-        width:100%;
-        font-size:24px;
-        flex-direction:row;
-    }
-    &__textarea{
-        position:relative;
-        z-index:20;
-        display:flex;
-        font-family: 'Maven Pro', sans-serif;
-        justify-content: center;
-        width:100%;
-        font-size:1.4rem;
-        height:80%;
-        resize:none;
-        border-radius:4px;
-        padding:13px;
-        text-align:center;
-        box-shadow: none;
-        outline:none;
-    }
-
-    /////Begin Pillars\\\\\\
-
-    &__pillar-left-container{
-        display:flex;
-        justify-content: center;
-        align-items: flex-end;
-        width:20%;
-        height:100%;
-    }
-    &__pillar-left-outline{
-        position:relative;
-        left:40%;
-        width:100%;
-        top:11px;
-        z-index: 4;
-        height:101%;
-    }
-    &__pillar-left{
-        position:relative;
-        z-index: 2;
-        width:80%;
-        top:3%;
-        bottom:2%;
-        right:50%;
-        height:100%;
-        transition:all 300ms;
-
-    }
-    &__pillar-top-container{
-        align-items:center;
-        width:80%;
-        height:150px;
-    }
-    &__pillar-top-outline{
-        position:relative;
-        width:100%;
-        z-index:4;
-        height:100%; 
-    }
-    &__pillar-top{
-        position:relative;
-        height:87%;
-        width:90%;
-        opacity:1;
-        margin-bottom:4%;
-        top:-150px;
-        left:4px;
-        z-index: 3;
-        transition:all 300ms;
-    }
-    &__pillar-right-container{
-        display:flex;
-        justify-content: center;
-        width:20%;
-        height:100%;
-    }
-    &__pillar-right-outline{
-        position:relative;
-        width:100%;
-        left:50%;
-        z-index: 3;
-        height:100%;
-        transform:rotate(180deg);
-    }
-    &__pillar-right{
-        position:relative;
-        opacity:1;
-        height:100%;
-        z-index:2 ;
-        top:2px;
-        width:95%;
-        right:49%;
-        transition:all 300ms;
-    }
-    &__pillar-bottom-container{
-        align-items:center;
-        width:80%;
-        height:150px;
-    }
-    &__pillar-bottom-outline{
-        position:relative;
-        width:100%;
-        z-index:3;
-        height:100%;
-        transform:rotate(180deg);
-    }
-    &__pillar-bottom{
-        position:relative;
-        width:1%;
-        opacity:1;
-        left:99%;
-        height:80%;
-        top:-150px;
-        z-index: 2;
-        transition:all 300ms;
-    }
-
-
-    ///// Begin Modals \\\\\\\\
-    &__modal2{
-        display:flex;
-        flex-direction:column;
-        justify-content: center;
-        align-items: center;
-        position: absolute;
-        z-index:9;
-        opacity:1;
-        top:0px;
-        left:30%;
-        right:30%;
-        bottom:40%;
-        border: 1px solid silver;
-        border-radius:100px;
-        background: black;
-        opacity:0;
-        color:white;
-        overflow: auto;
-        // webkit-overflow-scrolling:touch;
-        border-radius: 4px;
-        outline: none;
-        padding: 20px;
-        transition:all 1s;
-      }
-      &__modal2Closed{
-        display:none;
-      }
-      &__modal2OverlayOpen{
-        position: fixed;
-        z-index:7;
-        top: 0;
-        opacity:0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.85);
-        transition:all 2s;
-      }
-      &__modal2OverlayClosed{
-        position: fixed;
-        z-index:1;
-        top: 0;
-        opacity:0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.65);
-        transition:all 2s;
-      }
-
-}      
-
-*{
-    z-index:4;
+.textarea-black {
+	background-color: black;
+	color: white;
+	border: 1px solid grey;
 }
 
+.main {
+	font-family: 'Poppins', sans-serif;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	color: silver;
+	align-items: center;
+	flex-direction: column;
 
+	&__list {
+		display: flex;
+		justify-content: center;
+	}
+
+	&__progress-number {
+		position: absolute;
+		left: 10%;
+		top: 8%;
+		opacity: 0;
+		font-size: 2.6rem;
+		color: white;
+		z-index: 10;
+	}
+	&__bg-img {
+		position: absolute;
+		opacity: 0.002;
+		right: 100;
+		width: 100%;
+		height: 100%;
+		z-index: 3;
+	}
+	&__progress-word {
+		position: absolute;
+		right: 8%;
+		top: 8%;
+		font-size: 2.6rem;
+		opacity: 0;
+		color: white;
+		z-index: 10;
+		transition: all 1s;
+	}
+	&__header {
+		display: flex;
+		justify-content: center;
+		font-size: 2.6rem;
+		margin-top: $top-margin;
+		width: 50%;
+		margin-bottom: 5px;
+		transform-origin: 50% 50%;
+		font-family: 'Syncopate', sans-serif;
+		color: white;
+	}
+
+	&__limit {
+		color: silver;
+	}
+	&__prompt {
+		overflow: hidden;
+		font-size: 1.3rem;
+
+		font-family: 'Maven Pro', sans-serif;
+		width: 60%;
+		margin: 0;
+	}
+	&__date-goal-wordcount-container {
+		display: flex;
+		align-items: center;
+		flex-direction: row;
+		height: 10%;
+		// justify-content: space-between;
+		width: 100%;
+		font-size: 24px;
+	}
+	&__date {
+		font-size: 1.3rem;
+		width: 25%;
+	}
+	&__wordcount {
+		font-size: 1.3rem;
+		width: 25%;
+		display: flex;
+		justify-content: flex-end;
+	}
+	&__goal {
+		display: flex;
+		width: 50%;
+		display: flex;
+		justify-content: center;
+
+		font-size: 1.6rem;
+	}
+
+	//// Container-Verse \\\\
+
+	&__pillars-date-goal-wordcount-textarea-container {
+		display: flex;
+		flex-direction: row;
+		// justify-content: space-between;
+		height: 400px;
+		width: 80%;
+	}
+	&__date-goal-wordcount-textarea-container {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		width: 80%;
+	}
+
+	&__textarea {
+		position: relative;
+		z-index: 20;
+		display: flex;
+		font-family: 'Maven Pro', sans-serif;
+		justify-content: center;
+		width: 100%;
+		font-size: 1.4rem;
+		height: 80%;
+		resize: none;
+		border-radius: 4px;
+		padding: 13px;
+		text-align: center;
+		box-shadow: none;
+		outline: none;
+	}
+	&__save-entry-button-container {
+		display: flex;
+		justify-content: center;
+	}
+	&__save-entry-button {
+		width: 15%;
+		font-size: 0.8rem;
+		margin-top: 1%;
+		color: silver;
+		background-color: black;
+		padding-top: 5px;
+		border: 1px solid silver;
+		border-radius: 20px;
+		outline: none;
+		transition: all 0.3s;
+		font-family: 'Syncopate', sans-serif;
+
+		&:hover {
+			transition: all 0.3s;
+			color: black;
+			background-color: white;
+		}
+	}
+
+	/////Begin Pillars\\\\\\
+
+	&__pillar-left-container {
+		display: flex;
+		justify-content: center;
+		align-items: flex-end;
+		width: 20%;
+		height: 100%;
+	}
+	&__pillar-left-outline {
+		position: relative;
+		left: 40%;
+		width: 100%;
+		top: 11px;
+		z-index: 4;
+		height: 101%;
+	}
+	&__pillar-left {
+		position: relative;
+		z-index: 2;
+		width: 80%;
+		top: 3%;
+		bottom: 2%;
+		right: 50%;
+		height: 100%;
+		transition: all 300ms;
+	}
+	&__pillar-top-container {
+		align-items: center;
+		width: 80%;
+		height: 150px;
+	}
+	&__pillar-top-outline {
+		position: relative;
+		width: 100%;
+		z-index: 4;
+		height: 100%;
+	}
+	&__pillar-top {
+		position: relative;
+		height: 87%;
+		width: 90%;
+		opacity: 1;
+		margin-bottom: 4%;
+		top: -150px;
+		left: 4px;
+		z-index: 3;
+		transition: all 300ms;
+	}
+	&__pillar-right-container {
+		display: flex;
+		justify-content: center;
+		width: 20%;
+		height: 100%;
+	}
+	&__pillar-right-outline {
+		position: relative;
+		width: 100%;
+		left: 50%;
+		z-index: 3;
+		height: 100%;
+		transform: rotate(180deg);
+	}
+	&__pillar-right {
+		position: relative;
+		opacity: 1;
+		height: 100%;
+		z-index: 2;
+		top: 2px;
+		width: 95%;
+		right: 49%;
+		transition: all 300ms;
+	}
+	&__pillar-bottom-container {
+		align-items: center;
+		width: 80%;
+		height: 150px;
+	}
+	&__pillar-bottom-outline {
+		position: relative;
+		width: 100%;
+		z-index: 3;
+		height: 100%;
+		transform: rotate(180deg);
+	}
+	&__pillar-bottom {
+		position: relative;
+		width: 1%;
+		opacity: 1;
+		left: 99%;
+		height: 80%;
+		top: -150px;
+		z-index: 2;
+		transition: all 300ms;
+	}
+
+	///// Begin Modals \\\\\\\\
+	&__modal2 {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		position: absolute;
+		z-index: 9;
+		opacity: 1;
+		top: 0px;
+		left: 30%;
+		right: 30%;
+		bottom: 40%;
+		border: 1px solid silver;
+		border-radius: 100px;
+		background: black;
+		opacity: 0;
+		color: white;
+		overflow: auto;
+		border-radius: 4px;
+		outline: none;
+		padding: 20px;
+		transition: all 1s;
+	}
+	&__modal2Closed {
+		display: none;
+		transition: all 1s;
+	}
+	&__modal2OverlayOpen {
+		position: fixed;
+		z-index: 7;
+		top: 0;
+		opacity: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.85);
+		transition: all 0.5s;
+	}
+	&__modal2OverlayClosed {
+		position: fixed;
+		z-index: 1;
+		top: 0;
+		opacity: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.65);
+		transition: all 0.5s;
+	}
+}
+
+* {
+	z-index: 4;
+}

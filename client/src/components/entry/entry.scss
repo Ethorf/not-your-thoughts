@@ -1,3 +1,7 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/variables.scss';
+@import '../../styles/base.scss';
+
 .entry {
 	&__entry-all-container {
 		width: 30%;
@@ -8,6 +12,10 @@
 		justify-content: space-between;
 		width: 65%;
 		margin: 5px 0px;
+	}
+	&__wordcount-container {
+		// border: 1px solid white;
+		width: 30%;
 	}
 
 	&__entry-content {
@@ -37,14 +45,20 @@
 	}
 	&__entry-arrow {
 		background-color: black;
-		height: 40%;
-		width: 55%;
+		border: 1px solid black;
+		border-radius: 50%;
+		height: 100%;
+		width: 100%;
+		transition: all 1s;
 	}
 	&__button {
 		background-color: black;
-		border: none;
+		border: 1px solid black;
+		border-radius: 50%;
 		outline: none;
-		width: 10%;
+		padding: 0px;
+		height: 10%;
+		width: 6%;
 	}
 	&__button-open {
 		opacity: 1;
@@ -53,5 +67,61 @@
 	}
 	&__button-closed {
 		transition: all 1s;
+	}
+	&__delete-button {
+		color: silver;
+		background-color: black;
+		border: none;
+		outline: none;
+		font-size: 1.4rem;
+		&:hover {
+			color: red;
+		}
+	}
+
+	&__delete-modal-open {
+		width: 20%;
+		position: absolute;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		text-align: center;
+		flex-direction: column;
+		top: 35%;
+		left: 55%;
+		border: 1px solid white;
+		border-radius: 5px;
+		z-index: 9;
+		opacity: 1;
+		transition: all 1s;
+	}
+
+	&__delete-modal-closed {
+		display: none;
+		opacity: 0;
+		transition: all 1s;
+	}
+	&__delete-modal-buttons-container {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+	}
+
+	&__delete-modal-button {
+		margin-bottom: 3%;
+		margin-left: 4px;
+		color: black;
+		padding: 1% 4%;
+		border-radius: 20px;
+		outline: none;
+		transition: all 0.1s;
+
+		&:hover {
+			background-color: black;
+			color: white;
+		}
+	}
+	&__delete-modal-text {
+		margin-bottom: 3%;
 	}
 }

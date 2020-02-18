@@ -2,71 +2,73 @@
 @import '../../styles/variables.scss';
 @import '../../styles/base.scss';
 
-.resources{
-    color:silver;
-    font-family: 'Montserrat', sans-serif;
-    display:flex;
-    flex-direction:column;
-    width:100%;
-    height:1000px;
+.resources {
+	color: silver;
+	font-family: 'Montserrat', sans-serif;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 1000px;
 
-    &__content-container{
-        display:flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        width:76%;
-        height:100%;
-    }
-    &__title{
-        width:100%;
-        margin-top:60px;
-        margin-left:300px;
-        font-size:2.3rem;
-        font-family: 'Syncopate', sans-serif;
-    }
-    &__mindfulness-container{
-        margin-left:300px;
-        display:flex;
-        width:35%;
-        flex-direction:column;
-        justify-content: flex-start;
-    }
-    &__mindfulness-title{
-        text-decoration:underline;
-    }
-    &__mindfulness-content{
-        display:flex;
-        flex-direction:column;
-    }
-    &__journalling-container{
-        margin-left:170px;
-        display:flex;
-        flex-direction:column;
-        justify-content: flex-start;
-    }
-    &__journalling-title{
-        text-decoration:underline;
-    }
-    &__journalling-content{
-        display:flex;
-        flex-direction:column;
-    }
-    &__gamification-container{
-        margin-left:170px;
-        display:flex;
-        flex-direction:column;
-        justify-content: flex-start;
-    }
-    &__gamification-title{
-        text-decoration:underline;
-    }
-    &__gamification-content{
-        display:flex;
-        flex-direction:column;
-    }
-    &__link{
-        font-size:1.3rem;
-        margin-bottom:20px;
-        text-decoration: none;
-    }
+	&__content-container {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		width: 76%;
+		height: 100%;
+	}
+	&__title {
+		width: 100%;
+		margin-top: 60px;
+		margin-left: 300px;
+		font-size: 2.3rem;
+		font-family: 'Syncopate', sans-serif;
+		color: white;
+	}
+	&__mindfulness-container {
+		margin-left: 300px;
+		display: flex;
+		width: 35%;
+		flex-direction: column;
+		justify-content: flex-start;
+	}
+	&__mindfulness-title {
+		color: white;
+	}
+	&__mindfulness-content {
+		display: flex;
+		flex-direction: column;
+	}
+	&__journalling-container {
+		margin-left: 170px;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+	}
+	&__journalling-title {
+		color: white;
+	}
+	&__journalling-content {
+		display: flex;
+		flex-direction: column;
+	}
+	&__gamification-container {
+		margin-left: 170px;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+	}
+	&__gamification-title {
+		color: white;
+	}
+	&__gamification-content {
+		display: flex;
+		flex-direction: column;
+	}
+	&__link {
+		font-size: 1.3rem;
+		margin-bottom: 20px;
+		text-decoration: none;
+		color: silver;
+	}
 }

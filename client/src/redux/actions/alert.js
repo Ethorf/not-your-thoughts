@@ -1,6 +1,6 @@
 import uuid from 'uuid';
-import { SET_ALERT, REMOVE_ALERT } from './action-types';
-
+import { SET_ALERT, REMOVE_ALERT } from './actionTypes';
+//when you change the file name you have to save all the files affected before it will stop erroring out
 export const setAlert = (msg, alertType, timeout = 5000) => (dispatch) => {
 	const id = uuid.v4();
 	dispatch({

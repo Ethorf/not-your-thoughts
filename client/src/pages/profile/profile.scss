@@ -29,16 +29,16 @@
 
 	&__logout-button {
 		width: 10%;
-		height: 2%;
-		margin-left: 3%;
+		height: 3%;
+		margin-top: 5%;
 		padding: 8px 1%;
 		border-radius: 7px;
 		font-size: 0.7rem;
 		font-family: 'Syncopate', sans-serif;
 		outline: none;
-		transition: all 2s;
+		transition: all 0.3s;
 		&:hover {
-			transition: all 2s;
+			transition: all 0.5s;
 			background-color: black;
 			color: white;
 		}
@@ -64,6 +64,22 @@
 	&__last-day {
 		display: flex;
 		margin-bottom: 40px;
+	}
+	&__goal-edit-button {
+		width: 4%;
+		height: 3%;
+		padding: 0.3%;
+		margin-left: 1%;
+		border-radius: 7px;
+		font-size: 0.8rem;
+		font-family: 'Montserrat', sans-serif;
+		outline: none;
+		transition: all 1s;
+		&:hover {
+			transition: all 1s;
+			background-color: black;
+			color: white;
+		}
 	}
 	&__entries-header {
 		color: white;

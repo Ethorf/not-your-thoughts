@@ -10,6 +10,9 @@ const Login = ({ login, isAuthenticated, alert }) => {
 		email: '',
 		password: ''
 	});
+
+	//it seems like this isAuthenticated stuff is actually running before we ever get to the main thing
+
 	if (isAuthenticated) {
 		return <Redirect to="/profile" />;
 	}
@@ -52,7 +55,7 @@ const Login = ({ login, isAuthenticated, alert }) => {
 				<input type="submit" className="login__submit-button" value="Login" />
 			</form>
 			<p className="login__signup">
-				Don't have an account?{' '}
+				Don't have an account?
 				<Link className="login__signup-link" to="/register">
 					Sign Up
 				</Link>

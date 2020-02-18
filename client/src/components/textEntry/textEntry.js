@@ -5,9 +5,9 @@ import PropTypes from 'prop-types';
 import '../../pages/main/main.scss';
 //Redux Functions
 import { connect } from 'react-redux';
-import { changeWordCount } from '../../redux/actions/index';
+import { changeWordCount, changeGoal } from '../../redux/actions/index';
 import { saveEntry, setEntry } from '../../redux/actions/entryActions.js';
-import { openSuccessModal } from '../../redux/actions/modalActions';
+import { openSuccessModal, openSaveEntryModal } from '../../redux/actions/modalActions';
 import { increaseDays } from '../../redux/actions/authActions.js';
 
 //Component Imports
@@ -20,8 +20,18 @@ import PillarRight from '../pillars/pillarRight.js';
 import PillarBottom from '../pillars/pillarBottom.js';
 import ProgressWord from '../../components/progress/progressRight.js';
 import SuccessModal from '../Modals/successModal.js';
+import SaveEntryModal from '../Modals/saveEntryModal.js';
 
-const TextEntry = ({ wordCount, changeWordCount, saveEntry, isAuthenticated, setEntry, increaseDays }) => {
+const TextEntry = ({
+	openSaveEntryModal,
+	goal,
+	changeGoal,
+	wordCount,
+	changeWordCount,
+	saveEntry,
+	isAuthenticated,
+	setEntry
+}) => {
 	const [entryData, setEntryData] = useState({
 		entry: ''
 	});
@@ -38,6 +48,7 @@ const TextEntry = ({ wordCount, changeWordCount, saveEntry, isAuthenticated, set
 
 	const onSubmit = async (e) => {
 		e.preventDefault();
+		openSaveEntryModal();
 		saveEntry({ entry: entryData });
 	};
 
@@ -45,8 +56,9 @@ const TextEntry = ({ wordCount, changeWordCount, saveEntry, isAuthenticated, set
 		<div className="main__all-container modalize">
 			<BgImage />
 			<div className="main black">
-				<button onClick={increaseDays}>TotalDays Increase Test</button>
+				{/* <button onClick={increaseDays}>TotalDays Increase Test</button> */}
 				<Header />
+				<SaveEntryModal />
 				<SuccessModal />
 				<Prompt />
 				<ProgressWord />
@@ -56,10 +68,7 @@ const TextEntry = ({ wordCount, changeWordCount, saveEntry, isAuthenticated, set
 					<form className="main__date-goal-wordcount-textarea-container" onSubmit={(e) => onSubmit(e)}>
 						<div className="main__date-goal-wordcount-container">
 							<h3 className={`main__date`}>{moment().format('MM/DD/YYYY')}</h3>
-							<h2 className={`main__goal`}>{`Goal:400 words`}</h2>
-							<button type="submit" className="main__save-button">
-								Save Entry
-							</button>
+							<h2 className={`main__goal`}>Goal: {goal} Words</h2>
 							<h3 className={`main__wordcount`}>{wordCount} Words</h3>
 						</div>
 						<textarea
@@ -68,9 +77,15 @@ const TextEntry = ({ wordCount, changeWordCount, saveEntry, isAuthenticated, set
 							className={`main__textarea textarea-black`}
 							placeholder="note those thoughts here"
 						></textarea>
+						<div className="main__save-entry-button-container">
+							<button onClick={onSubmit} type="submit" className="main__save-entry-button">
+								Save Entry
+							</button>
+						</div>
 					</form>
 					<PillarRight />
 				</div>
+
 				<PillarBottom />
 			</div>
 		</div>
@@ -86,10 +101,16 @@ TextEntry.propTypes = {
 const mapStateToProps = (state) => ({
 	auth: state.auth,
 	wordCount: state.wordCount.wordCount,
+	goal: state.wordCount.goal,
 	isAuthenticated: state.auth.isAuthenticated,
 	modals: state.modals
 });
 
-export default connect(mapStateToProps, { saveEntry, openSuccessModal, changeWordCount, setEntry, increaseDays })(
-	TextEntry
-);
+export default connect(mapStateToProps, {
+	saveEntry,
+	openSaveEntryModal,
+	openSuccessModal,
+	changeWordCount,
+	setEntry,
+	increaseDays
+})(TextEntry);

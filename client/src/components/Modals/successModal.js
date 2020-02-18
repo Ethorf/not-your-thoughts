@@ -8,7 +8,7 @@ import './successModal.scss';
 import { openSuccessModal, closeSuccessModal } from '../../redux/actions/modalActions.js';
 import { saveEntry } from '../../redux/actions/entryActions';
 import { goalReached } from '../../redux/actions/index';
-import { increaseDays } from '../../redux/actions/authActions';
+import { increaseDays, loadUser } from '../../redux/actions/authActions';
 
 const SuccessModal = ({
 	auth: { user },
@@ -19,6 +19,8 @@ const SuccessModal = ({
 	saveEntry,
 	wordCount,
 	goalReached,
+	goal,
+	loadUser,
 	goalReachedStatus,
 	increaseDays
 }) => {
@@ -65,18 +67,17 @@ const SuccessModal = ({
 		closeModalOverlayAnimation();
 		closeSuccessModal();
 		increaseDays();
-
 		goalReached();
 		saveEntry({ entry: entry });
 	};
 	useEffect(() => {
-		if (wordCount >= 400 && goalReachedStatus === false) {
+		if (wordCount >= goal && goalReachedStatus === false) {
 			openModalAll();
 		}
-	}, [wordCount]);
+	}, [wordCount, user]);
 	return (
 		<Fragment>
-			<button onClick={openModalAll}>Modal Open Test</button>
+			{/* <button onClick={openModalAll}>Modal Open Test</button> */}
 			<div
 				className={`${modals.successModalOpen ? 'main__modal2OverlayOpen' : 'main__modal2OverlayClosed'}`}
 				ref={(div) => (modalOverlayContainer = div)}
@@ -115,9 +116,15 @@ const mapStateToProps = (state) => ({
 	modals: state.modals,
 	wordCount: state.wordCount.wordCount,
 	entry: state.entries.entry,
-	goalReachedStatus: state.wordCount.goalReachedStatus
+	goalReachedStatus: state.wordCount.goalReachedStatus,
+	goal: state.wordCount.goal
 });
 
-export default connect(mapStateToProps, { openSuccessModal, closeSuccessModal, saveEntry, goalReached, increaseDays })(
-	SuccessModal
-);
+export default connect(mapStateToProps, {
+	loadUser,
+	openSuccessModal,
+	closeSuccessModal,
+	saveEntry,
+	goalReached,
+	increaseDays
+})(SuccessModal);

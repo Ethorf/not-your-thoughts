@@ -1,30 +1,26 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import posed from 'react-pose';
-import '../../pages/main/main.scss'
-
-
+import '../../pages/main/main.scss';
 
 const HeaderPosed = posed.div({
-    hidden: { opacity: 0.7 },
-    visible: { opacity: 0.9 }
-  });
+	hidden: { opacity: 0.7 },
+	visible: { opacity: 0.9 }
+});
 
-export default class Header extends React.Component{
-    state={
-        isVisible: true
-    }
-    componentDidMount(){
-        setInterval(() => {
-          this.setState({ isVisible: !this.state.isVisible, 
-          })
-        }, 1600);
-    }
-    render(){
-        return(
-            <HeaderPosed pose={this.state.isVisible ? 'visible' : 'hidden'}
-                         className='main__header'>
-                Not Your Thoughts
-            </HeaderPosed >
-        )
-    }
+export default class Header extends React.Component {
+	state = {
+		isVisible: true
+	};
+	componentDidMount() {
+		setInterval(() => {
+			this.setState({ isVisible: !this.state.isVisible });
+		}, 2600);
+	}
+	render() {
+		return (
+			<HeaderPosed pose={this.state.isVisible ? 'visible' : 'hidden'} className="main__header">
+				Not Your Thoughts
+			</HeaderPosed>
+		);
+	}
 }

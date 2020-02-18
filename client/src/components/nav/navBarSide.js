@@ -1,6 +1,9 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import '../../styles/rubberDucky.scss';
+import { connect } from 'react-redux';
+import { logout } from '../../redux/actions/authActions';
+
 import './navBarSide.scss';
 import arrow from '../../assets/down-arrow-grey-weird.png';
 
@@ -13,7 +16,7 @@ const linksTween = null;
 const arrowContainer = null;
 const arrowTween = null;
 
-export default class NavBarSide extends React.Component {
+class NavBarSide extends React.Component {
 	state = {
 		navOpen: false
 	};
@@ -52,10 +55,10 @@ export default class NavBarSide extends React.Component {
 			color: 'white'
 		});
 	}
-	render() {
+	render(logout) {
 		return (
 			<>
-				<header ref={(header) => (this.navBarContainer = header)} className="nav">
+				<div ref={(header) => (this.navBarContainer = header)} className="nav">
 					<button
 						className={
 							this.props.rubberDucky ? 'rubberDucky__nav-arrow-container' : 'nav__arrow-container '
@@ -107,9 +110,14 @@ export default class NavBarSide extends React.Component {
 						>
 							Modes
 						</NavLink>
+						<button className="nav__logout-button" onClick={this.props.logout}>
+							Logout
+						</button>
 					</div>
-				</header>
+				</div>
 			</>
 		);
 	}
 }
+
+export default connect(null, { logout })(NavBarSide);

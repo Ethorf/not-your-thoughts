@@ -1,0 +1,47 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/variables.scss';
+@import '../../styles/base.scss';
+
+.save-entry-modal {
+	display: flex;
+	position: absolute;
+	top: 10%;
+	z-index: 10;
+	color: white;
+	font-family: 'Syncopate', sans-serif;
+	font-size: 1.5rem;
+
+	&__open {
+		display: flex;
+		opacity: 0;
+		transition: all 1s;
+		z-index: 9;
+	}
+
+	&__closed {
+		display: none;
+		opacity: 0;
+		transition: all 1s;
+	}
+
+	&__overlay-open {
+		position: fixed;
+		z-index: 7;
+		top: 0;
+		background-color: rgba(0, 0, 0, 0.85);
+
+		transition: all 0.5s;
+	}
+	&__overlay-closed {
+		position: fixed;
+		z-index: 1;
+		top: 0;
+		opacity: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.65);
+		transition: all 0.5s;
+		display: none;
+	}
+}

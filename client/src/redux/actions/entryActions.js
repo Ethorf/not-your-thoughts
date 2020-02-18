@@ -38,10 +38,33 @@ export const saveEntry = ({ entry }) => async (dispatch) => {
 			payload: res.data
 		});
 	} catch (err) {
-		const errors = err.response.data.errors;
-		if (errors) {
-			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
-		}
+		// const errors = err.response.data.errors;
+		// if (errors) {
+		// 	errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+		// }
+		dispatch({
+			type: ENTRIES_ERROR
+		});
+	}
+};
+
+export const deleteEntry = (id) => async (dispatch) => {
+	try {
+		const res = await axios.delete(`http://localhost:8082/api/updateUser/${id}`);
+
+		dispatch({
+			type: DELETE_ENTRY,
+			payload: id
+		});
+		dispatch({
+			type: GET_ENTRIES,
+			payload: res.data
+		});
+	} catch (err) {
+		// const errors = err.res.data.errors;
+		// if (errors) {
+		// 	errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+		// }
 		dispatch({
 			type: ENTRIES_ERROR
 		});
