@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { setAlert } from './alert';
 import setAuthToken from '../../utils/setAuthToken';
 import { SAVE_ENTRY, DELETE_ENTRY, GET_ENTRIES, ENTRIES_ERROR, SET_ENTRY } from './actionTypes';
 

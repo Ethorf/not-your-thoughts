@@ -1,43 +1,40 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { toggleEditGoal, changeGoal } from '../../redux/actions/index';
+import { toggleEditGoal, changeGoal, setNewGoal } from '../../redux/actions/index';
 import '../../pages/profile/profile.scss';
 
-function ProfileGoalEdit({ goal, toggleEditGoal, goalIsEditable, changeGoal }) {
+function ProfileGoalEdit({ newGoal, goal, toggleEditGoal, goalIsEditable, changeGoal, setNewGoal }) {
 	const goalNum = (e) => {
 		e.preventDefault();
-		changeGoal(e.target.value);
+		setNewGoal(e.target.value);
 	};
 
 	const saveGoal = () => {
-		console.error('flenty');
+		changeGoal(newGoal);
 		toggleEditGoal();
 	};
 
 	const cancelEditGoal = () => {
-		changeGoal(goal);
 		toggleEditGoal();
 	};
 	return goalIsEditable ? (
-		<div>
-			<h2 className="profile__last-day">
-				Daily Words Goal:<input onChange={goalNum} defaultValue={goal}></input>
-				<button onClick={saveGoal} className="profile__goal-edit-button">
-					Save
-				</button>
-				<button onClick={cancelEditGoal} className="profile__goal-edit-button">
-					Cancel
-				</button>
-			</h2>
+		<div className="profile__goal-edit">
+			<h2>Daily Words Goal :</h2>
+			<input className="profile__goal-input" onChange={goalNum} defaultValue={goal}></input>
+			<button onClick={saveGoal} className="profile__goal-edit-button">
+				Save
+			</button>
+			<button onClick={cancelEditGoal} className="profile__goal-edit-button profile__goal-cancel-button">
+				Cancel
+			</button>
 		</div>
 	) : (
-		<div>
-			<h2 className="profile__last-day">
-				Daily Words Goal:<div className="profile__day-number"> {goal}</div>
-				<button onClick={toggleEditGoal} className="profile__goal-edit-button">
-					Edit
-				</button>
-			</h2>
+		<div className="profile__goal-edit">
+			<h2>Daily Words Goal :</h2>
+			<div className="profile__day-number"> {goal}</div>
+			<button onClick={toggleEditGoal} className="profile__goal-edit-button">
+				Edit
+			</button>
 		</div>
 	);
 }
@@ -46,6 +43,8 @@ const mapStateToProps = (state) => ({
 	auth: state.auth,
 	isAuthenticated: state.auth.isAuthenticated,
 	goal: state.wordCount.goal,
+	newGoal: state.wordCount.newGoal,
+
 	goalIsEditable: state.wordCount.goalIsEditable
 });
-export default connect(mapStateToProps, { toggleEditGoal, changeGoal })(ProfileGoalEdit);
+export default connect(mapStateToProps, { toggleEditGoal, changeGoal, setNewGoal })(ProfileGoalEdit);

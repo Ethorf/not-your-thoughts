@@ -91,33 +91,33 @@
 		margin-right: 3%;
 	}
 	&__login-button {
-		padding: 20px 30%;
+		padding: 15px 24%;
 		margin-right: 3%;
 		outline: none;
 		text-decoration: none;
 		width: 100%;
 		color: black;
-		font-size: 1.4rem;
-		font-family: 'Maven Pro', sans-serif;
+		font-size: 1.2rem;
+		font-family: 'Syncopate', sans-serif;
 		border-radius: 9%;
 		&:hover {
-			transition: all 1s;
+			transition: all 0.4s;
 			color: white;
 			text-shadow: 3px 3px 3px silver;
 			border-radius: 19%;
 		}
 	}
 	&__register-button {
-		padding: 20px 20%;
+		padding: 15px 15%;
 		outline: none;
 		text-decoration: none;
 		width: 100%;
 		color: black;
-		font-size: 1.4rem;
-		font-family: 'Maven Pro', sans-serif;
+		font-size: 1.2rem;
+		font-family: 'Syncopate', sans-serif;
 		border-radius: 9%;
 		&:hover {
-			transition: all 1s;
+			transition: all 0.4s;
 			color: white;
 			text-shadow: 3px 3px 3px silver;
 			border-radius: 19%;
@@ -133,6 +133,6 @@
 		color: silver;
 		font-size: 1.3rem;
 		background-color: black;
-		transition: all 3s;
+		transition: all 1s;
 	}
 }

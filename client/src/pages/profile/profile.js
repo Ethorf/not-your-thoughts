@@ -12,36 +12,27 @@ import moment from 'moment';
 import ProfileGoalEdit from '../../components/profileGoalEdit/profileGoalEdit.js';
 import Spinner from '../../components/spinner/spinner.js';
 
-//do I really need to destructure these dudes all of them in here or is that just over nugging?
-//all of this destructuring stuff is confusing the shit outta me
-
-// dongle dingle. I did it!! celebrate the small stuff nug boiz. It aint gon last fo snevver.
-// crispy tonions. So basically the biggest problem I was having was just the
-//infinite entries.entries.entries.entries bullshit brought on by the reducer / root reducer madness
-// my delete entry was essentially not working at all to update the state
-//I didn't even notice that was happening because the error jazz  within the redux portion
-//was not having a time at all though I should have known something was up with the
-//entries error dispatchulous
-//YAYAY
 const Profile = ({
-	loading,
-	goal,
 	isAuthenticated,
 	auth: { user },
 	logout,
 	deleteEntry,
-	loadUser,
 	getEntries,
-	entries
+	entries,
+	totalDays,
+	consecutiveDays
 }) => {
 	useEffect(() => {
+		loadUser();
 		getEntries();
-	}, [getEntries]);
+	}, [getEntries, loadUser]);
 	if (!isAuthenticated) {
 		return <Redirect to="/login" />;
 	}
-	console.log(entries);
-	return (
+
+	return user === null ? (
+		<h1>Loading..</h1>
+	) : (
 		<div className="profile">
 			<div className="profile__content">
 				<header className="profile__header">User Profile</header>
@@ -53,15 +44,20 @@ const Profile = ({
 					<div className="profile__day-number"> {user && user.consecutiveDays}</div>
 				</h2>
 				<h2 className="profile__total-days">
-					Total Days Completed:<div className="profile__day-number"> {user && user.totalDays}</div>
+					Total Days Completed:<div className="profile__day-number"> {user.totalDays}</div>
 				</h2>
-				<h2 className="profile__last-day">
-					Last Day Completed:<div className="profile__day-number"> {user && user.lastDayCompleted}</div>
-				</h2>
+				{user.lastDayCompleted !== null ? (
+					<h2 className="profile__last-day">
+						Last Day Completed:<div className="profile__day-number"> {user.lastDayCompleted}</div>
+					</h2>
+				) : (
+					<h2 className="profile__last-day">No days complete yet</h2>
+				)}
+
 				<ProfileGoalEdit />
 				<h2 className="profile__entries-header">SAVED ENtRIES</h2>
 				{entries.length === 0 ? (
-					<Spinner />
+					<h2>You have no saved journal entries</h2>
 				) : (
 					entries.map((user) => (
 						<Entry

@@ -6,13 +6,19 @@ import './modes.scss';
 const Modes = ({ auth: { user } }) => {
 	return (
 		<div className="modes">
-			<h2 className="modes__achievements-unlocked">Modes / Achievements Unlocked</h2>
+			<header className="modes__header">Modes / Achievements Unlocked</header>
 			<div className="modes__achievement-container">
 				<div className="modes__achievement-mode-container">
-					<h2 className="modes__rubber-ducky-requirement">3 Consecutive Days---> </h2>
+					<h2 className="modes__light-mode-requirement">4 Consecutive Days---> </h2>
+					<h2 className={`modes__mode-title ${user && user.consecutiveDays >= 4 ? ' ' : 'strikethrough'}`}>
+						Light Mode
+					</h2>
+				</div>
+				<div className="modes__achievement-mode-container">
+					<h2 className="modes__rubber-ducky-requirement">6 Consecutive Days---> </h2>
 					<h2
 						className={`modes__rubber-ducky-title ${
-							user && user.consecutiveDays >= 3 ? ' ' : 'strikethrough'
+							user && user.consecutiveDays >= 6 ? ' ' : 'strikethrough'
 						}`}
 					>
 						Rubber Ducky Mode
@@ -25,12 +31,13 @@ const Modes = ({ auth: { user } }) => {
 					{/*</button> */}
 				</div>
 				<div className="modes__achievement-mode-container">
-					<h2 className="modes__rubber-ducky-requirement">5 Consecutive Days---> </h2>
-					<h2 className="modes__bullshittify-title"> Bullsh*tiffy Mode</h2>
+					<h2 className="modes__rubber-ducky-requirement">9 Consecutive Days---> </h2>
+					<h2 className="modes__mode-title"> Bullsh*tiffy Mode</h2>
 				</div>
+
 				<div className="modes__achievement-mode-container">
-					<h2 className="modes__rubber-ducky-requirement">7 Consecutive Days---> </h2>
-					<h2 className="modes__rpg-title"> RPG Mode</h2>
+					<h2 className="modes__rubber-ducky-requirement">11 Consecutive Days---> </h2>
+					<h2 className="modes__mode-title"> RPG Mode</h2>
 				</div>
 			</div>
 		</div>

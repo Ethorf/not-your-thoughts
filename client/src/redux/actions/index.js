@@ -1,4 +1,4 @@
-import { CHANGE_WORDCOUNT, GOAL_REACHED, CHANGE_GOAL, TOGGLE_EDIT_GOAL } from './actionTypes';
+import { CHANGE_WORDCOUNT, GOAL_REACHED, CHANGE_GOAL, SET_NEW_GOAL, TOGGLE_EDIT_GOAL } from './actionTypes';
 
 //I feel like these should actualy be reducers
 
@@ -11,6 +11,13 @@ export const changeWordCount = (payload) => (dispatch) => {
 export const changeGoal = (payload) => (dispatch) => {
 	dispatch({
 		type: CHANGE_GOAL,
+		payload
+	});
+};
+
+export const setNewGoal = (payload) => (dispatch) => {
+	dispatch({
+		type: SET_NEW_GOAL,
 		payload
 	});
 };

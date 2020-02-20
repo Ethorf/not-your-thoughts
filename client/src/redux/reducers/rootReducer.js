@@ -3,6 +3,7 @@ import authReducer from './authReducer';
 import wordCountReducer from './wordCountReducer';
 import entriesReducer from './entriesReducer';
 import modalReducer from './modalReducer';
+import modesReducer from './modesReducer';
 
 import alert from './alert';
 
@@ -11,5 +12,6 @@ export default combineReducers({
 	wordCount: wordCountReducer,
 	alert,
 	entries: entriesReducer,
-	modals: modalReducer
+	modals: modalReducer,
+	modes: modesReducer
 });

@@ -74,7 +74,7 @@ const SuccessModal = ({
 		if (wordCount >= goal && goalReachedStatus === false) {
 			openModalAll();
 		}
-	}, [wordCount, user]);
+	}, [wordCount]);
 	return (
 		<Fragment>
 			{/* <button onClick={openModalAll}>Modal Open Test</button> */}
@@ -86,19 +86,20 @@ const SuccessModal = ({
 				className={`${modals.successModalOpen ? 'main__modal2' : 'main__modal2Closed'}`}
 				ref={(div) => (modalContentContainer = div)}
 			>
-				<h2 className="modal__congratulations">CONGRATULATIONS {user.name.toUpperCase().split(' ')[0]}!</h2>
+				<h2 className="modal__congratulations">
+					CONGRATULATIONS {user && user.name.toUpperCase().split(' ')[0]}!
+				</h2>
 				<div className="modal__mainText">
 					<h2 className="modal__goal">You've reached your goal for today</h2>
 					<h3 className="modal__goal">
-						{' '}
-						You have completed {user.consecutiveDays} days in a row, and {user.totalDays + 1} days total
+						You have completed {user && user.consecutiveDays} days in a row, and {user && user.totalDays}{' '}
+						days total
 					</h3>
 					<h4 className="modal__goal">Keep it up!</h4>
 					<button onClick={closeSaveModalAll} className="modal__close-button">
 						Save and Close
 					</button>
 					<button onClick={closeModalAll} className="modal__close-button">
-						{' '}
 						Just Close
 					</button>
 				</div>

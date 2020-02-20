@@ -2,6 +2,7 @@ export const CHANGE_WORDCOUNT = 'CHANGE_WORDCOUNT';
 export const GOAL_REACHED = 'GOAL_REACHED';
 export const CHANGE_GOAL = 'CHANGE_GOAL';
 export const TOGGLE_EDIT_GOAL = 'TOGGLE_EDIT_GOAL';
+export const SET_NEW_GOAL = 'SET_NEW_GOAL';
 
 // Alerts
 export const SET_ALERT = 'SET_ALERT';
@@ -28,3 +29,6 @@ export const CLOSE_SAVE_ENTRY_MODAL = 'CLOSE_SAVE_ENTRY_MODAL';
 //User Days ETC
 export const INCREASE_DAYS = 'INCREASE_DAYS';
 export const DAY_INCREASE_ERROR = 'DAY_INCREASE_ERROR';
+
+//Modes
+export const CHANGE_MODE = 'CHANGE_MODE';

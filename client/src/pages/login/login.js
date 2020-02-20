@@ -14,7 +14,7 @@ const Login = ({ login, isAuthenticated, alert }) => {
 	//it seems like this isAuthenticated stuff is actually running before we ever get to the main thing
 
 	if (isAuthenticated) {
-		return <Redirect to="/profile" />;
+		return <Redirect to="/main" />;
 	}
 	const { email, password } = formData;
 

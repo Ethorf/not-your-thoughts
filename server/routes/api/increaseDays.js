@@ -19,23 +19,20 @@ const leapYear = (num) => {
 };
 
 router.post('/', auth, async (req, res) => {
-	//   const currentDate = moment().format('L')
 	const curDate = new Date().toLocaleDateString('en-US');
 	const year = parseInt(curDate.split('/')[2], 10);
-	// const year = 2019
 
 	try {
 		const user = await await User.findById(req.user.id);
 		++user.totalDays;
 
 		let CDayNum = parseInt(curDate.split('/')[1], 10);
-		let LDCCombo = parseInt(user.lastDayCompleted.split('/')[0] + user.lastDayCompleted.split('/')[1], 10);
-		let CDCombo = parseInt(curDate.split('/')[0] + curDate.split('/')[1], 10);
+		let LDCCombo;
+		user.lastDayCompleted !== null
+			? (LDCCombo = parseInt(user.lastDayCompleted.split('/')[0] + user.lastDayCompleted.split('/')[1], 10))
+			: (LDCCombo = 0);
 
-		//test vars
-		// let LDCCombo = 228;
-		// let CDayNum = 1
-		// let CDCombo = 301
+		let CDCombo = parseInt(curDate.split('/')[0] + curDate.split('/')[1], 10);
 
 		if (leapYear(year) === true && LDCCombo === 229 && CDCombo === 301) {
 			++user.consecutiveDays;

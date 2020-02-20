@@ -6,10 +6,6 @@ const initialState = {
 	loading: true
 };
 
-//This is where we say what we are giving to our state and update the object
-//even though it's kind of mundane, most of the logic is done outside of here in the actions
-//It's making me think like this is the end of a funnel for the info/data
-
 export default function(state = initialState, action) {
 	const { type, payload } = action;
 
@@ -20,10 +16,6 @@ export default function(state = initialState, action) {
 				entries: payload.entries,
 				loading: false
 			};
-		//this below part seems a little fucky perhaps?
-		// I guess i'm a little confused on spread still, but I
-		// interpret this to be add the payload from the action to everything allready in state.entries
-
 		case SAVE_ENTRY:
 			return {
 				...state,

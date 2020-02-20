@@ -80,16 +80,16 @@
 		margin-top: 1.5%;
 		margin-bottom: 2%;
 		font-family: 'Syncopate', sans-serif;
-		transition: all 2s;
+		transition: all 0.4s;
+
 		outline: none;
 		&:hover {
-			transition: all 2s;
+			transition: all 0.4s;
 			background-color: black;
 			color: white;
 			text-shadow: 3px 3px 3px silver;
 		}
 	}
-
 	&__signup-link {
 		text-decoration: none;
 		color: white;
@@ -101,7 +101,6 @@
 			border-radius: 3px;
 		}
 	}
-
 	&__signup {
 		font-family: 'Maven Pro';
 		color: grey;

@@ -8,6 +8,8 @@ import { connect } from 'react-redux';
 import { changeWordCount, changeGoal } from '../../redux/actions/index';
 import { saveEntry, setEntry } from '../../redux/actions/entryActions.js';
 import { openSuccessModal, openSaveEntryModal } from '../../redux/actions/modalActions';
+import { changeMode } from '../../redux/actions/modeActions';
+
 import { increaseDays } from '../../redux/actions/authActions.js';
 
 //Component Imports
@@ -25,12 +27,13 @@ import SaveEntryModal from '../Modals/saveEntryModal.js';
 const TextEntry = ({
 	openSaveEntryModal,
 	goal,
-	changeGoal,
+	changeMode,
 	wordCount,
 	changeWordCount,
 	saveEntry,
 	isAuthenticated,
-	setEntry
+	setEntry,
+	mode
 }) => {
 	const [entryData, setEntryData] = useState({
 		entry: ''
@@ -52,11 +55,20 @@ const TextEntry = ({
 		saveEntry({ entry: entryData });
 	};
 
+	const changeModeLight = () => {
+		changeMode('light');
+	};
+	const changeModeDefault = () => {
+		changeMode('default');
+	};
+
 	return (
 		<div className="main__all-container modalize">
 			<BgImage />
-			<div className="main black">
-				{/* <button onClick={increaseDays}>TotalDays Increase Test</button> */}
+			<div className={`main ${mode}`}>
+				<button onClick={changeModeLight}>Light Mode</button>
+				<button onClick={changeModeDefault}>Default Mode</button>
+
 				<Header />
 				<SaveEntryModal />
 				<SuccessModal />
@@ -103,7 +115,8 @@ const mapStateToProps = (state) => ({
 	wordCount: state.wordCount.wordCount,
 	goal: state.wordCount.goal,
 	isAuthenticated: state.auth.isAuthenticated,
-	modals: state.modals
+	modals: state.modals,
+	mode: state.modes.mode
 });
 
 export default connect(mapStateToProps, {
@@ -112,5 +125,6 @@ export default connect(mapStateToProps, {
 	openSuccessModal,
 	changeWordCount,
 	setEntry,
-	increaseDays
+	increaseDays,
+	changeMode
 })(TextEntry);

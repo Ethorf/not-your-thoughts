@@ -1,32 +1,31 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { connect } from "react-redux";
-import '../../pages/main/main.scss'
-import PillarRightOutline from '../../assets/Pillars/PillarLeft-5-shadowboi.png'
-import crawBoxRight from '../../assets/Pillars/NuCrawBoxAnim-2-right.gif'
+import React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import '../../pages/main/main.scss';
+import PillarRightOutline from '../../assets/Pillars/NewPillarLeft-2.png';
+import crawBoxRight from '../../assets/Pillars/NuCrawBoxAnim-2-right.gif';
 
+const PillarRight = ({ wordCount, goal }) => {
+	let calc = wordCount / ((goal / 4) * 0.01);
 
-
-const PillarRight = ({wordCount}) => {
-
-    const pillarRightStyleHeight = () =>{
-        const testStyle = {
-          height:`${(-200 + wordCount+1 )}%`
-        };
-        const start = {height:`0%`}
-        const limit = {height:`100%`}
-        if (wordCount <= 200){
-          return start
-        } else if(wordCount >= 200 && wordCount <= 300  ) {
-          return testStyle
-        } else {
-          return limit
-        }
-      }
-    return (
-        <div className="main__pillar-right-container">
-
-            {/* <div className={`main__pillar-right-container 
+	const pillarRightStyleHeight = () => {
+		const testStyle = {
+			//This -197 was -200 originally
+			height: `${-197 + calc + 1}%`
+		};
+		const start = { height: `0%` };
+		const limit = { height: `100%` };
+		if (wordCount <= goal / 2) {
+			return start;
+		} else if (wordCount >= goal / 2 && wordCount <= goal * 0.75) {
+			return testStyle;
+		} else {
+			return limit;
+		}
+	};
+	return (
+		<div className="main__pillar-right-container">
+			{/* <div className={`main__pillar-right-container 
                   ${this.props.rubberDucky ? 'rubberDucky__pillar-right-container' : ''}`}>
                   <img alt="" src={WaterfallUp} className= {this.props.rubberDucky ? 'rubberDucky__waterFall-right' :
                   'rubberDucky__hidden'}></img>
@@ -37,24 +36,17 @@ const PillarRight = ({wordCount}) => {
                 </div>
               </div> */}
 
+			<img className="main__pillar-right-outline" src={PillarRightOutline} alt="pillar Shadow thing"></img>
+			<img className="main__pillar-right" src={crawBoxRight} style={pillarRightStyleHeight()}></img>
+		</div>
+	);
+};
 
-           <img className="main__pillar-right-outline"
-             src={PillarRightOutline} alt='pillar Shadow thing'></img>
-           <img className="main__pillar-right"
-            src={crawBoxRight}
-            style={pillarRightStyleHeight()}
-            ></img>          
-        </div>
-    )
-}
+PillarRight.propTypes = {};
 
-PillarRight.propTypes = {
+const mapStateToProps = (state) => ({
+	wordCount: state.wordCount.wordCount,
+	goal: state.wordCount.goal
+});
 
-}
-
-const mapStateToProps = state => ({
-    wordCount: state.wordCount.wordCount,
-  });
-
-
-export default connect(mapStateToProps,null)(PillarRight);
+export default connect(mapStateToProps, null)(PillarRight);

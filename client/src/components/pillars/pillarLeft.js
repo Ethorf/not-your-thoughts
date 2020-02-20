@@ -2,16 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import '../../pages/main/main.scss';
-import PillarLeftOutline from '../../assets/Pillars/PillarLeft-5-shadowboi.png';
+import PillarLeftOutline from '../../assets/Pillars/NewPillarLeft-2.png';
 import crawBoxLeft from '../../assets/Pillars/nuCrawBoxAnim-1.gif';
-//is using multiple dynamic variables a weird thing? must a man do this or maybe not do this?
-//FUUUCK
-//
+
 const PillarLeft = ({ wordCount, goal }) => {
+	let calc = wordCount / ((goal / 4) * 0.01);
 	const pillarLeftStyleHeight = () => {
-		let threend = goal / 0.01;
 		const testStyle = {
-			height: `${wordCount + goal * 0.01}%`,
+			height: `${calc + 1}%`,
 			opacity: `${wordCount / (goal / 10)}`
 		};
 
@@ -20,13 +18,11 @@ const PillarLeft = ({ wordCount, goal }) => {
 		};
 		if (wordCount <= goal / 4) {
 			return testStyle;
-			console.log(testStyle);
 		} else {
 			return limit;
 		}
-		console.log(testStyle);
 	};
-	// console.log(PillarLeft());
+
 	return (
 		<div className="main__pillar-left-container">
 			{/* <img alt="" src={startLine} className= 
