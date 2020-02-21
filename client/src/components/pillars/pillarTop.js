@@ -3,15 +3,18 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import '../../pages/main/main.scss';
 import pillarTopOutline from '../../assets/Pillars/NewPillarTop-2.png';
-import crawBoxTop from '../../assets/Pillars/NuCrawBoxAnim-2-top.gif';
+import PillarTopOutlineInverted from '../../assets/Pillars/NewPillarTop-3-inverted.png';
 
-const PillarTop = ({ wordCount, goal }) => {
+import crawBoxTop from '../../assets/Pillars/NuCrawBoxAnim-2-top.gif';
+import crawBoxTopInverted from '../../assets/Pillars/CrawBoxes/NewCrawBox-Inverted-Top.gif';
+
+const PillarTop = ({ wordCount, goal, mode }) => {
 	let calc = wordCount / ((goal / 4) * 0.01);
 
 	const pillarTopStyleWidth = () => {
 		const testStyle = {
-			width: `${-100 + calc - 1}%`,
-			opacity: `${wordCount / 200}`
+			width: `${-100 + calc - 1}%`
+			// opacity: `${wordCount / 200}`
 		};
 		const start = { width: `0%` };
 		const limit = { width: `98%` };
@@ -43,16 +46,24 @@ const PillarTop = ({ wordCount, goal }) => {
            className={`main__pillar-top ${props.rubberDucky ? 'rubberDucky__hidden' : ''}`}
            style={pillarTopStyleWidth()} alt=""></img>   */}
 
-			<img className="main__pillar-top-outline" src={pillarTopOutline} alt="pillar Shadow thing"></img>
-			<img className="main__pillar-top" src={crawBoxTop} style={pillarTopStyleWidth()}></img>
+			<img
+				className="main__pillar-top-outline"
+				src={mode === '-light' ? PillarTopOutlineInverted : pillarTopOutline}
+				alt="pillar Shadow thing"
+			></img>
+			<img
+				className="main__pillar-top"
+				src={mode === '-light' ? crawBoxTopInverted : crawBoxTop}
+				style={pillarTopStyleWidth()}
+			></img>
 		</div>
 	);
 };
-//I think PropTypes is just a TDD thing, so that we can check for consistency in our structures?
-PillarTop.propTypes = {};
+
 const mapStateToProps = (state) => ({
 	wordCount: state.wordCount.wordCount,
-	goal: state.wordCount.goal
+	goal: state.wordCount.goal,
+	mode: state.modes.mode
 });
 
 export default connect(mapStateToProps, null)(PillarTop);

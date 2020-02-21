@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { toggleEditGoal, changeGoal, setNewGoal } from '../../redux/actions/index';
 import '../../pages/profile/profile.scss';
 
-function ProfileGoalEdit({ newGoal, goal, toggleEditGoal, goalIsEditable, changeGoal, setNewGoal }) {
+function ProfileGoalEdit({ newGoal, goal, toggleEditGoal, goalIsEditable, changeGoal, setNewGoal, mode }) {
 	const goalNum = (e) => {
 		e.preventDefault();
 		setNewGoal(e.target.value);
@@ -20,7 +20,7 @@ function ProfileGoalEdit({ newGoal, goal, toggleEditGoal, goalIsEditable, change
 	return goalIsEditable ? (
 		<div className="profile__goal-edit">
 			<h2>Daily Words Goal :</h2>
-			<input className="profile__goal-input" onChange={goalNum} defaultValue={goal}></input>
+			<input className={`profile__goal-input ${mode}`} onChange={goalNum} defaultValue={goal}></input>
 			<button onClick={saveGoal} className="profile__goal-edit-button">
 				Save
 			</button>
@@ -31,7 +31,7 @@ function ProfileGoalEdit({ newGoal, goal, toggleEditGoal, goalIsEditable, change
 	) : (
 		<div className="profile__goal-edit">
 			<h2>Daily Words Goal :</h2>
-			<div className="profile__day-number"> {goal}</div>
+			<div className={`profile__day-number ${mode}`}> {goal}</div>
 			<button onClick={toggleEditGoal} className="profile__goal-edit-button">
 				Edit
 			</button>
@@ -44,7 +44,7 @@ const mapStateToProps = (state) => ({
 	isAuthenticated: state.auth.isAuthenticated,
 	goal: state.wordCount.goal,
 	newGoal: state.wordCount.newGoal,
-
-	goalIsEditable: state.wordCount.goalIsEditable
+	goalIsEditable: state.wordCount.goalIsEditable,
+	mode: state.modes.mode
 });
 export default connect(mapStateToProps, { toggleEditGoal, changeGoal, setNewGoal })(ProfileGoalEdit);

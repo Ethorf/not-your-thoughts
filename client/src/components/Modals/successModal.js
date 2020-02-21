@@ -22,7 +22,8 @@ const SuccessModal = ({
 	goal,
 	loadUser,
 	goalReachedStatus,
-	increaseDays
+	increaseDays,
+	mode
 }) => {
 	let modalOverlayContainer = useRef(null);
 	let modalContentContainer = useRef(null);
@@ -118,7 +119,8 @@ const mapStateToProps = (state) => ({
 	wordCount: state.wordCount.wordCount,
 	entry: state.entries.entry,
 	goalReachedStatus: state.wordCount.goalReachedStatus,
-	goal: state.wordCount.goal
+	goal: state.wordCount.goal,
+	mode: state.modes.mode
 });
 
 export default connect(mapStateToProps, {

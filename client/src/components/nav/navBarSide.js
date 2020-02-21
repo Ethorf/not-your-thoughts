@@ -7,7 +7,7 @@ import { logout } from '../../redux/actions/authActions';
 import './navBarSide.scss';
 import arrow from '../../assets/down-arrow-grey-weird.png';
 
-import { TimelineLite, CSSPlugin } from 'gsap/all';
+import { TimelineLite } from 'gsap/all';
 
 const navBarContainer = null;
 const navBarTween = null;
@@ -34,7 +34,6 @@ class NavBarSide extends React.Component {
 		this.navBarTween.reverse();
 		this.linksTween.reverse();
 		this.arrowTween.reverse();
-
 		this.setState({
 			navOpen: false
 		});
@@ -61,7 +60,7 @@ class NavBarSide extends React.Component {
 				<div ref={(header) => (this.navBarContainer = header)} className="nav">
 					<button
 						className={
-							this.props.rubberDucky ? 'rubberDucky__nav-arrow-container' : 'nav__arrow-container '
+							this.props.mode === '-.light' ? 'rubberDucky__nav-arrow-container' : 'nav__arrow-container '
 						}
 						onClick={this.state.navOpen ? this.closeNav : this.openNav}
 					>
@@ -73,16 +72,14 @@ class NavBarSide extends React.Component {
 						></img>
 					</button>
 					<div
-						className={
-							this.props.rubberDucky ? 'rubberDucky__nav-links-container' : 'nav__links-container '
-						}
+						className={`nav__links-container${this.props.mode} `}
 						ref={(div) => (this.linksContainer = div)}
 					>
 						<NavLink
 							exact
 							to="/main"
 							activeClassName="nav__active"
-							className={this.props.rubberDucky ? 'rubberDucky__link' : 'nav__main-link '}
+							className={`nav__link${this.props.mode}`}
 						>
 							Main
 						</NavLink>
@@ -90,7 +87,7 @@ class NavBarSide extends React.Component {
 							exact
 							to="/profile"
 							activeClassName="nav__active"
-							className={this.props.rubberDucky ? 'rubberDucky__link' : 'nav__profile-link '}
+							className={`nav__link${this.props.mode}`}
 						>
 							Profile
 						</NavLink>
@@ -98,7 +95,7 @@ class NavBarSide extends React.Component {
 							exact
 							to="/resources"
 							activeClassName="nav__active"
-							className={this.props.rubberDucky ? 'rubberDucky__link' : 'nav__resources-link '}
+							className={`nav__link${this.props.mode}`}
 						>
 							Resources
 						</NavLink>
@@ -106,11 +103,11 @@ class NavBarSide extends React.Component {
 							exact
 							to="/modes"
 							activeClassName="nav__active"
-							className={this.props.rubberDucky ? 'rubberDucky__link' : 'nav__resources-link '}
+							className={`nav__link${this.props.mode}`}
 						>
 							Modes
 						</NavLink>
-						<button className="nav__logout-button" onClick={this.props.logout}>
+						<button className={`nav__logout-button${this.props.mode}`} onClick={this.props.logout}>
 							Logout
 						</button>
 					</div>
@@ -119,5 +116,7 @@ class NavBarSide extends React.Component {
 		);
 	}
 }
-
-export default connect(null, { logout })(NavBarSide);
+const mapStateToProps = (state) => ({
+	mode: state.modes.mode
+});
+export default connect(mapStateToProps, { logout })(NavBarSide);

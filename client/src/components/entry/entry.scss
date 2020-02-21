@@ -14,7 +14,6 @@
 		margin: 5px 0px;
 	}
 	&__wordcount-container {
-		// border: 1px solid white;
 		width: 30%;
 	}
 
@@ -31,30 +30,30 @@
 	}
 	&__entry-open {
 		opacity: 1;
-		height: 100%;
+		// height: 100%;
 		margin-top: 2%;
 		line-height: 1.2rem;
-		transition: all 1s;
+		transition: all 0.7s;
 	}
 	&__entry-closed {
 		margin: 0;
 		height: 0px;
 		opacity: 0;
 		line-height: 0.1rem;
-		transition: all 1s;
+		transition: all 0.7s;
 	}
 	&__entry-arrow {
-		background-color: black;
-		border: 1px solid black;
+		background-color: transparent;
+		background: none;
+		border: none;
 		border-radius: 50%;
 		height: 100%;
 		width: 100%;
 		transition: all 1s;
 	}
 	&__button {
-		background-color: black;
-		border: 1px solid black;
-		border-radius: 50%;
+		background-color: transparent;
+		border: none;
 		outline: none;
 		padding: 0px;
 		height: 10%;
@@ -70,8 +69,8 @@
 	}
 	&__delete-button {
 		color: silver;
-		background-color: black;
 		border: none;
+		background-color: transparent;
 		outline: none;
 		font-size: 1.4rem;
 		&:hover {
@@ -80,15 +79,15 @@
 	}
 
 	&__delete-modal-open {
-		width: 20%;
-		position: absolute;
+		width: 30%;
+		position: relative;
+		left: 70%;
+		top: -5%;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		text-align: center;
 		flex-direction: column;
-		top: 35%;
-		left: 55%;
 		border: 1px solid white;
 		border-radius: 5px;
 		z-index: 9;
@@ -124,4 +123,9 @@
 	&__delete-modal-text {
 		margin-bottom: 3%;
 	}
+}
+
+.-light {
+	color: black;
+	background-color: white;
 }

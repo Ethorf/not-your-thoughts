@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import posed from 'react-pose';
 import '../../pages/main/main.scss';
 
@@ -7,7 +8,7 @@ const HeaderPosed = posed.div({
 	visible: { opacity: 0.9 }
 });
 
-export default class Header extends React.Component {
+class Header extends React.Component {
 	state = {
 		isVisible: true
 	};
@@ -18,9 +19,18 @@ export default class Header extends React.Component {
 	}
 	render() {
 		return (
-			<HeaderPosed pose={this.state.isVisible ? 'visible' : 'hidden'} className="main__header">
+			<HeaderPosed
+				pose={this.state.isVisible ? 'visible' : 'hidden'}
+				className={`main__header${this.props.mode}`}
+			>
 				Not Your Thoughts
 			</HeaderPosed>
 		);
 	}
 }
+
+const mapStateToProps = (state) => ({
+	mode: state.modes.mode
+});
+
+export default connect(mapStateToProps)(Header);

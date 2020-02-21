@@ -1,7 +1,7 @@
 import { CHANGE_MODE } from '../actions/actionTypes';
 
 const initialState = {
-	mode: 'default'
+	mode: ''
 };
 
 function modesReducer(state = initialState, action) {

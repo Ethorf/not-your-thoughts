@@ -29,8 +29,8 @@
 		z-index: 7;
 		top: 0;
 		background-color: rgba(0, 0, 0, 0.85);
-
 		transition: all 0.5s;
+		display: none;
 	}
 	&__overlay-closed {
 		position: fixed;
@@ -44,4 +44,14 @@
 		transition: all 0.5s;
 		display: none;
 	}
+}
+
+.save-entry-modal-light {
+	color: black;
+	display: flex;
+	position: absolute;
+	top: 10%;
+	z-index: 10;
+	font-family: 'Syncopate', sans-serif;
+	font-size: 1.5rem;
 }

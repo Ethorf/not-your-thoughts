@@ -1,11 +1,13 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import '../../pages/main/main.scss';
 import PillarLeftOutline from '../../assets/Pillars/NewPillarLeft-2.png';
-import crawBoxLeft from '../../assets/Pillars/nuCrawBoxAnim-1.gif';
+import PillarLeftOutlineInverted from '../../assets/Pillars/NewPillarLeft-2-inverted.png';
 
-const PillarLeft = ({ wordCount, goal }) => {
+import crawBoxLeft from '../../assets/Pillars/nuCrawBoxAnim-1.gif';
+import crawBoxLeftInverted from '../../assets/Pillars/CrawBoxes/NewCrawBox-Inverted-Left.gif';
+
+const PillarLeft = ({ wordCount, goal, mode }) => {
 	let calc = wordCount / ((goal / 4) * 0.01);
 	const pillarLeftStyleHeight = () => {
 		const testStyle = {
@@ -39,16 +41,24 @@ const PillarLeft = ({ wordCount, goal }) => {
                   <img ref={img=> this.pillarContainer = img} src={crawBox} className={`main__pillar-left ${this.props.rubberDucky ? 'rubberDucky__hidden' : ''}`} style={this.pillarLeftStyleHeight()} alt="left pillar"></img>                
                 </div> */}
 
-			<img className="main__pillar-left-outline" src={PillarLeftOutline} alt="pillar Shadow thing"></img>
-			<img className="main__pillar-left" src={crawBoxLeft} style={pillarLeftStyleHeight()}></img>
+			<img
+				className="main__pillar-left-outline"
+				src={mode === '-light' ? PillarLeftOutlineInverted : PillarLeftOutline}
+				alt="pillar Shadow thing"
+			></img>
+			<img
+				className="main__pillar-left"
+				src={mode === '-light' ? crawBoxLeftInverted : crawBoxLeft}
+				style={pillarLeftStyleHeight()}
+			></img>
 		</div>
 	);
 };
 
-PillarLeft.propTypes = {};
 const mapStateToProps = (state) => ({
 	wordCount: state.wordCount.wordCount,
-	goal: state.wordCount.goal
+	goal: state.wordCount.goal,
+	mode: state.modes.mode
 });
 
 export default connect(mapStateToProps, null)(PillarLeft);

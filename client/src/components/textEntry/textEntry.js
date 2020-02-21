@@ -56,14 +56,14 @@ const TextEntry = ({
 	};
 
 	const changeModeLight = () => {
-		changeMode('light');
+		changeMode('-light');
 	};
 	const changeModeDefault = () => {
-		changeMode('default');
+		changeMode('');
 	};
 
 	return (
-		<div className="main__all-container modalize">
+		<div className={`main__all-container modalize ${mode}`}>
 			<BgImage />
 			<div className={`main ${mode}`}>
 				<button onClick={changeModeLight}>Light Mode</button>
@@ -75,22 +75,22 @@ const TextEntry = ({
 				<Prompt />
 				<ProgressWord />
 				<PillarTop />
-				<div className="main__pillars-date-goal-wordcount-textarea-container">
+				<div className={`main__pillars-date-goal-wordcount-textarea-container`}>
 					<PillarLeft />
-					<form className="main__date-goal-wordcount-textarea-container" onSubmit={(e) => onSubmit(e)}>
-						<div className="main__date-goal-wordcount-container">
-							<h3 className={`main__date`}>{moment().format('MM/DD/YYYY')}</h3>
+					<form className={`main__date-goal-wordcount-textarea-container`} onSubmit={(e) => onSubmit(e)}>
+						<div className={`main__date-goal-wordcount-container${mode}`}>
+							<h3 className={`main__date `}>{moment().format('MM/DD/YYYY')}</h3>
 							<h2 className={`main__goal`}>Goal: {goal} Words</h2>
 							<h3 className={`main__wordcount`}>{wordCount} Words</h3>
 						</div>
 						<textarea
 							onChange={textNum}
 							name="textEntry"
-							className={`main__textarea textarea-black`}
+							className={`main__textarea${mode}`}
 							placeholder="note those thoughts here"
 						></textarea>
-						<div className="main__save-entry-button-container">
-							<button onClick={onSubmit} type="submit" className="main__save-entry-button">
+						<div className={`main__save-entry-button-container  `}>
+							<button onClick={onSubmit} type="submit" className={`main__save-entry-button${mode}`}>
 								Save Entry
 							</button>
 						</div>

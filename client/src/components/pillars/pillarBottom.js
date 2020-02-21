@@ -4,8 +4,11 @@ import { connect } from 'react-redux';
 import '../../pages/main/main.scss';
 import pillarTopOutline from '../../assets/Pillars/NewPillarTop-2.png';
 import crawBoxBottom from '../../assets/Pillars/NuCrawBoxAnim-2-bottom.gif';
+import crawBoxBottomInverted from '../../assets/Pillars/CrawBoxes/NewCrawBox-Inverted-Bottom.gif';
 
-const PillarBottom = ({ wordCount, goal }) => {
+import PillarTopOutlineInverted from '../../assets/Pillars/NewPillarTop-3-inverted.png';
+
+const PillarBottom = ({ wordCount, goal, mode }) => {
 	let calc = wordCount / ((goal / 4) * 0.01);
 
 	const pillarBottomStyleWidth = () => {
@@ -50,8 +53,16 @@ const PillarBottom = ({ wordCount, goal }) => {
                   ${this.props.rubberDucky ? 'rubberDucky__pillar-hidden' : ''}`} src={pillarTop} alt='pillar Shadow thing'></img>
                   <img ref={img=> this.pillarContainer = img} src={crawBoxBottom} className={`main__pillar-bottom ${this.props.rubberDucky ? 'rubberDucky__hidden' : ''}`} style={this.pillarBottomStyleWidth()} alt="william"></img>                */}
 
-			<img className="main__pillar-bottom-outline" src={pillarTopOutline} alt="pillar Shadow thing"></img>
-			<img className="main__pillar-bottom" src={crawBoxBottom} style={pillarBottomStyleWidth()}></img>
+			<img
+				className="main__pillar-bottom-outline"
+				src={mode === '-light' ? PillarTopOutlineInverted : pillarTopOutline}
+				alt="pillar Shadow thing"
+			></img>
+			<img
+				className="main__pillar-bottom"
+				src={mode === '-light' ? crawBoxBottomInverted : crawBoxBottom}
+				style={pillarBottomStyleWidth()}
+			></img>
 		</div>
 	);
 };
@@ -59,7 +70,8 @@ const PillarBottom = ({ wordCount, goal }) => {
 PillarBottom.propTypes = {};
 const mapStateToProps = (state) => ({
 	wordCount: state.wordCount.wordCount,
-	goal: state.wordCount.goal
+	goal: state.wordCount.goal,
+	mode: state.modes.mode
 });
 
 export default connect(mapStateToProps, null)(PillarBottom);

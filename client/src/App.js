@@ -2,7 +2,7 @@ import React, { Fragment, useEffect } from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import PrivateRoute from './components/private-route/privateRoute';
-import { Provider } from 'react-redux';
+import { Provider, useSelector } from 'react-redux';
 import './App.scss';
 import NavBarSide from './components/nav/navBarSide.js';
 import AudioPlayer from './components/audioPlayer/audioPlayer.js';
@@ -27,46 +27,47 @@ const App = () => {
 	useEffect(() => {
 		store.dispatch(loadUser());
 	}, []);
+	const mode = useSelector((state) => state.modes.mode);
 
 	return (
-		<div className="App">
-			<Provider store={store}>
-				<BrowserRouter>
-					<NavBarSide />
-					<AudioPlayer />
-					<Route
-						render={({ location }) => (
-							<TransitionGroup>
-								<CSSTransition key={location.key} timeout={1000} classNames="fade">
-									<Switch location={location}>
-										<Route path="/" exact>
-											{({ match }) => <Landing show={match !== null} />}
-										</Route>
-										<PrivateRoute path="/main" exact>
-											{({ match }) => <TextEntry show={match !== null} />}
-										</PrivateRoute>
-										<Route path="/login" exact>
-											{({ match }) => <Login show={match !== null} />}
-										</Route>
-										<Route path="/register" exact>
-											{({ match }) => <Register show={match !== null} />}
-										</Route>
-										<Route path="/profile">
-											{({ match }) => <Profile show={match !== null} />}
-										</Route>
-										<Route path="/resources" exact>
-											{({ match }) => <Resources show={match !== null} />}
-										</Route>
-										<Route path="/modes" exact>
-											{({ match }) => <Modes show={match !== null} />}
-										</Route>
-									</Switch>
-								</CSSTransition>
-							</TransitionGroup>
-						)}
-					></Route>
-				</BrowserRouter>
-			</Provider>
+		<div className={`App ${mode}`}>
+			{/* <Provider store={store}> */}
+			<BrowserRouter>
+				<NavBarSide />
+				<AudioPlayer />
+				<Route
+					render={({ location }) => (
+						<TransitionGroup>
+							<CSSTransition key={location.key} timeout={1000} classNames="fade">
+								<Switch location={location}>
+									<Route path="/" exact>
+										{({ match }) => <Landing show={match !== null} />}
+									</Route>
+									<PrivateRoute path="/main" exact>
+										{({ match }) => <TextEntry show={match !== null} />}
+									</PrivateRoute>
+									<Route path="/login" exact>
+										{({ match }) => <Login show={match !== null} />}
+									</Route>
+									<Route path="/register" exact>
+										{({ match }) => <Register show={match !== null} />}
+									</Route>
+									<PrivateRoute path="/profile">
+										{({ match }) => <Profile show={match !== null} />}
+									</PrivateRoute>
+									<PrivateRoute path="/resources" exact>
+										{({ match }) => <Resources show={match !== null} />}
+									</PrivateRoute>
+									<PrivateRoute path="/modes" exact>
+										{({ match }) => <Modes show={match !== null} />}
+									</PrivateRoute>
+								</Switch>
+							</CSSTransition>
+						</TransitionGroup>
+					)}
+				></Route>
+			</BrowserRouter>
+			{/* </Provider> */}
 		</div>
 	);
 };

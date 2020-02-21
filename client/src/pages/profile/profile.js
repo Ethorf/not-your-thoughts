@@ -1,6 +1,5 @@
 import React, { useEffect, Fragment, Component } from 'react';
 import './profile.scss';
-import '../../styles/mixins.scss';
 import '../../styles/rubberDucky.scss';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
@@ -12,50 +11,38 @@ import moment from 'moment';
 import ProfileGoalEdit from '../../components/profileGoalEdit/profileGoalEdit.js';
 import Spinner from '../../components/spinner/spinner.js';
 
-const Profile = ({
-	isAuthenticated,
-	auth: { user },
-	logout,
-	deleteEntry,
-	getEntries,
-	entries,
-	totalDays,
-	consecutiveDays
-}) => {
+const Profile = ({ auth: { user }, logout, deleteEntry, getEntries, entries, mode }) => {
 	useEffect(() => {
 		loadUser();
 		getEntries();
 	}, [getEntries, loadUser]);
-	if (!isAuthenticated) {
-		return <Redirect to="/login" />;
-	}
 
 	return user === null ? (
 		<h1>Loading..</h1>
 	) : (
-		<div className="profile">
+		<div className={`profile ${mode}`}>
 			<div className="profile__content">
-				<header className="profile__header">User Profile</header>
+				<header className={`profile__header ${mode}`}>User Profile</header>
 				<div className="profile__user-logout-container">
-					<h2 className="profile__user">{user && user.name}</h2>
+					<h2 className={`profile__user ${mode}`}>{user && user.name}</h2>
 				</div>
 				<h2 className="profile__consecutive-days">
 					Consecutive Days Completed:
-					<div className="profile__day-number"> {user && user.consecutiveDays}</div>
+					<div className={`profile__day-number ${mode}`}> {user && user.consecutiveDays}</div>
 				</h2>
 				<h2 className="profile__total-days">
-					Total Days Completed:<div className="profile__day-number"> {user.totalDays}</div>
+					Total Days Completed:<div className={`profile__day-number ${mode}`}> {user.totalDays}</div>
 				</h2>
 				{user.lastDayCompleted !== null ? (
 					<h2 className="profile__last-day">
-						Last Day Completed:<div className="profile__day-number"> {user.lastDayCompleted}</div>
+						Last Day Completed:<div className={`profile__day-number ${mode}`}> {user.lastDayCompleted}</div>
 					</h2>
 				) : (
-					<h2 className="profile__last-day">No days complete yet</h2>
+					<h2 className={`profile__day-number ${mode}`}>No days complete yet</h2>
 				)}
 
 				<ProfileGoalEdit />
-				<h2 className="profile__entries-header">SAVED ENtRIES</h2>
+				<h2 className={`profile__entries-header ${mode}`}>SAVED ENtRIES</h2>
 				{entries.length === 0 ? (
 					<h2>You have no saved journal entries</h2>
 				) : (
@@ -73,9 +60,9 @@ const Profile = ({
 					))
 				)}
 			</div>
-			<button onClick={logout} className="profile__logout-button">
+			{/* <button onClick={logout} className="profile__logout-button">
 				Logout
-			</button>
+			</button> */}
 		</div>
 	);
 };
@@ -93,7 +80,8 @@ const mapStateToProps = (state) => ({
 	isAuthenticated: state.auth.isAuthenticated,
 	goal: state.wordCount.goal,
 	entries: state.entries.entries,
-	loading: state.entries
+	loading: state.entries,
+	mode: state.modes.mode
 });
 
 export default connect(mapStateToProps, { logout, deleteEntry, loadUser, getEntries })(Profile);
