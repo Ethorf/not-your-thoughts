@@ -24,6 +24,7 @@
 	}
 	&__achievement-mode-container {
 		display: flex;
+		align-items: center;
 		flex-direction: row;
 	}
 	&__mode-title {
@@ -60,4 +61,25 @@
 		background-color: red;
 		width: 100px;
 	}
+	&__light-mode-button {
+		outline: none;
+		color: black;
+		font-size: 0.9rem;
+		font-family: 'Syncopate', sans-serif;
+		border-radius: 5%;
+		margin-left: 1%;
+		padding: 0.7% 1%;
+		transition: all 1s;
+		&:hover {
+			font-size: 1rem;
+			background-color: black;
+			color: white;
+			transition: all 1s;
+		}
+	}
+}
+
+.-light {
+	color: black;
+	background-color: white;
 }

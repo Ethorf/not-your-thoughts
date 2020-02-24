@@ -1,18 +1,49 @@
-import React from 'react';
+import React, { Fragment } from 'react';
+import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import './modes.scss';
+import { changeMode } from '../../redux/actions/modeActions';
 
-const Modes = ({ auth: { user } }) => {
+const Modes = ({ auth: { user }, changeMode, mode, isAuthenticated }) => {
+	if (!isAuthenticated) {
+		return <Redirect to="/login" />;
+	}
+	const changeModeLight = () => {
+		changeMode('-light');
+	};
+	const changeModeDefault = () => {
+		changeMode('');
+	};
+	const Buttons = () => {
+		return (
+			<Fragment>
+				{mode === '-light' ? (
+					<button onClick={changeModeDefault} className={`modes__light-mode-button`}>
+						Deactivate
+					</button>
+				) : (
+					<button onClick={changeModeLight} className={`modes__light-mode-button`}>
+						Activate
+					</button>
+				)}
+			</Fragment>
+		);
+	};
 	return (
-		<div className="modes">
-			<header className="modes__header">Modes / Achievements Unlocked</header>
+		<div className={`modes ${mode}`}>
+			<header className={`modes__header ${mode}`}>Modes / Achievements Unlocked</header>
 			<div className="modes__achievement-container">
 				<div className="modes__achievement-mode-container">
 					<h2 className="modes__light-mode-requirement">4 Consecutive Days---> </h2>
-					<h2 className={`modes__mode-title ${user && user.consecutiveDays >= 4 ? ' ' : 'strikethrough'}`}>
+					<h2
+						className={`modes__mode-title ${
+							user && user.consecutiveDays >= 2 ? ' ' : 'strikethrough'
+						} ${mode}`}
+					>
 						Light Mode
 					</h2>
+					{user && user.consecutiveDays >= 2 ? <Buttons /> : ''}
 				</div>
 				<div className="modes__achievement-mode-container">
 					<h2 className="modes__rubber-ducky-requirement">6 Consecutive Days---> </h2>
@@ -21,7 +52,7 @@ const Modes = ({ auth: { user } }) => {
 							user && user.consecutiveDays >= 6 ? ' ' : 'strikethrough'
 						}`}
 					>
-						Rubber Ducky Mode
+						Rubber Ducky Mode --- ***Coming Soon!
 					</h2>
 					{/* <button
 						className={`modes__rubber-ducky-activate-button
@@ -32,12 +63,25 @@ const Modes = ({ auth: { user } }) => {
 				</div>
 				<div className="modes__achievement-mode-container">
 					<h2 className="modes__rubber-ducky-requirement">9 Consecutive Days---> </h2>
-					<h2 className="modes__mode-title"> Bullsh*tiffy Mode</h2>
+					<h2
+						className={`modes__mode-title ${
+							user && user.consecutiveDays >= 9 ? ' ' : 'strikethrough'
+						} ${mode}`}
+					>
+						Bullsh*tiffy Mode --- ***Coming Soon!
+					</h2>
 				</div>
 
 				<div className="modes__achievement-mode-container">
 					<h2 className="modes__rubber-ducky-requirement">11 Consecutive Days---> </h2>
-					<h2 className="modes__mode-title"> RPG Mode</h2>
+					<h2
+						className={`modes__mode-title ${
+							user && user.consecutiveDays >= 11 ? ' ' : 'strikethrough'
+						} ${mode}`}
+					>
+						{' '}
+						RPG Mode --- ***Coming Soon!
+					</h2>
 				</div>
 			</div>
 		</div>
@@ -52,7 +96,8 @@ Modes.propTypes = {
 
 const mapStateToProps = (state) => ({
 	auth: state.auth,
-	isAuthenticated: state.auth.isAuthenticated
+	isAuthenticated: state.auth.isAuthenticated,
+	mode: state.modes.mode
 });
 
-export default connect(mapStateToProps)(Modes);
+export default connect(mapStateToProps, { changeMode })(Modes);

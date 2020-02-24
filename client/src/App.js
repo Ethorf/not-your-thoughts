@@ -2,7 +2,7 @@ import React, { Fragment, useEffect } from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import PrivateRoute from './components/private-route/privateRoute';
-import { Provider, useSelector } from 'react-redux';
+import { Provider, useSelector, connect } from 'react-redux';
 import './App.scss';
 import NavBarSide from './components/nav/navBarSide.js';
 import AudioPlayer from './components/audioPlayer/audioPlayer.js';
@@ -31,7 +31,6 @@ const App = () => {
 
 	return (
 		<div className={`App ${mode}`}>
-			{/* <Provider store={store}> */}
 			<BrowserRouter>
 				<NavBarSide />
 				<AudioPlayer />
@@ -67,9 +66,12 @@ const App = () => {
 					)}
 				></Route>
 			</BrowserRouter>
-			{/* </Provider> */}
 		</div>
 	);
 };
 
-export default App;
+const mapStateToProps = (state) => ({
+	mode: state.modes.mode
+});
+
+export default connect(mapStateToProps)(App);

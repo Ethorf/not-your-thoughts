@@ -66,9 +66,6 @@ const TextEntry = ({
 		<div className={`main__all-container modalize ${mode}`}>
 			<BgImage />
 			<div className={`main ${mode}`}>
-				<button onClick={changeModeLight}>Light Mode</button>
-				<button onClick={changeModeDefault}>Default Mode</button>
-
 				<Header />
 				<SaveEntryModal />
 				<SuccessModal />

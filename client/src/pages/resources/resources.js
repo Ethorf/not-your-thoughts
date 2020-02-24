@@ -1,30 +1,17 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import './resources.scss';
 import '../../styles/mixins.scss';
 
-export default class Resources extends React.Component {
+class Resources extends React.Component {
 	render() {
 		return (
-			<div className={`resources ${this.props.rubberDucky ? 'rubberDucky__blackText' : ''}`}>
-				<header className={`resources__header ${this.props.rubberDucky ? 'rubberDucky__blackText' : ''}`}>
-					Resources
-				</header>
-				<div
-					className={`resources__content-container ${this.props.rubberDucky ? 'rubberDucky__blackText' : ''}`}
-				>
+			<div className={`resources ${this.props.mode}`}>
+				<header className={`resources__header ${this.props.mode}`}>Resources</header>
+				<div className={`resources__content-container ${this.props.mode}`}>
 					<div className="resources__mindfulness-container">
-						<h2
-							className={`resources__mindfulness-title ${
-								this.props.rubberDucky ? 'rubberDucky__blackText' : ''
-							}`}
-						>
-							Mindfulness / Meditation
-						</h2>
-						<div
-							className={`resources__mindfulness-content ${
-								this.props.rubberDucky ? 'rubberDucky__blackText' : ''
-							}`}
-						>
+						<h2 className={`resources__mindfulness-title ${this.props.mode}`}>Mindfulness / Meditation</h2>
+						<div className={`resources__mindfulness-content ${this.props.mode}`}>
 							<a
 								className={`resources__link ${this.props.rubberDucky ? 'rubberDucky__blackText' : ''}`}
 								href="https://www.goodreads.com/book/show/18774981-waking-up?from_search=true&qid=zNQqbJOyJL&rank=7"
@@ -32,7 +19,7 @@ export default class Resources extends React.Component {
 								Waking Up - Sam Harris
 							</a>
 							<a
-								className={`resources__link ${this.props.rubberDucky ? 'rubberDucky__blackText' : ''}`}
+								className={`resources__link`}
 								href="https://www.goodreads.com/book/show/18505796-10-happier?from_search=true&qid=R6HupReF24&rank=1"
 							>
 								10% Happier - Dan Harris
@@ -64,13 +51,7 @@ export default class Resources extends React.Component {
 						</div>
 					</div>
 					<div className="resources__journalling-container">
-						<h2
-							className={`resources__journalling-title ${
-								this.props.rubberDucky ? 'rubberDucky__blackText' : ''
-							}`}
-						>
-							Journaling
-						</h2>
+						<h2 className={`resources__journalling-title ${this.props.mode}`}>Journaling</h2>
 						<div className="resources__journalling-content">
 							<a
 								className={`resources__link ${this.props.rubberDucky ? 'rubberDucky__blackText' : ''}`}
@@ -99,13 +80,7 @@ export default class Resources extends React.Component {
 						</div>
 					</div>
 					<div className="resources__gamification-container">
-						<h2
-							className={`resources__gamification-title ${
-								this.props.rubberDucky ? 'rubberDucky__blackText' : ''
-							}`}
-						>
-							Gamification
-						</h2>
+						<h2 className={`resources__gamification-title ${this.props.mode}`}>Gamification</h2>
 						<div className="resources__gamification-content">
 							<a
 								className={`resources__link ${this.props.rubberDucky ? 'rubberDucky__blackText' : ''}`}
@@ -144,3 +119,9 @@ export default class Resources extends React.Component {
 		);
 	}
 }
+
+const mapStateToProps = (state) => ({
+	mode: state.modes.mode
+});
+
+export default connect(mapStateToProps)(Resources);

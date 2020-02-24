@@ -13,8 +13,8 @@ const PillarBottom = ({ wordCount, goal, mode }) => {
 
 	const pillarBottomStyleWidth = () => {
 		const testStyle = {
-			width: `${-300 + calc + 1}%`,
-			left: `${99 - (-300 + calc + 1)}%`
+			width: `${-300 + calc}%`,
+			left: `${99 - (-300 + calc)}%`
 		};
 		const start = {
 			width: `0%`,
