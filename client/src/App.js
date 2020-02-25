@@ -14,6 +14,8 @@ import Register from './pages/register/register.js';
 import Profile from './pages/profile/profile';
 import Resources from './pages/resources/resources';
 import Modes from './pages/modes/modes.js';
+import About from './pages/about/about';
+
 //redux Stuff
 import store from './redux/store/index';
 import { loadUser } from './redux/actions/authActions';
@@ -37,7 +39,11 @@ const App = () => {
 				<Route
 					render={({ location }) => (
 						<TransitionGroup>
-							<CSSTransition key={location.key} timeout={1000} classNames="fade">
+							<CSSTransition
+								key={location.key}
+								timeout={1000}
+								classNames={mode === '-light' ? 'fade' : 'fad'}
+							>
 								<Switch location={location}>
 									<Route path="/" exact>
 										{({ match }) => <Landing show={match !== null} />}
@@ -59,6 +65,9 @@ const App = () => {
 									</PrivateRoute>
 									<PrivateRoute path="/modes" exact>
 										{({ match }) => <Modes show={match !== null} />}
+									</PrivateRoute>
+									<PrivateRoute path="/about" exact>
+										{({ match }) => <About show={match !== null} />}
 									</PrivateRoute>
 								</Switch>
 							</CSSTransition>

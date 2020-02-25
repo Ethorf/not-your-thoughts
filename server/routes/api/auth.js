@@ -61,7 +61,7 @@ router.post(
 
 router.get('/', auth, async (req, res) => {
 	try {
-		const user = await await User.findById(req.user.id);
+		const user = await User.findById(req.user.id);
 		res.json(user);
 	} catch (err) {
 		console.error(err.message);

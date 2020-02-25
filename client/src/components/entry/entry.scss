@@ -9,12 +9,17 @@
 	}
 	&__entry-date-wordcount-container {
 		display: flex;
-		justify-content: space-between;
+		// justify-content: space-evenly;
 		width: 65%;
 		margin: 5px 0px;
 	}
+
+	&__entry-date-wordcount-container {
+	}
 	&__wordcount-container {
-		width: 30%;
+		width: 20%;
+		display: flex;
+		margin-left: 1%;
 	}
 
 	&__entry-content {
@@ -23,6 +28,9 @@
 	}
 	&__entry-date-wordcount {
 		margin: 5px 0px;
+	}
+	&__date {
+		width: 33%;
 	}
 	&__content {
 		margin-left: 300px;
@@ -73,6 +81,7 @@
 		background-color: transparent;
 		outline: none;
 		font-size: 1.4rem;
+		margin-left: 3%;
 		&:hover {
 			color: red;
 		}

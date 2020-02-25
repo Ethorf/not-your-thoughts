@@ -14,10 +14,12 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-validator": "^6.4.0",
+    "googleapis": "^47.0.0",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.24.0",
     "mongoose": "^5.8.6",
     "node": "^13.3.0",
+    "nodemailer": "^6.4.3",
     "nodemon": "^2.0.1",
     "uuid": "^3.4.0"
   }

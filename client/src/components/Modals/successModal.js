@@ -75,7 +75,7 @@ const SuccessModal = ({
 		if (wordCount >= goal && goalReachedStatus === false) {
 			openModalAll();
 		}
-	}, [wordCount]);
+	}, [wordCount, goalReachedStatus, goal]);
 	return (
 		<Fragment>
 			{/* <button onClick={openModalAll}>Modal Open Test</button> */}

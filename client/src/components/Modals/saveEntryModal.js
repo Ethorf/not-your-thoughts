@@ -8,17 +8,10 @@ import './saveEntryModal.scss';
 const SaveEntryModal = ({ modals, openSaveEntryModal, closeSaveEntryModal }) => {
 	const mode = useSelector((state) => state.modes.mode);
 
-	// let modalOverlayContainer = useRef(null);
 	let modalContentContainer = useRef(null);
-	// const [overlayAnimation, setOverlayAnimation] = useState(null);
 	const [contentAnimation, setContentAnimation] = useState(null);
 
-	const overlayTl = new TimelineMax({ paused: true });
 	const contentTl = new TimelineMax({ paused: true });
-
-	// const openModalOverlayAnimation = () => {
-	// 	setOverlayAnimation(overlayTl.to(modalOverlayContainer, { duration: 1, opacity: 1 }).play());
-	// };
 
 	const openModalContentAnimation = () => {
 		setContentAnimation(
@@ -30,24 +23,8 @@ const SaveEntryModal = ({ modals, openSaveEntryModal, closeSaveEntryModal }) => 
 		);
 	};
 
-	// const closeModalOverlayAnimation = () => {
-	// 	setOverlayAnimation(overlayTl.to(modalOverlayContainer, { duration: 1, opacity: 1 }).reverse());
-	// };
-
-	const closeModalContentAnimation = () => {
-		setContentAnimation(
-			contentTl.to(modalContentContainer, { duration: 1, y: 100, opacity: 0, paused: true }).reverse()
-		);
-	};
-	const closeModalAll = () => {
-		closeModalContentAnimation();
-		// closeModalOverlayAnimation();
-		closeSaveEntryModal();
-	};
 	const openModalAll = () => {
 		openModalContentAnimation();
-		// openModalOverlayAnimation();
-		// openSaveEntryModal();
 		setTimeout(() => {
 			closeSaveEntryModal();
 		}, 3000);
@@ -61,13 +38,6 @@ const SaveEntryModal = ({ modals, openSaveEntryModal, closeSaveEntryModal }) => 
 
 	return (
 		<div className={`save-entry-modal${mode}`}>
-			{/* <button onClick={openModalAll}>SaveEntry Modal Open Test</button> */}
-			{/* <div
-				className={`${
-					modals.saveEntryModalOpen ? 'save-entry-modal__overlay-open' : 'save-entry-modal__overlay-closed'
-				} ${mode}`}
-				ref={(div) => (modalOverlayContainer = div)}
-			></div> */}
 			<div
 				className={`${modals.saveEntryModalOpen ? 'save-entry-modal__open' : 'save-entry-modal__closed'}`}
 				ref={(div) => (modalContentContainer = div)}

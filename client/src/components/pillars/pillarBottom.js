@@ -1,19 +1,18 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import '../../pages/main/main.scss';
 import pillarTopOutline from '../../assets/Pillars/NewPillarTop-2.png';
+import PillarTopOutlineInverted from '../../assets/Pillars/NewPillarTop-4-inverted.png';
+
 import crawBoxBottom from '../../assets/Pillars/NuCrawBoxAnim-2-bottom.gif';
 import crawBoxBottomInverted from '../../assets/Pillars/CrawBoxes/NewCrawBox-Inverted-Bottom.gif';
-
-import PillarTopOutlineInverted from '../../assets/Pillars/NewPillarTop-3-inverted.png';
 
 const PillarBottom = ({ wordCount, goal, mode }) => {
 	let calc = wordCount / ((goal / 4) * 0.01);
 
 	const pillarBottomStyleWidth = () => {
 		const testStyle = {
-			width: `${-300 + calc}%`,
+			width: `${-302 + calc}%`,
 			left: `${99 - (-300 + calc)}%`
 		};
 		const start = {
@@ -21,7 +20,7 @@ const PillarBottom = ({ wordCount, goal, mode }) => {
 			left: '99%'
 		};
 		const limit = {
-			width: `97%`,
+			width: `96%`,
 			left: '0%'
 		};
 		if (wordCount <= goal * 0.75) {

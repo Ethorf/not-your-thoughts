@@ -2,9 +2,6 @@
 @import '../../styles/variables.scss';
 @import '../../styles/base.scss';
 
-// body {
-// 	background-color: black;
-// }
 .default {
 	background-color: black;
 	color: white;
@@ -47,7 +44,7 @@
 		opacity: 0.002;
 		right: 100;
 		width: 100%;
-		height: 90%;
+		height: 100%;
 		z-index: 3;
 	}
 	&__bg-img-light {
@@ -154,7 +151,7 @@
 	&__pillars-date-goal-wordcount-textarea-container {
 		display: flex;
 		flex-direction: row;
-		height: 50vh;
+		height: 47vh;
 		width: 80%;
 	}
 	&__date-goal-wordcount-textarea-container {
@@ -282,7 +279,7 @@
 	&__pillar-top-container {
 		align-items: center;
 		width: 80%;
-		height: 12vh;
+		height: 14vh;
 	}
 	&__pillar-top-outline {
 		position: relative;
@@ -329,7 +326,8 @@
 	&__pillar-bottom-container {
 		align-items: center;
 		width: 80%;
-		height: 12vh;
+		height: 14vh;
+
 		// border: 1px solid red;
 	}
 	&__pillar-bottom-outline {

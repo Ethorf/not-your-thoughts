@@ -32,3 +32,7 @@ export const DAY_INCREASE_ERROR = 'DAY_INCREASE_ERROR';
 
 //Modes
 export const CHANGE_MODE = 'CHANGE_MODE';
+
+//Contact
+export const SUBMIT_CONTACT_FORM = 'SUBMIT_CONTACT_FORM';
+export const CONTACT_FORM_ERROR = 'CONTACT_FORM_ERROR';

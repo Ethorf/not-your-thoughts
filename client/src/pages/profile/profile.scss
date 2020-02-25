@@ -2,16 +2,14 @@
 @import '../../styles/variables.scss';
 @import '../../styles/base.scss';
 
-.strikethrough {
-	text-decoration: line-through;
-}
-
 .profile {
 	color: silver;
 	font-family: 'Comfortaa', cursive;
 	display: flex;
 	flex-direction: column;
-	height: 1000px;
+
+	height: 100vh;
+
 	margin-left: $not-main-margin-left;
 	width: 60%;
 

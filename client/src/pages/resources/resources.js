@@ -92,7 +92,7 @@ class Resources extends React.Component {
 								className={`resources__link ${this.props.rubberDucky ? 'rubberDucky__blackText' : ''}`}
 								href="https://www.sciencedirect.com/science/article/pii/S074756321630855X"
 							>
-								How Gamification Motivates - Studay
+								How Gamification Motivates - Study
 							</a>
 							<a
 								className={`resources__link ${this.props.rubberDucky ? 'rubberDucky__blackText' : ''}`}

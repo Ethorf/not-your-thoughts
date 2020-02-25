@@ -52,7 +52,7 @@ const Modes = ({ auth: { user }, changeMode, mode, isAuthenticated }) => {
 							user && user.consecutiveDays >= 6 ? ' ' : 'strikethrough'
 						}`}
 					>
-						Rubber Ducky Mode --- ***Coming Soon!
+						Rubber Ducky Mode <span className={`modes__coming-soon ${mode}`}> **Coming Soon!</span>
 					</h2>
 					{/* <button
 						className={`modes__rubber-ducky-activate-button
@@ -68,7 +68,7 @@ const Modes = ({ auth: { user }, changeMode, mode, isAuthenticated }) => {
 							user && user.consecutiveDays >= 9 ? ' ' : 'strikethrough'
 						} ${mode}`}
 					>
-						Bullsh*tiffy Mode --- ***Coming Soon!
+						Bullsh*tiffy Mode <span className={`modes__coming-soon ${mode}`}> **Coming Soon!</span>
 					</h2>
 				</div>
 
@@ -79,8 +79,7 @@ const Modes = ({ auth: { user }, changeMode, mode, isAuthenticated }) => {
 							user && user.consecutiveDays >= 11 ? ' ' : 'strikethrough'
 						} ${mode}`}
 					>
-						{' '}
-						RPG Mode --- ***Coming Soon!
+						RPG Mode <span className={`modes__coming-soon ${mode}`}> **Coming Soon!</span>
 					</h2>
 				</div>
 			</div>
@@ -89,15 +88,13 @@ const Modes = ({ auth: { user }, changeMode, mode, isAuthenticated }) => {
 };
 
 Modes.propTypes = {
-	auth: PropTypes.object.isRequired,
-	logout: PropTypes.func.isRequired,
 	isAuthenticated: PropTypes.bool
 };
 
 const mapStateToProps = (state) => ({
-	auth: state.auth,
 	isAuthenticated: state.auth.isAuthenticated,
-	mode: state.modes.mode
+	mode: state.modes.mode,
+	auth: state.auth
 });
 
 export default connect(mapStateToProps, { changeMode })(Modes);

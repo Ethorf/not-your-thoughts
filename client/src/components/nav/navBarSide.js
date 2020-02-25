@@ -107,6 +107,14 @@ class NavBarSide extends React.Component {
 						>
 							Modes
 						</NavLink>
+						<NavLink
+							exact
+							to="/about"
+							activeClassName="nav__active"
+							className={`nav__link${this.props.mode}`}
+						>
+							About
+						</NavLink>
 						<button className={`nav__logout-button${this.props.mode}`} onClick={this.props.logout}>
 							Logout
 						</button>

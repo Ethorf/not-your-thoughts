@@ -71,11 +71,14 @@
 		padding: 0.7% 1%;
 		transition: all 1s;
 		&:hover {
-			font-size: 1rem;
 			background-color: black;
 			color: white;
 			transition: all 1s;
 		}
+	}
+	&__coming-soon {
+		font-size: 0.8rem;
+		color: silver;
 	}
 }
 

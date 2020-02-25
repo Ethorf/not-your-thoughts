@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import '../../pages/main/main.scss';
 import pillarTopOutline from '../../assets/Pillars/NewPillarTop-2.png';
-import PillarTopOutlineInverted from '../../assets/Pillars/NewPillarTop-3-inverted.png';
+import PillarTopOutlineInverted from '../../assets/Pillars/NewPillarTop-4-inverted.png';
 
 import crawBoxTop from '../../assets/Pillars/NuCrawBoxAnim-2-top.gif';
 import crawBoxTopInverted from '../../assets/Pillars/CrawBoxes/NewCrawBox-Inverted-Top.gif';
