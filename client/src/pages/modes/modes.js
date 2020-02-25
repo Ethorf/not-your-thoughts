@@ -43,7 +43,7 @@ const Modes = ({ auth: { user }, changeMode, mode, isAuthenticated }) => {
 					>
 						Light Mode
 					</h2>
-					{user && user.consecutiveDays >= 2 ? <Buttons /> : ''}
+					{user && user.consecutiveDays >= 4 ? <Buttons /> : ''}
 				</div>
 				<div className="modes__achievement-mode-container">
 					<h2 className="modes__rubber-ducky-requirement">6 Consecutive Days---> </h2>

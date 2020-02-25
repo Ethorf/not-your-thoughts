@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './landing.scss';
 import { TimelineLite, CSSPlugin } from 'gsap/all';
-import buttonBg from '../../assets/Background-Images/background-texture-bigPan-flat-blurred.png';
 import bgOverlayTextureWhite from '../../assets/Background-Images/background-texture-bigPan-white-blur.png';
 
 // declaring all initial animation vars
@@ -141,7 +140,7 @@ export default class Landing extends React.Component {
 						ref={(button) => (this.loginButtonContainer = button)}
 						className="landing__start-button-container"
 					>
-						<Link to="/login" exact className="landing__login-button">
+						<Link to="/login" className="landing__login-button">
 							Login
 						</Link>
 					</button>

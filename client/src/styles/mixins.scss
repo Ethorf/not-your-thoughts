@@ -2,8 +2,8 @@
 
 //Font Typography
 @font-face {
-  font-family: 'Maven Pro';
-  src: url("https://fonts.googleapis.com/css?family=Maven+Pro:400,500,700,900&display=swap");
+	font-family: 'Maven Pro';
+	src: url('https://fonts.googleapis.com/css?family=Maven+Pro:400,500,700,900&display=swap');
 }
 @import url('https://fonts.googleapis.com/css?family=Maven+Pro:400,500,700,900&display=swap');
 @import url('https://fonts.googleapis.com/css?family=Comfortaa&display=swap');
@@ -12,13 +12,24 @@
 @import url('https://fonts.googleapis.com/css?family=Poppins:400,400i&display=swap');
 
 //Screen Sizes
-@mixin tablet-size {
-  @media (min-width: 768px) {
-    @content;
-  }
+@mixin mobile-only() {
+	@media #{$mobile-only} {
+		@content;
+	}
 }
-@mixin desktop-size {
-  @media (min-width: 1440px) {
-    @content;
-  }
+@mixin tablet-only() {
+	@media #{$tablet-only} {
+		@content;
+	}
+}
+//Laptop Small is 993 - 1199
+@mixin laptop-small() {
+	@media #{$laptop-small} {
+		@content;
+	}
+}
+@mixin laptop-large() {
+	@media #{$laptop-large} {
+		@content;
+	}
 }

@@ -19,7 +19,7 @@ function ProfileGoalEdit({ newGoal, goal, toggleEditGoal, goalIsEditable, change
 	};
 	return goalIsEditable ? (
 		<div className="profile__goal-edit">
-			<h2>Daily Words Goal :</h2>
+			<h2 className="profile__stats-text ">Daily Words Goal :</h2>
 			<input className={`profile__goal-input ${mode}`} onChange={goalNum} defaultValue={goal}></input>
 			<button onClick={saveGoal} className="profile__goal-edit-button">
 				Save
@@ -30,7 +30,7 @@ function ProfileGoalEdit({ newGoal, goal, toggleEditGoal, goalIsEditable, change
 		</div>
 	) : (
 		<div className="profile__goal-edit">
-			<h2>Daily Words Goal :</h2>
+			<h2 className="profile__stats-text ">Daily Words Goal :</h2>
 			<div className={`profile__day-number ${mode}`}> {goal}</div>
 			<button onClick={toggleEditGoal} className="profile__goal-edit-button">
 				Edit

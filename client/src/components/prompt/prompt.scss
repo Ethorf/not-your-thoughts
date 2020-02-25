@@ -5,20 +5,31 @@
 @import '../../styles/variables.scss';
 @import '../../styles/base.scss';
 
-.prompt{
-    display:flex;
-    font-family: "Poppins", sans-serif;
-    font-style:italic;
-    justify-content: center;
-    text-align:center;
-    font-size:0.76rem;
-    width:52%;
-    color:silver;
-    transition:all 3s;
+.prompt {
+	display: flex;
+	font-family: 'Poppins', sans-serif;
+	font-style: italic;
+	justify-content: center;
+	text-align: center;
+	font-size: 0.76rem;
+	width: 52%;
+	color: silver;
+	transition: all 3s;
 
-    &:hover{
-        transition:all 3s;
-        text-shadow:0px 0px 1px grey;
-        color:black;
-    }
+	&:hover {
+		transition: all 3s;
+		text-shadow: 0px 0px 1px grey;
+		color: black;
+	}
+
+	@include laptop-small() {
+		font-size: 0.6rem;
+	}
+	@include tablet-only() {
+		font-size: 0.5rem;
+	}
+	@include mobile-only() {
+		font-size: 0.5rem;
+		width: 40%;
+	}
 }

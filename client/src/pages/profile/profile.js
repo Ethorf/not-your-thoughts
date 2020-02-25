@@ -11,14 +11,18 @@ import moment from 'moment';
 import ProfileGoalEdit from '../../components/profileGoalEdit/profileGoalEdit.js';
 import Spinner from '../../components/spinner/spinner.js';
 
-const Profile = ({ auth: { user }, logout, deleteEntry, getEntries, entries, mode }) => {
+const Profile = ({ isAuthenticated, auth: { user }, logout, deleteEntry, getEntries, entries, mode }) => {
 	useEffect(() => {
 		loadUser();
 		getEntries();
 	}, [getEntries, loadUser]);
 
+	// if (!isAuthenticated) {
+	// 	return <Redirect to="/login" />;
+	// }
+
 	return user === null ? (
-		<h1>Loading..</h1>
+		<Spinner />
 	) : (
 		<div className={`profile ${mode}`}>
 			<div className="profile__content">
@@ -26,15 +30,15 @@ const Profile = ({ auth: { user }, logout, deleteEntry, getEntries, entries, mod
 				<div className="profile__user-logout-container">
 					<h2 className={`profile__user ${mode}`}>{user && user.name}</h2>
 				</div>
-				<h2 className="profile__consecutive-days">
+				<h2 className="profile__consecutive-days profile__stats-text">
 					Consecutive Days Completed:
 					<div className={`profile__day-number ${mode}`}> {user && user.consecutiveDays}</div>
 				</h2>
-				<h2 className="profile__total-days">
+				<h2 className="profile__total-days profile__stats-text">
 					Total Days Completed:<div className={`profile__day-number ${mode}`}> {user.totalDays}</div>
 				</h2>
 				{user.lastDayCompleted !== null ? (
-					<h2 className="profile__last-day">
+					<h2 className="profile__last-day profile__stats-text">
 						Last Day Completed:<div className={`profile__day-number ${mode}`}> {user.lastDayCompleted}</div>
 					</h2>
 				) : (

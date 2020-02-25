@@ -54,7 +54,7 @@ function About({ mode }) {
 			<h3 className={`about__description ${mode}`}>
 				Not Your Thoughts is independently developed by Eric Thorfinnson, and he did all the stuff. As a
 				long-time meditator, he has found journalling to be a very helpful practice to integrate mindfulness
-				into everyday life, and to untangle particularily persistent mental brambles. Like something on, or not?
+				into everyday life, and to untangle particularily persistent mental brambles. Like something, or not?
 				Bristling with prickly functionality suggestions? Let me know below!
 			</h3>
 			<h2 className={'about__header about__form-header'}>Get In Touch</h2>

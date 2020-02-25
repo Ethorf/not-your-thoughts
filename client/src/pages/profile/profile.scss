@@ -3,15 +3,14 @@
 @import '../../styles/base.scss';
 
 .profile {
+	background-color: black;
 	color: silver;
 	font-family: 'Comfortaa', cursive;
 	display: flex;
 	flex-direction: column;
-
-	height: 100vh;
-
+	height: 300vh;
 	margin-left: $not-main-margin-left;
-	width: 60%;
+	width: 69%;
 
 	&__header {
 		font-family: 'Syncopate', sans-serif;
@@ -107,6 +106,47 @@
 		color: white;
 		font-size: 2.2rem;
 		font-family: 'Syncopate', sans-serif;
+	}
+	@include tablet-only() {
+		width: 70%;
+		&__header,
+		&__entries-header {
+			font-size: 1.9rem;
+		}
+		&__user {
+			font-size: 1.6rem;
+		}
+		&__day-number,
+		&__stats-text {
+			font-size: 1.2rem;
+		}
+	}
+
+	@include mobile-only() {
+		width: 70%;
+		align-items: center;
+		&__header {
+			margin-top: 8%;
+			margin-bottom: 5%;
+		}
+		&__header,
+		&__entries-header {
+			font-size: 1.6rem;
+		}
+		&__user {
+			font-size: 1.4rem;
+		}
+		&__day-number,
+		&__stats-text {
+			font-size: 1rem;
+		}
+		&__goal-input {
+			width: 7%;
+		}
+		&__goal-edit-button {
+			font-size: 0.7rem;
+			width: 10%;
+		}
 	}
 }
 .-light {

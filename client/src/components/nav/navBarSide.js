@@ -115,9 +115,20 @@ class NavBarSide extends React.Component {
 						>
 							About
 						</NavLink>
-						<button className={`nav__logout-button${this.props.mode}`} onClick={this.props.logout}>
-							Logout
-						</button>
+						{this.props.isAuthenticated ? (
+							<button className={`nav__logout-button${this.props.mode}`} onClick={this.props.logout}>
+								Logout
+							</button>
+						) : (
+							<NavLink
+								exact
+								to="/login"
+								activeClassName="nav__active"
+								className={`nav__link${this.props.mode}`}
+							>
+								Login
+							</NavLink>
+						)}
 					</div>
 				</div>
 			</>
@@ -125,6 +136,7 @@ class NavBarSide extends React.Component {
 	}
 }
 const mapStateToProps = (state) => ({
-	mode: state.modes.mode
+	mode: state.modes.mode,
+	isAuthenticated: state.auth.isAuthenticated
 });
 export default connect(mapStateToProps, { logout })(NavBarSide);

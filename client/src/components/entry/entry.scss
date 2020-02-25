@@ -3,18 +3,15 @@
 @import '../../styles/base.scss';
 
 .entry {
+	background-color: black;
 	&__entry-all-container {
-		width: 30%;
+		width: 50%;
 		margin: 5px 0px;
 	}
 	&__entry-date-wordcount-container {
 		display: flex;
-		// justify-content: space-evenly;
-		width: 65%;
-		margin: 5px 0px;
-	}
-
-	&__entry-date-wordcount-container {
+		width: 75%;
+		margin: 3px 0px;
 	}
 	&__wordcount-container {
 		width: 20%;
@@ -25,12 +22,13 @@
 	&__entry-content {
 		color: white;
 		margin-top: 10%;
+		background-color: black;
 	}
 	&__entry-date-wordcount {
 		margin: 5px 0px;
 	}
 	&__date {
-		width: 33%;
+		width: 38%;
 	}
 	&__content {
 		margin-left: 300px;
@@ -38,7 +36,6 @@
 	}
 	&__entry-open {
 		opacity: 1;
-		// height: 100%;
 		margin-top: 2%;
 		line-height: 1.2rem;
 		transition: all 0.7s;
@@ -51,10 +48,7 @@
 		transition: all 0.7s;
 	}
 	&__entry-arrow {
-		background-color: transparent;
-		background: none;
 		border: none;
-		border-radius: 50%;
 		height: 100%;
 		width: 100%;
 		transition: all 1s;
@@ -131,6 +125,59 @@
 	}
 	&__delete-modal-text {
 		margin-bottom: 3%;
+	}
+
+	@include laptop-small() {
+		&__entry-date-wordcount-container {
+			width: 90%;
+			font-size: 0.9rem;
+		}
+		&__entry-all-container {
+			width: 80%;
+		}
+	}
+	@include tablet-only() {
+		&__entry-all-container {
+			width: 80%;
+		}
+		&__entry-date-wordcount-container {
+			width: 100%;
+			font-size: 0.8rem;
+		}
+		&__entry-arrow {
+			height: 80%;
+			width: 80%;
+		}
+	}
+
+	@include mobile-only() {
+		display: flex;
+		align-items: center;
+		&__words {
+			display: none;
+		}
+		&__entry-all-container {
+			width: 80%;
+		}
+		&__date {
+			width: 60%;
+		}
+		&__entry-date-wordcount-container {
+			display: flex;
+			justify-content: space-between;
+			width: 100%;
+			font-size: 0.8rem;
+		}
+		&__wordcount-container {
+			display: none;
+		}
+		&__entry-arrow {
+			height: 80%;
+			width: 80%;
+		}
+		&__button {
+			align-self: center;
+		}
 	}
 }
 

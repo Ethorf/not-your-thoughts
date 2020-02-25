@@ -2,42 +2,79 @@
 @import '../../styles/variables.scss';
 @import '../../styles/base.scss';
 
-  .modal{
-    display:flex;
-    flex-direction:column;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Montserrat',cursive;
-    font-size:1.5rem;
+.modal {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	font-family: 'Montserrat', cursive;
+	font-size: 1.5rem;
 
-    &__congratulations{
-        font-size:2.2rem;
-        font-family: 'Syncopate',sans-serif;
-        margin-top:4%;
-    }
-    &__mainText{
-      margin:0;
-      display:flex;
-      flex-direction:column;
-      justify-content: center;
-      align-items: center;
-    }
+	&__congratulations {
+		font-size: 2.2rem;
+		display: flex;
+		text-align: center;
+		font-family: 'Syncopate', sans-serif;
+		margin-top: 4%;
+	}
+	&__mainText {
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		text-align: center;
+		align-items: center;
+	}
 
-    &__goal{
-      margin-top:0;
-      margin-bottom:10px;
-    }
-    &__close-button{
-        margin-top:15px;
-        color:black;
-        padding:1% 4%;
-        border-radius:20px;
-        outline:none;
-        transition:all 2s;
+	&__goal {
+		margin-top: 0;
+		margin-bottom: 10px;
+	}
+	&__close-button {
+		margin-top: 15px;
+		color: black;
+		padding: 1% 4%;
+		border-radius: 20px;
+		font-family: 'Montserrat', cursive;
 
-        &:hover{
-            background-color:black;
-            color:white;
-        }
-    }
-  }
+		outline: none;
+		transition: all 2s;
+
+		&:hover {
+			background-color: black;
+			color: white;
+		}
+	}
+
+	@include laptop-small() {
+		font-size: 0.8rem;
+		&__congratulations {
+			font-size: 1.8rem;
+		}
+		&__goal {
+			font-size: 0.8rem;
+		}
+	}
+
+	@include tablet-only() {
+		font-size: 0.8rem;
+		&__congratulations {
+			font-size: 1.5rem;
+		}
+		&__goal {
+			font-size: 0.8rem;
+		}
+	}
+
+	@include mobile-only() {
+		font-size: 0.9rem;
+		justify-content: center;
+
+		&__congratulations {
+			font-size: 1.6rem;
+		}
+		&__goal {
+			font-size: 0.9rem;
+		}
+	}
+}

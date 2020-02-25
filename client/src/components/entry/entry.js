@@ -37,7 +37,7 @@ class Entry extends React.Component {
 				<div className="entry__entry-date-wordcount-container">
 					<h3 className="entry__entry-date-wordcount entry__date">{this.props.date}</h3>
 					<div className="entry__wordcount-container">
-						<h3 className="entry__entry-date-wordcount">Words:{this.props.wordCount}</h3>
+						<h3 className="entry__entry-date-wordcount entry__words">Words:{this.props.wordCount}</h3>
 					</div>
 					<button
 						className={`entry__button ${this.state.open ? 'entry__button-open' : 'entry__button-closed'}`}
