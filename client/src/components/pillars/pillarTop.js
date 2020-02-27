@@ -13,7 +13,7 @@ const PillarTop = ({ wordCount, goal, mode }) => {
 
 	const pillarTopStyleWidth = () => {
 		const testStyle = {
-			width: `${-100 + calc - 1}%`
+			width: `${-103 + calc - 1}%`
 			// opacity: `${wordCount / 200}`
 		};
 		const start = { width: `0%` };

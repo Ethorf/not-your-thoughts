@@ -35,10 +35,10 @@ const Modes = ({ auth: { user }, changeMode, mode, isAuthenticated }) => {
 			<header className={`modes__header ${mode}`}>Modes / Achievements Unlocked</header>
 			<div className="modes__achievement-container">
 				<div className="modes__achievement-mode-container">
-					<h2 className="modes__light-mode-requirement">4 Consecutive Days---> </h2>
+					<h2 className="modes__mode-requirement">4 Consecutive Days </h2>
 					<h2
 						className={`modes__mode-title ${
-							user && user.consecutiveDays >= 2 ? ' ' : 'strikethrough'
+							user && user.consecutiveDays >= 4 ? ' ' : 'strikethrough'
 						} ${mode}`}
 					>
 						Light Mode
@@ -46,14 +46,15 @@ const Modes = ({ auth: { user }, changeMode, mode, isAuthenticated }) => {
 					{user && user.consecutiveDays >= 4 ? <Buttons /> : ''}
 				</div>
 				<div className="modes__achievement-mode-container">
-					<h2 className="modes__rubber-ducky-requirement">6 Consecutive Days---> </h2>
+					<h2 className="modes__mode-requirement">6 Consecutive Days </h2>
 					<h2
-						className={`modes__rubber-ducky-title ${
+						className={`modes__rubber-ducky-title modes__mode-title ${
 							user && user.consecutiveDays >= 6 ? ' ' : 'strikethrough'
 						}`}
 					>
-						Rubber Ducky Mode <span className={`modes__coming-soon ${mode}`}> **Coming Soon!</span>
+						Rubber Ducky Mode
 					</h2>
+					<span className={`modes__coming-soon ${mode}`}> **Coming Soon!</span>
 					{/* <button
 						className={`modes__rubber-ducky-activate-button
                                                  ${user && user.consecutiveDays >= 3 ? ' ' : 'rubberDucky__hidden'}`}
@@ -62,25 +63,27 @@ const Modes = ({ auth: { user }, changeMode, mode, isAuthenticated }) => {
 					{/*</button> */}
 				</div>
 				<div className="modes__achievement-mode-container">
-					<h2 className="modes__rubber-ducky-requirement">9 Consecutive Days---> </h2>
+					<h2 className="modes__mode-requirement">9 Consecutive Days</h2>
 					<h2
 						className={`modes__mode-title ${
 							user && user.consecutiveDays >= 9 ? ' ' : 'strikethrough'
 						} ${mode}`}
 					>
-						Bullsh*tiffy Mode <span className={`modes__coming-soon ${mode}`}> **Coming Soon!</span>
+						Bullsh*tiffy Mode
 					</h2>
+					<span className={`modes__coming-soon ${mode}`}> **Coming Soon!</span>
 				</div>
 
 				<div className="modes__achievement-mode-container">
-					<h2 className="modes__rubber-ducky-requirement">11 Consecutive Days---> </h2>
+					<h2 className="modes__mode-requirement">11 Consecutive Days </h2>
 					<h2
 						className={`modes__mode-title ${
 							user && user.consecutiveDays >= 11 ? ' ' : 'strikethrough'
 						} ${mode}`}
 					>
-						RPG Mode <span className={`modes__coming-soon ${mode}`}> **Coming Soon!</span>
+						RPG Mode
 					</h2>
+					<span className={`modes__coming-soon ${mode}`}> **Coming Soon!</span>
 				</div>
 			</div>
 		</div>

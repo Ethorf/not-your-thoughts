@@ -14,7 +14,7 @@ const PillarRight = ({ wordCount, goal, mode }) => {
 	const pillarRightStyleHeight = () => {
 		const testStyle = {
 			//This -197 was -200 originally
-			height: `${-197 + calc + 1}%`
+			height: `${-201 + calc + 1}%`
 		};
 		const start = { height: `0%` };
 		const limit = { height: `100%` };

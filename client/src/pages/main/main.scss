@@ -416,6 +416,15 @@
 		&__progress-word {
 			font-size: 2rem;
 		}
+		&__pillar-top-container,
+		&__pillar-bottom-container {
+			height: 11vh;
+			width: 82vw;
+		}
+		&__pillar-left-container,
+		&__pillar-right-container {
+			width: 22%;
+		}
 	}
 	@include tablet-only() {
 		&__header {
@@ -462,13 +471,16 @@
 		}
 	}
 	@include mobile-only() {
+		background-color: black;
 		&__header {
-			font-size: 1.3rem;
-			width: 70vw;
+			display: none;
 		}
 		&__header-light {
 			font-size: 1.3rem;
 			margin-top: 0;
+		}
+		&__bg-img {
+			width: 140%;
 		}
 		&__date,
 		&__wordcount,
@@ -503,7 +515,7 @@
 		}
 		&__progress-number,
 		&__progress-word {
-			top: 8%;
+			top: 14%;
 			font-size: 1.2rem;
 		}
 		&__modal2 {

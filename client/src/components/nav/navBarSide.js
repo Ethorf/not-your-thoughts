@@ -9,17 +9,23 @@ import arrow from '../../assets/down-arrow-grey-weird.png';
 
 import { TimelineLite } from 'gsap/all';
 
-const navBarContainer = null;
-const navBarTween = null;
-const linksContainer = null;
-const linksTween = null;
-const arrowContainer = null;
-const arrowTween = null;
+// const navBarContainer = null;
+// const navBarTween = null;
+// const linksContainer = null;
+// const linksTween = null;
+// const arrowContainer = null;
+// const arrowTween = null;
 
 class NavBarSide extends React.Component {
 	state = {
 		navOpen: false
 	};
+	navBarContainer = null;
+	navBarTween = null;
+	linksContainer = null;
+	linksTween = null;
+	arrowContainer = null;
+	arrowTween = null;
 	openNav = () => {
 		this.navBarTween.play();
 		this.linksTween.play();

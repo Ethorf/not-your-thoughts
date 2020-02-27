@@ -122,10 +122,13 @@
 
 	@include tablet-only() {
 		font-size: 0.85rem;
-
 		&__logout-button,
 		&__logout-button-light {
 			font-size: 0.85rem;
 		}
+	}
+
+	@include mobile-only {
+		display: none;
 	}
 }

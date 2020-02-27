@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import './audioPlayer.scss';
+import './audioPlayerMobile.scss';
 import Song from '../../assets/Sounds/Not-Your-Thoughts-Ambient-Track-1.mp3';
 import RubberDuckySong from '../../assets/Sounds/RubberDuckySong-2.mp3';
 import pause from '../../assets/Icons/Icon-pause.png';
@@ -10,7 +10,7 @@ import playBlack from '../../assets/Icons/play-icon-black.png';
 import speaker from '../../assets/Icons/speaker.png';
 import { TimelineLite } from 'gsap/all';
 
-class AudioPlayer extends React.Component {
+class AudioPlayerMobile extends React.Component {
 	music = new Audio(Song);
 	rubberDuckyMusic = new Audio(RubberDuckySong);
 	state = {
@@ -41,48 +41,10 @@ class AudioPlayer extends React.Component {
 		});
 	};
 
-	openNav = () => {
-		this.audioPlayerAllTween.play();
-		this.controlsTween.play();
-		this.speakerTween.play();
-
-		this.setState({
-			navOpen: true
-		});
-	};
-
-	closeNav = () => {
-		this.audioPlayerAllTween.reverse();
-		this.controlsTween.reverse();
-		this.speakerTween.reverse();
-		this.setState({
-			navOpen: false
-		});
-	};
-
 	componentDidMount() {
 		this.state.activeSong.loop = true;
 
 		this.state.activeSong.addEventListener('ended', () => this.setState({ play: false }));
-
-		this.audioPlayerAllTween = new TimelineLite({ paused: true }).to(this.audioPlayerAllContainer, {
-			duration: 1.5,
-			x: -145,
-			ease: 'power1.out'
-		});
-
-		this.controlsTween = new TimelineLite({ paused: true }).to(this.controlsContainer, {
-			duration: 1,
-			x: 0,
-			opacity: 1
-		});
-
-		this.speakerTween = new TimelineLite({ paused: true }).to(this.speakerContainer, {
-			duration: 1.5,
-			rotation: -180,
-			opacity: 1,
-			color: 'white'
-		});
 	}
 	componentDidUpdate(prevProps) {
 		if (prevProps !== this.props) {
@@ -108,23 +70,14 @@ class AudioPlayer extends React.Component {
 	controlsTween = null;
 	render() {
 		return (
-			<div
-				className={this.props.rubberDucky ? 'rubberDucky__audioPlayer' : 'audioPlayer '}
-				ref={(div) => (this.audioPlayerAllContainer = div)}
-			>
-				<button
-					className={`audioPlayer__speaker-container`}
-					onClick={this.state.navOpen ? this.closeNav : this.openNav}
-				>
-					<img
-						src={speaker}
-						ref={(img) => (this.speakerContainer = img)}
-						alt="speaker"
-						className="audioPlayer__speaker"
-					></img>
-				</button>
-				<div className="audioPlayer__controls-container" ref={(div) => (this.controlsContainer = div)}>
-					{/* <h3 className="audioPlayer__volume">Volume : {this.state.activeSong.volume}</h3> */}
+			<>
+				<img
+					src={speaker}
+					ref={(img) => (this.speakerContainer = img)}
+					alt="speaker"
+					className="audioPlayer__speaker"
+				></img>
+				<div>
 					<button className={`audioPlayer__play-pause`} onClick={this.togglePlay}>
 						{this.props.mode === '-light' ? (
 							<img
@@ -147,7 +100,7 @@ class AudioPlayer extends React.Component {
 						+
 					</button>
 				</div>
-			</div>
+			</>
 		);
 	}
 }
@@ -156,4 +109,4 @@ const mapStateToProps = (state) => ({
 	mode: state.modes.mode
 });
 
-export default connect(mapStateToProps)(AudioPlayer);
+export default connect(mapStateToProps)(AudioPlayerMobile);

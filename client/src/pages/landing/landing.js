@@ -28,17 +28,17 @@ const bgImgTween = null;
 export default class Landing extends React.Component {
 	componentDidMount() {
 		this.logoTween = new TimelineLite({ paused: true }).to(this.logoContainer, {
-			duration: 2,
-			y: 80,
+			duration: 3,
+			y: 250,
 			ease: 'power1.out',
 			opacity: 1
 		});
 		this.logoTween.play();
 
-		this.notTween = new TimelineLite({ paused: true }).to(this.notContainer, { duration: 3, x: 150, opacity: 1 });
+		this.notTween = new TimelineLite({ paused: true }).to(this.notContainer, { duration: 2.6, x: 150, opacity: 1 });
 		setTimeout(() => {
 			this.notTween.play();
-		}, 800);
+		}, 900);
 
 		this.yourTween = new TimelineLite({ paused: true }).to(this.yourContainer, {
 			duration: 2,
@@ -56,16 +56,16 @@ export default class Landing extends React.Component {
 		});
 		setTimeout(() => {
 			this.thoughtsTween.play();
-		}, 1800);
+		}, 900);
 
 		this.descriptionTween = new TimelineLite({ paused: true }).to(this.descriptionContainer, {
-			duration: 3,
+			duration: 2,
 			y: -1,
 			opacity: 1
 		});
 		setTimeout(() => {
 			this.descriptionTween.play();
-		}, 3700);
+		}, 3000);
 
 		this.loginButtonTween = new TimelineLite({ paused: true }).to(this.loginButtonContainer, {
 			duration: 3.5,

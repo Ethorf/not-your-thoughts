@@ -33,3 +33,20 @@
 		@content;
 	}
 }
+
+@mixin button-styles() {
+	padding: 8% 10%;
+	outline: none;
+	text-decoration: none;
+	width: 100%;
+	color: black;
+	font-size: 1.3rem;
+	font-family: 'Syncopate', sans-serif;
+	border-radius: 9%;
+	&:hover {
+		transition: all 0.4s;
+		color: white;
+		text-shadow: 3px 3px 3px silver;
+		border-radius: 19%;
+	}
+}

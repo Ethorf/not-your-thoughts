@@ -9,9 +9,9 @@ class Resources extends React.Component {
 			<div className={`resources ${this.props.mode}`}>
 				<header className={`resources__header ${this.props.mode}`}>Resources</header>
 				<div className={`resources__content-container ${this.props.mode}`}>
-					<div className="resources__mindfulness-container">
-						<h2 className={`resources__mindfulness-title ${this.props.mode}`}>Mindfulness / Meditation</h2>
-						<div className={`resources__mindfulness-content ${this.props.mode}`}>
+					<div className="resources__container">
+						<h2 className={`resources__title ${this.props.mode}`}>Mindfulness / Meditation</h2>
+						<div className={`resources__content ${this.props.mode}`}>
 							<a
 								className={`resources__link ${this.props.rubberDucky ? 'rubberDucky__blackText' : ''}`}
 								href="https://www.goodreads.com/book/show/18774981-waking-up?from_search=true&qid=zNQqbJOyJL&rank=7"
@@ -50,9 +50,9 @@ class Resources extends React.Component {
 							</a>
 						</div>
 					</div>
-					<div className="resources__journalling-container">
-						<h2 className={`resources__journalling-title ${this.props.mode}`}>Journaling</h2>
-						<div className="resources__journalling-content">
+					<div className="resources__container">
+						<h2 className={`resources__title ${this.props.mode}`}>Journaling</h2>
+						<div className="resources__content">
 							<a
 								className={`resources__link ${this.props.rubberDucky ? 'rubberDucky__blackText' : ''}`}
 								href="https://www.goodreads.com/book/show/615570.The_Artist_s_Way"
@@ -79,9 +79,9 @@ class Resources extends React.Component {
 							</a>
 						</div>
 					</div>
-					<div className="resources__gamification-container">
-						<h2 className={`resources__gamification-title ${this.props.mode}`}>Gamification</h2>
-						<div className="resources__gamification-content">
+					<div className="resources__container">
+						<h2 className={`resources__title ${this.props.mode}`}>Gamification</h2>
+						<div className="resources__content">
 							<a
 								className={`resources__link ${this.props.rubberDucky ? 'rubberDucky__blackText' : ''}`}
 								href="https://www.goodreads.com/book/show/24611964-superbetter?from_search=true&qid=Ev57ON3sNl&rank=2"

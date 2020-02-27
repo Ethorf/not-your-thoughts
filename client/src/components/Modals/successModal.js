@@ -50,24 +50,31 @@ const SuccessModal = ({
 	};
 
 	const openModalAll = () => {
-		openModalContentAnimation();
+		//I maybe should refactor this to use promises?
+		//Whole thing feels a little janky rn
+		goalReached();
+
 		openModalOverlayAnimation();
-		openSuccessModal();
+		openModalContentAnimation();
+		increaseDays();
+		setTimeout(() => {
+			loadUser();
+		}, 300);
+		setTimeout(() => {
+			openSuccessModal();
+		}, 600);
 	};
 
 	const closeModalAll = () => {
 		closeModalContentAnimation();
 		closeModalOverlayAnimation();
-		increaseDays();
 		closeSuccessModal();
-		goalReached();
 	};
 
 	const closeSaveModalAll = () => {
 		closeModalContentAnimation();
 		closeModalOverlayAnimation();
 		closeSuccessModal();
-		increaseDays();
 		goalReached();
 		saveEntry({ entry: entry });
 	};
@@ -75,7 +82,7 @@ const SuccessModal = ({
 		if (wordCount >= goal && goalReachedStatus === false) {
 			openModalAll();
 		}
-	}, [wordCount, goalReachedStatus, goal]);
+	}, [wordCount, goalReachedStatus, goal, user]);
 	return (
 		<Fragment>
 			{/* <button onClick={openModalAll}>Modal Open Test</button> */}

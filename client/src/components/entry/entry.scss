@@ -165,8 +165,12 @@
 		&__entry-date-wordcount-container {
 			display: flex;
 			justify-content: space-between;
-			width: 100%;
+			width: 70%;
 			font-size: 0.8rem;
+		}
+		&__entry-content {
+			font-size: 0.8rem;
+			width: 80%;
 		}
 		&__wordcount-container {
 			display: none;

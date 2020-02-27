@@ -5,6 +5,8 @@ import PrivateRoute from './components/private-route/privateRoute';
 import { Provider, useSelector, connect } from 'react-redux';
 import './App.scss';
 import NavBarSide from './components/nav/navBarSide.js';
+import NavBarTop from './components/nav/navBarTop.js';
+
 import AudioPlayer from './components/audioPlayer/audioPlayer.js';
 //Pages Imports
 import Landing from './pages/landing/landing';
@@ -34,6 +36,7 @@ const App = () => {
 	return (
 		<div className={`App ${mode}`}>
 			<BrowserRouter>
+				<NavBarTop />
 				<NavBarSide />
 				<AudioPlayer />
 				<Route

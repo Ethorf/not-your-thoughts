@@ -1,0 +1,186 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/variables.scss';
+@import '../../styles/base.scss';
+@import url('https://fonts.googleapis.com/css?family=Maven+Pro:400,500,700,900&display=swap');
+
+.navTop {
+	border-bottom: 2px solid silver;
+	font-family: 'Comfortaa', cursive;
+	width: 100vw;
+	font-size: 1.3rem;
+	margin-bottom: 10%;
+
+	&__open {
+		transition: all 0.5s;
+		position: absolute;
+		z-index: 30;
+		display: flex;
+		flex-direction: column;
+		justify-content: start;
+		background-color: black;
+		border-bottom: 1px solid silver;
+		height: 50%;
+	}
+	&__closed {
+		position: absolute;
+		display: flex;
+		flex-direction: row;
+		font-family: 'Comfortaa', cursive;
+		height: 7%;
+		font-size: 1.3rem;
+		margin-bottom: 10%;
+	}
+	&__top-container {
+		width: 100vw;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	&__arrow-container {
+		margin-top: 1%;
+		position: absolute;
+		left: 1%;
+		background-color: transparent;
+		border: none;
+		outline: none;
+	}
+	&__arrow-closed {
+		transition: 1s all;
+		color: silver;
+		border: none;
+		background-color: transparent;
+		opacity: 1;
+		outline: none;
+		height: 30px;
+		width: 25px;
+		transform: rotate(90deg);
+		&:focus {
+			border: none;
+			outline: none;
+		}
+	}
+
+	&__arrow-open {
+		transition: 1s all;
+		color: silver;
+		border: none;
+		background-color: transparent;
+		opacity: 1;
+		outline: none;
+		height: 30px;
+		width: 25px;
+		transform: rotate(-90deg);
+		&:focus {
+			border: none;
+			outline: none;
+		}
+	}
+	&__title {
+		color: white;
+		justify-self: center;
+		align-self: center;
+		// margin-left: 25vw;
+		font-size: 1.2rem;
+		font-family: 'Syncopate', cursive;
+	}
+	&__links-container-open {
+		opacity: 1;
+		transition: 3s all;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		margin-top: 3%;
+		color: silver;
+	}
+	&__links-container-closed {
+		transition: 3s all;
+
+		opacity: 0;
+		display: none;
+	}
+
+	&__links-container-open-light {
+		opacity: 0;
+		display: flex;
+		font-size: 1.3rem;
+		width: 100%;
+		color: black;
+		padding: 10px;
+	}
+	&__active {
+		color: white;
+		list-style-position: outside;
+	}
+
+	&__link {
+		text-decoration: none;
+		color: silver;
+		font-family: 'Maven Pro', sans-serif;
+		font-size: 1.6rem;
+		&:hover {
+			transition: all 0.7;
+			color: white;
+		}
+	}
+	&__link-light {
+		text-decoration: none;
+		color: black;
+		transition: all 0.7;
+		margin-bottom: 8px;
+		&:hover {
+			transition: all 0.7;
+			color: white;
+			text-shadow: 1px 1px 1px black;
+		}
+	}
+	&__logout-button {
+		width: 200%;
+		color: silver;
+		border: none;
+		background-color: transparent;
+		font-family: 'Comfortaa', cursive;
+		padding: 0;
+		text-align: left;
+		font-size: 1.3rem;
+		margin-bottom: 8px;
+		outline: none;
+		&:hover {
+			transition: all 0.7;
+			color: white;
+		}
+	}
+
+	&__logout-button-light {
+		width: 200%;
+		color: black;
+		border: none;
+		background-color: transparent;
+		font-family: 'Comfortaa', cursive;
+		padding: 0;
+		text-align: left;
+		font-size: 1.3rem;
+
+		margin-bottom: 8px;
+		outline: none;
+		&:hover {
+			transition: all 0.7;
+			color: white;
+			text-shadow: 1px 1px 1px black;
+		}
+	}
+	@include laptop-small() {
+		display: none;
+	}
+
+	@include tablet-only() {
+		display: none;
+	}
+
+	@include mobile-only {
+	}
+	@include laptop-large() {
+		display: none;
+	}
+}
