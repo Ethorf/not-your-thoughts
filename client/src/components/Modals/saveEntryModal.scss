@@ -5,6 +5,8 @@
 .save-entry-modal {
 	display: flex;
 	position: absolute;
+	width: 100vw;
+	justify-content: center;
 	top: 10%;
 	z-index: 10;
 	color: white;
@@ -44,14 +46,28 @@
 		transition: all 0.5s;
 		display: none;
 	}
+	@include mobile-only() {
+		font-size: 1.1em;
+	}
+	@include tablet-only() {
+		font-size: 1.3em;
+	}
 }
 
 .save-entry-modal-light {
 	color: black;
 	display: flex;
 	position: absolute;
+	width: 100vw;
+	justify-content: center;
 	top: 10%;
 	z-index: 10;
 	font-family: 'Syncopate', sans-serif;
 	font-size: 1.5rem;
+	@include mobile-only() {
+		font-size: 1.1em;
+	}
+	@include tablet-only() {
+		font-size: 1.3em;
+	}
 }

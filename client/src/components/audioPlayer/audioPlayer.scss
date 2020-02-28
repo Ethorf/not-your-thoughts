@@ -6,7 +6,7 @@
 	display: flex;
 	position: absolute;
 	top: 2vh;
-	right: -4vw;
+	right: -6vw;
 	align-items: center;
 	justify-items: space-between;
 	flex-direction: row;
@@ -78,5 +78,11 @@
 	}
 	@include mobile-only {
 		display: none;
+	}
+	@include tablet-only() {
+		right: -4vw;
+	}
+	@include laptop-small() {
+		right: -4vw;
 	}
 }

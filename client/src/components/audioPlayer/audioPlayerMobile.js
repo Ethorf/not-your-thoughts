@@ -8,7 +8,6 @@ import play from '../../assets/Icons/Icon-play.png';
 import pauseBlack from '../../assets/Icons/pause-icon-black.png';
 import playBlack from '../../assets/Icons/play-icon-black.png';
 import speaker from '../../assets/Icons/speaker.png';
-import { TimelineLite } from 'gsap/all';
 
 class AudioPlayerMobile extends React.Component {
 	music = new Audio(Song);
@@ -62,21 +61,11 @@ class AudioPlayerMobile extends React.Component {
 	componentWillUnmount() {
 		this.state.activeSong.removeEventListener('ended', () => this.setState({ play: false }));
 	}
-	audioPlayerAllContainer = null;
-	audioPlayerAllTween = null;
-	speakerContainer = null;
-	speakerTween = null;
-	controlsContainer = null;
-	controlsTween = null;
+
 	render() {
 		return (
 			<>
-				<img
-					src={speaker}
-					ref={(img) => (this.speakerContainer = img)}
-					alt="speaker"
-					className="audioPlayer__speaker"
-				></img>
+				<img src={speaker} alt="speaker" className="audioPlayer__speaker"></img>
 				<div>
 					<button className={`audioPlayer__play-pause`} onClick={this.togglePlay}>
 						{this.props.mode === '-light' ? (
