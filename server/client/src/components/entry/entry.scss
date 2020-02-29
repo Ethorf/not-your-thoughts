@@ -1,0 +1,219 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/variables.scss';
+@import '../../styles/base.scss';
+
+.entry {
+	background-color: black;
+	&__entry-all-container {
+		width: 50%;
+		margin: 5px 0px;
+	}
+	&__entry-date-wordcount-container {
+		display: flex;
+		width: 75%;
+		margin: 3px 0px;
+	}
+	&__wordcount-container {
+		width: 20%;
+		display: flex;
+		margin-left: 1%;
+	}
+
+	&__entry-content {
+		color: white;
+		margin-top: 10%;
+		background-color: black;
+	}
+	&__entry-date-wordcount {
+		margin: 5px 0px;
+	}
+	&__date {
+		width: 38%;
+	}
+	&__content {
+		margin-left: 300px;
+		width: 50%;
+	}
+	&__entry-open {
+		opacity: 1;
+		margin-top: 2%;
+		line-height: 1.2rem;
+		transition: all 0.7s;
+	}
+	&__entry-closed {
+		margin: 0;
+		height: 0px;
+		opacity: 0;
+		line-height: 0.1rem;
+		transition: all 0.7s;
+	}
+	&__entry-arrow {
+		border: none;
+		height: 100%;
+		width: 100%;
+		transition: all 1s;
+	}
+	&__button {
+		background-color: transparent;
+		border: none;
+		outline: none;
+		padding: 0px;
+		height: 10%;
+		width: 6%;
+	}
+	&__button-open {
+		opacity: 1;
+		transform: rotate(180deg);
+		transition: all 1s;
+	}
+	&__button-closed {
+		transition: all 1s;
+	}
+	&__delete-button {
+		color: silver;
+		border: none;
+		background-color: transparent;
+		outline: none;
+		font-size: 1.4rem;
+		margin-left: 3%;
+		&:hover {
+			color: red;
+		}
+	}
+
+	&__delete-modal-open {
+		width: 20%;
+		position: relative;
+		left: 50%;
+		top: -5%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		text-align: center;
+		flex-direction: column;
+		border: 1px solid white;
+		border-radius: 5px;
+		z-index: 9;
+		opacity: 1;
+		transition: all 1s;
+	}
+
+	&__delete-modal-closed {
+		display: none;
+		opacity: 0;
+		transition: all 1s;
+	}
+	&__delete-modal-buttons-container {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+	}
+
+	&__delete-modal-button {
+		margin-bottom: 3%;
+		margin-left: 4px;
+		color: black;
+		padding: 1% 4%;
+		border-radius: 20px;
+		outline: none;
+		transition: all 0.1s;
+
+		&:hover {
+			background-color: black;
+			color: white;
+		}
+	}
+	&__delete-modal-text {
+		margin-bottom: 3%;
+	}
+	@include laptop-large() {
+		&__delete-modal-open {
+			font-size: 0.8rem;
+			left: 65%;
+		}
+		&__delete-modal-button {
+			font-size: 0.5rem;
+		}
+	}
+	@include laptop-small() {
+		&__entry-date-wordcount-container {
+			width: 90%;
+			font-size: 0.9rem;
+		}
+		&__entry-all-container {
+			width: 80%;
+		}
+		&__delete-modal-open {
+			font-size: 0.8rem;
+		}
+		&__delete-modal-button {
+			font-size: 0.5rem;
+		}
+	}
+	@include tablet-only() {
+		&__entry-all-container {
+			width: 80%;
+		}
+		&__entry-date-wordcount-container {
+			width: 100%;
+			font-size: 0.8rem;
+		}
+		&__entry-arrow {
+			height: 80%;
+			width: 80%;
+		}
+		&__delete-modal-open {
+			font-size: 0.7rem;
+			left: 75%;
+		}
+		&__delete-modal-button {
+			font-size: 0.5rem;
+		}
+	}
+
+	@include mobile-only() {
+		display: flex;
+		align-items: center;
+		&__words {
+			display: none;
+		}
+		&__entry-all-container {
+			width: 80%;
+		}
+		&__date {
+			width: 60%;
+		}
+		&__entry-date-wordcount-container {
+			display: flex;
+			justify-content: space-between;
+			width: 70%;
+			font-size: 0.8rem;
+		}
+		&__entry-content {
+			font-size: 0.8rem;
+			width: 80%;
+		}
+		&__wordcount-container {
+			display: none;
+		}
+		&__entry-arrow {
+			height: 80%;
+			width: 80%;
+		}
+		&__button {
+			align-self: center;
+		}
+		&__delete-modal-open {
+			font-size: 0.7rem;
+			width: 35%;
+		}
+		&__delete-modal-button {
+			font-size: 0.5rem;
+		}
+	}
+}
+
+.-light {
+	color: black;
+	background-color: white;
+}

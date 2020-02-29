@@ -1,0 +1,13 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/variables.scss';
+@import '../../styles/base.scss';
+
+.audioPlayer {
+	@include mobile-only {
+		width: 10%;
+		height: 40px;
+		color: silver;
+		font-family: 'Maven Pro', sans-serif;
+		z-index: 8;
+	}
+}

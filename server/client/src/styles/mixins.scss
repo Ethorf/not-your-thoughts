@@ -1,0 +1,52 @@
+@import './variables.scss';
+
+//Font Typography
+@font-face {
+	font-family: 'Maven Pro';
+	src: url('https://fonts.googleapis.com/css?family=Maven+Pro:400,500,700,900&display=swap');
+}
+@import url('https://fonts.googleapis.com/css?family=Maven+Pro:400,500,700,900&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Comfortaa&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Audiowide|Lalezar&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Lekton|Marmelad|Rambla|Syncopate&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Poppins:400,400i&display=swap');
+
+//Screen Sizes
+@mixin mobile-only() {
+	@media #{$mobile-only} {
+		@content;
+	}
+}
+@mixin tablet-only() {
+	@media #{$tablet-only} {
+		@content;
+	}
+}
+//Laptop Small is 993 - 1199
+@mixin laptop-small() {
+	@media #{$laptop-small} {
+		@content;
+	}
+}
+@mixin laptop-large() {
+	@media #{$laptop-large} {
+		@content;
+	}
+}
+
+@mixin button-styles() {
+	padding: 8% 10%;
+	outline: none;
+	text-decoration: none;
+	width: 100%;
+	color: black;
+	font-size: 1.3rem;
+	font-family: 'Syncopate', sans-serif;
+	border-radius: 9%;
+	&:hover {
+		transition: all 0.4s;
+		color: white;
+		text-shadow: 3px 3px 3px silver;
+		border-radius: 19%;
+	}
+}

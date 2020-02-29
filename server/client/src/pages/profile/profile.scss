@@ -1,0 +1,155 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/variables.scss';
+@import '../../styles/base.scss';
+
+.profile {
+	background-color: black;
+	color: silver;
+	font-family: 'Comfortaa', cursive;
+	display: flex;
+	flex-direction: column;
+	height: 300vh;
+	margin-left: $not-main-margin-left;
+	width: 69%;
+
+	&__header {
+		font-family: 'Syncopate', sans-serif;
+		font-size: $header-text-size;
+		margin-top: $top-margin-not-main;
+		margin-bottom: 30px;
+		color: white;
+	}
+
+	&__user-logout-container {
+		display: flex;
+		align-items: center;
+	}
+
+	&__logout-button {
+		width: 10%;
+		height: 3%;
+		margin-top: 5%;
+		padding: 8px 1%;
+		border-radius: 7px;
+		font-size: 0.7rem;
+		font-family: 'Syncopate', sans-serif;
+		outline: none;
+		transition: all 0.3s;
+		&:hover {
+			transition: all 0.5s;
+			background-color: black;
+			color: white;
+		}
+	}
+	&__user {
+		font-size: 1.9rem;
+		margin-bottom: 7px;
+		margin-top: 7px;
+		color: white;
+		font-family: 'Montserrat';
+	}
+	&__consecutive-days {
+		display: flex;
+	}
+	&__day-number {
+		margin-left: 10px;
+		font-size: 1.6rem;
+		color: white;
+	}
+	&__total-days {
+		display: flex;
+		margin-bottom: 10px;
+	}
+	&__last-day {
+		display: flex;
+		margin-bottom: 1%;
+	}
+
+	//Goal stuff
+	&__goal-edit {
+		display: flex;
+		align-items: center;
+		margin-bottom: 1%;
+	}
+	&__goal-edit-button {
+		width: 7%;
+		height: 100%;
+		padding: 0.3%;
+		margin-left: 1%;
+		border-radius: 7px;
+		font-size: 0.8rem;
+		font-family: 'Montserrat', sans-serif;
+		outline: none;
+		transition: all 0.5s;
+
+		&:hover {
+			transition: all 0.5s;
+			background-color: black;
+			color: white;
+		}
+	}
+
+	&__cancel-button {
+		width: 40%;
+	}
+	&__goal-input {
+		margin-left: 1%;
+		width: 5%;
+		height: 100%;
+		border: 1px solid silver;
+		border-radius: 2px;
+		padding: 3px;
+		outline: none;
+	}
+	&__entries-header {
+		margin-top: 2%;
+		color: white;
+		font-size: 2.2rem;
+		font-family: 'Syncopate', sans-serif;
+	}
+	@include tablet-only() {
+		width: 70%;
+		&__header,
+		&__entries-header {
+			font-size: 1.9rem;
+		}
+		&__user {
+			font-size: 1.6rem;
+		}
+		&__day-number,
+		&__stats-text {
+			font-size: 1.2rem;
+		}
+	}
+
+	@include mobile-only() {
+		width: 70%;
+		align-items: center;
+		&__header {
+			margin-top: 18%;
+			margin-bottom: 5%;
+		}
+		&__header,
+		&__entries-header {
+			font-size: 1.6rem;
+		}
+		&__user {
+			font-size: 1.4rem;
+		}
+		&__day-number,
+		&__stats-text {
+			font-size: 1rem;
+		}
+		&__goal-input {
+			width: 7%;
+		}
+		&__goal-edit-button {
+			font-size: 0.7rem;
+			width: 10%;
+		}
+	}
+}
+.-light {
+	color: black;
+	background-color: white;
+}

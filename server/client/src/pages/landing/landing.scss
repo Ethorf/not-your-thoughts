@@ -1,0 +1,143 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/variables.scss';
+// @import '../../styles/base.scss';
+
+.landing {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	width: 100%;
+	background-color: black;
+	height: 100vh;
+	color: white;
+	font-family: 'Maven Pro', sans-serif;
+	margin: 0 auto;
+
+	&__bg-img {
+		position: absolute;
+		transition: all 5s;
+		opacity: 0.01;
+		right: 100;
+		width: 180%;
+		height: 140%;
+		z-index: 3;
+	}
+	&__you-are {
+		width: 100%;
+		text-align: center;
+		font-size: 3rem;
+		opacity: 0;
+		margin-bottom: 90px;
+		border-radius: 2% 50%;
+		font-family: 'Syncopate', sans-serif;
+	}
+
+	&__title {
+		display: flex;
+		justify-content: center;
+		font-size: 4.5rem;
+		width: 100%;
+		text-align: center;
+		margin-top: 20vh;
+	}
+	&__title div {
+		margin-right: 20px;
+	}
+	&__title-not {
+		opacity: 0;
+		margin-right: -20px;
+		font-family: 'Syncopate', sans-serif;
+	}
+	&__title-your {
+		margin-left: 150px;
+		margin-top: 100px;
+		opacity: 0;
+		font-family: 'Syncopate', sans-serif;
+	}
+
+	&__title-thoughts {
+		margin-left: 100px;
+		opacity: 0;
+		font-family: 'Syncopate', sans-serif;
+	}
+	&__description-container {
+		display: flex;
+		justify-content: center;
+		flex-wrap: wrap;
+		margin-right: 0;
+		width: 100%;
+	}
+	&__description {
+		margin-top: -100px;
+		font-size: 2.3rem;
+		margin-right: 0;
+		width: 70%;
+		opacity: 0;
+		color: silver;
+		transition: opacity 0.6s;
+		text-align: center;
+	}
+	&__all-buttons-container {
+		display: flex;
+		justify-content: center;
+	}
+	&__start-button-container {
+		display: flex;
+		justify-content: center;
+		border-bottom: 4px solid silver;
+		border-left: 4px solid silver;
+		border-radius: 15px;
+		width: 75%;
+		opacity: 0;
+		margin-bottom: 300px;
+		margin-right: 3%;
+	}
+	&__login-button {
+		@include button-styles;
+		padding: 8% 25%;
+	}
+	&__register-button {
+		@include button-styles;
+	}
+
+	&__start-button-container:hover {
+		color: white;
+		color: silver;
+		font-size: 1.3rem;
+		background-color: black;
+		transition: all 1s;
+	}
+	@include laptop-small() {
+		&__title {
+			font-size: 3.9rem;
+		}
+
+		&__description {
+			font-size: 2.1rem;
+			width: 80%;
+		}
+	}
+	@include tablet-only() {
+		&__title {
+			font-size: 3.1rem;
+		}
+		&__description {
+			font-size: 2.1rem;
+			width: 80%;
+		}
+	}
+	@include mobile-only() {
+		&__you-are {
+			font-size: 2.1rem;
+		}
+		&__title {
+			font-size: 2.3rem;
+			margin-top: 20vh;
+		}
+		&__description {
+			font-size: 1.6rem;
+			width: 80%;
+		}
+	}
+}

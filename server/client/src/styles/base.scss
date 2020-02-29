@@ -1,0 +1,13 @@
+@import './mixins.scss';
+@import './variables.scss';
+
+html, body {
+    overflow-x: hidden;
+    box-sizing: border-box;
+    margin: 0;
+    color: $black-text-color;
+
+}
+  *, *:before, *:after {
+    box-sizing: inherit;
+}

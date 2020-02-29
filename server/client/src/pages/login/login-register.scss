@@ -1,0 +1,203 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/variables.scss';
+@import '../../styles/base.scss';
+
+.login-register {
+	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana,
+		sans-serif;
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	width: 100%;
+	height: 100vh;
+	color: silver;
+	background-color: black;
+
+	&__title {
+		font-size: 2.5rem;
+		margin-top: 50px;
+		font-family: 'Syncopate', sans-serif;
+	}
+	&__alert {
+		color: red;
+		font-family: 'Montserrat', sans-serif;
+		font-size: 1.1rem;
+	}
+
+	&__alert-open {
+		opacity: 1;
+		transition: all 1s;
+	}
+
+	&__alert-closed {
+		opacity: 0;
+		line-height: 0.2;
+		transition: all 1s;
+	}
+
+	&__form {
+		width: 60%;
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+	}
+	&__input-container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+		width: 70%;
+		background-color: black;
+		border-radius: 10px;
+	}
+	&__input {
+		font-family: 'Montserrat', sans-serif;
+		width: 40%;
+		padding: 2% 1%;
+		border: none;
+		font-size: 1.1rem;
+		border-bottom: 1px solid silver;
+		outline: none;
+		color: silver;
+		display: flex;
+		justify-content: center;
+		background-color: black;
+		margin: 2% 0%;
+		border-radius: 1px;
+		transition: all 2s;
+
+		&:hover {
+			border-bottom: 1px solid white;
+			transition: all 2s;
+			border-radius: 3px;
+		}
+	}
+
+	&__submit-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 11%;
+		height: 9%;
+		padding-top: 1%;
+		padding-bottom: 2%;
+		border-radius: 7px;
+		font-size: 1rem;
+		margin-top: 1.5%;
+		margin-bottom: 2%;
+		font-family: 'Syncopate', sans-serif;
+		transition: all 0.4s;
+
+		outline: none;
+		&:hover {
+			transition: all 0.4s;
+			background-color: black;
+			color: white;
+			text-shadow: 3px 3px 3px silver;
+		}
+	}
+	&__login-button {
+		padding-bottom: 2.5%;
+	}
+	&__signup-link {
+		text-decoration: none;
+		color: white;
+		margin-left: 4px;
+
+		&:hover {
+			transition: all 2s;
+			text-shadow: 1px 0px 1px silver;
+			border-radius: 3px;
+		}
+	}
+	&__signup {
+		font-family: 'Maven Pro';
+		color: grey;
+	}
+
+	@include mobile-only() {
+		&__input-container {
+			width: 100%;
+		}
+
+		&__title {
+			font-size: 2.9rem;
+			margin-top: 15%;
+			margin-bottom: 0%;
+		}
+		&__input {
+			width: 80%;
+			text-align: center;
+			font-size: 1.2rem;
+		}
+		&__submit-button {
+			margin-top: 5%;
+			padding-top: 3%;
+			width: 45%;
+			height: 30%;
+			font-size: 1rem;
+		}
+		&__signup,
+		&__signup-link {
+			font-size: 1.3rem;
+		}
+	}
+
+	@include tablet-only() {
+		&__input-container {
+			width: 100%;
+		}
+
+		&__title {
+			font-size: 2.9rem;
+		}
+		&__input {
+			width: 60%;
+			text-align: center;
+			font-size: 1.2rem;
+		}
+		&__submit-button {
+			margin-top: 5%;
+			width: 35%;
+			font-size: 1.5rem;
+		}
+		&__signup,
+		&__signup-link {
+			font-size: 1.1rem;
+		}
+	}
+	@include laptop-small() {
+		&__input-container {
+			width: 100%;
+		}
+
+		&__title {
+			font-size: 2.9rem;
+		}
+		&__input {
+			width: 60%;
+			text-align: center;
+			font-size: 1.2rem;
+		}
+		&__submit-button {
+			margin-top: 5%;
+			width: 30%;
+			height: 30%;
+			font-size: 1.5rem;
+		}
+		&__signup,
+		&__signup-link {
+			font-size: 1.1rem;
+		}
+	}
+}
+/* Change the white to any color ;) */
+// Okay i've never done any webkit things but this is a good thing to look for
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+	-webkit-box-shadow: 0 0 0 30px black inset !important;
+	-webkit-text-fill-color: silver;
+}
