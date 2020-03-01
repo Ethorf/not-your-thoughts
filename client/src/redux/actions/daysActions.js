@@ -12,7 +12,8 @@ export const increaseConsecutiveDays = () => async (dispatch) => {
 		}
 	};
 	try {
-		const res = await axios.post('http://localhost:8082/api/increaseDays', body, config);
+		const res = await axios.post('/api/increaseDays', body, config);
+		// const res = await axios.post('http://localhost:8082/api/increaseDays', body, config);
 
 		dispatch({
 			type: INCREASE_TOT_DAYS,

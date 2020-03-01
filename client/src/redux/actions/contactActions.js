@@ -11,7 +11,9 @@ export const submitContact = ({ name, email, message }) => async (dispatch) => {
 	const body = JSON.stringify({ name, email, message });
 
 	try {
-		const res = await axios.post('http://localhost:8082/api/contact', body, config);
+		// const res = await axios.post('http://localhost:8082/api/contact', body, config);
+		const res = await axios.post('/api/contact', body, config);
+
 		dispatch({
 			type: SUBMIT_CONTACT_FORM
 		});

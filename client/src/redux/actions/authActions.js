@@ -20,7 +20,9 @@ export const loadUser = () => async (dispatch) => {
 		setAuthToken(localStorage.token);
 	}
 	try {
-		const res = await axios.get('http://localhost:8082/api/auth');
+		const res = await axios.get('/api/auth');
+		// const res = await axios.get('http://localhost:8082/api/auth');
+
 		dispatch({
 			type: USER_LOADED,
 			payload: res.data
@@ -43,7 +45,8 @@ export const register = ({ name, email, password }) => async (dispatch) => {
 	const body = JSON.stringify({ name, email, password });
 
 	try {
-		const res = await axios.post('http://localhost:8082/api/registerUser', body, config);
+		// const res = await axios.post('http://localhost:8082/api/registerUser', body, config);
+		const res = await axios.post('/api/registerUser', body, config);
 
 		dispatch({
 			type: REGISTER_SUCCESS,
@@ -75,7 +78,9 @@ export const login = (email, password) => async (dispatch) => {
 	const body = JSON.stringify({ email, password });
 
 	try {
-		const res = await axios.post('http://localhost:8082/api/auth', body, config);
+		// const res = await axios.post('http://localhost:8082/api/auth', body, config);
+		const res = await axios.post('/api/auth', body, config);
+
 		dispatch({
 			type: LOGIN_SUCCESS,
 			payload: res.data
@@ -99,8 +104,6 @@ export const logout = () => (dispatch) => {
 	dispatch({ type: LOGOUT });
 };
 
-//// Increase User Consecutive Days \\\ ?? should this be in this section ??
-
 export const increaseDays = () => async (dispatch) => {
 	const config = {
 		headers: {
@@ -109,7 +112,8 @@ export const increaseDays = () => async (dispatch) => {
 		}
 	};
 	try {
-		const res = await axios.post('http://localhost:8082/api/increaseDays', config);
+		const res = await axios.post('/api/increaseDays', config);
+		// const res = await axios.post('http://localhost:8082/api/increaseDays', config);
 
 		dispatch({
 			type: INCREASE_DAYS,
