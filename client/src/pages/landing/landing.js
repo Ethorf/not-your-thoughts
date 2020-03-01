@@ -1,9 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './landing.scss';
-import { TimelineLite, CSSPlugin } from 'gsap/all';
-import bgOverlayTextureWhite from '../../assets/Background-Images/background-texture-bigPan-white-blur.png';
+import { gsap } from 'gsap';
+import { CSSPlugin } from 'gsap/CSSPlugin';
 
+import { TimelineLite } from 'gsap/all';
+import bgOverlayTextureWhite from '../../assets/Background-Images/background-texture-bigPan-white-blur.png';
+gsap.registerPlugin(CSSPlugin);
 // declaring all initial animation vars
 
 const allContainer = null;
