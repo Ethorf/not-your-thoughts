@@ -11,8 +11,6 @@ const bcrypt = require('bcryptjs');
 // @desc     Authenticate user & get token / Login user
 // @access   Public
 
-//This bitch logs you in
-
 router.post(
 	'/',
 	[check('email', 'Please enter a valid email').isEmail(), check('password', 'Password is required').exists()],

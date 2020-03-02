@@ -1,4 +1,3 @@
 {
-	"mongoURI": "mongodb+srv://ethorf:tittyhos123@cluster0-uxjjr.mongodb.net/NotYourThoughts?retryWrites=true&w=majority",
 	"jwtSecret": "mysecrettoken"
 }

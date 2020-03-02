@@ -1,4 +1,7 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 module.exports = {
-	USER: 'ethorf@gmail.com',
-	PASS: 'spudMoNillium8014'
+	USER: process.env.USER,
+	PASS: process.env.PASS
 };
