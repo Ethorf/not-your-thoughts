@@ -96,8 +96,12 @@
 			text-shadow: 3px 3px 3px silver;
 		}
 	}
-	&__login-button {
-		padding-bottom: 2.5%;
+	&__login-button,
+	&__register-button {
+		padding-right: 8%;
+		padding-left: 8%;
+		padding-bottom: 3.5vh;
+		padding-top: 2vh;
 	}
 	&__signup-link {
 		text-decoration: none;
@@ -137,6 +141,9 @@
 			height: 30%;
 			font-size: 1rem;
 		}
+		&__login-button {
+			font-size: 1.2rem;
+		}
 		&__signup,
 		&__signup-link {
 			font-size: 1.3rem;
@@ -165,6 +172,16 @@
 		&__signup-link {
 			font-size: 1.1rem;
 		}
+		&__login-button {
+			padding-top: 2%;
+			padding-bottom: 5.5%;
+			font-size: 1.2rem;
+		}
+		&__register-button {
+			padding-top: 2vh;
+			padding-bottom: 4vh;
+			font-size: 1.2rem;
+		}
 	}
 	@include laptop-small() {
 		&__input-container {
@@ -184,6 +201,15 @@
 			width: 30%;
 			height: 30%;
 			font-size: 1.5rem;
+		}
+		&__login-button {
+			padding: 2%;
+			font-size: 1.2rem;
+		}
+		&__register-button {
+			padding-top: 2vh;
+			padding-bottom: 2vh;
+			font-size: 1.2rem;
 		}
 		&__signup,
 		&__signup-link {

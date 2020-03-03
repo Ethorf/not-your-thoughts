@@ -71,7 +71,11 @@ const Register = ({ setAlert, register, isAuthenticated, alert }) => {
 					onChange={(e) => onChange(e)}
 					className="login-register__input"
 				/>
-				<input type="submit" className="login-register__submit-button" value="Register" />
+				<input
+					type="submit"
+					className="login-register__submit-button login-register__register-button"
+					value="Register"
+				/>
 			</form>
 			<p className="login-register__signup">
 				Already have an account?{' '}

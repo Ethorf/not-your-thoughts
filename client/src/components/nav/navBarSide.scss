@@ -112,19 +112,19 @@
 		}
 	}
 	@include laptop-small() {
-		font-size: 0.85rem;
+		font-size: 1.2rem;
 
 		&__logout-button,
 		&__logout-button-light {
-			font-size: 0.85rem;
+			font-size: 1.2rem;
 		}
 	}
 
 	@include tablet-only() {
-		font-size: 0.85rem;
+		font-size: 1rem;
 		&__logout-button,
 		&__logout-button-light {
-			font-size: 0.85rem;
+			font-size: 1.1rem;
 		}
 	}
 

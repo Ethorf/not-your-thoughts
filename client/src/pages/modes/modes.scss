@@ -30,13 +30,13 @@
 		align-items: center;
 		flex-direction: row;
 		width: 78%;
-		// justify-content: space-between;
 	}
 	&__mode-title {
 		font-family: 'Syncopate', sans-serif;
 		color: white;
 		width: 30%;
-		font-size: 5.9rem;
+		font-size: 1.3rem;
+		margin-right: 2%;
 	}
 	&__rubber-ducky-title {
 		margin-right: 20px;
@@ -77,9 +77,9 @@
 		font-size: 0.6rem;
 		font-family: 'Syncopate', sans-serif;
 		border-radius: 5%;
-		margin-left: 8%;
-
-		padding: 0.7% 1%;
+		margin-left: 6%;
+		font-size: 1rem;
+		padding: 0.9vh 2vw;
 		transition: all 1s;
 		&:hover {
 			background-color: black;
@@ -88,7 +88,7 @@
 		}
 	}
 	&__coming-soon {
-		font-size: 0.8rem;
+		font-size: 1rem;
 		width: 30%;
 		margin-left: 8%;
 		color: silver;
@@ -131,13 +131,13 @@
 			flex-direction: column;
 			width: 80%;
 		}
+		&__mode-title {
+			width: 29%;
+			margin-right: 5vw;
+			font-size: 0.9rem;
+		}
 	}
 	&__mode-requirement {
-		margin-right: 2%;
-	}
-
-	&__mode-title {
-		font-size: 0.8rem;
 		margin-right: 2%;
 	}
 }
