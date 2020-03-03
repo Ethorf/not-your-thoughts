@@ -1,18 +1,19 @@
 const nodemailer = require('nodemailer');
 const { google } = require('googleapis');
+const dotenv = require('dotenv');
 const OAuth2 = google.auth.OAuth2;
-const creds = require('../../config/emailConfig.js');
 const express = require('express');
 const router = express.Router();
 
+dotenv.config();
+
 const oauth2Client = new OAuth2(
-	'442405174598-9al4vhm9r0s1g0vkl9iem688kdja25ik.apps.googleusercontent.com',
-	'3ccW52UcU9gk8HBDZj95GoVc', // Client Secret
+	process.env.CLIENT_ID, //Client Id
+	process.env.CLIENT_SECRET, // Client Secret
 	'https://developers.google.com/oauthplayground' // Redirect URL
 );
 oauth2Client.setCredentials({
-	refresh_token:
-		'1//04fb2sH-M1w_ZCgYIARAAGAQSNwF-L9IrPYWHARKokOGHa5f0E2_VcbgjP9ncPoqeFQHik8kASTMSbqUEHavmGYR9qmXAz_q1hwM'
+	refresh_token: process.env.REFRESH_TOKEN
 });
 const accessToken = oauth2Client.getAccessToken();
 
@@ -21,11 +22,13 @@ const smtpTransport = nodemailer.createTransport({
 	auth: {
 		type: 'OAuth2',
 		user: 'ethorf@gmail.com',
-		clientId: '442405174598-9al4vhm9r0s1g0vkl9iem688kdja25ik.apps.googleusercontent.com',
-		clientSecret: '3ccW52UcU9gk8HBDZj95GoVc',
-		refreshToken:
-			'1//04fb2sH-M1w_ZCgYIARAAGAQSNwF-L9IrPYWHARKokOGHa5f0E2_VcbgjP9ncPoqeFQHik8kASTMSbqUEHavmGYR9qmXAz_q1hwM',
+		clientId: process.env.CLIENT_ID,
+		clientSecret: process.env.CLIENT_SECRET,
+		refreshToken: process.env.REFRESH_TOKEN,
 		accessToken: accessToken
+	},
+	tls: {
+		rejectUnauthorized: false
 	}
 });
 
