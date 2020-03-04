@@ -9,26 +9,26 @@ import bgOverlayTextureWhite from '../../assets/Background-Images/background-tex
 gsap.registerPlugin(CSSPlugin);
 // declaring all initial animation vars
 
-const allContainer = null;
-const allTween = null;
-const logoContainer = null;
-const logoTween = null;
-const notContainer = null;
-const notTween = null;
-const yourContainer = null;
-const yourTween = null;
-const thoughtsContainer = null;
-const thoughtsTween = null;
-const descriptionContainer = null;
-const descriptionTween = null;
-const loginButtonContainer = null;
-const registerButtonContainer = null;
-const buttonTween = null;
-const startState = { autoAlpha: 0, y: -1000 };
-const bgImgContainer = null;
-const bgImgTween = null;
-
 export default class Landing extends React.Component {
+	allContainer = null;
+	allTween = null;
+	logoContainer = null;
+	logoTween = null;
+	notContainer = null;
+	notTween = null;
+	yourContainer = null;
+	yourTween = null;
+	thoughtsContainer = null;
+	thoughtsTween = null;
+	descriptionContainer = null;
+	descriptionTween = null;
+	loginButtonContainer = null;
+	registerButtonContainer = null;
+	buttonTween = null;
+	startState = { autoAlpha: 0, y: -1000 };
+	bgImgContainer = null;
+	bgImgTween = null;
+
 	componentDidMount() {
 		this.logoTween = new TimelineLite({ paused: true }).to(this.logoContainer, {
 			duration: 3,

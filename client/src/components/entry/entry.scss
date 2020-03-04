@@ -211,6 +211,20 @@
 			font-size: 0.5rem;
 		}
 	}
+	@include mobile-small-only() {
+		&__date {
+			width: 50%;
+		}
+		&__delete-modal-open {
+			font-size: 0.5rem;
+		}
+		&__delete-button {
+			font-size: 0.8rem;
+		}
+		&__entry-arrow {
+			width: 3vh;
+		}
+	}
 }
 
 .-light {

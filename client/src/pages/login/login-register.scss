@@ -149,6 +149,41 @@
 			font-size: 1.3rem;
 		}
 	}
+	@include mobile-small-only() {
+		&__input-container {
+			width: 100%;
+		}
+
+		&__title {
+			font-size: 2rem;
+			margin-top: 12vh;
+			margin-bottom: 0%;
+		}
+		&__input {
+			width: 80%;
+			text-align: center;
+			font-size: 1rem;
+			margin-top: 2vh;
+		}
+		&__submit-button {
+			margin-top: 3vh;
+			width: 40%;
+			font-size: 1rem;
+		}
+		&__login-button {
+			font-size: 0.8rem;
+			padding-top: 1.1vh;
+			padding-bottom: 2.2vh;
+		}
+		&__register-button {
+			font-size: 0.8rem;
+			padding-bottom: 1vh;
+		}
+		&__signup,
+		&__signup-link {
+			font-size: 1.3rem;
+		}
+	}
 
 	@include tablet-only() {
 		&__input-container {
@@ -217,8 +252,6 @@
 		}
 	}
 }
-/* Change the white to any color ;) */
-// Okay i've never done any webkit things but this is a good thing to look for
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,

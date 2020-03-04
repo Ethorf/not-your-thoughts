@@ -27,9 +27,10 @@ export default class Prompt extends React.Component {
 	componentDidMount() {
 		this.getPrompts();
 	}
+	f;
 	render() {
 		return (
-			<div className={`main__prompt prompt ${this.props.rubberDucky ? 'rubberDucky__blackText' : ''}`}>
+			<div className={` prompt ${this.props.rubberDucky ? 'rubberDucky__blackText' : ''}`}>
 				<h2 className={` ${this.props.rubberDucky ? 'rubberDucky__blackText' : ''}`}>
 					{this.state.promptContent}
 				</h2>

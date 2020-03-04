@@ -4,6 +4,7 @@
 @import url('https://fonts.googleapis.com/css?family=Maven+Pro:400,500,700,900&display=swap');
 
 .navTop {
+	position: relative;
 	border-bottom: 2px solid silver;
 	font-family: 'Comfortaa', cursive;
 	width: 100vw;
@@ -35,6 +36,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		background-color: black;
 	}
 	&__arrow-container {
 		margin-top: 1%;
@@ -179,6 +181,22 @@
 	}
 
 	@include mobile-only {
+	}
+	@include mobile-small-only {
+		&__title {
+			font-size: 1rem;
+		}
+		&__open {
+			transition: all 0.5s;
+			position: absolute;
+			z-index: 30;
+			display: flex;
+			flex-direction: column;
+			justify-content: start;
+			background-color: black;
+			border-bottom: 1px solid silver;
+			height: 60%;
+		}
 	}
 	@include laptop-large() {
 		display: none;

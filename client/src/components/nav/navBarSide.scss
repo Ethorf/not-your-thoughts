@@ -131,4 +131,7 @@
 	@include mobile-only {
 		display: none;
 	}
+	@include mobile-small-only {
+		display: none;
+	}
 }

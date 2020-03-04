@@ -79,6 +79,9 @@
 	@include mobile-only {
 		display: none;
 	}
+	@include mobile-small-only {
+		display: none;
+	}
 	@include tablet-only() {
 		right: -4vw;
 	}

@@ -6,7 +6,9 @@
 	background-color: black;
 	color: silver;
 	font-family: 'Comfortaa', cursive;
+	position: relative;
 	display: flex;
+	z-index: 2;
 	flex-direction: column;
 	height: 300vh;
 	margin-left: $not-main-margin-left;
@@ -123,11 +125,14 @@
 	}
 
 	@include mobile-only() {
-		width: 70%;
+		width: 100%;
+		margin-left: 0;
+		display: flex;
+		padding-left: 20vw;
 		align-items: center;
 		&__header {
 			margin-top: 18%;
-			margin-bottom: 5%;
+			margin-top: 11vh;
 		}
 		&__header,
 		&__entries-header {
@@ -148,7 +153,26 @@
 			width: 10%;
 		}
 	}
+	@include mobile-small-only() {
+		&__header {
+			margin-bottom: 5%;
+		}
+		&__goal-input {
+			width: 10%;
+		}
+		&__goal-edit-button {
+			font-size: 0.7rem;
+			width: 11vw;
+			margin-left: 2vw;
+			height: 3vh;
+		}
+		&__day-number,
+		&__stats-text {
+			font-size: 0.9rem;
+		}
+	}
 }
+
 .-light {
 	color: black;
 	background-color: white;

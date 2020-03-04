@@ -12,7 +12,7 @@
 	justify-content: center;
 	text-align: center;
 	font-size: 0.76rem;
-	width: 52%;
+	width: 53%;
 	color: silver;
 	transition: all 3s;
 
@@ -32,5 +32,14 @@
 		font-size: 0.5rem;
 		margin-top: 8%;
 		width: 60%;
+	}
+	@include mobile-small-only() {
+		position: relative;
+		z-index: 29;
+		font-size: 0.6rem;
+		margin-top: 8vh;
+		padding-bottom: 2%;
+		top: 8%;
+		// width: 59vw;
 	}
 }

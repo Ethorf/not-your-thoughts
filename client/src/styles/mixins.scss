@@ -12,6 +12,11 @@
 @import url('https://fonts.googleapis.com/css?family=Poppins:400,400i&display=swap');
 
 //Screen Sizes
+@mixin mobile-small-only() {
+	@media #{$mobile-small-only} {
+		@content;
+	}
+}
 @mixin mobile-only() {
 	@media #{$mobile-only} {
 		@content;
