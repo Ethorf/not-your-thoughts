@@ -10,6 +10,8 @@
 	flex-direction: column;
 	height: 1000px;
 	width: 100%;
+	position: relative;
+	z-index: 2;
 	.strikethrough {
 		text-decoration: line-through;
 	}
@@ -29,7 +31,7 @@
 		display: flex;
 		align-items: center;
 		flex-direction: row;
-		width: 78%;
+		width: 82%;
 	}
 	&__mode-title {
 		font-family: 'Syncopate', sans-serif;
@@ -91,6 +93,9 @@
 		font-size: 1rem;
 		width: 30%;
 		margin-left: 8%;
+		justify-self: flex-end;
+		position: relative;
+		right: -1vw;
 		color: silver;
 		text-decoration: none;
 	}
@@ -133,8 +138,34 @@
 		}
 		&__mode-title {
 			width: 29%;
-			margin-right: 5vw;
+			// margin-right: 5vw;
 			font-size: 0.9rem;
+		}
+	}
+	@include mobile-small-only() {
+		font-size: 0.5rem;
+
+		&__header {
+			font-size: 1.6rem;
+			width: 76%;
+			margin-top: 10vh;
+		}
+		&__light-mode-button {
+			font-size: 0.4rem;
+		}
+		&__achievement-container {
+			display: flex;
+			flex-direction: column;
+			width: 80%;
+		}
+		&__mode-title {
+			width: 27%;
+			// margin-right: 14vw;
+			margin-left: 4vw;
+			font-size: 0.8rem;
+		}
+		&__coming-soon {
+			font-size: 0.7rem;
 		}
 	}
 	&__mode-requirement {

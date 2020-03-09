@@ -1,4 +1,4 @@
-import React, { useEffect, Fragment, Component } from 'react';
+import React, { useEffect } from 'react';
 import './profile.scss';
 import '../../styles/rubberDucky.scss';
 import { connect } from 'react-redux';
@@ -7,11 +7,10 @@ import PropTypes from 'prop-types';
 import { logout, loadUser } from '../../redux/actions/authActions';
 import { deleteEntry, getEntries } from '../../redux/actions/entryActions.js';
 import Entry from '../../components/entry/entry.js';
-import moment from 'moment';
 import ProfileGoalEdit from '../../components/profileGoalEdit/profileGoalEdit.js';
 import Spinner from '../../components/spinner/spinner.js';
 
-const Profile = ({ isAuthenticated, auth: { user }, logout, deleteEntry, getEntries, entries, mode }) => {
+const Profile = ({ isAuthenticated, auth: { user }, deleteEntry, getEntries, entries, mode }) => {
 	useEffect(() => {
 		loadUser();
 		getEntries();
@@ -20,6 +19,28 @@ const Profile = ({ isAuthenticated, auth: { user }, logout, deleteEntry, getEntr
 	// if (!isAuthenticated) {
 	// 	return <Redirect to="/login" />;
 	// }
+	const Entries = () => {
+		return (
+			<>
+				{entries.length === 0 ? (
+					<h2>You have no saved journal entries</h2>
+				) : (
+					entries.map((user) => (
+						<Entry
+							key={user.id}
+							id={user.id}
+							className="profile profile__entry"
+							wordCount={user.numOfWords}
+							date={user.date}
+							content={user.content}
+							deleteEntry={deleteEntry}
+							getEntries={getEntries}
+						/>
+					))
+				)}
+			</>
+		);
+	};
 
 	return user === null ? (
 		<Spinner />
@@ -47,26 +68,8 @@ const Profile = ({ isAuthenticated, auth: { user }, logout, deleteEntry, getEntr
 
 				<ProfileGoalEdit />
 				<h2 className={`profile__entries-header ${mode}`}>SAVED ENtRIES</h2>
-				{entries.length === 0 ? (
-					<h2>You have no saved journal entries</h2>
-				) : (
-					entries.map((user) => (
-						<Entry
-							key={user.id}
-							id={user.id}
-							className="profile profile__entry"
-							wordCount={user.numOfWords}
-							date={user.date}
-							content={user.content}
-							deleteEntry={deleteEntry}
-							getEntries={getEntries}
-						/>
-					))
-				)}
+				{user === null ? <Spinner /> : <Entries />}
 			</div>
-			{/* <button onClick={logout} className="profile__logout-button">
-				Logout
-			</button> */}
 		</div>
 	);
 };

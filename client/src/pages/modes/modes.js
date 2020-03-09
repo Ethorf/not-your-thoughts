@@ -69,7 +69,7 @@ const Modes = ({ auth: { user }, changeMode, mode, isAuthenticated }) => {
 							user && user.consecutiveDays >= 9 ? ' ' : 'strikethrough'
 						} ${mode}`}
 					>
-						Bullsh*tiffy Mode
+						Bull sh*tiffy Mode
 					</h2>
 					<span className={`modes__coming-soon ${mode}`}> **Coming Soon!</span>
 				</div>

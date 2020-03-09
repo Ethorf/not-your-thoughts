@@ -7,10 +7,12 @@
 	color: white;
 	height: 200vh;
 	width: 100vw;
-	margin-left: 15vw;
+	padding-left: 15vw;
 	font-family: 'Comfortaa', cursive;
 	display: flex;
 	flex-direction: column;
+	position: absolute;
+	z-index: 1;
 
 	&__header {
 		font-family: 'Syncopate', cursive;
@@ -132,6 +134,16 @@
 		&__form-submit-button {
 			width: 30vw;
 			padding: 2%;
+		}
+	}
+	@include mobile-small-only() {
+		&__header {
+			font-size: 1.7rem;
+			margin-top: 25%;
+			width: 80%;
+		}
+		&__form-header {
+			margin-top: 5%;
 		}
 	}
 }

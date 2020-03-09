@@ -66,7 +66,7 @@ class AudioPlayerMobile extends React.Component {
 		return (
 			<>
 				<img src={speaker} alt="speaker" className="audioPlayer__speaker"></img>
-				<div>
+				<div className={`audioPlayer__controls-container`}>
 					<button className={`audioPlayer__play-pause`} onClick={this.togglePlay}>
 						{this.props.mode === '-light' ? (
 							<img

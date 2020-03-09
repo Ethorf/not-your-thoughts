@@ -3,11 +3,9 @@ import { Link } from 'react-router-dom';
 import './landing.scss';
 import { gsap } from 'gsap';
 import { CSSPlugin } from 'gsap/CSSPlugin';
-
 import { TimelineLite } from 'gsap/all';
 import bgOverlayTextureWhite from '../../assets/Background-Images/background-texture-bigPan-white-blur.png';
 gsap.registerPlugin(CSSPlugin);
-// declaring all initial animation vars
 
 export default class Landing extends React.Component {
 	allContainer = null;
@@ -87,7 +85,7 @@ export default class Landing extends React.Component {
 		setTimeout(() => {
 			this.loginButtonTween.play();
 			this.registerButtonTween.play();
-		}, 6000);
+		}, 4000);
 
 		this.allTween = new TimelineLite({ paused: true }).to(this.allContainer, {
 			duration: 3.5,
@@ -98,14 +96,14 @@ export default class Landing extends React.Component {
 			this.allTween.play();
 		}, 3000);
 
-		this.bgImgTween = new TimelineLite({ paused: true }).to(this.bgImgContainer, { duration: 2, opacity: 0.55 });
+		this.bgImgTween = new TimelineLite({ paused: true }).to(this.bgImgContainer, { duration: 2, opacity: 0.35 });
 
 		setTimeout(() => {
 			this.logoTween.reverse();
 		}, 3100);
 		setTimeout(() => {
 			this.bgImgTween.play();
-		}, 4500);
+		}, 3500);
 		setTimeout(() => {
 			this.bgImgTween.reverse();
 		}, 6500);
@@ -117,6 +115,7 @@ export default class Landing extends React.Component {
 					ref={(img) => (this.bgImgContainer = img)}
 					className="landing__bg-img"
 					src={bgOverlayTextureWhite}
+					alt="background"
 				></img>
 
 				<h2 ref={(img) => (this.logoContainer = img)} className="landing__you-are">
@@ -155,7 +154,7 @@ export default class Landing extends React.Component {
 						ref={(button) => (this.registerButtonContainer = button)}
 						className="landing__start-button-container"
 					>
-						<Link to="/register" exact className="landing__register-button">
+						<Link to="/register" className="landing__register-button">
 							Register
 						</Link>
 					</button>

@@ -45,15 +45,11 @@ class NavBarTop extends React.Component {
 		return (
 			<div
 				ref={(header) => (this.navBarContainer = header)}
-				className={`navTop ${this.state.navOpen ? `navTop__open` : `navTop__closed`}`}
+				className={`navTop ${this.state.navOpen ? `navTop__open` : `navTop__closed`} ${this.props.mode}`}
 			>
-				<div className="navTop__top-container">
+				<div className={`navTop__top-container ${this.props.mode}`}>
 					<button
-						className={
-							this.props.mode === '-.light'
-								? 'rubberDucky__navTop-arrow-container'
-								: 'navTop__arrow-container '
-						}
+						className={`navTop__arrow-container ${this.props.mode} `}
 						onClick={this.state.navOpen ? this.closeNav : this.openNav}
 					>
 						<img
@@ -63,20 +59,20 @@ class NavBarTop extends React.Component {
 							alt="hamburger"
 						></img>
 					</button>
-					<h2 className={`navTop__title`}>Not Your Thoughts</h2>
+					<h2 className={`navTop__title ${this.props.mode}`}>Not Your Thoughts</h2>
 				</div>
 
 				<div
 					className={`${
 						this.state.navOpen ? `navTop__links-container-open` : `navTop__links-container-closed`
-					}${this.props.mode} `}
+					} ${this.props.mode} `}
 					ref={(div) => (this.linksContainer = div)}
 				>
 					<NavLink
 						exact
 						to="/main"
 						activeClassName="navTop__active"
-						className={`navTop__link${this.props.mode}`}
+						className={`navTop__link ${this.props.mode}`}
 					>
 						Main
 					</NavLink>
@@ -84,7 +80,7 @@ class NavBarTop extends React.Component {
 						exact
 						to="/profile"
 						activeClassName="navTop__active"
-						className={`navTop__link${this.props.mode}`}
+						className={`navTop__link ${this.props.mode}`}
 					>
 						Profile
 					</NavLink>
@@ -92,7 +88,7 @@ class NavBarTop extends React.Component {
 						exact
 						to="/resources"
 						activeClassName="navTop__active"
-						className={`navTop__link${this.props.mode}`}
+						className={`navTop__link ${this.props.mode}`}
 					>
 						Resources
 					</NavLink>
@@ -100,7 +96,7 @@ class NavBarTop extends React.Component {
 						exact
 						to="/modes"
 						activeClassName="navTop__active"
-						className={`navTop__link${this.props.mode}`}
+						className={`navTop__link ${this.props.mode}`}
 					>
 						Modes
 					</NavLink>
@@ -108,12 +104,12 @@ class NavBarTop extends React.Component {
 						exact
 						to="/about"
 						activeClassName="navTop__active"
-						className={`navTop__link${this.props.mode}`}
+						className={`navTop__link ${this.props.mode}`}
 					>
 						About
 					</NavLink>
 					{this.props.isAuthenticated ? (
-						<button className={`navTop__logout-button${this.props.mode}`} onClick={this.props.logout}>
+						<button className={`navTop__logout-button ${this.props.mode}`} onClick={this.props.logout}>
 							Logout
 						</button>
 					) : (
@@ -121,7 +117,7 @@ class NavBarTop extends React.Component {
 							exact
 							to="/login"
 							activeClassName="navTop__active"
-							className={`navTop__link${this.props.mode}`}
+							className={`navTop__link ${this.props.mode}`}
 						>
 							Login
 						</NavLink>

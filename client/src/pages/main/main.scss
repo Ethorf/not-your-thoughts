@@ -19,10 +19,9 @@
 .main {
 	font-family: 'Poppins', sans-serif;
 	background-color: black;
-
 	height: 180vh;
 	display: flex;
-	justify-content: center;
+	// justify-content: center;
 	position: relative;
 	z-index: 3;
 	color: silver;
@@ -487,7 +486,8 @@
 		}
 		&__date,
 		&__wordcount,
-		&__textarea {
+		&__textarea,
+		&__textarea-light {
 			font-size: 0.8rem;
 		}
 		&__textarea {

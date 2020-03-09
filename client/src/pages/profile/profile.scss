@@ -11,8 +11,9 @@
 	z-index: 2;
 	flex-direction: column;
 	height: 300vh;
-	margin-left: $not-main-margin-left;
-	width: 69%;
+	padding-left: $not-main-margin-left;
+	margin-right: 10vw;
+	width: 100vw;
 
 	&__header {
 		font-family: 'Syncopate', sans-serif;
@@ -104,7 +105,7 @@
 		outline: none;
 	}
 	&__entries-header {
-		margin-top: 2%;
+		margin-top: 3vh;
 		color: white;
 		font-size: 2.2rem;
 		font-family: 'Syncopate', sans-serif;

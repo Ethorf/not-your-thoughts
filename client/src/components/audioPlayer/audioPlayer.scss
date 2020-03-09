@@ -31,7 +31,6 @@
 		align-items: center;
 	}
 	&__play-pause {
-		// background-color: black;
 		background-color: transparent;
 		color: black;
 		height: 48px;
@@ -78,14 +77,30 @@
 	}
 	@include mobile-only {
 		display: none;
+		&__play-pause-img-light {
+			height: 32px;
+			width: 32px;
+			margin-top: 0.4vh;
+		}
 	}
 	@include mobile-small-only {
 		display: none;
+		&__play-pause-img-light {
+			height: 32px;
+			width: 32px;
+			margin-top: 0.4vh;
+		}
+		&__controls-container {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-left: -9vw;
+		}
 	}
 	@include tablet-only() {
-		right: -4vw;
+		right: -4.5vw;
 	}
 	@include laptop-small() {
-		right: -4vw;
+		right: -3.9vw;
 	}
 }
