@@ -31,7 +31,7 @@ export default class Landing extends React.Component {
 
 	componentDidMount() {
 		this.logoTween = new TimelineLite({ paused: true }).to(this.logoContainer, {
-			duration: 3,
+			duration: 2.5,
 			y: 250,
 			ease: 'power1.out',
 			opacity: 1
@@ -68,17 +68,17 @@ export default class Landing extends React.Component {
 		});
 		setTimeout(() => {
 			this.descriptionTween.play();
-		}, 3000);
+		}, 1500);
 
 		this.loginButtonTween = new TimelineLite({ paused: true }).to(this.loginButtonContainer, {
-			duration: 3.5,
+			duration: 3,
 			y: -1,
 			ease: 'slow(0.7, 0.7, false)',
 			opacity: 1
 		});
 
 		this.registerButtonTween = new TimelineLite({ paused: true }).to(this.registerButtonContainer, {
-			duration: 3.5,
+			duration: 3,
 			y: -1,
 			ease: 'slow(0.7, 0.7, false)',
 			opacity: 1
@@ -87,18 +87,22 @@ export default class Landing extends React.Component {
 		setTimeout(() => {
 			this.loginButtonTween.play();
 			this.registerButtonTween.play();
-		}, 9000);
+		}, 6000);
 
-		this.allTween = new TimelineLite({ paused: true }).to(this.allContainer, { duration: 5, y: -100, opacity: 1 });
+		this.allTween = new TimelineLite({ paused: true }).to(this.allContainer, {
+			duration: 3.5,
+			y: -100,
+			opacity: 1
+		});
 		setTimeout(() => {
 			this.allTween.play();
-		}, 4500);
+		}, 3000);
 
 		this.bgImgTween = new TimelineLite({ paused: true }).to(this.bgImgContainer, { duration: 2, opacity: 0.55 });
 
 		setTimeout(() => {
 			this.logoTween.reverse();
-		}, 2100);
+		}, 3100);
 		setTimeout(() => {
 			this.bgImgTween.play();
 		}, 4500);

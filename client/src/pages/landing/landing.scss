@@ -7,12 +7,15 @@
 	justify-content: center;
 	align-items: center;
 	flex-direction: column;
-	width: 100%;
+	width: 100vw;
 	background-color: black;
-	height: 100vh;
+	height: 120vh;
 	color: white;
 	font-family: 'Maven Pro', sans-serif;
 	margin: 0 auto;
+	position: absolute;
+	top: 10vh;
+	z-index: 1;
 
 	&__bg-img {
 		position: absolute;
@@ -20,7 +23,7 @@
 		opacity: 0.01;
 		right: 100;
 		width: 180%;
-		height: 140%;
+		height: 100vh;
 		z-index: 3;
 	}
 	&__you-are {
@@ -28,8 +31,9 @@
 		text-align: center;
 		font-size: 3rem;
 		opacity: 0;
+		position: relative;
+		top: -28vh;
 		margin-bottom: 90px;
-		border-radius: 2% 50%;
 		font-family: 'Syncopate', sans-serif;
 	}
 
@@ -37,27 +41,23 @@
 		display: flex;
 		justify-content: center;
 		font-size: 4.5rem;
-		width: 100%;
+		width: 100vw;
 		text-align: center;
-		margin-top: 20vh;
-	}
-	&__title div {
-		margin-right: 20px;
+		margin-top: -10vh;
 	}
 	&__title-not {
 		opacity: 0;
-		margin-right: -20px;
 		font-family: 'Syncopate', sans-serif;
 	}
 	&__title-your {
-		margin-left: 150px;
+		margin-left: 11vw;
 		margin-top: 100px;
 		opacity: 0;
 		font-family: 'Syncopate', sans-serif;
 	}
 
 	&__title-thoughts {
-		margin-left: 100px;
+		margin-left: 8vw;
 		opacity: 0;
 		font-family: 'Syncopate', sans-serif;
 	}
@@ -85,9 +85,9 @@
 	&__start-button-container {
 		display: flex;
 		justify-content: center;
-		border-bottom: 4px solid silver;
-		border-left: 4px solid silver;
-		border-radius: 15px;
+		border-bottom: 3px solid silver;
+		border-left: 3px solid silver;
+		border-radius: 12px;
 		width: 75%;
 		opacity: 0;
 		margin-bottom: 300px;
@@ -109,35 +109,122 @@
 		transition: all 1s;
 	}
 	@include laptop-small() {
+		top: 20%;
+		&__you-are {
+			position: relative;
+			top: -4vh;
+		}
 		&__title {
 			font-size: 3.9rem;
 		}
-
+		&__title-not {
+			margin-right: 1.5vw;
+		}
+		&__title-your {
+			margin-right: 1.5vw;
+		}
 		&__description {
 			font-size: 2.1rem;
 			width: 80%;
 		}
 	}
 	@include tablet-only() {
+		position: absolute;
+		top: 20%;
+		height: 100vh;
+		&__you-are {
+			position: relative;
+			top: -4vh;
+		}
 		&__title {
-			font-size: 3.1rem;
+			font-size: 3rem;
 		}
 		&__description {
-			font-size: 2.1rem;
+			font-size: 1.9rem;
 			width: 80%;
+		}
+		&__title-not {
+			margin-right: 1.5vw;
+		}
+		&__title-your {
+			margin-right: 1.5vw;
 		}
 	}
 	@include mobile-only() {
 		&__you-are {
-			font-size: 2.1rem;
+			font-size: 1.5rem;
+			position: relative;
+			top: 18vh;
 		}
 		&__title {
-			font-size: 2.3rem;
-			margin-top: 20vh;
+			font-size: 1.8rem;
+			margin-top: 45vh;
+			margin-left: 10vw;
+			margin-right: 0;
+			flex-direction: row;
+			justify-content: center;
+		}
+		&__title-not {
+			margin-right: 2vw;
+			margin-left: -16vw;
+		}
+		&__title-your {
+			margin-right: 4vw;
+			margin-left: 20vw;
+		}
+		&__title-thoughts {
+			margin-left: 11vw;
 		}
 		&__description {
 			font-size: 1.6rem;
 			width: 80%;
+		}
+		&__register-button,
+		&__login-button {
+			@include button-styles;
+			padding: 6% 14%;
+			font-size: 0.9rem;
+			border-radius: 2px;
+		}
+	}
+
+	@include mobile-small-only() {
+		justify-content: center;
+		width: 100vw;
+		&__you-are {
+			font-size: 1.1rem;
+			position: relative;
+			top: 18vh;
+		}
+		&__title {
+			font-size: 1.1rem;
+			margin-top: 45vh;
+			margin-left: 0;
+			margin-right: 0;
+			flex-direction: row;
+			justify-content: center;
+		}
+		&__title-not {
+			margin-right: 3vw;
+			margin-left: -16vw;
+		}
+		&__title-your {
+			margin-right: 4vw;
+			margin-left: 38vw;
+		}
+		&__title-thoughts {
+			margin-left: 24vw;
+		}
+		&__description {
+			font-size: 1.2rem;
+			width: 80%;
+		}
+		&__register-button,
+		&__login-button {
+			@include button-styles;
+			padding: 6% 14%;
+			font-size: 0.9rem;
+			border-radius: 2px;
 		}
 	}
 }

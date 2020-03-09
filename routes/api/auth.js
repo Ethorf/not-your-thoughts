@@ -55,7 +55,6 @@ router.post(
 //// @route    GET api/auth
 // @desc     Get user by token
 // @access   Private
-//So I believe this is where we are basically just testing our retrieval of our user via token
 
 router.get('/', auth, async (req, res) => {
 	try {
