@@ -19,9 +19,8 @@
 .main {
 	font-family: 'Poppins', sans-serif;
 	background-color: black;
-	height: 180vh;
+	height: 100vh;
 	display: flex;
-	// justify-content: center;
 	position: relative;
 	z-index: 3;
 	color: silver;
@@ -72,7 +71,7 @@
 		display: flex;
 		justify-content: center;
 		font-size: 2.6rem;
-		margin-top: $top-margin;
+		margin-top: 7vh;
 		width: 50%;
 		transform-origin: 50% 50%;
 		font-family: 'Syncopate', sans-serif;

@@ -43,7 +43,7 @@ const App = () => {
 						<TransitionGroup>
 							<CSSTransition
 								key={location.key}
-								timeout={1000}
+								timeout={1100}
 								classNames={mode === '-light' ? 'fade' : 'fad'}
 							>
 								<Switch location={location}>
