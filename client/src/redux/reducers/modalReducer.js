@@ -1,17 +1,18 @@
 import {
 	OPEN_SUCCESS_MODAL,
 	CLOSE_SUCCESS_MODAL,
+	OPEN_INTRO_MODAL,
+	CLOSE_INTRO_MODAL,
 	CLOSE_SAVE_ENTRY_MODAL,
 	OPEN_SAVE_ENTRY_MODAL
 } from '../actions/actionTypes';
 
 const initialState = {
 	successModalOpen: false,
-	saveEntryModalOpen: false
+	saveEntryModalOpen: false,
+	introModalOpen: false
 };
 
-//maybe need opening and closing states? could maybe use a
-//different action dispatch within the animation?
 function modalReducer(state = initialState, action) {
 	switch (action.type) {
 		case OPEN_SUCCESS_MODAL:
@@ -23,6 +24,16 @@ function modalReducer(state = initialState, action) {
 			return {
 				...state,
 				successModalOpen: false
+			};
+		case OPEN_INTRO_MODAL:
+			return {
+				...state,
+				introModalOpen: true
+			};
+		case CLOSE_INTRO_MODAL:
+			return {
+				...state,
+				introModalOpen: false
 			};
 		case OPEN_SAVE_ENTRY_MODAL:
 			return {

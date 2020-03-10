@@ -42,9 +42,6 @@ router.post(
 router.delete('/:id', auth, async (req, res) => {
 	try {
 		const user = await User.findById(req.user.id);
-		const removeId = req.params.id;
-		// res.json((user.entries.id = removeId)); d
-		//Get remove index
 		const removeIndex = user.entries.map((item) => item.id).indexOf(req.params.id);
 
 		user.entries.splice(removeIndex, 1);

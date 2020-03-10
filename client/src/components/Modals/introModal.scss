@@ -1,0 +1,112 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/variables.scss';
+@import '../../styles/base.scss';
+
+.intro-modal {
+	position: absolute;
+	z-index: 12;
+	width: 100vw;
+	height: 80vh;
+	font-family: 'Montserrat', cursive;
+	font-size: 1.5rem;
+
+	&__modal {
+		display: flex;
+		flex-direction: column;
+		justify-content: start;
+		align-items: center;
+		position: absolute;
+		z-index: 50;
+		opacity: 1;
+		top: 0px;
+		left: 20%;
+		right: 20%;
+		bottom: 40%;
+		border: 1px solid silver;
+		border-radius: 100px;
+		background: black;
+		opacity: 0;
+		color: white;
+		overflow: auto;
+		border-radius: 4px;
+		outline: none;
+		padding: 20px;
+		transition: all 1s;
+	}
+	&__modalClosed {
+		display: none;
+		transition: all 1s;
+	}
+
+	&__header {
+		font-size: 1.6rem;
+		display: flex;
+		text-align: center;
+		justify-content: center;
+		align-self: center;
+		font-family: 'Syncopate', sans-serif;
+		line-height: 1.9rem;
+		margin-top: 4%;
+		width: 100%;
+	}
+	&__main-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+	&__description {
+		margin: 0;
+		font-size: 1.4rem;
+		width: 85%;
+		text-align: center;
+		align-items: center;
+	}
+
+	&__close-button {
+		margin-top: 15px;
+		color: black;
+		padding: 1vh 1vh;
+		border-radius: 20px;
+		font-family: 'Montserrat', cursive;
+		width: 10%;
+		outline: none;
+		transition: all 0.7s;
+
+		&:hover {
+			background-color: black;
+			color: white;
+		}
+	}
+
+	@include laptop-small() {
+		font-size: 0.8rem;
+		&__congratulations {
+			font-size: 1.8rem;
+		}
+		&__goal {
+			font-size: 0.8rem;
+		}
+	}
+
+	@include tablet-only() {
+		font-size: 0.8rem;
+		&__congratulations {
+			font-size: 1.5rem;
+		}
+		&__goal {
+			font-size: 0.8rem;
+		}
+	}
+
+	@include mobile-only() {
+		font-size: 0.9rem;
+		justify-content: center;
+
+		&__congratulations {
+			font-size: 1.6rem;
+		}
+		&__goal {
+			font-size: 0.9rem;
+		}
+	}
+}

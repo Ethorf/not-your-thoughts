@@ -1,10 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../../middleware/auth.js');
-const { check, validationResult } = require('express-validator');
 const User = require('../../models/User');
-const moment = require('moment');
-const uuidv4 = require('uuid/v4');
 
 const leapYear = (num) => {
 	if (num % 400 === 0) {

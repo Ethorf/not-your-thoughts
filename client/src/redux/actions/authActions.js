@@ -9,7 +9,8 @@ import {
 	LOGIN_FAIL,
 	LOGOUT,
 	INCREASE_DAYS,
-	DAY_INCREASE_ERROR
+	DAY_INCREASE_ERROR,
+	SET_FIRST_LOGIN
 } from './actionTypes';
 
 import setAuthToken from '../../utils/setAuthToken';
@@ -45,7 +46,6 @@ export const register = ({ name, email, password }) => async (dispatch) => {
 	const body = JSON.stringify({ name, email, password });
 
 	try {
-		// const res = await axios.post('http://localhost:8082/api/registerUser', body, config);
 		const res = await axios.post('/api/registerUser', body, config);
 
 		dispatch({
@@ -74,11 +74,8 @@ export const login = (email, password) => async (dispatch) => {
 			'Content-Type': 'application/json'
 		}
 	};
-
 	const body = JSON.stringify({ email, password });
-
 	try {
-		// const res = await axios.post('http://localhost:8082/api/auth', body, config);
 		const res = await axios.post('/api/auth', body, config);
 
 		dispatch({
@@ -127,5 +124,25 @@ export const increaseDays = () => async (dispatch) => {
 		dispatch({
 			type: DAY_INCREASE_ERROR
 		});
+	}
+};
+
+export const setFirstLogin = () => async (dispatch) => {
+	const config = {
+		headers: {
+			'x-auth-token': localStorage.getItem('token')
+		}
+	};
+	try {
+		const res = await axios.post('/api/setFirstLogin', config);
+		dispatch({
+			type: SET_FIRST_LOGIN,
+			payload: res.data
+		});
+	} catch (err) {
+		const errors = err.response.data.errors;
+		if (errors) {
+			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+		}
 	}
 };

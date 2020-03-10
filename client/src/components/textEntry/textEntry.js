@@ -22,6 +22,7 @@ import PillarRight from '../pillars/pillarRight.js';
 import PillarBottom from '../pillars/pillarBottom.js';
 import ProgressWord from '../../components/progress/progressRight.js';
 import SuccessModal from '../Modals/successModal.js';
+import IntroModal from '../Modals/introModal.js';
 import SaveEntryModal from '../Modals/saveEntryModal.js';
 
 const TextEntry = ({
@@ -62,6 +63,7 @@ const TextEntry = ({
 				<Header />
 				<SaveEntryModal />
 				<SuccessModal />
+				<IntroModal />
 				<Prompt />
 				<ProgressWord />
 				<PillarTop />

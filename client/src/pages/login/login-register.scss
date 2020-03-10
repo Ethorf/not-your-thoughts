@@ -98,16 +98,12 @@
 	}
 	&__login-button,
 	&__register-button {
-		padding-right: 8%;
-		padding-left: 8%;
-		padding-bottom: 3.5vh;
-		padding-top: 2vh;
+		padding: 2vh 3.5vw 3.5vh 3.5vw;
 	}
 	&__signup-link {
 		text-decoration: none;
 		color: white;
 		margin-left: 4px;
-
 		&:hover {
 			transition: all 2s;
 			text-shadow: 1px 0px 1px silver;
@@ -195,7 +191,7 @@
 			font-size: 2.9rem;
 		}
 		&__input {
-			width: 60%;
+			width: 40%;
 			text-align: center;
 			font-size: 1.2rem;
 		}
@@ -228,7 +224,7 @@
 			font-size: 2.9rem;
 		}
 		&__input {
-			width: 60%;
+			width: 40%;
 			text-align: center;
 			font-size: 1.2rem;
 		}

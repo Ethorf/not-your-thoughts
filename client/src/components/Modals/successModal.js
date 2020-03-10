@@ -50,8 +50,6 @@ const SuccessModal = ({
 	};
 
 	const openModalAll = () => {
-		//I maybe should refactor this to use promises?
-		//Whole thing feels a little janky rn
 		goalReached();
 
 		openModalOverlayAnimation();
