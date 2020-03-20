@@ -1,10 +1,5 @@
-$regular-font: Avenir Next-regular;
-$bold-font: Avenir Next-bold;
-$demibold-font: Avenir Next-bolder;
 $black-text-color: #323232;
 $white-text-color: #ffffff;
-$grey-color: #fafafa;
-$silver-color: #afafaf;
 $divider-color: #e1e1e1;
 $top-margin: 1%;
 $top-margin-not-main: 4.5%;
@@ -20,8 +15,6 @@ $laptop-small-max: 1199px;
 $laptop-large-min: 1200px;
 $mobile-small-only: 'screen and (max-width:#{$mobile-small-max})';
 $mobile-only: 'screen and (max-width: #{$mobile-max})';
-// $mobile-only: 'screen and (min-width:#{$mobile-min}) and (max-width: #{$mobile-max})';
-
 $tablet-only: 'screen and (min-width:#{$tablet-min}) and (max-width: #{$tablet-max})';
 $laptop-small: 'screen and (min-width:#{$laptop-small-min}) and (max-width: #{$laptop-small-max})';
 $laptop-large: 'screen and (min-width: #{$laptop-large-min})';
