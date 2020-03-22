@@ -4,7 +4,7 @@
 
 .intro-modal {
 	position: absolute;
-	z-index: 12;
+	z-index: 4;
 	width: 100vw;
 	height: 80vh;
 	font-family: 'Montserrat', cursive;
@@ -16,7 +16,7 @@
 		justify-content: start;
 		align-items: center;
 		position: absolute;
-		z-index: 50;
+		z-index: 19;
 		opacity: 1;
 		top: 0px;
 		left: 20%;
@@ -35,6 +35,7 @@
 	}
 	&__modalClosed {
 		display: none;
+		z-index: 1;
 		transition: all 1s;
 	}
 
