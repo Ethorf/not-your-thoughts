@@ -10,8 +10,8 @@ gsap.registerPlugin(CSSPlugin);
 export default class Landing extends React.Component {
 	allContainer = null;
 	allTween = null;
-	logoContainer = null;
-	logoTween = null;
+	youareContainer = null;
+	youareTween = null;
 	notContainer = null;
 	notTween = null;
 	yourContainer = null;
@@ -27,32 +27,46 @@ export default class Landing extends React.Component {
 	bgImgContainer = null;
 	bgImgTween = null;
 
+	yourAnimSize = () => {
+		let y = 0;
+		console.log(window.innerWidth);
+		if (window.innerWidth <= 767) {
+			y = '-15vh';
+		} else {
+			y = '-11.5vh';
+		}
+		return y;
+	};
 	componentDidMount() {
-		this.logoTween = new TimelineLite({ paused: true }).to(this.logoContainer, {
+		this.youareTween = new TimelineLite({ paused: true }).to(this.youareContainer, {
 			duration: 2.5,
-			y: 250,
+			y: '12vh',
 			ease: 'power1.out',
 			opacity: 1
 		});
-		this.logoTween.play();
+		this.youareTween.play();
 
-		this.notTween = new TimelineLite({ paused: true }).to(this.notContainer, { duration: 2.6, x: 150, opacity: 1 });
+		this.notTween = new TimelineLite({ paused: true }).to(this.notContainer, {
+			duration: 2.6,
+			x: '8vw',
+			opacity: 1
+		});
 		setTimeout(() => {
 			this.notTween.play();
 		}, 900);
 
 		this.yourTween = new TimelineLite({ paused: true }).to(this.yourContainer, {
 			duration: 2,
-			y: -100,
+			y: this.yourAnimSize(),
 			opacity: 1
 		});
 		setTimeout(() => {
 			this.yourTween.play();
-		}, 1200);
+		}, 1000);
 
 		this.thoughtsTween = new TimelineLite({ paused: true }).to(this.thoughtsContainer, {
 			duration: 2,
-			x: -100,
+			x: '-6vw',
 			opacity: 1
 		});
 		setTimeout(() => {
@@ -96,10 +110,10 @@ export default class Landing extends React.Component {
 			this.allTween.play();
 		}, 3000);
 
-		this.bgImgTween = new TimelineLite({ paused: true }).to(this.bgImgContainer, { duration: 2, opacity: 0.35 });
+		this.bgImgTween = new TimelineLite({ paused: true }).to(this.bgImgContainer, { duration: 2, opacity: 0.25 });
 
 		setTimeout(() => {
-			this.logoTween.reverse();
+			this.youareTween.reverse();
 		}, 3100);
 		setTimeout(() => {
 			this.bgImgTween.play();
@@ -118,7 +132,7 @@ export default class Landing extends React.Component {
 					alt="background"
 				></img>
 
-				<h2 ref={(img) => (this.logoContainer = img)} className="landing__you-are">
+				<h2 ref={(img) => (this.youareContainer = img)} className="landing__you-are">
 					You are
 				</h2>
 				<h1 className="landing__title">

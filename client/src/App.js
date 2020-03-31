@@ -16,7 +16,6 @@ import Profile from './pages/profile/profile';
 import Resources from './pages/resources/resources';
 import Modes from './pages/modes/modes.js';
 import About from './pages/about/about';
-
 //redux Stuff
 import store from './redux/store/index';
 import { loadUser } from './redux/actions/authActions';

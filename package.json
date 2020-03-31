@@ -23,6 +23,7 @@
 		"googleapis": "^47.0.0",
 		"jsonwebtoken": "^8.5.1",
 		"lemon": "0.0.0",
+		"minimist": "^1.2.5",
 		"moment": "^2.24.0",
 		"mongoose": "^5.9.2",
 		"nodemailer": "^6.4.3",

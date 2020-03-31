@@ -22,8 +22,9 @@
 		transition: all 5s;
 		opacity: 0.01;
 		right: 100;
-		width: 180%;
-		height: 100vh;
+		width: 100%;
+		top: -10vh;
+		height: 114vh;
 		z-index: 3;
 	}
 	&__you-are {
@@ -32,7 +33,7 @@
 		font-size: 3rem;
 		opacity: 0;
 		position: relative;
-		top: -28vh;
+		top: -15vh;
 		margin-bottom: 90px;
 		font-family: 'Syncopate', sans-serif;
 	}
@@ -109,11 +110,7 @@
 		transition: all 1s;
 	}
 	@include laptop-small() {
-		top: 20%;
-		&__you-are {
-			position: relative;
-			top: -4vh;
-		}
+		top: 10vh;
 		&__title {
 			font-size: 3.9rem;
 		}
@@ -132,10 +129,6 @@
 		position: absolute;
 		top: 20%;
 		height: 100vh;
-		&__you-are {
-			position: relative;
-			top: -4vh;
-		}
 		&__title {
 			font-size: 3rem;
 		}
@@ -191,15 +184,15 @@
 	@include mobile-small-only() {
 		justify-content: center;
 		width: 100vw;
+
 		&__you-are {
 			font-size: 1.1rem;
-			position: relative;
-			top: 18vh;
+			top: 10vh;
 		}
 		&__title {
 			font-size: 1.1rem;
-			margin-top: 45vh;
-			margin-left: 0;
+			margin-top: 15vh;
+			margin-left: 10vw;
 			margin-right: 0;
 			flex-direction: row;
 			justify-content: center;
@@ -210,10 +203,10 @@
 		}
 		&__title-your {
 			margin-right: 4vw;
-			margin-left: 38vw;
+			margin-left: 8vw;
 		}
 		&__title-thoughts {
-			margin-left: 24vw;
+			margin-left: 5vw;
 		}
 		&__description {
 			font-size: 1.2rem;
