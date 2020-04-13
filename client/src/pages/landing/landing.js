@@ -33,7 +33,7 @@ export default class Landing extends React.Component {
 		if (window.innerWidth <= 767) {
 			y = '-15vh';
 		} else {
-			y = '-11.5vh';
+			y = '-131%';
 		}
 		return y;
 	};

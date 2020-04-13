@@ -23,6 +23,8 @@
 		color: white;
 		margin-top: 10%;
 		background-color: black;
+		width: 75%;
+		font-size: 1.2rem;
 	}
 	&__entry-date-wordcount {
 		margin: 5px 0px;
@@ -30,14 +32,10 @@
 	&__date {
 		width: 38%;
 	}
-	&__content {
-		margin-left: 300px;
-		width: 50%;
-	}
 	&__entry-open {
 		opacity: 1;
 		margin-top: 2%;
-		line-height: 1.2rem;
+		line-height: 1.4rem;
 		transition: all 0.7s;
 	}
 	&__entry-closed {
@@ -138,7 +136,7 @@
 	@include laptop-small() {
 		&__entry-date-wordcount-container {
 			width: 90%;
-			font-size: 0.9rem;
+			font-size: 1rem;
 		}
 		&__entry-all-container {
 			width: 80%;

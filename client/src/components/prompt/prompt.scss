@@ -11,7 +11,7 @@
 	font-style: italic;
 	justify-content: center;
 	text-align: center;
-	font-size: 0.76rem;
+	font-size: 0.86rem;
 	width: 53%;
 	color: silver;
 	transition: all 3s;
@@ -23,10 +23,10 @@
 	}
 
 	@include laptop-small() {
-		font-size: 0.6rem;
+		font-size: 0.7rem;
 	}
 	@include tablet-only() {
-		font-size: 0.5rem;
+		font-size: 0.6rem;
 	}
 	@include mobile-only() {
 		font-size: 0.5rem;
@@ -37,7 +37,7 @@
 		position: relative;
 		z-index: 29;
 		font-size: 0.6rem;
-		margin-top: 1vh;
+		margin-top: 15%;
 		padding-bottom: 2%;
 		top: 8%;
 	}

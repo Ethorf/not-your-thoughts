@@ -19,28 +19,12 @@ class NavBarTop extends React.Component {
 	linksTween = null;
 	arrowContainer = null;
 	arrowTween = null;
-	openNav = () => {
-		// this.arrowTween.play();
-
+	toggleNavOpen = () => {
 		this.setState({
-			navOpen: true
+			navOpen: !this.state.navOpen
 		});
 	};
 
-	closeNav = () => {
-		this.arrowTween.reverse();
-		this.setState({
-			navOpen: false
-		});
-	};
-	componentDidMount() {
-		this.arrowTween = new TimelineLite({ paused: true }).to(this.arrowContainer, {
-			duration: 1,
-			rotation: -180,
-			opacity: 1,
-			color: 'white'
-		});
-	}
 	render() {
 		return (
 			<div
@@ -48,10 +32,7 @@ class NavBarTop extends React.Component {
 				className={`navTop ${this.state.navOpen ? `navTop__open` : `navTop__closed`} ${this.props.mode}`}
 			>
 				<div className={`navTop__top-container ${this.props.mode}`}>
-					<button
-						className={`navTop__arrow-container ${this.props.mode} `}
-						onClick={this.state.navOpen ? this.closeNav : this.openNav}
-					>
+					<button className={`navTop__arrow-container ${this.props.mode} `} onClick={this.toggleNavOpen}>
 						<img
 							ref={(img) => (this.arrowContainer = img)}
 							className={this.state.navOpen ? 'navTop__arrow-open ' : 'navTop__arrow-closed '}

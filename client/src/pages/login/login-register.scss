@@ -9,7 +9,7 @@
 	align-items: center;
 	flex-direction: column;
 	width: 100%;
-	height: 100vh;
+	height: 100%;
 	color: silver;
 	background-color: black;
 
@@ -23,18 +23,15 @@
 		font-family: 'Montserrat', sans-serif;
 		font-size: 1.1rem;
 	}
-
 	&__alert-open {
 		opacity: 1;
 		transition: all 1s;
 	}
-
 	&__alert-closed {
 		opacity: 0;
 		line-height: 0.2;
 		transition: all 1s;
 	}
-
 	&__form {
 		width: 60%;
 		display: flex;
@@ -65,29 +62,24 @@
 		margin: 2% 0%;
 		border-radius: 1px;
 		transition: all 2s;
-
 		&:hover {
 			border-bottom: 1px solid white;
 			transition: all 2s;
 			border-radius: 3px;
 		}
 	}
-
 	&__submit-button {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 11%;
-		height: 9%;
-		padding-top: 1%;
-		padding-bottom: 2%;
+		width: 15%;
+		padding: 1% 0;
 		border-radius: 7px;
 		font-size: 1rem;
 		margin-top: 1.5%;
 		margin-bottom: 2%;
 		font-family: 'Syncopate', sans-serif;
 		transition: all 0.4s;
-
 		outline: none;
 		&:hover {
 			transition: all 0.4s;
@@ -98,7 +90,7 @@
 	}
 	&__login-button,
 	&__register-button {
-		padding: 2vh 3.5vw 3.5vh 3.5vw;
+		// padding: 2vh 3.5vw 3.5vh 3.5vw;
 	}
 	&__signup-link {
 		text-decoration: none;
@@ -119,7 +111,6 @@
 		&__input-container {
 			width: 100%;
 		}
-
 		&__title {
 			font-size: 2.9rem;
 			margin-top: 15%;
@@ -130,16 +121,8 @@
 			text-align: center;
 			font-size: 1.2rem;
 		}
-		&__submit-button {
-			margin-top: 5%;
-			padding-top: 3%;
-			width: 45%;
-			height: 30%;
-			font-size: 1rem;
-		}
 		&__login-button {
 			font-size: 1.2rem;
-			padding-bottom: 1vh;
 		}
 		&__signup,
 		&__signup-link {
@@ -150,7 +133,6 @@
 		&__input-container {
 			width: 100%;
 		}
-
 		&__title {
 			font-size: 2rem;
 			margin-top: 12vh;
@@ -164,17 +146,11 @@
 		}
 		&__submit-button {
 			margin-top: 3vh;
-			width: 40%;
 			font-size: 1rem;
 		}
-		&__login-button {
-			font-size: 0.8rem;
-			padding-top: 1.1vh;
-			padding-bottom: 1vh;
-		}
+		&__login-button,
 		&__register-button {
 			font-size: 0.8rem;
-			padding-bottom: 1vh;
 		}
 		&__signup,
 		&__signup-link {
@@ -186,7 +162,6 @@
 		&__input-container {
 			width: 100%;
 		}
-
 		&__title {
 			font-size: 2.9rem;
 		}
@@ -197,21 +172,16 @@
 		}
 		&__submit-button {
 			margin-top: 5%;
-			width: 35%;
-			font-size: 1.5rem;
+			font-size: 1rem;
 		}
 		&__signup,
 		&__signup-link {
 			font-size: 1.1rem;
 		}
 		&__login-button {
-			padding-top: 2%;
-			padding-bottom: 5.5%;
 			font-size: 1.2rem;
 		}
 		&__register-button {
-			padding-top: 2vh;
-			padding-bottom: 4vh;
 			font-size: 1.2rem;
 		}
 	}
@@ -219,7 +189,6 @@
 		&__input-container {
 			width: 100%;
 		}
-
 		&__title {
 			font-size: 2.9rem;
 		}
@@ -230,18 +199,7 @@
 		}
 		&__submit-button {
 			margin-top: 5%;
-			width: 30%;
-			height: 30%;
-			font-size: 1.5rem;
-		}
-		&__login-button {
-			padding: 2%;
-			font-size: 1.2rem;
-		}
-		&__register-button {
-			padding-top: 2vh;
-			padding-bottom: 2vh;
-			font-size: 1.2rem;
+			font-size: 1rem;
 		}
 		&__signup,
 		&__signup-link {

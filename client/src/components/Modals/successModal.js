@@ -22,36 +22,31 @@ const SuccessModal = ({
 	goal,
 	loadUser,
 	goalReachedStatus,
-	increaseDays,
-	mode
+	increaseDays
 }) => {
 	let modalOverlayContainer = useRef(null);
 	let modalContentContainer = useRef(null);
 	const [overlayAnimation, setOverlayAnimation] = useState(null);
 	const [contentAnimation, setContentAnimation] = useState(null);
-
 	const overlayTl = new TimelineMax({ paused: true });
 	const contentTl = new TimelineMax({ paused: true });
 
 	const openModalOverlayAnimation = () => {
-		setOverlayAnimation(overlayTl.to(modalOverlayContainer, { duration: 1, opacity: 1 }).play());
+		setOverlayAnimation(overlayTl.to(modalOverlayContainer, { duration: 1, delay: 2.5, opacity: 1 }).play());
 	};
-
-	const openModalContentAnimation = () => {
-		setContentAnimation(contentTl.to(modalContentContainer, { duration: 1, y: 100, opacity: 1 }).play());
-	};
-
 	const closeModalOverlayAnimation = () => {
 		setOverlayAnimation(overlayTl.to(modalOverlayContainer, { duration: 1, opacity: 1 }).reverse());
 	};
-
-	const closeModalContentAnimation = () => {
-		setContentAnimation(contentTl.to(modalContentContainer, { duration: 1, y: 100, opacity: 1 }).reverse());
+	const openModalContentAnimation = () => {
+		setContentAnimation(
+			contentTl.to(modalContentContainer, { duration: 1, delay: 2.5, y: 100, opacity: 1 }).play()
+		);
 	};
-
+	const closeModalContentAnimation = () => {
+		setContentAnimation(contentTl.to(modalContentContainer, { duration: 1, y: 100, opacity: 0 }).reverse());
+	};
 	const openModalAll = () => {
 		goalReached();
-
 		openModalOverlayAnimation();
 		openModalContentAnimation();
 		increaseDays();
@@ -60,7 +55,7 @@ const SuccessModal = ({
 		}, 300);
 		setTimeout(() => {
 			openSuccessModal();
-		}, 600);
+		}, 1600);
 	};
 
 	const closeModalAll = () => {
@@ -83,7 +78,6 @@ const SuccessModal = ({
 	}, [wordCount, goalReachedStatus, goal, user]);
 	return (
 		<Fragment>
-			{/* <button onClick={openModalAll}>Modal Open Test</button> */}
 			<div
 				className={`${modals.successModalOpen ? 'main__modal2OverlayOpen' : 'main__modal2OverlayClosed'}`}
 				ref={(div) => (modalOverlayContainer = div)}
