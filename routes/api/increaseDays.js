@@ -14,11 +14,9 @@ const leapYear = (num) => {
 		return false;
 	}
 };
-
 router.post('/', auth, async (req, res) => {
 	const curDate = new Date().toLocaleDateString('en-US');
 	const year = parseInt(curDate.split('/')[2], 10);
-
 	try {
 		const user = await await User.findById(req.user.id);
 		++user.totalDays;
@@ -30,7 +28,6 @@ router.post('/', auth, async (req, res) => {
 			: (LDCCombo = 0);
 
 		let CDCombo = parseInt(curDate.split('/')[0] + curDate.split('/')[1], 10);
-
 		if (leapYear(year) === true && LDCCombo === 229 && CDCombo === 301) {
 			++user.consecutiveDays;
 			console.log('leap year Consec');
@@ -59,7 +56,6 @@ router.post('/', auth, async (req, res) => {
 		} else {
 			console.log('those Aint Consecutive at ALL');
 		}
-
 		user.lastDayCompleted = curDate;
 		await user.save();
 		res.json(user.totalDays);

@@ -63,7 +63,6 @@ const SuccessModal = ({
 		closeModalOverlayAnimation();
 		closeSuccessModal();
 	};
-
 	const closeSaveModalAll = () => {
 		closeModalContentAnimation();
 		closeModalOverlayAnimation();

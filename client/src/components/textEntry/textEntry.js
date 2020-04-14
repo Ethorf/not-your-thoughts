@@ -28,7 +28,6 @@ import SaveEntryModal from '../Modals/saveEntryModal.js';
 const TextEntry = ({
 	openSaveEntryModal,
 	goal,
-	changeMode,
 	wordCount,
 	changeWordCount,
 	saveEntry,

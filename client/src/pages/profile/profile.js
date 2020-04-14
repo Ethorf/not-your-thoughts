@@ -4,21 +4,21 @@ import '../../styles/rubberDucky.scss';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { logout, loadUser } from '../../redux/actions/authActions';
+import { logout, loadUser, toggleProgressAudio } from '../../redux/actions/authActions';
 import { deleteEntry, getEntries } from '../../redux/actions/entryActions.js';
 import Entry from '../../components/entry/entry.js';
 import ProfileGoalEdit from '../../components/profileGoalEdit/profileGoalEdit.js';
 import Spinner from '../../components/spinner/spinner.js';
 
-const Profile = ({ isAuthenticated, auth: { user }, deleteEntry, getEntries, entries, mode }) => {
+const Profile = ({ isAuthenticated, auth: { user }, deleteEntry, getEntries, entries, mode, toggleProgressAudio }) => {
 	useEffect(() => {
 		loadUser();
 		getEntries();
-	}, [getEntries, loadUser]);
+	}, [getEntries]);
 
-	// if (!isAuthenticated) {
-	// 	return <Redirect to="/login" />;
-	// }
+	if (!isAuthenticated) {
+		return <Redirect to="/login" />;
+	}
 	const Entries = () => {
 		return (
 			<>
@@ -41,7 +41,6 @@ const Profile = ({ isAuthenticated, auth: { user }, deleteEntry, getEntries, ent
 			</>
 		);
 	};
-
 	return user === null ? (
 		<Spinner />
 	) : (
@@ -67,6 +66,21 @@ const Profile = ({ isAuthenticated, auth: { user }, deleteEntry, getEntries, ent
 				)}
 
 				<ProfileGoalEdit />
+				<div className={`profile__progress-audio`}>
+					Progress Audio:
+					<div onClick={toggleProgressAudio} className={`profile__progress-audio-toggle`}>
+						<span
+							className={`${user && user.progressAudioEnabled ? 'profile__active' : 'profile__inactive'}`}
+						>
+							On
+						</span>
+						<span
+							className={`${user && user.progressAudioEnabled ? 'profile__inactive' : 'profile__active'}`}
+						>
+							Off
+						</span>{' '}
+					</div>
+				</div>
 				<h2 className={`profile__entries-header ${mode}`}>SAVED ENtRIES</h2>
 				{user === null ? <Spinner /> : <Entries />}
 			</div>
@@ -91,4 +105,4 @@ const mapStateToProps = (state) => ({
 	mode: state.modes.mode
 });
 
-export default connect(mapStateToProps, { logout, deleteEntry, loadUser, getEntries })(Profile);
+export default connect(mapStateToProps, { logout, deleteEntry, loadUser, getEntries, toggleProgressAudio })(Profile);

@@ -13,33 +13,27 @@ const IntroModal = ({ auth: { user }, modals, openIntroModal, closeIntroModal, s
 	let modalContentContainer = useRef(null);
 	const [overlayAnimation, setOverlayAnimation] = useState(null);
 	const [contentAnimation, setContentAnimation] = useState(null);
-
 	const overlayTl = new TimelineMax({ paused: true });
 	const contentTl = new TimelineMax({ paused: true });
 
 	const openModalOverlayAnimation = () => {
 		setOverlayAnimation(overlayTl.to(modalOverlayContainer, { duration: 1, opacity: 1 }).play());
 	};
-
 	const openModalContentAnimation = () => {
 		setContentAnimation(contentTl.to(modalContentContainer, { duration: 1, y: 100, opacity: 1 }).play());
 	};
-
 	const closeModalOverlayAnimation = () => {
 		setOverlayAnimation(overlayTl.to(modalOverlayContainer, { duration: 1, opacity: 1 }).reverse());
 	};
-
 	const closeModalContentAnimation = () => {
 		setContentAnimation(contentTl.to(modalContentContainer, { duration: 1, y: 100, opacity: 1 }).reverse());
 	};
-
 	const openModalAll = () => {
 		openModalOverlayAnimation();
 		openModalContentAnimation();
 		openIntroModal();
 		setFirstLogin();
 	};
-
 	const closeModalAll = () => {
 		closeModalContentAnimation();
 		closeModalOverlayAnimation();
@@ -51,9 +45,9 @@ const IntroModal = ({ auth: { user }, modals, openIntroModal, closeIntroModal, s
 		}
 	}, [user]);
 	return (
-		<div className={`intro-modal`}>
-			{/* <button onClick={openModalAll}>Modal Open Test</button>
-			<button onClick={closeModalAll}>Modal Close Test</button> */}
+		<div className={` ${modals.introModalOpen ? 'intro-modal' : 'intro-modal__modalCLosed'} `}>
+			{/*}	<button onClick={openModalAll}>Modal Open Test</button>
+	<button onClick={closeModalAll}>Modal Close Test</button> */}
 
 			<div
 				className={`${modals.introModalOpen ? 'main__modal2OverlayOpen' : 'main__modal2OverlayClosed'}`}

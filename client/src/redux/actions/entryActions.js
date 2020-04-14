@@ -8,9 +8,7 @@ export const getEntries = () => async (dispatch) => {
 		setAuthToken(localStorage.token);
 	}
 	try {
-		// const res = await axios.get('http://localhost:8082/api/auth');
 		const res = await axios.get('/api/auth');
-
 		dispatch({
 			type: GET_ENTRIES,
 			payload: res.data
@@ -21,9 +19,7 @@ export const getEntries = () => async (dispatch) => {
 		});
 	}
 };
-
 //Save Entry
-
 export const saveEntry = ({ entry }) => async (dispatch) => {
 	const config = {
 		headers: {
@@ -32,9 +28,7 @@ export const saveEntry = ({ entry }) => async (dispatch) => {
 	};
 	const body = JSON.stringify({ entry });
 	try {
-		// const res = await axios.post('http://localhost:8082/api/updateUser', body, config);
 		const res = await axios.post('/api/updateUser', body, config);
-
 		dispatch({
 			type: SAVE_ENTRY,
 			payload: res.data
@@ -48,10 +42,7 @@ export const saveEntry = ({ entry }) => async (dispatch) => {
 
 export const deleteEntry = (id) => async (dispatch) => {
 	try {
-		// const res = await axios.delete(`http://localhost:8082/api/updateUser/${id}`);
-
 		const res = await axios.delete(`/api/updateUser/${id}`);
-
 		dispatch({
 			type: DELETE_ENTRY,
 			payload: id

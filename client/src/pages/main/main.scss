@@ -22,7 +22,9 @@
 	height: 100vh;
 	display: flex;
 	position: relative;
-	z-index: 3;
+	//remember that nesting plays a role in z-index values
+	//a child element inside a parent can never have a higher z-index
+	z-index: 8;
 	color: silver;
 	align-items: center;
 	flex-direction: column;
@@ -105,7 +107,7 @@
 		padding-bottom: 1%;
 		height: 10%;
 		width: 100%;
-		z-index: 13;
+		z-index: 8;
 	}
 	&__date-goal-wordcount-container-light {
 		display: flex;
@@ -115,7 +117,7 @@
 		height: 10%;
 		width: 100%;
 		font-size: 24px;
-		z-index: 13;
+		z-index: 4;
 		color: black;
 		background-color: none;
 	}
@@ -159,7 +161,7 @@
 
 	&__textarea {
 		position: relative;
-		z-index: 20;
+		z-index: 40;
 		display: flex;
 		font-family: 'Maven Pro', sans-serif;
 		justify-content: center;
@@ -277,7 +279,7 @@
 	&__pillar-top-outline {
 		position: relative;
 		width: 100%;
-		z-index: 4;
+		z-index: 3;
 		height: 100%;
 	}
 	&__pillar-top {
@@ -365,7 +367,7 @@
 	}
 	&__modal2OverlayOpen {
 		position: fixed;
-		z-index: 7;
+		// z-index: 7;
 		top: 0;
 		opacity: 0;
 		left: 0;
@@ -376,7 +378,6 @@
 	}
 	&__modal2OverlayClosed {
 		display: none;
-
 		position: fixed;
 		z-index: 1;
 		top: 0;

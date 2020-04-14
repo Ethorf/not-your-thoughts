@@ -13,7 +13,7 @@ const progressSound50 = new Audio(progressSound50File);
 const progressSound75 = new Audio(progressSound75File);
 const progressSound100 = new Audio(progressSound100File);
 
-const ProgressWord = ({ wordCount, goal }) => {
+const ProgressWord = ({ wordCount, goal, progressAudioEnabled, user }) => {
 	let progressWordContainer = useRef(null);
 	let progressNumberContainer = useRef(null);
 
@@ -53,22 +53,30 @@ const ProgressWord = ({ wordCount, goal }) => {
 	useEffect(() => {
 		if (wordCount === goal / 4) {
 			progressAnimation();
-			progressSound25.play();
+			if (user && progressAudioEnabled) {
+				progressSound25.play();
+			}
 		} else if (wordCount === goal / 4 + 5) {
 			progressAnimationReverse();
 		} else if (wordCount === goal / 2) {
 			progressAnimation();
-			progressSound50.play();
+			if (user && progressAudioEnabled) {
+				progressSound50.play();
+			}
 		} else if (wordCount === goal / 2 + 8) {
 			progressAnimationReverse();
 		} else if (wordCount === goal * 0.75) {
 			progressAnimation();
-			progressSound75.play();
+			if (user && progressAudioEnabled) {
+				progressSound75.play();
+			}
 		} else if (wordCount === goal * 0.75 + 8) {
 			progressAnimationReverse();
 		} else if (wordCount === goal) {
 			progressAnimation();
-			progressSound100.play();
+			if (user && progressAudioEnabled) {
+				progressSound100.play();
+			}
 		}
 	}, [wordCount, goal]);
 	return (
@@ -89,7 +97,9 @@ ProgressWord.propTypes = {
 
 const mapStateToProps = (state) => ({
 	wordCount: state.wordCount.wordCount,
-	goal: state.wordCount.goal
+	goal: state.wordCount.goal,
+	user: state.auth.user,
+	progressAudioEnabled: state.auth.user.progressAudioEnabled
 });
 
 export default connect(mapStateToProps)(ProgressWord);

@@ -19,7 +19,6 @@ class AudioPlayer extends React.Component {
 		navOpen: false,
 		activeSong: this.music
 	};
-
 	decreaseVolume = () => {
 		if (this.state.activeSong.volume <= 0.9) {
 			this.state.activeSong.volume = this.state.activeSong.volume + 0.1;
@@ -34,7 +33,6 @@ class AudioPlayer extends React.Component {
 			this.state.activeSong.volume = 0;
 		}
 	};
-
 	togglePlay = () => {
 		this.setState({ play: !this.state.play }, () => {
 			this.state.play ? this.state.activeSong.play() : this.state.activeSong.pause();
@@ -45,7 +43,6 @@ class AudioPlayer extends React.Component {
 		this.audioPlayerAllTween.play();
 		this.controlsTween.play();
 		this.speakerTween.play();
-
 		this.setState({
 			navOpen: true
 		});

@@ -32,7 +32,7 @@ const UserSchema = new mongoose.Schema({
 		type: Boolean,
 		default: true
 	},
-	audioOn: {
+	progressAudioEnabled: {
 		type: Boolean,
 		default: true
 	},
