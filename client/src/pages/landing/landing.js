@@ -45,7 +45,6 @@ export default class Landing extends React.Component {
 			opacity: 1
 		});
 		this.youareTween.play();
-
 		this.notTween = new TimelineLite({ paused: true }).to(this.notContainer, {
 			duration: 2.6,
 			x: '8vw',
@@ -54,7 +53,6 @@ export default class Landing extends React.Component {
 		setTimeout(() => {
 			this.notTween.play();
 		}, 900);
-
 		this.yourTween = new TimelineLite({ paused: true }).to(this.yourContainer, {
 			duration: 2,
 			y: this.yourAnimSize(),
@@ -63,7 +61,6 @@ export default class Landing extends React.Component {
 		setTimeout(() => {
 			this.yourTween.play();
 		}, 1000);
-
 		this.thoughtsTween = new TimelineLite({ paused: true }).to(this.thoughtsContainer, {
 			duration: 2,
 			x: '-6vw',
@@ -72,7 +69,6 @@ export default class Landing extends React.Component {
 		setTimeout(() => {
 			this.thoughtsTween.play();
 		}, 900);
-
 		this.descriptionTween = new TimelineLite({ paused: true }).to(this.descriptionContainer, {
 			duration: 2,
 			y: -1,
@@ -88,19 +84,16 @@ export default class Landing extends React.Component {
 			ease: 'slow(0.7, 0.7, false)',
 			opacity: 1
 		});
-
 		this.registerButtonTween = new TimelineLite({ paused: true }).to(this.registerButtonContainer, {
 			duration: 3,
 			y: -1,
 			ease: 'slow(0.7, 0.7, false)',
 			opacity: 1
 		});
-
 		setTimeout(() => {
 			this.loginButtonTween.play();
 			this.registerButtonTween.play();
 		}, 4000);
-
 		this.allTween = new TimelineLite({ paused: true }).to(this.allContainer, {
 			duration: 3.5,
 			y: -100,
@@ -109,9 +102,7 @@ export default class Landing extends React.Component {
 		setTimeout(() => {
 			this.allTween.play();
 		}, 3000);
-
 		this.bgImgTween = new TimelineLite({ paused: true }).to(this.bgImgContainer, { duration: 2, opacity: 0.25 });
-
 		setTimeout(() => {
 			this.youareTween.reverse();
 		}, 3100);

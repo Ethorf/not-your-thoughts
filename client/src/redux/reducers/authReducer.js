@@ -8,16 +8,21 @@ import {
 	LOGOUT,
 	INCREASE_DAYS,
 	SET_FIRST_LOGIN,
-	TOGGLE_PROGRESS_AUDIO
+	TOGGLE_PROGRESS_AUDIO,
+	TOGGLE_ADD_PROMPT_OPEN,
+	ADD_CUSTOM_PROMPT,
+	TOGGLE_CUSTOM_PROMPTS_ENABLED
 } from '../actions/actionTypes';
 
 const initialState = {
 	token: localStorage.getItem('token'),
 	isAuthenticated: null,
 	loading: true,
-	user: null
+	user: null,
+	addPromptOpen: false,
+	customPromptsEnabled: false
 };
-
+//Okay now I am confused about this as a boik I have absolutely nothing going on with my reducer yet I can add my prompts
 export default function (state = initialState, action) {
 	const { type, payload } = action;
 	switch (type) {
@@ -26,7 +31,8 @@ export default function (state = initialState, action) {
 				...state,
 				isAuthenticated: true,
 				loading: false,
-				user: payload
+				user: payload,
+				customPromptsEnabled: payload.customPromptsEnabled
 			};
 		case INCREASE_DAYS:
 		case SET_FIRST_LOGIN:
@@ -34,6 +40,33 @@ export default function (state = initialState, action) {
 			return {
 				...state
 			};
+		case TOGGLE_ADD_PROMPT_OPEN:
+			if (state.addPromptOpen === false) {
+				return {
+					...state,
+					addPromptOpen: true
+				};
+			} else if (state.addPromptOpen === true) {
+				return {
+					...state,
+					addPromptOpen: false
+				};
+			}
+		case TOGGLE_CUSTOM_PROMPTS_ENABLED:
+			return {
+				...state
+			};
+		// if (state.user.customPromptsEnabled === false) {
+		// 	return {
+		// 		...state,
+		// 		customPromptsEnabled: true
+		// 	};
+		// } else if (state.user.customPromptsEnabled === true) {
+		// 	return {
+		// 		...state,
+		// 		customPromptsEnabled: false
+		// 	};
+		// }
 		case REGISTER_SUCCESS:
 		case LOGIN_SUCCESS:
 			localStorage.setItem('token', payload.token);
@@ -58,6 +91,5 @@ export default function (state = initialState, action) {
 			return state;
 	}
 }
-//I guess What I'm really having trouble with is having my database info directly linked to state,
-//maybe I should try separating both those layers. Okay so that wasn't the problem, the problem was literally just not importing / destructuring the function in the component
-//but that then really fucks with me because that api request was still being made it just wasn't in the function props or whatever???? fuck
+//maybe with that recently deleted problem I need to rethink the order of how things proceed through the
+//redux flow

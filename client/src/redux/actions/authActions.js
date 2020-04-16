@@ -11,7 +11,12 @@ import {
 	INCREASE_DAYS,
 	DAY_INCREASE_ERROR,
 	SET_FIRST_LOGIN,
-	TOGGLE_PROGRESS_AUDIO
+	TOGGLE_PROGRESS_AUDIO,
+	ADD_CUSTOM_PROMPT,
+	DELETE_CUSTOM_PROMPT,
+	CUSTOM_PROMPT_ERROR,
+	TOGGLE_ADD_PROMPT_OPEN,
+	TOGGLE_CUSTOM_PROMPTS_ENABLED
 } from './actionTypes';
 
 import setAuthToken from '../../utils/setAuthToken';
@@ -148,10 +153,68 @@ export const toggleProgressAudio = () => async (dispatch) => {
 			payload: res.data
 		});
 		console.log(res);
-		//This Loaduser here is super essential to make sure the state updates, but is that bad?
-		//A man does not know at this juncture
 		dispatch(loadUser());
 	} catch (err) {
 		console.log('toggle error');
+	}
+};
+
+//Prompt Actions -- Maybe try to move this to somewhere else as this file is getting a little bloated
+/// things are getting a little more piled on top of each other than is helpful
+export const addCustomPrompt = ({ prompt }) => async (dispatch) => {
+	const config = {
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	};
+	const body = JSON.stringify({ prompt });
+	try {
+		const res = await axios.post('/api/updateUser/prompts', body, config);
+		dispatch({
+			type: ADD_CUSTOM_PROMPT,
+			payload: res.data
+		});
+		dispatch(loadUser());
+	} catch (err) {
+		dispatch({
+			type: CUSTOM_PROMPT_ERROR
+		});
+	}
+};
+
+export const deleteCustomPrompt = (id) => async (dispatch) => {
+	try {
+		const res = await axios.delete(`/api/updateUser/prompts/${id}`);
+		dispatch({
+			type: DELETE_CUSTOM_PROMPT,
+			payload: id
+		});
+		dispatch(loadUser());
+	} catch (err) {
+		dispatch({
+			type: CUSTOM_PROMPT_ERROR
+		});
+	}
+};
+
+export const toggleAddPromptOpen = () => (dispatch) => {
+	dispatch({
+		type: TOGGLE_ADD_PROMPT_OPEN
+	});
+};
+export const toggleCustomPromptsEnabled = () => async (dispatch) => {
+	const config = {
+		headers: {
+			'x-auth-token': localStorage.getItem('token')
+		}
+	};
+	try {
+		const res = await axios.post('/api/updateUser/toggleCustomPrompts', config);
+		dispatch({
+			type: TOGGLE_CUSTOM_PROMPTS_ENABLED
+		});
+		dispatch(loadUser());
+	} catch (err) {
+		console.log('toggle prompts error');
 	}
 };

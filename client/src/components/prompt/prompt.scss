@@ -1,6 +1,4 @@
 @import '../../styles/mixins.scss';
-@import url('https://fonts.googleapis.com/css?family=Maven+Pro:400,500,700,900&display=swap');
-@import url('https://fonts.googleapis.com/css?family=Montserrat&display=swap');
 @import '../../styles/mixins.scss';
 @import '../../styles/variables.scss';
 @import '../../styles/base.scss';
@@ -11,17 +9,26 @@
 	font-style: italic;
 	justify-content: center;
 	text-align: center;
-	font-size: 0.86rem;
+	font-size: 1.1rem;
 	width: 53%;
 	color: silver;
 	transition: all 3s;
+	margin-top: 1%;
 
-	&:hover {
-		transition: all 3s;
-		text-shadow: 0px 0px 1px grey;
-		color: black;
+	&__buttons-container {
+		margin-left: 10px;
 	}
-
+	&__button {
+		font-size: 0.8rem;
+		font-style: normal;
+		margin-left: 3%;
+		&:hover {
+			color: white;
+		}
+	}
+	&__next-button {
+		margin-left: 9%;
+	}
 	@include laptop-small() {
 		font-size: 0.7rem;
 	}

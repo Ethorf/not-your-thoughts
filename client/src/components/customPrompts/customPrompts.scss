@@ -1,0 +1,51 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/variables.scss';
+@import '../../styles/base.scss';
+
+.custom-prompts {
+	&__toggle {
+		display: flex;
+		align-items: center;
+	}
+	&__delete-button {
+		font-size: 1.5rem;
+		margin-left: 5%;
+		&:hover {
+			color: white;
+		}
+	}
+	&__on-off {
+		height: 5%;
+	}
+	&__add-new {
+		font-size: 1.2rem;
+		margin-left: 3%;
+
+		&:hover {
+			color: white;
+		}
+	}
+	&__add-prompt-input {
+		display: flex;
+	}
+}
+
+.-light {
+	color: black;
+	background-color: white;
+}
+.invisible {
+	display: none;
+}
+.visible {
+	display: flex;
+	flex-direction: column;
+}
+.active {
+	color: black;
+	background-color: white;
+}
+.inactive {
+	color: grey;
+	background-color: black;
+}

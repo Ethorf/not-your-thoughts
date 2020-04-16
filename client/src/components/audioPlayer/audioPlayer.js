@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import './audioPlayer.scss';
 import Song from '../../assets/Sounds/Not-Your-Thoughts-Ambient-Track-1.mp3';
-import RubberDuckySong from '../../assets/Sounds/RubberDuckySong-2.mp3';
+// import RubberDuckySong from '../../assets/Sounds/RubberDuckySong-2.mp3';
 import pause from '../../assets/Icons/Icon-pause.png';
 import play from '../../assets/Icons/Icon-play.png';
 import pauseBlack from '../../assets/Icons/pause-icon-black.png';
@@ -12,7 +12,7 @@ import { TimelineLite } from 'gsap/all';
 
 class AudioPlayer extends React.Component {
 	music = new Audio(Song);
-	rubberDuckyMusic = new Audio(RubberDuckySong);
+	// rubberDuckyMusic = new Audio(RubberDuckySong);
 	state = {
 		play: false,
 		volume: 0.3,

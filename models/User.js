@@ -39,6 +39,13 @@ const UserSchema = new mongoose.Schema({
 	dailyWordsGoal: {
 		type: Number,
 		default: 400
+	},
+	customPrompts: {
+		type: Array
+	},
+	customPromptsEnabled: {
+		type: Boolean,
+		default: false
 	}
 });
 

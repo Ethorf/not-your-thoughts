@@ -23,48 +23,39 @@
 		margin-bottom: 30px;
 		color: white;
 	}
-	&__user-logout-container {
-		display: flex;
-		align-items: center;
-	}
-	&__logout-button {
-		width: 10%;
-		height: 3%;
-		margin-top: 5%;
-		padding: 8px 1%;
-		border-radius: 7px;
-		font-size: 0.7rem;
-		font-family: 'Syncopate', sans-serif;
-		outline: none;
-		transition: all 0.3s;
-		&:hover {
-			transition: all 0.5s;
-			background-color: black;
-			color: white;
-		}
-	}
 	&__user {
 		font-size: 1.9rem;
 		margin-bottom: 7px;
 		margin-top: 7px;
 		color: white;
-		font-family: 'Montserrat';
+		// font-family: 'Montserrat';
+	}
+	&__stats-container {
+		display: flex;
+		align-items: center;
+		height: 10%;
+		// border: 1px solid white;
+		width: 75%;
+		justify-content: space-between;
+		font-size: 1rem;
 	}
 	&__consecutive-days {
 		display: flex;
+		align-items: center;
 	}
 	&__day-number {
+		margin: 0;
 		margin-left: 10px;
+
 		font-size: 1.6rem;
 		color: white;
 	}
 	&__total-days {
 		display: flex;
-		margin-bottom: 10px;
+		margin-left: 4%;
 	}
 	&__last-day {
 		display: flex;
-		margin-bottom: 1%;
 	}
 
 	//Goal stuff
@@ -72,9 +63,10 @@
 		display: flex;
 		align-items: center;
 		margin-bottom: 1%;
+		width: 40%;
 	}
 	&__goal-edit-button {
-		width: 7%;
+		width: 17%;
 		height: 100%;
 		padding: 0.3%;
 		margin-left: 1%;
@@ -113,7 +105,7 @@
 		display: flex;
 		font-size: 1.7rem;
 	}
-	&__progress-audio-toggle {
+	&__toggle-switch {
 		border: 1px solid white;
 		border-radius: 10px;
 		width: 9%;
@@ -121,7 +113,7 @@
 		font-size: 1.4rem;
 	}
 	&__active {
-		padding: 1.3% 9%;
+		padding: 2% 9%;
 		border: 1px solid white;
 		border-radius: 10px;
 		background-color: white;

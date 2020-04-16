@@ -19,7 +19,7 @@ export const getEntries = () => async (dispatch) => {
 		});
 	}
 };
-//Save Entry
+//Entry Actions
 export const saveEntry = ({ entry }) => async (dispatch) => {
 	const config = {
 		headers: {
