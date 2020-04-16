@@ -13,7 +13,7 @@ const progressSound50 = new Audio(progressSound50File);
 const progressSound75 = new Audio(progressSound75File);
 const progressSound100 = new Audio(progressSound100File);
 
-const ProgressWord = ({ wordCount, goal, progressAudioEnabled, user }) => {
+const ProgressWord = ({ wordCount, user }) => {
 	let progressWordContainer = useRef(null);
 	let progressNumberContainer = useRef(null);
 
@@ -28,7 +28,6 @@ const ProgressWord = ({ wordCount, goal, progressAudioEnabled, user }) => {
 				.play()
 		);
 	};
-
 	const progressAnimationReverse = () => {
 		setProgressAnimation(
 			tl
@@ -37,7 +36,6 @@ const ProgressWord = ({ wordCount, goal, progressAudioEnabled, user }) => {
 				.play()
 		);
 	};
-
 	const percentCalc = (wordCount, goal) => {
 		if (wordCount >= goal / 4 && wordCount <= goal / 4 + 10) {
 			return '25%';
@@ -51,38 +49,38 @@ const ProgressWord = ({ wordCount, goal, progressAudioEnabled, user }) => {
 	};
 
 	useEffect(() => {
-		if (wordCount === goal / 4) {
+		if (wordCount === user.dailyWordsGoal / 4) {
 			progressAnimation();
-			if (user && progressAudioEnabled) {
+			if (user && user.progressAudioEnabled) {
 				progressSound25.play();
 			}
-		} else if (wordCount === goal / 4 + 5) {
+		} else if (wordCount === user.dailyWordsGoal / 4 + 5) {
 			progressAnimationReverse();
-		} else if (wordCount === goal / 2) {
+		} else if (wordCount === user.dailyWordsGoal / 2) {
 			progressAnimation();
-			if (user && progressAudioEnabled) {
+			if (user && user.progressAudioEnabled) {
 				progressSound50.play();
 			}
-		} else if (wordCount === goal / 2 + 8) {
+		} else if (wordCount === user.dailyWordsGoal / 2 + 8) {
 			progressAnimationReverse();
-		} else if (wordCount === goal * 0.75) {
+		} else if (wordCount === user.dailyWordsGoal * 0.75) {
 			progressAnimation();
-			if (user && progressAudioEnabled) {
+			if (user && user.progressAudioEnabled) {
 				progressSound75.play();
 			}
-		} else if (wordCount === goal * 0.75 + 8) {
+		} else if (wordCount === user.dailyWordsGoal * 0.75 + 8) {
 			progressAnimationReverse();
-		} else if (wordCount === goal) {
+		} else if (wordCount === user.dailyWordsGoal) {
 			progressAnimation();
-			if (user && progressAudioEnabled) {
+			if (user && user.progressAudioEnabled) {
 				progressSound100.play();
 			}
 		}
-	}, [wordCount, goal]);
+	}, [wordCount, user.dailyWordsGoal]);
 	return (
 		<div>
 			<h2 ref={(h2) => (progressNumberContainer = h2)} className="main__progress-number">
-				{percentCalc(wordCount, goal)}
+				{percentCalc(wordCount, user.dailyWordsGoal)}
 			</h2>
 			<h2 ref={(h2) => (progressWordContainer = h2)} className="main__progress-word">
 				Complete
@@ -98,8 +96,7 @@ ProgressWord.propTypes = {
 const mapStateToProps = (state) => ({
 	wordCount: state.wordCount.wordCount,
 	goal: state.wordCount.goal,
-	user: state.auth.user,
-	progressAudioEnabled: state.auth.user.progressAudioEnabled
+	user: state.auth.user
 });
 
 export default connect(mapStateToProps)(ProgressWord);

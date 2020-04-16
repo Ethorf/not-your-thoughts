@@ -9,6 +9,7 @@ import { openSuccessModal, closeSuccessModal } from '../../redux/actions/modalAc
 import { saveEntry } from '../../redux/actions/entryActions';
 import { goalReached } from '../../redux/actions/index';
 import { increaseDays, loadUser } from '../../redux/actions/authActions';
+import { Gratitude } from '../gratitude/gratitude';
 
 const SuccessModal = ({
 	auth: { user },
@@ -28,9 +29,12 @@ const SuccessModal = ({
 	let modalContentContainer = useRef(null);
 	const [overlayAnimation, setOverlayAnimation] = useState(null);
 	const [contentAnimation, setContentAnimation] = useState(null);
+	const [gratitudeOpen, setGratitudeOpen] = useState(false);
 	const overlayTl = new TimelineMax({ paused: true });
 	const contentTl = new TimelineMax({ paused: true });
-
+	const openGratitude = () => {
+		setGratitudeOpen(true);
+	};
 	const openModalOverlayAnimation = () => {
 		setOverlayAnimation(overlayTl.to(modalOverlayContainer, { duration: 1, delay: 2.5, opacity: 1 }).play());
 	};
@@ -63,6 +67,7 @@ const SuccessModal = ({
 		closeModalOverlayAnimation();
 		closeSuccessModal();
 	};
+
 	const closeSaveModalAll = () => {
 		closeModalContentAnimation();
 		closeModalOverlayAnimation();
@@ -77,6 +82,7 @@ const SuccessModal = ({
 	}, [wordCount, goalReachedStatus, goal, user]);
 	return (
 		<Fragment>
+			{/*	<button onClick={openModalAll}>Modal Open Test</button> */}
 			<div
 				className={`${modals.successModalOpen ? 'main__modal2OverlayOpen' : 'main__modal2OverlayClosed'}`}
 				ref={(div) => (modalOverlayContainer = div)}
@@ -85,23 +91,31 @@ const SuccessModal = ({
 				className={`${modals.successModalOpen ? 'main__modal2' : 'main__modal2Closed'}`}
 				ref={(div) => (modalContentContainer = div)}
 			>
-				<h2 className="modal__congratulations">
-					CONGRATULATIONS {user && user.name.toUpperCase().split(' ')[0]}!
-				</h2>
-				<div className="modal__mainText">
-					<h2 className="modal__goal">You've reached your goal for today</h2>
-					<h3 className="modal__goal">
-						You have completed {user && user.consecutiveDays} days in a row, and {user && user.totalDays}{' '}
-						days total
-					</h3>
-					<h4 className="modal__goal">Keep it up!</h4>
-					<button onClick={closeSaveModalAll} className="modal__close-button">
-						Save and Close
-					</button>
-					<button onClick={closeModalAll} className="modal__close-button">
-						Just Close
-					</button>
+				<div className={gratitudeOpen ? 'invisible' : 'visible'}>
+					<h2 className="modal__congratulations">
+						CONGRATULATIONS {user && user.name.toUpperCase().split(' ')[0]}!
+					</h2>
+					<div className="modal__mainText">
+						<h2 className="modal__goal">You've reached your goal for today</h2>
+						<h3 className="modal__goal">
+							You have completed {user && user.consecutiveDays} days in a row, and{' '}
+							{user && user.totalDays} days total
+						</h3>
+						<h4 className="modal__goal">Would you like to do a gratitude practice for 3 more XP?</h4>
+						<div className="modal__gratitude-buttons">
+							<button onClick={openGratitude}>Yes</button>
+							<button>No</button>
+						</div>
+					</div>
 				</div>
+
+				{gratitudeOpen ? <Gratitude /> : null}
+				<button onClick={closeSaveModalAll} className="modal__close-button">
+					Save and Close
+				</button>
+				<button onClick={closeModalAll} className="modal__close-button">
+					Just Close
+				</button>
 			</div>
 		</Fragment>
 	);

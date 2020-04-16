@@ -3,7 +3,16 @@ import { connect } from 'react-redux';
 import { toggleEditGoal, changeGoal, setNewGoal } from '../../redux/actions/index';
 import '../../pages/profile/profile.scss';
 
-function ProfileGoalEdit({ newGoal, goal, toggleEditGoal, goalIsEditable, changeGoal, setNewGoal, mode }) {
+function ProfileGoalEdit({
+	newGoal,
+	goal,
+	toggleEditGoal,
+	goalIsEditable,
+	changeGoal,
+	setNewGoal,
+	mode,
+	auth: { user }
+}) {
 	const goalNum = (e) => {
 		e.preventDefault();
 		setNewGoal(e.target.value);
@@ -20,7 +29,11 @@ function ProfileGoalEdit({ newGoal, goal, toggleEditGoal, goalIsEditable, change
 	return goalIsEditable ? (
 		<div className="profile__goal-edit">
 			<h2 className="profile__stats-text ">Daily Words Goal :</h2>
-			<input className={`profile__goal-input ${mode}`} onChange={goalNum} defaultValue={goal}></input>
+			<input
+				className={`profile__goal-input ${mode}`}
+				onChange={goalNum}
+				defaultValue={user.dailyWordsGoal}
+			></input>
 			<button onClick={saveGoal} className="profile__goal-edit-button">
 				Save
 			</button>
@@ -31,7 +44,7 @@ function ProfileGoalEdit({ newGoal, goal, toggleEditGoal, goalIsEditable, change
 	) : (
 		<div className="profile__goal-edit">
 			<h2 className="profile__stats-text ">Daily Words Goal :</h2>
-			<div className={`profile__day-number ${mode}`}> {goal}</div>
+			<div className={`profile__day-number ${mode}`}> {user.dailyWordsGoal}</div>
 			<button onClick={toggleEditGoal} className="profile__goal-edit-button">
 				Edit
 			</button>

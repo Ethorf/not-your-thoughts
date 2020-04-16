@@ -82,3 +82,10 @@
 	position: relative;
 	z-index: 30;
 }
+.invisible {
+	display: none;
+	opacity: 0;
+}
+.visible {
+	display: flex;
+}

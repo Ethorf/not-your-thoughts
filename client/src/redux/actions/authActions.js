@@ -15,7 +15,6 @@ import {
 	ADD_CUSTOM_PROMPT,
 	DELETE_CUSTOM_PROMPT,
 	CUSTOM_PROMPT_ERROR,
-	TOGGLE_ADD_PROMPT_OPEN,
 	TOGGLE_CUSTOM_PROMPTS_ENABLED
 } from './actionTypes';
 
@@ -197,11 +196,6 @@ export const deleteCustomPrompt = (id) => async (dispatch) => {
 	}
 };
 
-export const toggleAddPromptOpen = () => (dispatch) => {
-	dispatch({
-		type: TOGGLE_ADD_PROMPT_OPEN
-	});
-};
 export const toggleCustomPromptsEnabled = () => async (dispatch) => {
 	const config = {
 		headers: {

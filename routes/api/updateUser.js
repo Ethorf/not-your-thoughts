@@ -6,6 +6,26 @@ const User = require('../../models/User');
 const moment = require('moment');
 const uuidv4 = require('uuid/v4');
 
+// set a new words goal
+router.post(
+	'/setNewWordsGoal',
+	[auth, [check('goal', 'Must have some new goal in there!').not().isEmpty()]],
+	async (req, res) => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+		try {
+			const user = await await User.findById(req.user.id);
+			user.dailyWordsGoal = req.body.goal;
+			await user.save();
+			res.json(user);
+		} catch (err) {
+			console.error(err.message);
+			res.status(500);
+		}
+	}
+);
 //Adding an Entry
 router.post('/', [auth, [check('entry', 'No empty entries allowed!').not().isEmpty()]], async (req, res) => {
 	const errors = validationResult(req);
@@ -27,6 +47,7 @@ router.post('/', [auth, [check('entry', 'No empty entries allowed!').not().isEmp
 		res.status(500);
 	}
 });
+//
 //Adding a custom user Prompt
 router.post('/prompts', [auth, [check('prompt', 'No empty prompts allowed!').not().isEmpty()]], async (req, res) => {
 	const errors = validationResult(req);

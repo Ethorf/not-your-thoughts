@@ -4,19 +4,12 @@ import PropTypes from 'prop-types';
 import './customPrompts.scss';
 import '../../pages/profile/profile.scss';
 
-import {
-	addCustomPrompt,
-	deleteCustomPrompt,
-	toggleAddPromptOpen,
-	toggleCustomPromptsEnabled
-} from '../../redux/actions/authActions';
+import { addCustomPrompt, deleteCustomPrompt, toggleCustomPromptsEnabled } from '../../redux/actions/authActions';
 
 const CustomPrompts = ({
 	addCustomPrompt,
 	deleteCustomPrompt,
 	prompts,
-	addPromptOpen,
-	toggleAddPromptOpen,
 	toggleCustomPromptsEnabled,
 	customPromptsEnabled
 }) => {
@@ -24,6 +17,8 @@ const CustomPrompts = ({
 		prompt: ''
 	});
 	const [localCustomPromptsEnabled, setLocalCustomPromptsEnabled] = useState(customPromptsEnabled);
+	const [localPromptAddOpen, setLocalPromptAddOpen] = useState(false);
+
 	const togglePrompts = () => {
 		setLocalCustomPromptsEnabled(!localCustomPromptsEnabled);
 		toggleCustomPromptsEnabled();
@@ -32,7 +27,9 @@ const CustomPrompts = ({
 		e.preventDefault();
 		setPromptData(e.target.value);
 	};
-
+	const toggleAddPromptOpen = () => {
+		setLocalPromptAddOpen(!localPromptAddOpen);
+	};
 	const onSubmit = async (e) => {
 		e.preventDefault();
 		addCustomPrompt({ prompt: promptData });
@@ -58,7 +55,9 @@ const CustomPrompts = ({
 						{' '}
 						Add New +
 					</span>
-					<form className={`${addPromptOpen === true ? 'custom-prompts__add-prompt-input' : 'invisible'}`}>
+					<form
+						className={`${localPromptAddOpen === true ? 'custom-prompts__add-prompt-input' : 'invisible'}`}
+					>
 						<input onChange={promptInput} placeholder="your prompt here"></input>
 						<button onClick={onSubmit} type="submit">
 							Add Prompt
@@ -95,13 +94,11 @@ CustomPrompts.propTypes = {
 
 const mapStateToProps = (state) => ({
 	prompts: state.auth.user.customPrompts,
-	addPromptOpen: state.auth.addPromptOpen,
 	customPromptsEnabled: state.auth.user.customPromptsEnabled
 });
 
 export default connect(mapStateToProps, {
 	addCustomPrompt,
 	deleteCustomPrompt,
-	toggleAddPromptOpen,
 	toggleCustomPromptsEnabled
 })(CustomPrompts);

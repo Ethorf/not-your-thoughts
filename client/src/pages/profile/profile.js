@@ -27,7 +27,7 @@ const Profile = ({
 		loadUser();
 		getEntries();
 		if (user !== null) {
-			setLocalProgressAudioEnabled(progressAudioEnabled);
+			setLocalProgressAudioEnabled(user.progressAudioEnabled);
 		}
 	}, [getEntries]);
 
@@ -113,17 +113,13 @@ Profile.propTypes = {
 	logout: PropTypes.func.isRequired,
 	isAuthenticated: PropTypes.bool,
 	getEntries: PropTypes.func.isRequired,
-	entries: PropTypes.array.isRequired,
-	user: PropTypes.object.isRequired
-	// progressAudioEnabled: PropTypes.bool.isRequired
+	entries: PropTypes.array.isRequired
 };
 
 const mapStateToProps = (state) => ({
 	auth: state.auth,
 	isAuthenticated: state.auth.isAuthenticated,
 	goal: state.wordCount.goal,
-	user: state.auth.user,
-	progressAudioEnabled: state.auth.user.progressAudioEnabled,
 	entries: state.entries.entries,
 	loading: state.entries,
 	mode: state.modes.mode

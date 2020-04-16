@@ -24,6 +24,7 @@ import ProgressWord from '../../components/progress/progressRight.js';
 import SuccessModal from '../Modals/successModal.js';
 import IntroModal from '../Modals/introModal.js';
 import SaveEntryModal from '../Modals/saveEntryModal.js';
+import Spinner from '../spinner/spinner';
 
 const TextEntry = ({
 	openSaveEntryModal,
@@ -33,7 +34,8 @@ const TextEntry = ({
 	saveEntry,
 	isAuthenticated,
 	setEntry,
-	mode
+	mode,
+	auth: { user }
 }) => {
 	const [entryData, setEntryData] = useState({
 		entry: ''
@@ -54,8 +56,9 @@ const TextEntry = ({
 		openSaveEntryModal();
 		saveEntry({ entry: entryData });
 	};
-
-	return (
+	return user === null ? (
+		<Spinner />
+	) : (
 		<div className={`main__all-container modalize ${mode}`}>
 			<BgImage />
 			<div className={`main ${mode}`}>
@@ -66,20 +69,26 @@ const TextEntry = ({
 				<Prompt />
 				<ProgressWord />
 				<PillarTop />
+
 				<div className={`main__pillars-date-goal-wordcount-textarea-container`}>
 					<PillarLeft />
 					<form className={`main__date-goal-wordcount-textarea-container`} onSubmit={(e) => onSubmit(e)}>
 						<div className={`main__date-goal-wordcount-container${mode}`}>
 							<h3 className={`main__date `}>{moment().format('MM/DD/YYYY')}</h3>
-							<h2 className={`main__goal`}>Goal: {goal} Words</h2>
+							<h2 className={`main__goal`}>
+								Goal: {user ? user.dailyWordsGoal : 'loading daily goal'} Words
+							</h2>
 							<h3 className={`main__wordcount`}>{wordCount} Words</h3>
 						</div>
-						<textarea
-							onChange={textNum}
-							name="textEntry"
-							className={`main__textarea${mode}`}
-							placeholder="note those thoughts here"
-						></textarea>
+						<div className={`main__textarea-border ${mode}`}>
+							<textarea
+								onChange={textNum}
+								name="textEntry"
+								className={`main__textarea${mode}`}
+								placeholder="note those thoughts here"
+							></textarea>
+						</div>
+
 						<div className={`main__save-entry-button-container  `}>
 							<button onClick={onSubmit} type="submit" className={`main__save-entry-button${mode}`}>
 								Save Entry
