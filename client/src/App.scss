@@ -29,7 +29,7 @@
 
 .fad-exit.fade-exit-active {
 	position: absolute;
-	top: 10000px;
+	top: 100000px;
 	opacity: 0;
 	transition: opacity 1000ms linear;
 	background-color: black;
@@ -72,7 +72,8 @@
 	background-color: black;
 	margin: 0;
 	width: 100%;
-	height: 100vh;
+	height: 110%;
+	padding-bottom: 1%;
 }
 .-light {
 	color: black;
@@ -80,4 +81,7 @@
 }
 
 #root {
+}
+html {
+	background-color: black;
 }

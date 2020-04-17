@@ -5,20 +5,13 @@ import { connect } from 'react-redux';
 import { logout } from '../../redux/actions/authActions';
 
 import './navBarTop.scss';
-import arrow from '../../assets/down-arrow-grey-weird.png';
+import arrow from '../../assets/Icons/down-arrow-black-2.png';
 import AudioPlayerMobile from '../../components/audioPlayer/audioPlayerMobile.js';
-import { TimelineLite } from 'gsap/all';
 
 class NavBarTop extends React.Component {
 	state = {
 		navOpen: false
 	};
-	navBarContainer = null;
-	navBarTween = null;
-	linksContainer = null;
-	linksTween = null;
-	arrowContainer = null;
-	arrowTween = null;
 	toggleNavOpen = () => {
 		this.setState({
 			navOpen: !this.state.navOpen

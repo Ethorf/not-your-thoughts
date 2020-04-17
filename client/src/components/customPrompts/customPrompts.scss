@@ -8,6 +8,20 @@
 		align-items: center;
 		font-size: 1.7rem;
 	}
+	&__title {
+		margin-top: 0;
+		font-size: 1.7rem;
+	}
+	&__prompts-container {
+		padding-left: 0;
+	}
+	&__prompt {
+		display: flex;
+	}
+	&__content {
+		width: 40%;
+		margin-bottom: 2%;
+	}
 	&__delete-button {
 		font-size: 1.5rem;
 		margin-left: 5%;
@@ -19,15 +33,42 @@
 		height: 5%;
 	}
 	&__add-new {
-		font-size: 1.2rem;
+		font-size: 0.8rem;
 		margin-left: 3%;
-
+		font-family: 'Syncopate', sans-serif;
 		&:hover {
 			color: white;
 		}
 	}
 	&__add-prompt-input {
 		display: flex;
+		margin-top: 1%;
+	}
+	&__input {
+		color: white;
+		background-color: black;
+		border-radius: 7px;
+		margin-right: 2%;
+		border: 1px solid grey;
+		text-align: center;
+		font-size: 1rem;
+		padding: 0.5% 0;
+		width: 30%;
+		outline: none;
+	}
+	&__button {
+		font-family: 'Syncopate', sans-serif;
+		border-radius: 7px;
+		padding: 0 1%;
+		outline: none;
+
+		&:hover {
+			background-color: black;
+			color: white;
+		}
+	}
+	&__cancel-button {
+		margin-left: 1%;
 	}
 }
 

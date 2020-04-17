@@ -100,7 +100,7 @@ const Profile = ({
 							On
 						</span>
 						<span
-							className={` profile__toggle-button ${
+							className={` profile__toggle-button profile__off-button ${
 								localProgressAudioEnabled ? 'profile__inactive' : 'profile__active'
 							}`}
 						>

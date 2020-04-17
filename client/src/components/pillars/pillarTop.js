@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import '../../pages/main/main.scss';
-import pillarTopOutline from '../../assets/Pillars/NewPillarTop-2.png';
+import pillarTopOutline from '../../assets/Pillars/NewPillarTop-Round-4.png';
 import PillarTopOutlineInverted from '../../assets/Pillars/NewPillarTop-4-inverted.png';
 
 import crawBoxTop from '../../assets/Animations/SpikyCrawBox-Top-1.gif';
@@ -14,7 +14,6 @@ const PillarTop = ({ wordCount, goal, mode, auth: { user } }) => {
 	const pillarTopStyleWidth = () => {
 		const testStyle = {
 			width: `${-103 + calc - 1}%`
-			// opacity: `${wordCount / 200}`
 		};
 		const start = { width: `0%` };
 		const limit = { width: `98%` };

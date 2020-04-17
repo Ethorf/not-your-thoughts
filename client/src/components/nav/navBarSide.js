@@ -5,16 +5,9 @@ import { connect } from 'react-redux';
 import { logout } from '../../redux/actions/authActions';
 
 import './navBarSide.scss';
-import arrow from '../../assets/down-arrow-grey-weird.png';
+import arrow from '../../assets/Icons/down-arrow-black-2.png';
 
 import { TimelineLite } from 'gsap/all';
-
-// const navBarContainer = null;
-// const navBarTween = null;
-// const linksContainer = null;
-// const linksTween = null;
-// const arrowContainer = null;
-// const arrowTween = null;
 
 class NavBarSide extends React.Component {
 	state = {
@@ -47,17 +40,15 @@ class NavBarSide extends React.Component {
 	componentDidMount() {
 		this.navBarTween = new TimelineLite({ paused: true }).to(this.navBarContainer, {
 			duration: 0.4,
-			x: 45,
-			ease: 'power1.out'
+			x: 45
+			// ease: 'power1.out'
 		});
 
 		this.linksTween = new TimelineLite({ paused: true }).to(this.linksContainer, { duration: 1, x: 0, opacity: 1 });
 
 		this.arrowTween = new TimelineLite({ paused: true }).to(this.arrowContainer, {
-			duration: 1,
-			rotation: -180,
-			opacity: 1,
-			color: 'white'
+			duration: 1
+			// rotation: -180
 		});
 	}
 	render(logout) {
@@ -72,7 +63,7 @@ class NavBarSide extends React.Component {
 					>
 						<img
 							ref={(img) => (this.arrowContainer = img)}
-							className={this.props.rubberDucky ? 'rubberDucky__nav-arrow' : 'nav__arrow '}
+							className={`nav__arrow  ${this.state.navOpen ? 'nav__arrow-rotate' : ''}`}
 							src={arrow}
 							alt="hamburger"
 						></img>

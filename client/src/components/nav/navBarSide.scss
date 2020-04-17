@@ -50,10 +50,21 @@
 		outline: none;
 		height: 30px;
 		width: 30px;
+		transition: all 1.5s;
+		transform: rotate(0deg);
+
 		&:focus {
 			border: none;
 			outline: none;
 		}
+		&:hover {
+			content: url('../../assets/Icons/down-arrow-white-2.png');
+			transition: all 0.5s;
+		}
+	}
+	&__arrow-rotate {
+		transform: rotate(180deg);
+		transition: all 1.5s;
 	}
 	&__link {
 		text-decoration: none;

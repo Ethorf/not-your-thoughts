@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import './entry.scss';
-import Arrow from '../../assets/single-arrow2.png';
+import Arrow from '../../assets/Icons/single-arrow-3.png';
 
 class Entry extends React.Component {
 	state = {

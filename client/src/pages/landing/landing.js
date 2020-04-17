@@ -147,22 +147,21 @@ export default class Landing extends React.Component {
 					</p>
 				</div>
 				<div className="landing__all-buttons-container">
-					<button
+					<Link
 						ref={(button) => (this.loginButtonContainer = button)}
-						className="landing__start-button-container"
+						to="/login"
+						className="landing__login-button"
 					>
-						<Link to="/login" className="landing__login-button">
-							Login
-						</Link>
-					</button>
-					<button
+						Login
+					</Link>
+
+					<Link
 						ref={(button) => (this.registerButtonContainer = button)}
-						className="landing__start-button-container"
+						to="/register"
+						className="landing__register-button"
 					>
-						<Link to="/register" className="landing__register-button">
-							Register
-						</Link>
-					</button>
+						Register
+					</Link>
 				</div>
 			</div>
 		);
