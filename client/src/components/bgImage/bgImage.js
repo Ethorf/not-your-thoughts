@@ -14,8 +14,8 @@ const BgImage = () => {
 	const bgAnim = () => {
 		setBgAnimation(
 			tl
-				.fromTo(bgImgContainer, { duration: 10, opacity: 0.016 }, { duration: 10, opacity: 0.08 })
-				.to(bgImgContainer, { duration: 10, opacity: 0.007 })
+				.fromTo(bgImgContainer, { duration: 10, opacity: 0.026 }, { duration: 10, opacity: 0.08 })
+				.to(bgImgContainer, { duration: 10, opacity: 0.017 })
 				.play()
 		);
 	};

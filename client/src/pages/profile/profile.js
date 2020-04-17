@@ -69,9 +69,9 @@ const Profile = ({
 				<header className={`profile__header ${mode}`}>User Profile</header>
 				<h2 className={`profile__user ${mode}`}>{user && user.name}</h2>
 				<div className={`profile__stats-container ${mode}`}>
-					<h2 className="profile__consecutive-days profile__stats-text">
+					<h2 className="profile__stats-text">
 						Consecutive Days Completed:
-						<p className={`profile__day-number ${mode}`}> {user && user.consecutiveDays}</p>
+						<div className={`profile__day-number ${mode}`}> {user && user.consecutiveDays}</div>
 					</h2>
 					<h2 className="profile__total-days profile__stats-text">
 						Total Days Completed:<div className={`profile__day-number ${mode}`}> {user.totalDays}</div>
@@ -79,7 +79,7 @@ const Profile = ({
 				</div>
 				<div className={`profile__stats-container ${mode}`}>
 					{user.lastDayCompleted !== null ? (
-						<h2 className="profile__last-day profile__stats-text">
+						<h2 className="profile__stats-text">
 							Last Day Completed:
 							<div className={`profile__day-number ${mode}`}> {user.lastDayCompleted}</div>
 						</h2>
@@ -89,13 +89,21 @@ const Profile = ({
 
 					<ProfileGoalEdit />
 				</div>
-				<div className={`profile__progress-audio`}>
+				<div className={`profile__toggle-container`}>
 					Progress Audio:
 					<div onClick={toggleLocalProgressAudio} className={`profile__toggle-switch`}>
-						<span className={`${localProgressAudioEnabled ? 'profile__active' : 'profile__inactive'}`}>
+						<span
+							className={` profile__toggle-button ${
+								localProgressAudioEnabled ? 'profile__active' : 'profile__inactive'
+							}`}
+						>
 							On
 						</span>
-						<span className={`${localProgressAudioEnabled ? 'profile__inactive' : 'profile__active'}`}>
+						<span
+							className={` profile__toggle-button ${
+								localProgressAudioEnabled ? 'profile__inactive' : 'profile__active'
+							}`}
+						>
 							Off
 						</span>{' '}
 					</div>

@@ -27,8 +27,8 @@ function ProfileGoalEdit({
 		toggleEditGoal();
 	};
 	return goalIsEditable ? (
-		<div className="profile__goal-edit">
-			<h2 className="profile__stats-text ">Daily Words Goal :</h2>
+		<h2 className="profile__stats-text ">
+			Daily Words Goal :
 			<input
 				className={`profile__goal-input ${mode}`}
 				onChange={goalNum}
@@ -40,15 +40,14 @@ function ProfileGoalEdit({
 			<button onClick={cancelEditGoal} className="profile__goal-edit-button profile__goal-cancel-button">
 				Cancel
 			</button>
-		</div>
+		</h2>
 	) : (
-		<div className="profile__goal-edit">
-			<h2 className="profile__stats-text ">Daily Words Goal :</h2>
-			<div className={`profile__day-number ${mode}`}> {user.dailyWordsGoal}</div>
+		<h2 className="profile__stats-text ">
+			Daily Words Goal :<div className={`profile__day-number ${mode}`}> {user.dailyWordsGoal}</div>
 			<button onClick={toggleEditGoal} className="profile__goal-edit-button">
 				Edit
 			</button>
-		</div>
+		</h2>
 	);
 }
 

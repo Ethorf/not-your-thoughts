@@ -1,12 +1,11 @@
 @import '../../styles/mixins.scss';
 @import '../../styles/variables.scss';
 @import '../../styles/base.scss';
-@import url('https://fonts.googleapis.com/css?family=Maven+Pro:400,500,700,900&display=swap');
 
 .navTop {
 	position: relative;
 	border-bottom: 2px solid silver;
-	font-family: 'Comfortaa', cursive;
+	font-family: 'Poppins', sans-serif;
 	width: 100vw;
 	font-size: 1.3rem;
 	margin-bottom: 10%;
@@ -80,7 +79,6 @@
 		color: white;
 		justify-self: center;
 		align-self: center;
-		// margin-left: 25vw;
 		font-size: 1.2rem;
 		font-family: 'Syncopate', cursive;
 	}
@@ -144,7 +142,6 @@
 		color: silver;
 		border: none;
 		background-color: transparent;
-		font-family: 'Comfortaa', cursive;
 		padding: 0;
 		text-align: left;
 		font-size: 1.3rem;

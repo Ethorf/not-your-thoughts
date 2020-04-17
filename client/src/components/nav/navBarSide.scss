@@ -1,7 +1,6 @@
 @import '../../styles/mixins.scss';
 @import '../../styles/variables.scss';
 @import '../../styles/base.scss';
-@import url('https://fonts.googleapis.com/css?family=Maven+Pro:400,500,700,900&display=swap');
 
 .nav {
 	transition: 1s all;
@@ -9,7 +8,7 @@
 	z-index: 10;
 	display: flex;
 	flex-direction: column;
-	font-family: 'Comfortaa', cursive;
+	font-family: 'Poppins', sans-serif;
 	width: 50px;
 	height: 100%;
 	font-size: 1.3rem;
@@ -60,7 +59,7 @@
 		text-decoration: none;
 		color: silver;
 		transition: all 0.7;
-		margin-bottom: 8px;
+		margin-bottom: 4px;
 		&:hover {
 			transition: all 0.7;
 			color: white;
@@ -82,10 +81,9 @@
 		color: silver;
 		border: none;
 		background-color: transparent;
-		font-family: 'Comfortaa', cursive;
 		padding: 0;
 		text-align: left;
-		font-size: 1.3rem;
+		font-size: 1.4rem;
 		margin-bottom: 8px;
 		outline: none;
 		&:hover {
@@ -93,13 +91,11 @@
 			color: white;
 		}
 	}
-
 	&__logout-button-light {
 		width: 200%;
 		color: black;
 		border: none;
 		background-color: transparent;
-		font-family: 'Comfortaa', cursive;
 		padding: 0;
 		text-align: left;
 		font-size: 1.3rem;

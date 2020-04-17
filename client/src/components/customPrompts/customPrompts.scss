@@ -6,6 +6,7 @@
 	&__toggle {
 		display: flex;
 		align-items: center;
+		font-size: 1.7rem;
 	}
 	&__delete-button {
 		font-size: 1.5rem;
@@ -32,7 +33,7 @@
 
 .-light {
 	color: black;
-	background-color: white;
+	background-color: rgb(219, 98, 98);
 }
 .invisible {
 	display: none;

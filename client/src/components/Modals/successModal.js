@@ -30,16 +30,22 @@ const SuccessModal = ({
 	const [overlayAnimation, setOverlayAnimation] = useState(null);
 	const [contentAnimation, setContentAnimation] = useState(null);
 	const [gratitudeOpen, setGratitudeOpen] = useState(false);
+	const [gratitudeCompleted, setGratitudeCompleted] = useState(false);
+
 	const overlayTl = new TimelineMax({ paused: true });
 	const contentTl = new TimelineMax({ paused: true });
 	const openGratitude = () => {
 		setGratitudeOpen(true);
 	};
+	const closeGratitude = () => {
+		setGratitudeOpen(false);
+		setGratitudeCompleted(true);
+	};
 	const openModalOverlayAnimation = () => {
-		setOverlayAnimation(overlayTl.to(modalOverlayContainer, { duration: 1, delay: 2.5, opacity: 1 }).play());
+		setOverlayAnimation(overlayTl.to(modalOverlayContainer, { duration: 1, delay: 2.5, opacity: 0.7 }).play());
 	};
 	const closeModalOverlayAnimation = () => {
-		setOverlayAnimation(overlayTl.to(modalOverlayContainer, { duration: 1, opacity: 1 }).reverse());
+		setOverlayAnimation(overlayTl.to(modalOverlayContainer, { duration: 1, opacity: 0.7 }).reverse());
 	};
 	const openModalContentAnimation = () => {
 		setContentAnimation(
@@ -82,7 +88,7 @@ const SuccessModal = ({
 	}, [wordCount, goalReachedStatus, goal, user]);
 	return (
 		<Fragment>
-			{/*	<button onClick={openModalAll}>Modal Open Test</button> */}
+			{/*<button onClick={openModalAll}>Modal Open Test</button> */}
 			<div
 				className={`${modals.successModalOpen ? 'main__modal2OverlayOpen' : 'main__modal2OverlayClosed'}`}
 				ref={(div) => (modalOverlayContainer = div)}
@@ -101,21 +107,35 @@ const SuccessModal = ({
 							You have completed {user && user.consecutiveDays} days in a row, and{' '}
 							{user && user.totalDays} days total
 						</h3>
-						<h4 className="modal__goal">Would you like to do a gratitude practice for 3 more XP?</h4>
-						<div className="modal__gratitude-buttons">
-							<button onClick={openGratitude}>Yes</button>
-							<button>No</button>
-						</div>
+						{gratitudeCompleted ? null : (
+							<>
+								<h4 className="modal__gratitude-prompt">
+									Would you like to do a bonus gratitude practice?
+								</h4>
+								<div className="modal__gratitude-buttons-container">
+									<button className="modal__gratitude-button" onClick={openGratitude}>
+										Yes
+									</button>
+									<button onClick={closeGratitude} className="modal__gratitude-button">
+										No
+									</button>
+								</div>
+							</>
+						)}
 					</div>
 				</div>
 
-				{gratitudeOpen ? <Gratitude /> : null}
-				<button onClick={closeSaveModalAll} className="modal__close-button">
-					Save and Close
-				</button>
-				<button onClick={closeModalAll} className="modal__close-button">
-					Just Close
-				</button>
+				{gratitudeOpen ? <Gratitude closeGratitude={closeGratitude} /> : null}
+				{gratitudeOpen || gratitudeCompleted === false ? null : (
+					<>
+						<button onClick={closeSaveModalAll} className="modal__close-button">
+							Save and Close
+						</button>
+						<button onClick={closeModalAll} className="modal__close-button">
+							Just Close
+						</button>
+					</>
+				)}
 			</div>
 		</Fragment>
 	);

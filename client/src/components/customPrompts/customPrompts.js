@@ -39,11 +39,21 @@ const CustomPrompts = ({
 	}, []);
 	return (
 		<div className={`custom-prompts`}>
-			<div className={`custom-prompts__toggle`}>
-				<h2>Custom Prompts:</h2>
+			<div className={`profile__toggle-container`}>
+				Custom Prompts:
 				<div className={`profile__toggle-switch`} onClick={togglePrompts}>
-					<span className={`${localCustomPromptsEnabled ? 'profile__active' : 'profile__inactive'}`}>On</span>
-					<span className={` ${localCustomPromptsEnabled ? 'profile__inactive' : 'profile__active'}`}>
+					<span
+						className={` profile__toggle-button ${
+							localCustomPromptsEnabled ? 'profile__active' : 'profile__inactive'
+						}`}
+					>
+						On
+					</span>
+					<span
+						className={`profile__toggle-button ${
+							localCustomPromptsEnabled ? 'profile__inactive' : 'profile__active'
+						}`}
+					>
 						Off
 					</span>
 				</div>
