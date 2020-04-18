@@ -51,8 +51,8 @@
 		background-color: transparent;
 		opacity: 1;
 		outline: none;
-		height: 30px;
-		width: 25px;
+		height: 35px;
+		width: 30px;
 		transform: rotate(90deg);
 		&:focus {
 			border: none;
@@ -67,8 +67,8 @@
 		background-color: transparent;
 		opacity: 1;
 		outline: none;
-		height: 30px;
-		width: 25px;
+		height: 35px;
+		width: 30px;
 		transform: rotate(-90deg);
 		&:focus {
 			border: none;
@@ -113,8 +113,8 @@
 	&__link {
 		text-decoration: none;
 		color: silver;
-		font-family: 'Maven Pro', sans-serif;
-		font-size: 1.6rem;
+		font-family: 'Poppins', sans-serif;
+		font-size: 1.4rem;
 		opacity: 1;
 		&:hover {
 			transition: all 0.7;
@@ -193,7 +193,9 @@
 			justify-content: flex-start;
 			background-color: black;
 			border-bottom: 1px solid silver;
-			height: 52vh;
+			height: 72%;
+		}
+		&__link {
 		}
 	}
 	@include laptop-large() {

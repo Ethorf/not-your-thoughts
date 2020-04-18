@@ -476,7 +476,7 @@
 			font-size: 1.8rem;
 		}
 	}
-	@include mobile-only() {
+	@include mobile-small-only() {
 		background-color: black;
 		&__header {
 			display: none;
@@ -492,7 +492,7 @@
 		&__wordcount,
 		&__textarea,
 		&__textarea-light {
-			font-size: 0.8rem;
+			font-size: 0.7rem;
 		}
 		&__textarea {
 			width: 96%;
@@ -500,7 +500,7 @@
 		}
 
 		&__goal {
-			font-size: 1rem;
+			font-size: 0.8rem;
 		}
 		&__save-entry-button {
 			font-size: 0.6rem;
@@ -535,7 +535,7 @@
 			right: 4%;
 		}
 	}
-	@include mobile-small-only {
+	@include mobile-only {
 		height: 100%;
 		&__bg-img {
 			width: 100%;

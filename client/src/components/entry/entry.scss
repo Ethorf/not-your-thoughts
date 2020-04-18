@@ -172,35 +172,47 @@
 			font-size: 0.5rem;
 		}
 	}
-
-	@include mobile-only() {
-		display: flex;
-		align-items: center;
+	@include mobile-small-only() {
+		&__date {
+			width: 60%;
+			font-size: 0.9rem;
+		}
+		&__delete-modal-open {
+			font-size: 0.5rem;
+		}
+		&__delete-button {
+			font-size: 1.1rem;
+		}
+		&__entry-arrow {
+			width: 8vw;
+			margin-left: 10%;
+		}
 		&__words {
 			display: none;
 		}
+		&__entry-date-wordcount-container {
+			display: flex;
+			justify-content: space-between;
+			width: 80%;
+			font-size: 0.8rem;
+		}
+		&__wordcount-container {
+			display: none;
+		}
+		&__entry-content {
+			font-size: 0.8rem;
+			width: 75%;
+		}
+	}
+	@include mobile-only() {
+		display: flex;
+		align-items: center;
+
 		&__entry-all-container {
 			width: 80%;
 		}
 		&__date {
 			width: 60%;
-		}
-		&__entry-date-wordcount-container {
-			display: flex;
-			justify-content: space-between;
-			width: 70%;
-			font-size: 0.8rem;
-		}
-		&__entry-content {
-			font-size: 0.8rem;
-			width: 80%;
-		}
-		&__wordcount-container {
-			display: none;
-		}
-		&__entry-arrow {
-			height: 80%;
-			width: 80%;
 		}
 		&__button {
 			align-self: center;
@@ -211,20 +223,6 @@
 		}
 		&__delete-modal-button {
 			font-size: 0.5rem;
-		}
-	}
-	@include mobile-small-only() {
-		&__date {
-			width: 50%;
-		}
-		&__delete-modal-open {
-			font-size: 0.5rem;
-		}
-		&__delete-button {
-			font-size: 0.8rem;
-		}
-		&__entry-arrow {
-			width: 3vh;
 		}
 	}
 }

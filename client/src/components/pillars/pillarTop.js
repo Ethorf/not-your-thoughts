@@ -13,10 +13,10 @@ const PillarTop = ({ wordCount, goal, mode, auth: { user } }) => {
 
 	const pillarTopStyleWidth = () => {
 		const testStyle = {
-			width: `${-103 + calc - 1}%`
+			width: `${-103 + calc - 2}%`
 		};
 		const start = { width: `0%` };
-		const limit = { width: `98%` };
+		const limit = { width: `97%` };
 		if (wordCount <= user.dailyWordsGoal / 4) {
 			return start;
 		} else if (wordCount >= user.dailyWordsGoal / 4 && wordCount <= user.dailyWordsGoal / 2) {

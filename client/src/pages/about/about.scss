@@ -108,12 +108,12 @@
 			width: 10vw;
 		}
 	}
-	@include mobile-only() {
+	@include mobile-small-only() {
 		display: flex;
 
 		&__header {
-			font-size: 1.7rem;
-			margin-top: 15%;
+			font-size: 1.5rem;
+			margin-top: 25%;
 		}
 		&__form-header {
 			margin-top: 2%;
@@ -124,7 +124,7 @@
 		}
 		&__input {
 			font-size: 0.6rem;
-			width: 30vw;
+			width: 35vw;
 			height: 4vh;
 		}
 		&__message {
@@ -136,7 +136,7 @@
 			padding: 2%;
 		}
 	}
-	@include mobile-small-only() {
+	@include mobile-only() {
 		&__header {
 			font-size: 1.7rem;
 			margin-top: 25%;

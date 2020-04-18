@@ -49,7 +49,7 @@ const CustomPrompts = ({
 				Custom Prompts:
 				<div className={`profile__toggle-switch`} onClick={togglePrompts}>
 					<span
-						className={` profile__toggle-button ${
+						className={`profile__on-button profile__toggle-button ${
 							localCustomPromptsEnabled ? 'profile__active' : 'profile__inactive'
 						}`}
 					>

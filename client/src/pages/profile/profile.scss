@@ -28,20 +28,17 @@
 		margin-bottom: 27px;
 		margin-top: 7px;
 		color: white;
-		// font-family: 'Montserrat';
 	}
 	&__stats-container {
 		display: flex;
 		align-items: center;
 		height: 10%;
-		// border: 1px solid white;
 		width: 75%;
 		font-size: 1rem;
 	}
 	&__stats-text {
 		display: flex;
 		align-items: center;
-		// border: 1px solid white;
 		margin-top: 0;
 		margin-bottom: 20px;
 		width: 50%;
@@ -53,14 +50,14 @@
 		color: white;
 	}
 	//Goal stuff
-	&__goal-edit-button {
+	&__goal-edit-button,
+	&__goal-editable-button {
 		width: 4vw;
 		height: 100%;
 		padding: 0.3%;
 		margin-left: 1%;
 		border-radius: 7px;
 		font-size: 0.8rem;
-		font-family: 'Montserrat', sans-serif;
 		outline: none;
 		transition: all 0.5s;
 		&:hover {
@@ -98,7 +95,6 @@
 		margin-bottom: 2%;
 	}
 	&__toggle-switch {
-		// border: 1px solid white;
 		display: flex;
 		align-items: center;
 		margin-left: 2%;
@@ -121,9 +117,117 @@
 		margin-left: 5px;
 		padding-right: 5px;
 	}
+	&__on-button {
+		padding-right: 5px;
+	}
 	&__inactive {
 		border: 1px solid black;
 		border-radius: 10px;
+	}
+
+	@include mobile-small-only() {
+		padding-left: 10vw;
+
+		&__stats-container {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			height: 10%;
+			width: 95%;
+			margin-right: 0;
+			font-size: 1rem;
+		}
+		&__header {
+			margin-top: 22%;
+			margin-bottom: 5%;
+		}
+		&__header,
+		&__entries-header {
+			font-size: 1.6rem;
+		}
+		&__toggle-container {
+			font-size: 1rem;
+		}
+		&__user {
+			font-size: 1.5rem;
+		}
+		&__stats-text {
+			width: 100%;
+			margin-bottom: 5%;
+			margin-right: 0;
+			align-items: flex-end;
+		}
+		&__daily-words-goal-container {
+			align-items: flex-start;
+			margin-bottom: 0;
+		}
+		&__goal-edit-container {
+			align-items: flex-start;
+		}
+		&__goal-edit-buttons-container {
+			display: flex;
+			align-items: flex-start;
+			flex-direction: column;
+		}
+		&__goal-input {
+			width: 20%;
+			font-size: 0.9rem;
+			border-radius: 5px;
+		}
+		&__goal-edit-button {
+			font-size: 0.7rem;
+			width: 15%;
+			align-self: flex-end;
+			margin-bottom: 10%;
+			margin-left: 5%;
+			height: 3vh;
+			&:hover {
+				color: white;
+			}
+		}
+		&__goal-editable-button {
+			font-size: 0.7rem;
+			width: 121%;
+			margin-bottom: 10%;
+			margin-left: 11%;
+			height: 3vh;
+		}
+		&__day-number,
+		&__stats-text {
+			font-size: 0.9rem;
+		}
+		&__toggle-container {
+			width: 80%;
+		}
+		&__toggle-button {
+			font-size: 0.9rem;
+		}
+	}
+	@include mobile-only() {
+		width: 100%;
+		margin-left: 0;
+		display: flex;
+		align-items: center;
+		&__header {
+			margin-top: 18%;
+			margin-top: 11vh;
+		}
+		&__header,
+		&__entries-header {
+			font-size: 1.6rem;
+		}
+
+		&__day-number,
+		&__stats-text {
+			font-size: 1rem;
+		}
+		&__goal-input {
+			width: 7%;
+		}
+		&__goal-edit-button {
+			font-size: 0.7rem;
+			width: 10%;
+		}
 	}
 	@include tablet-only() {
 		width: 70%;
@@ -137,54 +241,6 @@
 		&__day-number,
 		&__stats-text {
 			font-size: 1.2rem;
-		}
-	}
-
-	@include mobile-only() {
-		width: 100%;
-		margin-left: 0;
-		display: flex;
-		padding-left: 20vw;
-		align-items: center;
-		&__header {
-			margin-top: 18%;
-			margin-top: 11vh;
-		}
-		&__header,
-		&__entries-header {
-			font-size: 1.6rem;
-		}
-		&__user {
-			font-size: 1.4rem;
-		}
-		&__day-number,
-		&__stats-text {
-			font-size: 1rem;
-		}
-		&__goal-input {
-			width: 7%;
-		}
-		&__goal-edit-button {
-			font-size: 0.7rem;
-			width: 10%;
-		}
-	}
-	@include mobile-small-only() {
-		&__header {
-			margin-bottom: 5%;
-		}
-		&__goal-input {
-			width: 10%;
-		}
-		&__goal-edit-button {
-			font-size: 0.7rem;
-			width: 11vw;
-			margin-left: 2vw;
-			height: 3vh;
-		}
-		&__day-number,
-		&__stats-text {
-			font-size: 0.9rem;
 		}
 	}
 }

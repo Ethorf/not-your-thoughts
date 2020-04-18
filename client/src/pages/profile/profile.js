@@ -93,7 +93,7 @@ const Profile = ({
 					Progress Audio:
 					<div onClick={toggleLocalProgressAudio} className={`profile__toggle-switch`}>
 						<span
-							className={` profile__toggle-button ${
+							className={` profile__toggle-button profile__on-button ${
 								localProgressAudioEnabled ? 'profile__active' : 'profile__inactive'
 							}`}
 						>

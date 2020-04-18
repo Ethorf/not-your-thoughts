@@ -70,6 +70,47 @@
 	&__cancel-button {
 		margin-left: 1%;
 	}
+	@include mobile-small-only() {
+		&__title {
+			font-size: 1rem;
+			margin-top: 3%;
+			display: flex;
+			align-items: center;
+			// flex-direction: column;
+		}
+		&__add-new {
+			font-size: 0.7rem;
+			border: 1px solid whitesmoke;
+			margin-left: 2%;
+			width: 35%;
+			padding: 2% 1%;
+			border-radius: 3px;
+		}
+		&__add-prompt-input {
+			display: flex;
+			flex-direction: column;
+		}
+		&__input {
+			width: 80%;
+			margin-top: 3%;
+			font-size: 1.1rem;
+			text-align: left;
+			padding-left: 2%;
+		}
+		&__button {
+			margin-top: 4%;
+			width: 40%;
+			padding: 2% 0;
+		}
+		&__cancel-button {
+			margin-left: 0;
+		}
+		&__content {
+			width: 70%;
+			margin-bottom: 2%;
+			font-size: 0.9rem;
+		}
+	}
 }
 
 .-light {
