@@ -39,7 +39,6 @@
 		font-family: 'Syncopate', sans-serif;
 		outline: none;
 		transition: all 0.5s;
-
 		&:hover {
 			background-color: black;
 			color: white;
@@ -84,6 +83,9 @@
 			font-size: 1.5rem;
 		}
 		&__goal {
+			font-size: 0.8rem;
+		}
+		&__gratitude-button {
 			font-size: 0.8rem;
 		}
 	}

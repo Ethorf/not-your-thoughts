@@ -44,4 +44,25 @@
 			transition: all 0.2s;
 		}
 	}
+
+	@include tablet-only() {
+		width: 75%;
+		&__header {
+			font-size: 1rem;
+		}
+		&__done-button {
+			font-size: 0.7rem;
+			width: 50%;
+		}
+		&__input {
+			font-size: 0.8rem;
+			margin-bottom: 5%;
+			width: 100%;
+		}
+		&__two-input-container {
+			display: flex;
+			flex-direction: column;
+			margin-bottom: 0%;
+		}
+	}
 }

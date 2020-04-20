@@ -49,6 +49,12 @@
 		color: silver;
 	}
 	@include tablet-only() {
+		&__content-container {
+			width: 80%;
+		}
+		&__container {
+			width: 50%;
+		}
 		&__header {
 			font-size: 1.9rem;
 		}

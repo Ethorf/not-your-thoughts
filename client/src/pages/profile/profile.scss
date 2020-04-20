@@ -66,7 +66,6 @@
 			color: white;
 		}
 	}
-
 	&__cancel-button {
 		width: 40%;
 	}
@@ -89,7 +88,6 @@
 	}
 	&__toggle-container {
 		display: flex;
-		justify-content: space-between;
 		font-size: 1.7rem;
 		width: 35%;
 		margin-bottom: 2%;
@@ -180,6 +178,7 @@
 			align-self: flex-end;
 			margin-bottom: 10%;
 			margin-left: 5%;
+			background-color: white;
 			height: 3vh;
 			&:hover {
 				color: white;
@@ -230,7 +229,7 @@
 		}
 	}
 	@include tablet-only() {
-		width: 70%;
+		width: 90%;
 		&__header,
 		&__entries-header {
 			font-size: 1.9rem;
@@ -238,9 +237,37 @@
 		&__user {
 			font-size: 1.6rem;
 		}
+		&__stats-container {
+			width: 90%;
+		}
+		&__stats-text {
+			font-size: 1.3rem;
+			width: 75%;
+			margin-right: 3%;
+		}
 		&__day-number,
 		&__stats-text {
+			font-size: 1.1rem;
+		}
+		&__toggle-container {
 			font-size: 1.2rem;
+			width: 100%;
+		}
+		&__toggle-switch {
+			font-size: 1.2rem;
+		}
+	}
+	@include laptop-small() {
+		&__stats-text {
+			font-size: 1.3rem;
+			width: 75%;
+			margin-right: 3%;
+		}
+		&__day-number {
+			font-size: 1.3rem;
+		}
+		&__toggle-container {
+			font-size: 1.3rem;
 		}
 	}
 }
