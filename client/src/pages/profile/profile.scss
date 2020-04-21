@@ -41,6 +41,7 @@
 		align-items: center;
 		margin-top: 0;
 		margin-bottom: 20px;
+		margin-right: 5%;
 		width: 50%;
 	}
 	&__day-number {
@@ -48,6 +49,10 @@
 		margin-left: 10px;
 		font-size: 1.6rem;
 		color: white;
+	}
+	&__no-days {
+		margin-bottom: 3%;
+		margin-left: 0%;
 	}
 	//Goal stuff
 	&__goal-edit-button,
@@ -65,6 +70,9 @@
 			background-color: black;
 			color: white;
 		}
+	}
+	&__daily-words-goal-container {
+		font-size: 1.5rem;
 	}
 	&__cancel-button {
 		width: 40%;

@@ -4,13 +4,14 @@ import '../../styles/rubberDucky.scss';
 import './prompt.scss';
 import axios from 'axios';
 
-const Prompt = ({ user }) => {
+const Prompt = ({ auth: { user } }) => {
 	const randomNum = (max) => {
 		return Math.floor(Math.random() * max);
 	};
 	const [promptContent, setPromptContent] = useState('The Milk is the Bag that you have become all along');
 	const [customPromptContent, setCustomPromptContent] = useState(
-		user ? user.customPrompts[randomNum(user.customPrompts.length - 1)].content : null
+		// user !++ ? user.customPrompts[randomNum(user.customPrompts.length - 1)].content : null
+		null
 	);
 	const getPrompts = () => {
 		axios
@@ -65,6 +66,7 @@ const Prompt = ({ user }) => {
 };
 
 const mapStateToProps = (state) => ({
+	auth: state.auth,
 	user: state.auth.user
 });
 

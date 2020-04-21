@@ -68,27 +68,31 @@ const Profile = ({
 			<div className="profile__content">
 				<header className={`profile__header ${mode}`}>User Profile</header>
 				<h2 className={`profile__user ${mode}`}>{user && user.name}</h2>
-				<div className={`profile__stats-container ${mode}`}>
-					<h2 className="profile__stats-text">
-						Consecutive Days Completed:
-						<div className={`profile__day-number ${mode}`}> {user && user.consecutiveDays}</div>
-					</h2>
-					<h2 className="profile__total-days profile__stats-text">
-						Total Days Completed:<div className={`profile__day-number ${mode}`}> {user.totalDays}</div>
-					</h2>
-				</div>
-				<div className={`profile__stats-container ${mode}`}>
-					{user.lastDayCompleted !== null ? (
-						<h2 className="profile__stats-text">
-							Last Day Completed:
-							<div className={`profile__day-number ${mode}`}> {user.lastDayCompleted}</div>
-						</h2>
-					) : (
-						<h2 className={`profile__day-number ${mode}`}>No days complete yet</h2>
-					)}
 
-					<ProfileGoalEdit />
-				</div>
+				{user.lastDayCompleted !== null ? (
+					<>
+						<div className={`profile__stats-container ${mode}`}>
+							<h2 className="profile__stats-text">
+								Consecutive Days Completed:
+								<span className={`profile__day-number ${mode}`}> {user && user.consecutiveDays}</span>
+							</h2>
+							<h2 className="profile__total-days profile__stats-text">
+								Total Days Completed:
+								<span className={`profile__day-number ${mode}`}> {user.totalDays}</span>
+							</h2>
+						</div>
+						<div className={`profile__stats-container ${mode}`}>
+							<h2 className="profile__stats-text">
+								Last Day Completed:
+								<div className={`profile__day-number ${mode}`}> {user.lastDayCompleted}</div>
+								<ProfileGoalEdit />
+							</h2>
+						</div>
+					</>
+				) : (
+					<h2 className={`profile__day-number profile__no-days  ${mode}`}>No days complete yet</h2>
+				)}
+
 				<div className={`profile__toggle-container`}>
 					Progress Audio:
 					<div onClick={toggleLocalProgressAudio} className={`profile__toggle-switch`}>
