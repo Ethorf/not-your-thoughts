@@ -84,9 +84,9 @@ const Profile = ({
 						<div className={`profile__stats-container ${mode}`}>
 							<h2 className="profile__stats-text">
 								Last Day Completed:
-								<div className={`profile__day-number ${mode}`}> {user.lastDayCompleted}</div>
-								<ProfileGoalEdit />
+								<span className={`profile__day-number ${mode}`}> {user.lastDayCompleted}</span>
 							</h2>
+							<ProfileGoalEdit />
 						</div>
 					</>
 				) : (

@@ -3,16 +3,12 @@
 @import '../../styles/base.scss';
 
 .about {
+	@include main-page-global-styles;
 	background-color: black;
 	color: white;
-	height: 190vh;
-	width: 100vw;
-	padding-left: 15vw;
-	font-family: 'Comfortaa', cursive;
-	display: flex;
+	padding-left: $not-main-margin-left;
+
 	flex-direction: column;
-	position: absolute;
-	z-index: 1;
 
 	&__header {
 		font-family: 'Syncopate', cursive;
@@ -20,7 +16,6 @@
 		font-size: $header-text-size;
 		margin-bottom: 0;
 	}
-
 	&__description {
 		width: 49%;
 		font-size: 1.4rem;

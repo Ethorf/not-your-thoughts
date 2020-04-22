@@ -24,14 +24,15 @@
 .fad-exit {
 	position: absolute;
 	opacity: 1;
+	transition: 500ms all;
 	background-color: black;
 }
 
-.fad-exit.fade-exit-active {
+.fad-exit.fad-exit-active {
 	position: absolute;
-	top: 100000px;
 	opacity: 0;
-	transition: opacity 1000ms linear;
+	transition: 1s all;
+	transition: opacity 500ms linear;
 	background-color: black;
 }
 

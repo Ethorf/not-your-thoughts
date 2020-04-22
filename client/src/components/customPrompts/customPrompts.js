@@ -69,27 +69,28 @@ const CustomPrompts = ({
 					Your Prompts
 					<span onClick={toggleAddPromptOpen} className={`custom-prompts__add-new`}>
 						{' '}
-						add new +
+						add +
 					</span>
-					<form
-						className={`${localPromptAddOpen === true ? 'custom-prompts__add-prompt-input' : 'invisible'}`}
-					>
-						<input
-							className={`custom-prompts__input`}
-							onChange={promptInput}
-							placeholder="your prompt here"
-						></input>
+				</h2>
+				<form className={`${localPromptAddOpen === true ? 'custom-prompts__add-prompt-input' : 'invisible'}`}>
+					<input
+						className={`custom-prompts__input`}
+						onChange={promptInput}
+						placeholder="your prompt here"
+					></input>
+					<div className={`custom-prompts__button-container`}>
 						<button className={`custom-prompts__button`} onClick={onSubmit} type="submit">
 							Add Prompt
 						</button>
 						<button
 							className={`custom-prompts__button custom-prompts__cancel-button`}
-							onClick={toggleProgressAudio}
+							onClick={toggleAddPromptOpen}
 						>
 							Cancel
 						</button>
-					</form>
-				</h2>
+					</div>
+				</form>
+
 				<ul className={`custom-prompts__prompts-container`}>
 					{prompts.map((prompt) => {
 						return (

@@ -75,15 +75,14 @@
 			font-size: 1rem;
 			margin-top: 3%;
 			display: flex;
+			width: 100%;
 			align-items: center;
-			// flex-direction: column;
 		}
 		&__add-new {
-			font-size: 0.7rem;
+			font-size: 0.5rem;
 			border: 1px solid whitesmoke;
-			margin-left: 2%;
-			width: 35%;
-			padding: 2% 1%;
+			margin-left: 6%;
+			padding: 1% 2%;
 			border-radius: 3px;
 		}
 		&__add-prompt-input {
@@ -109,6 +108,19 @@
 			width: 70%;
 			margin-bottom: 2%;
 			font-size: 0.9rem;
+		}
+	}
+	@include laptop-small() {
+		&__title {
+			font-size: 1.4rem;
+		}
+		&__input {
+			padding: 0;
+			font-size: 1.1rem;
+		}
+		&__button {
+			width: 80%;
+			padding: 2% 0;
 		}
 	}
 }

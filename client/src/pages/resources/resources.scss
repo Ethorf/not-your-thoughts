@@ -7,8 +7,8 @@
 	font-family: 'Poppins', sans-serif;
 	display: flex;
 	flex-direction: column;
-	width: 100vw;
-	height: 200vh;
+	// width: 100vw;
+	height: 100vh;
 	position: relative;
 	z-index: 2;
 
@@ -63,6 +63,12 @@
 		}
 		&__link {
 			font-size: 1.1rem;
+		}
+	}
+	@include laptop-small() {
+		&__content-container {
+			display: flex;
+			width: 80%;
 		}
 	}
 	@include mobile-small-only() {

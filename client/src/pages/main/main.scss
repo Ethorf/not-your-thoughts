@@ -18,11 +18,10 @@
 
 .main {
 	font-family: 'Poppins', sans-serif;
-	background: transparent;
-	height: 120%;
 	display: flex;
 	position: relative;
-	z-index: 3;
+	height: 100%;
+	z-index: 2;
 	color: silver;
 	align-items: center;
 	flex-direction: column;
