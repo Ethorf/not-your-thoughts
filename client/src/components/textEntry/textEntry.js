@@ -55,6 +55,11 @@ const TextEntry = ({
 		openSaveEntryModal();
 		saveEntry({ entry: entryData });
 	};
+	const handleKeyPress = (event) => {
+		if (event.metaKey) {
+			console.log('enter press here! ');
+		}
+	};
 	return user === null ? (
 		<Spinner />
 	) : (
@@ -83,6 +88,7 @@ const TextEntry = ({
 							<div className={`main__textarea-border ${mode}`}>
 								<textarea
 									onChange={textNum}
+									onKeyPress={handleKeyPress}
 									name="textEntry"
 									className={`main__textarea${mode}`}
 									placeholder="note those thoughts here"

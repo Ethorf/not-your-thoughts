@@ -12,7 +12,7 @@ const Prompt = ({ auth: { user } }) => {
 	const [customPromptContent, setCustomPromptContent] = useState(
 		user ? user.customPrompts[randomNum(user.customPrompts.length - 1)].content : null
 	);
-	useKeyboardShortcut(['Shift', 'H'], () => console.log('Shift + H has been pressed.'));
+	useKeyboardShortcut(['control', 'H'], () => console.log('Shift + H has been pressed.'));
 
 	const getPrompts = () => {
 		axios
