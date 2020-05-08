@@ -28,6 +28,7 @@
 		"soundmanager2": "^2.97.20170602",
 		"styled-components": "^4.4.1",
 		"uifx": "^2.0.3",
+		"use-keyboard-shortcut": "^1.0.3",
 		"uuid": "^3.4.0"
 	},
 	"scripts": {

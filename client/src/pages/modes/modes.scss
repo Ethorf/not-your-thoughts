@@ -7,7 +7,6 @@
 	color: silver;
 	flex-direction: column;
 	@include main-page-global-styles();
-	height: 100vh;
 
 	&__bg {
 		position: absolute;

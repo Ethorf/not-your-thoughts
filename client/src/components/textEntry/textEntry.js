@@ -28,7 +28,6 @@ import Spinner from '../spinner/spinner';
 
 const TextEntry = ({
 	openSaveEntryModal,
-	goal,
 	wordCount,
 	changeWordCount,
 	saveEntry,
@@ -61,7 +60,6 @@ const TextEntry = ({
 	) : (
 		<>
 			<BgImage />
-
 			<div className={`main__all-container modalize ${mode}`}>
 				<div className={`main ${mode}`}>
 					<Header />

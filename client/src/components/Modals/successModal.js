@@ -31,9 +31,9 @@ const SuccessModal = ({
 	const [contentAnimation, setContentAnimation] = useState(null);
 	const [gratitudeOpen, setGratitudeOpen] = useState(false);
 	const [gratitudeCompleted, setGratitudeCompleted] = useState(false);
-
 	const overlayTl = new TimelineMax({ paused: true });
 	const contentTl = new TimelineMax({ paused: true });
+
 	const openGratitude = () => {
 		setGratitudeOpen(true);
 	};
@@ -82,7 +82,7 @@ const SuccessModal = ({
 		saveEntry({ entry: entry });
 	};
 	useEffect(() => {
-		if (wordCount >= goal && goalReachedStatus === false) {
+		if (wordCount >= user.dailyWordsGoal && goalReachedStatus === false) {
 			openModalAll();
 		}
 	}, [wordCount, goalReachedStatus, goal, user]);

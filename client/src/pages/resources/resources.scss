@@ -4,13 +4,8 @@
 
 .resources {
 	color: silver;
-	font-family: 'Poppins', sans-serif;
-	display: flex;
 	flex-direction: column;
-	// width: 100vw;
-	height: 100vh;
-	position: relative;
-	z-index: 2;
+	@include main-page-global-styles();
 
 	&__content-container {
 		display: flex;

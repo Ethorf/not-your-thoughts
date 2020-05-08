@@ -1,13 +1,11 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import '../../styles/rubberDucky.scss';
 import { connect } from 'react-redux';
 import { logout } from '../../redux/actions/authActions';
-
+import { TimelineLite } from 'gsap/all';
+import '../../styles/rubberDucky.scss';
 import './navBarSide.scss';
 import arrow from '../../assets/Icons/down-arrow-black-2.png';
-
-import { TimelineLite } from 'gsap/all';
 
 class NavBarSide extends React.Component {
 	state = {
