@@ -41,10 +41,10 @@ const App = () => {
 					render={({ location }) => (
 						<TransitionGroup>
 							<CSSTransition
-								//maybe a problem with the location.key
 								key={location.key}
-								timeout={{ enter: 100, exit: 500 }}
+								timeout={1100}
 								classNames={mode === '-light' ? 'fade' : 'fad'}
+								unmountOnExit
 							>
 								<Switch location={location}>
 									<Route path="/" exact>

@@ -86,3 +86,30 @@
 html {
 	background-color: black;
 }
+
+.page {
+	position: absolute;
+	left: 15px;
+	right: 15px;
+}
+
+.page-enter {
+	opacity: 0;
+	transition: opacity 1s;
+	transition-delay: 800ms;
+}
+
+.page-enter-active {
+	opacity: 1;
+	transition: opacity 600ms;
+	transition-delay: 800ms;
+}
+
+.page-exit {
+	opacity: 1;
+}
+
+.page-exit-active {
+	opacity: 0;
+	transition: opacity 300ms;
+}

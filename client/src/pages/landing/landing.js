@@ -40,7 +40,7 @@ export default class Landing extends React.Component {
 	componentDidMount() {
 		this.youareTween = new TimelineLite({ paused: true }).to(this.youareContainer, {
 			duration: 2.5,
-			y: '220px',
+			y: '200px',
 			ease: 'power1.out',
 			opacity: 1
 		});

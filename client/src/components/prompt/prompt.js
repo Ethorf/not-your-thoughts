@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import './prompt.scss';
 import axios from 'axios';
-import useKeyboardShortcut from 'use-keyboard-shortcut';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 const Prompt = ({ auth: { user } }) => {
 	const randomNum = (max) => {
@@ -12,7 +12,6 @@ const Prompt = ({ auth: { user } }) => {
 	const [customPromptContent, setCustomPromptContent] = useState(
 		user ? user.customPrompts[randomNum(user.customPrompts.length - 1)].content : null
 	);
-	useKeyboardShortcut(['control', 'H'], () => console.log('Shift + H has been pressed.'));
 
 	const getPrompts = () => {
 		axios
@@ -25,85 +24,104 @@ const Prompt = ({ auth: { user } }) => {
 	useEffect(() => {
 		getPrompts();
 	}, []);
-	if (user) {
-		let customPromptArr = user.customPrompts.map((item) => {
-			return item.content;
-		});
-
-		const shuffle = () => {
+	let customPromptArr = user.customPrompts.map((item) => {
+		return item.content;
+	});
+	const shuffle = () => {
+		if (user) {
 			setCustomPromptContent(user.customPrompts[randomNum(user.customPrompts.length - 1)].content);
-		};
-		const prev = () => {
+		}
+	};
+	const prev = () => {
+		if (user) {
 			if (customPromptArr.indexOf(customPromptContent) > 0) {
 				setCustomPromptContent(user.customPrompts[customPromptArr.indexOf(customPromptContent) - 1].content);
 			}
-		};
-		const next = () => {
+		}
+	};
+	const next = () => {
+		if (user) {
 			if (customPromptArr.indexOf(customPromptContent) < user.customPrompts.length - 1) {
 				setCustomPromptContent(user.customPrompts[customPromptArr.indexOf(customPromptContent) + 1].content);
 			}
-		};
-		const first = () => {
+		}
+	};
+	const first = () => {
+		if (user) {
 			setCustomPromptContent(user.customPrompts[0].content);
-		};
-		const last = () => {
+		}
+	};
+	const last = () => {
+		if (user) {
 			setCustomPromptContent(user.customPrompts[customPromptArr.length - 1].content);
-		};
+		}
+	};
+	useHotkeys(
+		'ctrl+s',
+		() => {
+			shuffle();
+		},
+		{ enableOnTags: ['TEXTAREA'] }
+	);
+	useHotkeys(
+		'ctrl+n',
+		() => {
+			next();
+		},
+		{ enableOnTags: ['TEXTAREA'] }
+	);
 
-		return user && user.customPromptsEnabled ? (
-			<div className={`prompt`}>
-				<h2 className={`prompt__content`}>{customPromptContent}</h2>
-				<div className={`prompt__buttons-container`}>
-					<div
-						className={`tooltip prompt__previous-button prompt__button ${
-							customPromptArr.indexOf(customPromptContent) === 0 ? 'red' : ''
-						}`}
-						onClick={first}
-					>
-						first
-						<span className="tooltiptext">first</span>
-					</div>
-					<div
-						className={`tooltip prompt__previous-button prompt__button ${
-							customPromptArr.indexOf(customPromptContent) === 0 ? 'red' : ''
-						}`}
-						onClick={prev}
-					>
-						prev
-						<span className="tooltiptext">previous</span>
-					</div>
-					<div className={`tooltip prompt__shuffle-button prompt__button`} onClick={shuffle}>
-						shuffle
-						<span className="tooltiptext">Shuffle</span>
-					</div>
-					<div
-						className={`tooltip prompt__next-button prompt__button ${
-							customPromptArr.indexOf(customPromptContent) === customPromptArr.length - 1 ? 'red' : ''
-						}`}
-						onClick={next}
-					>
-						next
-						<span className="tooltiptext">next</span>
-					</div>
-					<div
-						className={`tooltip prompt__next-button prompt__button ${
-							customPromptArr.indexOf(customPromptContent) === customPromptArr.length - 1 ? 'red' : ''
-						}`}
-						onClick={last}
-					>
-						last
-						<span className="tooltiptext">last</span>
-					</div>
+	return user && user.customPromptsEnabled ? (
+		<div className={`prompt`}>
+			<h2 className={`prompt__content`}>{customPromptContent}</h2>
+			<div className={`prompt__buttons-container`}>
+				<div
+					className={`tooltip prompt__previous-button prompt__button ${
+						customPromptArr.indexOf(customPromptContent) === 0 ? 'red' : ''
+					}`}
+					onClick={first}
+				>
+					first
+					<span className="tooltiptext">first</span>
+				</div>
+				<div
+					className={`tooltip prompt__previous-button prompt__button ${
+						customPromptArr.indexOf(customPromptContent) === 0 ? 'red' : ''
+					}`}
+					onClick={prev}
+				>
+					prev
+					<span className="tooltiptext">previous</span>
+				</div>
+				<div className={`tooltip prompt__shuffle-button prompt__button`} onClick={shuffle}>
+					shuffle
+					<span className="tooltiptext">Shuffle</span>
+				</div>
+				<div
+					className={`tooltip prompt__next-button prompt__button ${
+						customPromptArr.indexOf(customPromptContent) === customPromptArr.length - 1 ? 'red' : ''
+					}`}
+					onClick={next}
+				>
+					next
+					<span className="tooltiptext">next</span>
+				</div>
+				<div
+					className={`tooltip prompt__next-button prompt__button ${
+						customPromptArr.indexOf(customPromptContent) === customPromptArr.length - 1 ? 'red' : ''
+					}`}
+					onClick={last}
+				>
+					last
+					<span className="tooltiptext">last</span>
 				</div>
 			</div>
-		) : (
-			<div className={`prompt`}>
-				<h2>{promptContent}</h2>
-			</div>
-		);
-	} else {
-		return null;
-	}
+		</div>
+	) : (
+		<div className={`prompt`}>
+			<h2>{promptContent}</h2>
+		</div>
+	);
 };
 
 const mapStateToProps = (state) => ({

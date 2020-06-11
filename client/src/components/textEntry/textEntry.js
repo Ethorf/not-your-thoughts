@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Redirect } from 'react-router-dom';
 import moment from 'moment';
 import PropTypes from 'prop-types';
+import { HotKeys, configure } from 'react-hotkeys';
 import '../../pages/main/main.scss';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 //Redux Function Imports
 import { connect } from 'react-redux';
@@ -26,6 +28,9 @@ import IntroModal from '../Modals/introModal.js';
 import SaveEntryModal from '../Modals/saveEntryModal.js';
 import Spinner from '../spinner/spinner';
 
+configure({
+	ignoreTags: []
+});
 const TextEntry = ({
 	openSaveEntryModal,
 	wordCount,
@@ -43,6 +48,7 @@ const TextEntry = ({
 	if (!isAuthenticated) {
 		return <Redirect to="/login" />;
 	}
+
 	const textNum = (e) => {
 		e.preventDefault();
 		setEntryData(e.target.value);
@@ -54,11 +60,6 @@ const TextEntry = ({
 		e.preventDefault();
 		openSaveEntryModal();
 		saveEntry({ entry: entryData });
-	};
-	const handleKeyPress = (event) => {
-		if (event.metaKey) {
-			console.log('enter press here! ');
-		}
 	};
 	return user === null ? (
 		<Spinner />
@@ -88,7 +89,6 @@ const TextEntry = ({
 							<div className={`main__textarea-border ${mode}`}>
 								<textarea
 									onChange={textNum}
-									onKeyPress={handleKeyPress}
 									name="textEntry"
 									className={`main__textarea${mode}`}
 									placeholder="note those thoughts here"

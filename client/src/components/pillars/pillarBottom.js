@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import '../../pages/main/main.scss';
 import pillarTopOutline from '../../assets/Pillars/NewPillarTop-Round-4.png';
 import PillarTopOutlineInverted from '../../assets/Pillars/NewPillarTop-4-inverted.png';
-
 import crawBoxBottom from '../../assets/Animations/SpikyCrawBox-Bottom-1.gif';
 import crawBoxBottomInverted from '../../assets/Pillars/CrawBoxes/NewCrawBox-Inverted-Bottom.gif';
 

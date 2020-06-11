@@ -11,8 +11,6 @@ const Login = ({ login, isAuthenticated, alert }) => {
 		password: ''
 	});
 
-	//it seems like this isAuthenticated stuff is actually running before we ever get to the main thing
-
 	if (isAuthenticated) {
 		return <Redirect to="/main" />;
 	}

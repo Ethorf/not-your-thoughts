@@ -1,11 +1,13 @@
 const express = require('express');
 const app = express();
+const compression = require('compression');
 const connectDB = require('./config/db');
 const path = require('path');
 const cors = require('cors');
 const getPromptData = require('./getPromptData');
 
 app.use(cors());
+app.use(compression());
 app.use(express.json({ extended: false }));
 connectDB();
 // Routes
