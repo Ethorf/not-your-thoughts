@@ -23,28 +23,40 @@ const Prompt = ({ auth: { user } }) => {
 	};
 	useEffect(() => {
 		getPrompts();
-	}, []);
+	}, [customPromptContent]);
 	let customPromptArr = user.customPrompts.map((item) => {
 		return item.content;
 	});
-	const shuffle = () => {
+	const argsShuffle = () => {
 		if (user) {
 			setCustomPromptContent(user.customPrompts[randomNum(user.customPrompts.length - 1)].content);
 		}
 	};
 	const prev = () => {
-		if (user) {
-			if (customPromptArr.indexOf(customPromptContent) > 0) {
-				setCustomPromptContent(user.customPrompts[customPromptArr.indexOf(customPromptContent) - 1].content);
+		setCustomPromptContent((jim) => {
+			if (customPromptArr.indexOf(jim) < user.customPrompts.length > 0) {
+				return user.customPrompts[customPromptArr.indexOf(jim) - 1].content;
 			}
-		}
+			return jim;
+		});
 	};
+	// const nextOld = () => {
+	// 	if (user) {
+	// 		if (customPromptArr.indexOf(customPromptContent) < user.customPrompts.length - 1) {
+	// 			setCustomPromptContent(user.customPrompts[customPromptArr.indexOf(customPromptContent) + 1].content);
+	// 		}
+	// 	}
+	// };
 	const next = () => {
-		if (user) {
-			if (customPromptArr.indexOf(customPromptContent) < user.customPrompts.length - 1) {
-				setCustomPromptContent(user.customPrompts[customPromptArr.indexOf(customPromptContent) + 1].content);
+		// if (user) {
+		//kind of feels like this is implicitly doing something like state.setCustomPromptContent, or rather customPromptContent
+		setCustomPromptContent((jim) => {
+			if (customPromptArr.indexOf(jim) < user.customPrompts.length - 1) {
+				return user.customPrompts[customPromptArr.indexOf(jim) + 1].content;
 			}
-		}
+			return jim;
+		});
+		// }
 	};
 	const first = () => {
 		if (user) {
@@ -59,7 +71,14 @@ const Prompt = ({ auth: { user } }) => {
 	useHotkeys(
 		'ctrl+s',
 		() => {
-			shuffle();
+			argsShuffle();
+		},
+		{ enableOnTags: ['TEXTAREA'] }
+	);
+	useHotkeys(
+		'ctrl+f',
+		() => {
+			first();
 		},
 		{ enableOnTags: ['TEXTAREA'] }
 	);
@@ -67,6 +86,20 @@ const Prompt = ({ auth: { user } }) => {
 		'ctrl+n',
 		() => {
 			next();
+		},
+		{ enableOnTags: ['TEXTAREA'] }
+	);
+	useHotkeys(
+		'ctrl+p',
+		() => {
+			prev();
+		},
+		{ enableOnTags: ['TEXTAREA'] }
+	);
+	useHotkeys(
+		'ctrl+l',
+		() => {
+			last();
 		},
 		{ enableOnTags: ['TEXTAREA'] }
 	);
@@ -82,7 +115,7 @@ const Prompt = ({ auth: { user } }) => {
 					onClick={first}
 				>
 					first
-					<span className="tooltiptext">first</span>
+					<span className="tooltiptext">First, ctrl + f</span>
 				</div>
 				<div
 					className={`tooltip prompt__previous-button prompt__button ${
@@ -91,11 +124,16 @@ const Prompt = ({ auth: { user } }) => {
 					onClick={prev}
 				>
 					prev
-					<span className="tooltiptext">previous</span>
+					<span className="tooltiptext">Previous, ctrl + p</span>
 				</div>
-				<div className={`tooltip prompt__shuffle-button prompt__button`} onClick={shuffle}>
+				<div
+					className={`tooltip prompt__shuffle-button prompt__button`}
+					onClick={() => {
+						argsShuffle(setCustomPromptContent, user);
+					}}
+				>
 					shuffle
-					<span className="tooltiptext">Shuffle</span>
+					<span className="tooltiptext">Shuffle, ctrl + s</span>
 				</div>
 				<div
 					className={`tooltip prompt__next-button prompt__button ${
@@ -104,7 +142,7 @@ const Prompt = ({ auth: { user } }) => {
 					onClick={next}
 				>
 					next
-					<span className="tooltiptext">next</span>
+					<span className="tooltiptext">next, ctrl + n</span>
 				</div>
 				<div
 					className={`tooltip prompt__next-button prompt__button ${
@@ -113,7 +151,7 @@ const Prompt = ({ auth: { user } }) => {
 					onClick={last}
 				>
 					last
-					<span className="tooltiptext">last</span>
+					<span className="tooltiptext">last, ctrl + l</span>
 				</div>
 			</div>
 		</div>

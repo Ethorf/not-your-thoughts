@@ -45,3 +45,6 @@ export const CHANGE_MODE = 'CHANGE_MODE';
 //Contact
 export const SUBMIT_CONTACT_FORM = 'SUBMIT_CONTACT_FORM';
 export const CONTACT_FORM_ERROR = 'CONTACT_FORM_ERROR';
+
+//Prompts
+export const SHUFFLE_PROMPT = 'SHUFFLE_PROMPT';
