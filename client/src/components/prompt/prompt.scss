@@ -13,9 +13,7 @@
 	font-size: 0.7rem;
 	width: 53%;
 	height: 80px;
-	color: silver;
 	transition: all 3s;
-
 	margin-top: 1%;
 	&__content {
 		display: flex;
@@ -24,20 +22,44 @@
 		margin: 0;
 	}
 	&__buttons-container {
-		width: 32%;
+		width: 35%;
 		position: relative;
 		bottom: 0%;
 		display: flex;
-		justify-content: space-between;
+		justify-content: flex-start;
 	}
 	&__button {
-		font-size: 0.8rem;
-		font-style: normal;
-		border: 1px solid grey;
-		padding: 0 4%;
+		height: 20px;
+		width: auto;
+		padding: 0 5%;
 		border-radius: 3px;
 		&:hover {
-			color: white;
+			cursor: pointer;
+		}
+	}
+	&__first-button {
+		&:hover {
+			content: url('../../assets/Icons/prompt-icons/first-light-gray.png');
+		}
+	}
+	&__previous-button {
+		&:hover {
+			content: url('../../assets/Icons/prompt-icons/previous-light-gray.png');
+		}
+	}
+	&__shuffle-button {
+		&:hover {
+			content: url('../../assets/Icons/prompt-icons/shuffle-light-gray.png');
+		}
+	}
+	&__next-button {
+		&:hover {
+			content: url('../../assets/Icons/prompt-icons/next-light-gray.png');
+		}
+	}
+	&__last-button {
+		&:hover {
+			content: url('../../assets/Icons/prompt-icons/last-light-gray.png');
 		}
 	}
 	@include laptop-small() {
@@ -70,7 +92,7 @@
 	}
 }
 .red {
-	color: red;
+	opacity: 0;
 }
 .tooltip {
 	position: relative;

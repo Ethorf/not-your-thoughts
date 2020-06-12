@@ -3,6 +3,11 @@ import { connect } from 'react-redux';
 import './prompt.scss';
 import axios from 'axios';
 import { useHotkeys } from 'react-hotkeys-hook';
+import firstIcon from '../../assets/Icons/prompt-icons/first-gray.png';
+import previousIcon from '../../assets/Icons/prompt-icons/previous-gray.png';
+import shuffleIcon from '../../assets/Icons/prompt-icons/shuffle-gray.png';
+import nextIcon from '../../assets/Icons/prompt-icons/next-gray.png';
+import lastIcon from '../../assets/Icons/prompt-icons/last-gray.png';
 
 const Prompt = ({ auth: { user } }) => {
 	const randomNum = (max) => {
@@ -34,7 +39,7 @@ const Prompt = ({ auth: { user } }) => {
 	};
 	const prev = () => {
 		setCustomPromptContent((jim) => {
-			if (customPromptArr.indexOf(jim) < user.customPrompts.length > 0) {
+			if (customPromptArr.indexOf(jim) > 0) {
 				return user.customPrompts[customPromptArr.indexOf(jim) - 1].content;
 			}
 			return jim;
@@ -48,15 +53,12 @@ const Prompt = ({ auth: { user } }) => {
 	// 	}
 	// };
 	const next = () => {
-		// if (user) {
-		//kind of feels like this is implicitly doing something like state.setCustomPromptContent, or rather customPromptContent
 		setCustomPromptContent((jim) => {
 			if (customPromptArr.indexOf(jim) < user.customPrompts.length - 1) {
 				return user.customPrompts[customPromptArr.indexOf(jim) + 1].content;
 			}
 			return jim;
 		});
-		// }
 	};
 	const first = () => {
 		if (user) {
@@ -106,53 +108,55 @@ const Prompt = ({ auth: { user } }) => {
 
 	return user && user.customPromptsEnabled ? (
 		<div className={`prompt`}>
-			<h2 className={`prompt__content`}>{customPromptContent}</h2>
+			<h2 className={`prompt__content`}>
+				{customPromptArr.indexOf(customPromptContent) + 1}.{'  '} {customPromptContent}
+			</h2>
 			<div className={`prompt__buttons-container`}>
-				<div
-					className={`tooltip prompt__previous-button prompt__button ${
+				<img
+					className={`tooltip prompt__first-button prompt__button ${
 						customPromptArr.indexOf(customPromptContent) === 0 ? 'red' : ''
 					}`}
 					onClick={first}
-				>
-					first
-					<span className="tooltiptext">First, ctrl + f</span>
-				</div>
-				<div
+					src={firstIcon}
+					alt="go to first prompt"
+					title="Go to first prompt, Ctrl + f"
+				></img>
+				<img
 					className={`tooltip prompt__previous-button prompt__button ${
 						customPromptArr.indexOf(customPromptContent) === 0 ? 'red' : ''
 					}`}
 					onClick={prev}
-				>
-					prev
-					<span className="tooltiptext">Previous, ctrl + p</span>
-				</div>
-				<div
+					src={previousIcon}
+					alt="go to previous prompt"
+					title="Go to previous prompt, Ctrl + p"
+				></img>
+				<img
 					className={`tooltip prompt__shuffle-button prompt__button`}
 					onClick={() => {
 						argsShuffle(setCustomPromptContent, user);
 					}}
-				>
-					shuffle
-					<span className="tooltiptext">Shuffle, ctrl + s</span>
-				</div>
-				<div
+					src={shuffleIcon}
+					alt="shuffle prompt"
+					title="Shuffle prompt, Ctrl + s"
+				></img>
+				<img
 					className={`tooltip prompt__next-button prompt__button ${
 						customPromptArr.indexOf(customPromptContent) === customPromptArr.length - 1 ? 'red' : ''
 					}`}
 					onClick={next}
-				>
-					next
-					<span className="tooltiptext">next, ctrl + n</span>
-				</div>
-				<div
-					className={`tooltip prompt__next-button prompt__button ${
+					src={nextIcon}
+					alt="go to next prompt"
+					title="Go to next prompt, Ctrl + n"
+				></img>
+				<img
+					className={`tooltip prompt__last-button prompt__button ${
 						customPromptArr.indexOf(customPromptContent) === customPromptArr.length - 1 ? 'red' : ''
 					}`}
 					onClick={last}
-				>
-					last
-					<span className="tooltiptext">last, ctrl + l</span>
-				</div>
+					src={lastIcon}
+					alt="go to last prompt"
+					title="Go to last prompt, Ctrl + l"
+				></img>
 			</div>
 		</div>
 	) : (
