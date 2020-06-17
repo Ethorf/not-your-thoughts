@@ -4,12 +4,7 @@ import PropTypes from 'prop-types';
 import './customPrompts.scss';
 import '../../pages/profile/profile.scss';
 
-import {
-	addCustomPrompt,
-	deleteCustomPrompt,
-	toggleCustomPromptsEnabled,
-	toggleProgressAudio
-} from '../../redux/actions/authActions';
+import { addCustomPrompt, deleteCustomPrompt, toggleCustomPromptsEnabled } from '../../redux/actions/authActions';
 
 const CustomPrompts = ({
 	addCustomPrompt,
@@ -32,13 +27,14 @@ const CustomPrompts = ({
 		e.preventDefault();
 		setPromptData(e.target.value);
 	};
-	const toggleAddPromptOpen = () => {
+	const toggleAddPromptOpen = (e) => {
+		e.preventDefault();
 		setLocalPromptAddOpen(!localPromptAddOpen);
 	};
 	const onSubmit = async (e) => {
 		e.preventDefault();
-		addCustomPrompt({ prompt: promptData });
-		toggleAddPromptOpen();
+		await addCustomPrompt({ prompt: promptData });
+		setPromptData({ prompt: '' });
 	};
 	useEffect(() => {
 		setLocalCustomPromptsEnabled(customPromptsEnabled);
@@ -77,6 +73,7 @@ const CustomPrompts = ({
 						className={`custom-prompts__input`}
 						onChange={promptInput}
 						placeholder="your prompt here"
+						value={promptData.prompt}
 					></input>
 					<div className={`custom-prompts__button-container`}>
 						<button className={`custom-prompts__button`} onClick={onSubmit} type="submit">
@@ -114,7 +111,6 @@ const CustomPrompts = ({
 };
 
 CustomPrompts.propTypes = {
-	auth: PropTypes.object.isRequired,
 	prompts: PropTypes.array.isRequired,
 	customPromptsEnabled: PropTypes.bool.isRequired
 };

@@ -1,81 +1,72 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import './entry.scss';
 import Arrow from '../../assets/Icons/single-arrow-3.png';
+import EntryAnalysisModal from '../Modals/entryAnalysisModal.js';
 
-class Entry extends React.Component {
-	state = {
-		open: false,
-		deleteModalOpen: false
-	};
-	toggleEntry = () => {
-		if (this.state.open === false) {
-			this.setState({
-				open: true
-			});
-		} else {
-			this.setState({
-				open: false
-			});
-		}
-	};
-	openDeleteModal = () => {
-		this.setState({
-			deleteModalOpen: true
-		});
+function Entry(props) {
+	const [open, setOpen] = useState(false);
+	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+	const [analysisModalOpen, setAnalysisModalOpen] = useState(false);
+
+	const toggleEntry = () => {
+		setOpen(!open);
 	};
 
-	closeDeleteModal = () => {
-		this.setState({
-			deleteModalOpen: false
-		});
+	const toggleDeleteModal = () => {
+		setDeleteModalOpen(!deleteModalOpen);
+	};
+	const toggleAnalysisModalOpen = () => {
+		setAnalysisModalOpen(!analysisModalOpen);
 	};
 
-	render() {
-		return (
-			<>
-				<div className="entry__entry-date-wordcount-container">
-					<h3 className="entry__entry-date-wordcount entry__date">{this.props.date}</h3>
-					<div className="entry__wordcount-container">
-						<h3 className="entry__entry-date-wordcount entry__words">Words: {this.props.wordCount}</h3>
-					</div>
-					<button
-						className={`entry__button ${this.state.open ? 'entry__button-open' : 'entry__button-closed'}`}
-						onClick={this.toggleEntry}
-					>
-						<img className="entry__entry-arrow" src={Arrow} alt="expand entry arrow" />
-					</button>
-					<button onClick={this.openDeleteModal} className="entry__delete-button">
-						X
-					</button>
+	return (
+		<>
+			<div className="entry__entry-date-wordcount-container">
+				<EntryAnalysisModal
+					content={props.content}
+					toggleAnalysisModalOpen={toggleAnalysisModalOpen}
+					analysisModalOpen={analysisModalOpen}
+				/>
+				<h3 className="entry__entry-date-wordcount entry__date">{props.date}</h3>
+				<div className="entry__wordcount-container">
+					<h3 className="entry__entry-date-wordcount entry__words">Words: {props.wordCount}</h3>
 				</div>
-				<div className={this.state.deleteModalOpen ? 'entry__delete-modal-open' : 'entry__delete-modal-closed'}>
-					<h3 className="entry__delete-modal-text">Are you sure you want to delete this entry?</h3>
-					<div className="entry__delete-modal-buttons-container">
-						<button
-							onClick={() => {
-								this.props.deleteEntry(this.props.id);
-								this.closeDeleteModal();
-							}}
-							className="entry__delete-modal-button"
-						>
-							Yes
-						</button>
-						<button onClick={this.closeDeleteModal} className="entry__delete-modal-button">
-							No
-						</button>
-					</div>
-				</div>
-				<h4
-					className={`entry__entry-content ${this.props.mode} ${
-						this.state.open ? 'entry__entry-open' : 'entry__entry-closed'
-					}`}
+				<button
+					className={`entry__button ${open ? 'entry__button-open' : 'entry__button-closed'}`}
+					onClick={toggleEntry}
 				>
-					{this.props.content}
-				</h4>
-			</>
-		);
-	}
+					<img className="entry__entry-arrow" src={Arrow} alt="expand entry arrow" />
+				</button>
+				<button onClick={toggleDeleteModal} className="entry__delete-button">
+					X
+				</button>
+				<button onClick={toggleAnalysisModalOpen} className="entry__open-analysis-modal">
+					Analysis
+				</button>
+			</div>
+			<div className={deleteModalOpen ? 'entry__delete-modal-open' : 'entry__delete-modal-closed'}>
+				<h3 className="entry__delete-modal-text">Are you sure you want to delete this entry?</h3>
+				<div className="entry__delete-modal-buttons-container">
+					<button
+						onClick={() => {
+							props.deleteEntry(props.id);
+							toggleDeleteModal();
+						}}
+						className="entry__delete-modal-button"
+					>
+						Yes
+					</button>
+					<button onClick={toggleDeleteModal} className="entry__delete-modal-button">
+						No
+					</button>
+				</div>
+			</div>
+			<h4 className={`entry__entry-content ${props.mode} ${open ? 'entry__entry-open' : 'entry__entry-closed'}`}>
+				{props.content}
+			</h4>
+		</>
+	);
 }
 
 const mapStateToProps = (state) => ({
