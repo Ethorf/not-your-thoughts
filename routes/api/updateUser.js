@@ -36,7 +36,8 @@ router.post('/', [auth, [check('entry', 'No empty entries allowed!').not().isEmp
 		const user = await await User.findById(req.user.id);
 		user.entries.push({
 			content: req.body.entry,
-			date: moment().format(`MMMM Do YYYY, h:mm:ss a`),
+			// date: moment().format(`MMMM Do YYYY, h:mm:ss a`),
+			date: req.body.date,
 			id: uuidv4(),
 			numOfWords: req.body.entry.split(' ').filter((item) => item !== '').length
 		});

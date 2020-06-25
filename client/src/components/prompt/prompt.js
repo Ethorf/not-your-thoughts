@@ -45,13 +45,7 @@ const Prompt = ({ auth: { user } }) => {
 			return jim;
 		});
 	};
-	// const nextOld = () => {
-	// 	if (user) {
-	// 		if (customPromptArr.indexOf(customPromptContent) < user.customPrompts.length - 1) {
-	// 			setCustomPromptContent(user.customPrompts[customPromptArr.indexOf(customPromptContent) + 1].content);
-	// 		}
-	// 	}
-	// };
+
 	const next = () => {
 		setCustomPromptContent((jim) => {
 			if (customPromptArr.indexOf(jim) < user.customPrompts.length - 1) {

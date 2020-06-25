@@ -1,5 +1,6 @@
 import axios from 'axios';
 import setAuthToken from '../../utils/setAuthToken';
+import moment from 'moment';
 import { SAVE_ENTRY, DELETE_ENTRY, GET_ENTRIES, ENTRIES_ERROR, SET_ENTRY } from './actionTypes';
 
 // Get Entries
@@ -21,12 +22,14 @@ export const getEntries = () => async (dispatch) => {
 };
 //Entry Actions
 export const saveEntry = ({ entry }) => async (dispatch) => {
+	let date = moment().format(`MMMM Do YYYY, h:mm:ss a`);
 	const config = {
 		headers: {
 			'Content-Type': 'application/json'
 		}
 	};
-	const body = JSON.stringify({ entry });
+
+	const body = { entry, date };
 	try {
 		const res = await axios.post('/api/updateUser', body, config);
 		dispatch({
