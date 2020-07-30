@@ -60,6 +60,7 @@
 		&:hover {
 			content: url('../../assets/Icons/down-arrow-white-2.png');
 			transition: all 0.5s;
+			cursor: pointer;
 		}
 	}
 	&__arrow-rotate {

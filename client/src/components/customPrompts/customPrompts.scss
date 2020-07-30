@@ -56,20 +56,25 @@
 		width: 30%;
 		outline: none;
 	}
+	&__button-container {
+		// border: 1px solid red;
+		display: flex;
+		flex-direction: column;
+		width: 15%;
+	}
 	&__button {
 		font-family: 'Syncopate', sans-serif;
 		border-radius: 7px;
-		padding: 2% 2%;
+		padding: 3% 2%;
 		outline: none;
+		width: 100%;
 
 		&:hover {
 			background-color: black;
 			color: white;
 		}
 	}
-	&__cancel-button {
-		margin-left: 1%;
-	}
+
 	@include mobile-small-only() {
 		&__title {
 			font-size: 1rem;

@@ -32,6 +32,7 @@ const Prompt = ({ auth: { user } }) => {
 	let customPromptArr = user.customPrompts.map((item) => {
 		return item.content;
 	});
+
 	const argsShuffle = () => {
 		if (user) {
 			setCustomPromptContent(user.customPrompts[randomNum(user.customPrompts.length - 1)].content);

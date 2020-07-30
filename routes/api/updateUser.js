@@ -33,7 +33,7 @@ router.post('/', [auth, [check('entry', 'No empty entries allowed!').not().isEmp
 		return res.status(400).json({ errors: errors.array() });
 	}
 	try {
-		const user = await await User.findById(req.user.id);
+		const user = await User.findById(req.user.id);
 		user.entries.push({
 			content: req.body.entry,
 			// date: moment().format(`MMMM Do YYYY, h:mm:ss a`),

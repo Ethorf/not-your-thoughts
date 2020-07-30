@@ -37,6 +37,7 @@ const Login = ({ login, isAuthenticated, alert }) => {
 				<div className="login-register__input-container">
 					<input
 						className="login-register__input"
+						id="email-input"
 						type="email"
 						placeholder="Email "
 						name="email"
@@ -47,6 +48,7 @@ const Login = ({ login, isAuthenticated, alert }) => {
 				<div className="login-register__input-container">
 					<input
 						className="login-register__input"
+						id="password-input"
 						type="password"
 						placeholder="Password"
 						name="password"
@@ -58,6 +60,7 @@ const Login = ({ login, isAuthenticated, alert }) => {
 					type="submit"
 					className="login-register__submit-button login-register__login-button "
 					value="Login"
+					id="login-submit-button"
 				/>
 			</form>
 			<p className="login-register__signup">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Redirect, StaticRouter } from 'react-router-dom';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { HotKeys, configure } from 'react-hotkeys';
@@ -39,7 +39,8 @@ const TextEntry = ({
 	isAuthenticated,
 	setEntry,
 	mode,
-	auth: { user }
+	auth: { user },
+	entry
 }) => {
 	const [entryData, setEntryData] = useState({
 		entry: ''
@@ -92,6 +93,7 @@ const TextEntry = ({
 									name="textEntry"
 									className={`main__textarea${mode}`}
 									placeholder="note those thoughts here"
+									value={entry}
 								></textarea>
 							</div>
 
@@ -123,7 +125,8 @@ const mapStateToProps = (state) => ({
 	goal: state.wordCount.goal,
 	isAuthenticated: state.auth.isAuthenticated,
 	modals: state.modals,
-	mode: state.modes.mode
+	mode: state.modes.mode,
+	entry: state.entries.entry
 });
 
 export default connect(mapStateToProps, {

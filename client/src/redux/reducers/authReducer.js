@@ -19,7 +19,7 @@ const initialState = {
 	loading: true,
 	user: null
 };
-//Okay now I am confused about this as a boik I have absolutely nothing going on with my reducer yet I can add my prompts
+
 export default function (state = initialState, action) {
 	const { type, payload } = action;
 	switch (type) {
@@ -61,5 +61,3 @@ export default function (state = initialState, action) {
 			return state;
 	}
 }
-//maybe with that recently deleted problem I need to rethink the order of how things proceed through the
-//redux flow

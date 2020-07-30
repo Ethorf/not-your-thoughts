@@ -9,15 +9,8 @@ function Entry(props) {
 	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 	const [analysisModalOpen, setAnalysisModalOpen] = useState(false);
 
-	const toggleEntry = () => {
-		setOpen(!open);
-	};
-
 	const toggleDeleteModal = () => {
 		setDeleteModalOpen(!deleteModalOpen);
-	};
-	const toggleAnalysisModalOpen = () => {
-		setAnalysisModalOpen(!analysisModalOpen);
 	};
 
 	return (
@@ -25,7 +18,7 @@ function Entry(props) {
 			<div className="entry__entry-date-wordcount-container">
 				<EntryAnalysisModal
 					content={props.content}
-					toggleAnalysisModalOpen={toggleAnalysisModalOpen}
+					toggleAnalysisModalOpen={() => setAnalysisModalOpen(!analysisModalOpen)}
 					analysisModalOpen={analysisModalOpen}
 				/>
 				<h3 className="entry__entry-date-wordcount entry__date">{props.date}</h3>
@@ -34,14 +27,14 @@ function Entry(props) {
 				</div>
 				<button
 					className={`entry__button ${open ? 'entry__button-open' : 'entry__button-closed'}`}
-					onClick={toggleEntry}
+					onClick={() => setOpen(!open)}
 				>
 					<img className="entry__entry-arrow" src={Arrow} alt="expand entry arrow" />
 				</button>
 				<button onClick={toggleDeleteModal} className="entry__delete-button">
 					X
 				</button>
-				<button onClick={toggleAnalysisModalOpen} className="entry__open-analysis-modal">
+				<button onClick={() => setAnalysisModalOpen(!analysisModalOpen)} className="entry__open-analysis-modal">
 					Analysis
 				</button>
 			</div>
