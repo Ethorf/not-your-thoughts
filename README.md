@@ -13,7 +13,7 @@ ReactJS    | Front-end (Client)
 NodeJS     | JavaScript Runtime Env
 
 ## How to Use
-Visit https://notyourthoughts.com/
+Visit http://www.notyourthoughts.com/
 
 
 ## Features
