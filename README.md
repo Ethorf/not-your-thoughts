@@ -1,6 +1,5 @@
 # Not Your Thoughts
-## Project Details
-### Project Description
+## Description
 A mindfulness-based gamified journalling website where users can develop a daily practice based on a words goal
 ### Developed by Eric Thorfinnson
 
