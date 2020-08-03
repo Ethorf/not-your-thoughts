@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import './entry.scss';
 import Arrow from '../../assets/Icons/single-arrow-3.png';
 import EntryAnalysisModal from '../Modals/entryAnalysisModal.js';
+import { Dialog, Button, Container } from '@material-ui/core';
 
 function Entry(props) {
 	const [open, setOpen] = useState(false);
@@ -38,23 +39,26 @@ function Entry(props) {
 					Analysis
 				</button>
 			</div>
-			<div className={deleteModalOpen ? 'entry__delete-modal-open' : 'entry__delete-modal-closed'}>
-				<h3 className="entry__delete-modal-text">Are you sure you want to delete this entry?</h3>
-				<div className="entry__delete-modal-buttons-container">
-					<button
-						onClick={() => {
-							props.deleteEntry(props.id);
-							toggleDeleteModal();
-						}}
-						className="entry__delete-modal-button"
-					>
-						Yes
-					</button>
-					<button onClick={toggleDeleteModal} className="entry__delete-modal-button">
-						No
-					</button>
-				</div>
-			</div>
+
+			<Dialog color="secondary" open={deleteModalOpen} className={`entry__delete-modal`}>
+				<Container className={`entry__delete-modal-container`}>
+					<h3 className="entry__delete-modal-text">Are you sure you want to delete this entry?</h3>
+					<div className="entry__delete-modal-buttons-container">
+						<Button
+							onClick={() => {
+								props.deleteEntry(props.id);
+								toggleDeleteModal();
+							}}
+							className="entry__delete-modal-button"
+						>
+							Yes
+						</Button>
+						<Button onClick={toggleDeleteModal} className="entry__delete-modal-button">
+							No
+						</Button>
+					</div>
+				</Container>
+			</Dialog>
 			<h4 className={`entry__entry-content ${props.mode} ${open ? 'entry__entry-open' : 'entry__entry-closed'}`}>
 				{props.content}
 			</h4>

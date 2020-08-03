@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import PrivateRoute from './components/private-route/privateRoute';
 import { useSelector, connect } from 'react-redux';
+import { MuiThemeProvider } from '@material-ui/core';
+import { muiTheme } from './styles/muiTheme.js';
 import './App.scss';
 import NavBarSide from './components/nav/navBarSide.js';
 import NavBarTop from './components/nav/navBarTop.js';
@@ -16,6 +18,7 @@ import Profile from './pages/profile/profile';
 import Resources from './pages/resources/resources';
 import Modes from './pages/modes/modes.js';
 import About from './pages/about/about';
+
 //redux Stuff
 import store from './redux/store/index';
 import { loadUser } from './redux/actions/authActions';
@@ -32,52 +35,54 @@ const App = () => {
 	const mode = useSelector((state) => state.modes.mode);
 
 	return (
-		<div className={`App ${mode}`}>
-			<BrowserRouter>
-				<NavBarTop />
-				<NavBarSide />
-				<AudioPlayer />
-				<Route
-					render={({ location }) => (
-						<TransitionGroup>
-							<CSSTransition
-								key={location.key}
-								timeout={1100}
-								classNames={mode === '-light' ? 'fade' : 'fad'}
-								unmountOnExit
-							>
-								<Switch location={location}>
-									<Route path="/" exact>
-										{({ match }) => <Landing show={match !== null} />}
-									</Route>
-									<PrivateRoute path="/main" exact>
-										{({ match }) => <TextEntry show={match !== null} />}
-									</PrivateRoute>
-									<Route path="/login" exact>
-										{({ match }) => <Login show={match !== null} />}
-									</Route>
-									<Route path="/register" exact>
-										{({ match }) => <Register show={match !== null} />}
-									</Route>
-									<PrivateRoute path="/profile">
-										{({ match }) => <Profile show={match !== null} />}
-									</PrivateRoute>
-									<PrivateRoute path="/resources" exact>
-										{({ match }) => <Resources show={match !== null} />}
-									</PrivateRoute>
-									<PrivateRoute path="/modes" exact>
-										{({ match }) => <Modes show={match !== null} />}
-									</PrivateRoute>
-									<PrivateRoute path="/about" exact>
-										{({ match }) => <About show={match !== null} />}
-									</PrivateRoute>
-								</Switch>
-							</CSSTransition>
-						</TransitionGroup>
-					)}
-				></Route>
-			</BrowserRouter>
-		</div>
+		<MuiThemeProvider theme={muiTheme}>
+			<div className={`App ${mode}`}>
+				<BrowserRouter>
+					<NavBarTop />
+					<NavBarSide />
+					<AudioPlayer />
+					<Route
+						render={({ location }) => (
+							<TransitionGroup>
+								<CSSTransition
+									key={location.key}
+									timeout={1100}
+									classNames={mode === '-light' ? 'fade' : 'fad'}
+									unmountOnExit
+								>
+									<Switch location={location}>
+										<Route path="/" exact>
+											{({ match }) => <Landing show={match !== null} />}
+										</Route>
+										<PrivateRoute path="/main" exact>
+											{({ match }) => <TextEntry show={match !== null} />}
+										</PrivateRoute>
+										<Route path="/login" exact>
+											{({ match }) => <Login show={match !== null} />}
+										</Route>
+										<Route path="/register" exact>
+											{({ match }) => <Register show={match !== null} />}
+										</Route>
+										<PrivateRoute path="/profile">
+											{({ match }) => <Profile show={match !== null} />}
+										</PrivateRoute>
+										<PrivateRoute path="/resources" exact>
+											{({ match }) => <Resources show={match !== null} />}
+										</PrivateRoute>
+										<PrivateRoute path="/modes" exact>
+											{({ match }) => <Modes show={match !== null} />}
+										</PrivateRoute>
+										<PrivateRoute path="/about" exact>
+											{({ match }) => <About show={match !== null} />}
+										</PrivateRoute>
+									</Switch>
+								</CSSTransition>
+							</TransitionGroup>
+						)}
+					></Route>
+				</BrowserRouter>
+			</div>
+		</MuiThemeProvider>
 	);
 };
 

@@ -65,6 +65,7 @@
 			transition: all 0.5s;
 			background-color: black;
 			color: white;
+			cursor: pointer;
 		}
 	}
 	&__daily-words-goal-container {
@@ -72,6 +73,7 @@
 	}
 	&__cancel-button {
 		width: 40%;
+		cursor: pointer;
 	}
 	&__goal-input {
 		margin-left: 1%;
@@ -114,13 +116,16 @@
 		font-family: 'Syncopate', sans-serif;
 		transition: all 0.1s;
 		font-size: 1.2rem;
+		cursor: pointer;
 	}
 	&__off-button {
 		margin-left: 5px;
 		padding-right: 5px;
+		cursor: pointer;
 	}
 	&__on-button {
 		padding-right: 5px;
+		cursor: pointer;
 	}
 	&__inactive {
 		border: 1px solid black;
@@ -186,6 +191,7 @@
 			height: 3vh;
 			&:hover {
 				color: white;
+				cursor: pointer;
 			}
 		}
 		&__goal-editable-button {
@@ -204,6 +210,7 @@
 		}
 		&__toggle-button {
 			font-size: 0.7rem;
+			cursor: pointer;
 		}
 	}
 	@include mobile-only() {

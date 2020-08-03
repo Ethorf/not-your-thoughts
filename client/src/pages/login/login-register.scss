@@ -83,11 +83,8 @@
 			background-color: black;
 			color: white;
 			text-shadow: 3px 3px 3px silver;
+			cursor: pointer;
 		}
-	}
-	&__login-button,
-	&__register-button {
-		// padding: 2vh 3.5vw 3.5vh 3.5vw;
 	}
 	&__signup-link {
 		text-decoration: none;

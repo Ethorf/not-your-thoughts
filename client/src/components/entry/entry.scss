@@ -83,21 +83,26 @@
 		}
 	}
 
-	&__delete-modal-open {
-		width: 20%;
-		position: relative;
-		left: 50%;
-		top: -5%;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		text-align: center;
-		flex-direction: column;
-		border: 1px solid white;
-		border-radius: 5px;
-		z-index: 9;
-		opacity: 1;
-		transition: all 1s;
+	&__delete-modal {
+		// position: relative;
+		// left: 50%;
+		// top: -5%;
+		// display: flex;
+		// justify-content: center;
+		// align-items: center;
+		// text-align: center;
+		// flex-direction: column;
+		// border: 1px solid white;
+		// border-radius: 5px;
+		// z-index: 9;
+		// opacity: 1;
+		// transition: all 1s;
+		font-family: 'Poppins', 'sans-serif';
+		color: grey;
+		padding: 10px;
+	}
+	&__delete-modal-container {
+		padding: 100px;
 	}
 
 	&__delete-modal-closed {
