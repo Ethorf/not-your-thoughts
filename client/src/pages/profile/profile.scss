@@ -6,7 +6,7 @@
 	background-color: black;
 	color: silver;
 	flex-direction: column;
-	margin-right: 10vw;
+	margin-right: 5vw;
 	padding-bottom: 10vh;
 	margin-left: $not-main-margin-left;
 
@@ -27,9 +27,8 @@
 	}
 	&__stats-container {
 		display: flex;
-		align-items: center;
-		height: 10%;
-		width: 75%;
+		flex-direction: column;
+		align-items: flex-start;
 		font-size: 1rem;
 	}
 	&__stats-text {
@@ -38,7 +37,6 @@
 		margin-top: 0;
 		margin-bottom: 20px;
 		margin-right: 5%;
-		width: 50%;
 	}
 	&__day-number {
 		margin: 0;
@@ -68,21 +66,14 @@
 			cursor: pointer;
 		}
 	}
-	&__daily-words-goal-container {
-		font-size: 1.5rem;
-	}
-	&__cancel-button {
-		width: 40%;
-		cursor: pointer;
-	}
 	&__goal-input {
-		margin-left: 1%;
-		width: 12%;
+		margin-left: 3%;
+		width: 17%;
 		height: 100%;
 		border: 1px solid silver;
-		border-radius: 2px;
+		border-radius: 3px;
 		font-size: 1.1rem;
-		padding: 3px;
+		padding: 5px;
 		outline: none;
 		text-align: center;
 	}
@@ -159,7 +150,7 @@
 			font-size: 1.5rem;
 		}
 		&__stats-text {
-			width: 100%;
+			// width: 100%;
 			margin-bottom: 5%;
 			margin-right: 0;
 			align-items: flex-end;
@@ -173,33 +164,12 @@
 		}
 		&__goal-edit-buttons-container {
 			display: flex;
-			align-items: flex-start;
-			flex-direction: column;
+			justify-content: flex-start;
 		}
 		&__goal-input {
-			width: 17%;
-			font-size: 0.9rem;
+			width: 27%;
+			font-size: 1.9rem;
 			border-radius: 5px;
-		}
-		&__goal-edit-button {
-			font-size: 0.7rem;
-			width: 15%;
-			align-self: flex-end;
-			margin-bottom: 10%;
-			margin-left: 5%;
-			background-color: white;
-			height: 3vh;
-			&:hover {
-				color: white;
-				cursor: pointer;
-			}
-		}
-		&__goal-editable-button {
-			font-size: 0.7rem;
-			width: 121%;
-			margin-bottom: 10%;
-			margin-left: 11%;
-			height: 3vh;
 		}
 		&__day-number,
 		&__stats-text {

@@ -21,6 +21,7 @@ function Entry(props) {
 					content={props.content}
 					toggleAnalysisModalOpen={() => setAnalysisModalOpen(!analysisModalOpen)}
 					analysisModalOpen={analysisModalOpen}
+					trackedPhrases={props.trackedPhrases}
 				/>
 				<h3 className="entry__entry-date-wordcount entry__date">{props.date}</h3>
 				<div className="entry__wordcount-container">
@@ -32,11 +33,9 @@ function Entry(props) {
 				>
 					<img className="entry__entry-arrow" src={Arrow} alt="expand entry arrow" />
 				</button>
+				<Button onClick={() => setAnalysisModalOpen(!analysisModalOpen)}>Analysis</Button>
 				<button onClick={toggleDeleteModal} className="entry__delete-button">
 					X
-				</button>
-				<button onClick={() => setAnalysisModalOpen(!analysisModalOpen)} className="entry__open-analysis-modal">
-					Analysis
 				</button>
 			</div>
 

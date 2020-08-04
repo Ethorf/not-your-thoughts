@@ -53,6 +53,7 @@
 		transition: all 1s;
 		&:hover {
 			content: url('../../assets/Icons/single-arrow-3-white.png');
+			cursor: pointer;
 		}
 	}
 	&__button {
@@ -80,23 +81,11 @@
 		margin-left: 3%;
 		&:hover {
 			color: red;
+			cursor: pointer;
 		}
 	}
 
 	&__delete-modal {
-		// position: relative;
-		// left: 50%;
-		// top: -5%;
-		// display: flex;
-		// justify-content: center;
-		// align-items: center;
-		// text-align: center;
-		// flex-direction: column;
-		// border: 1px solid white;
-		// border-radius: 5px;
-		// z-index: 9;
-		// opacity: 1;
-		// transition: all 1s;
 		font-family: 'Poppins', 'sans-serif';
 		color: grey;
 		padding: 10px;

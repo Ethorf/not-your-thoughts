@@ -43,6 +43,9 @@ const UserSchema = new mongoose.Schema({
 	customPrompts: {
 		type: Array
 	},
+	trackedPhrases: {
+		type: Array
+	},
 	customPromptsEnabled: {
 		type: Boolean,
 		default: false

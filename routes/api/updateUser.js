@@ -48,7 +48,19 @@ router.post('/', [auth, [check('entry', 'No empty entries allowed!').not().isEmp
 		res.status(500);
 	}
 });
-//
+//Delete an entry
+router.delete('/:id', auth, async (req, res) => {
+	try {
+		const user = await User.findById(req.user.id);
+		const removeIndex = user.entries.map((item) => item.id).indexOf(req.params.id);
+		user.entries.splice(removeIndex, 1);
+		await user.save();
+		res.json(user);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server Error');
+	}
+});
 //Adding a custom user Prompt
 router.post('/prompts', [auth, [check('prompt', 'No empty prompts allowed!').not().isEmpty()]], async (req, res) => {
 	const errors = validationResult(req);
@@ -56,7 +68,7 @@ router.post('/prompts', [auth, [check('prompt', 'No empty prompts allowed!').not
 		return res.status(400).json({ errors: errors.array() });
 	}
 	try {
-		const user = await await User.findById(req.user.id);
+		const user = await User.findById(req.user.id);
 		user.customPrompts.push({
 			content: req.body.prompt,
 			id: uuidv4(),
@@ -64,6 +76,64 @@ router.post('/prompts', [auth, [check('prompt', 'No empty prompts allowed!').not
 		});
 		await user.save();
 		res.json(user.customPrompts);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500);
+	}
+});
+//Delete a Custom prompt
+router.delete('/prompts/:id', auth, async (req, res) => {
+	try {
+		const user = await User.findById(req.user.id);
+		const removeIndex = user.customPrompts.map((item) => item.id).indexOf(req.params.id);
+		user.customPrompts.splice(removeIndex, 1);
+		await user.save();
+		res.json(user.customPrompts);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server Error');
+	}
+});
+//Adding a custom user tracked phrase
+router.post('/phrases', [auth, [check('phrase', 'No empty phrases allowed!').not().isEmpty()]], async (req, res) => {
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		return res.status(400).json({ errors: errors.array() });
+	}
+	try {
+		const user = await User.findById(req.user.id);
+		user.trackedPhrases.push({
+			phrase: req.body.phrase,
+			id: uuidv4(),
+			date: moment().format(`MMMM Do YYYY`)
+		});
+		await user.save();
+		res.json(user.trackedPhrases);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500);
+	}
+});
+//Delete a tracked Phrase
+router.delete('/phrases/:id', auth, async (req, res) => {
+	try {
+		const user = await User.findById(req.user.id);
+		const removeIndex = user.trackedPhrases.map((item) => item.id).indexOf(req.params.id);
+		user.trackedPhrases.splice(removeIndex, 1);
+		await user.save();
+		res.json(user.trackedPhrases);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server Error');
+	}
+});
+//Toggle Custom Prompts
+router.post('/toggleCustomPrompts', auth, async (req, res) => {
+	try {
+		const user = await await User.findById(req.user.id);
+		user.customPromptsEnabled = !user.customPromptsEnabled;
+		await user.save();
+		res.json(user.customPromptsEnabled);
 	} catch (err) {
 		console.error(err.message);
 		res.status(500);
@@ -79,43 +149,6 @@ router.post('/toggleAudio', auth, async (req, res) => {
 	} catch (err) {
 		console.error(err.message);
 		res.status(500);
-	}
-});
-router.post('/toggleCustomPrompts', auth, async (req, res) => {
-	try {
-		const user = await await User.findById(req.user.id);
-		user.customPromptsEnabled = !user.customPromptsEnabled;
-		await user.save();
-		res.json(user.customPromptsEnabled);
-	} catch (err) {
-		console.error(err.message);
-		res.status(500);
-	}
-});
-//Delete an entry
-router.delete('/:id', auth, async (req, res) => {
-	try {
-		const user = await User.findById(req.user.id);
-		const removeIndex = user.entries.map((item) => item.id).indexOf(req.params.id);
-		user.entries.splice(removeIndex, 1);
-		await user.save();
-		res.json(user);
-	} catch (err) {
-		console.error(err.message);
-		res.status(500).send('Server Error');
-	}
-});
-//Delete a Custom prompt
-router.delete('/prompts/:id', auth, async (req, res) => {
-	try {
-		const user = await User.findById(req.user.id);
-		const removeIndex = user.customPrompts.map((item) => item.id).indexOf(req.params.id);
-		user.customPrompts.splice(removeIndex, 1);
-		await user.save();
-		res.json(user.customPrompts);
-	} catch (err) {
-		console.error(err.message);
-		res.status(500).send('Server Error');
 	}
 });
 

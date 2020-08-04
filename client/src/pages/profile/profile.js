@@ -45,16 +45,17 @@ const Profile = ({
 				{entries.length === 0 ? (
 					<h2>You have no saved journal entries</h2>
 				) : (
-					entries.map((user) => (
+					entries.map((userData) => (
 						<Entry
-							key={user.id}
-							id={user.id}
+							key={userData.id}
+							id={userData.id}
 							className="profile profile__entry"
-							wordCount={user.numOfWords}
-							date={user.date}
-							content={user.content}
+							wordCount={userData.numOfWords}
+							date={userData.date}
+							content={userData.content}
 							deleteEntry={deleteEntry}
 							getEntries={getEntries}
+							trackedPhrases={user.trackedPhrases}
 						/>
 					))
 				)}

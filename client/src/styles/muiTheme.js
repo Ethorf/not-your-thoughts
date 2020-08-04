@@ -20,7 +20,14 @@ export const muiTheme = createMuiTheme({
 				padding: '10px',
 				color: 'white',
 				backgroundColor: 'black',
-				margin: '5px 10px'
+				margin: '5px 10px',
+				border: '1px solid silver',
+				borderRadius: '4px',
+				fontFamily: 'Syncopate',
+				'&:hover': {
+					backgroundColor: 'rgba(255, 255, 255, 0.95)',
+					color: 'black'
+				}
 			}
 		},
 		MuiContainer: {
@@ -28,7 +35,16 @@ export const muiTheme = createMuiTheme({
 				color: 'white',
 				backgroundColor: 'black',
 				border: '1px solid grey',
-				borderRadius: '7px'
+				borderRadius: '7px',
+				padding: '15px',
+				fontFamily: 'Poppins'
+			}
+		},
+		MuiDialog: {
+			root: {
+				color: 'white',
+				borderRadius: '7px',
+				padding: '15px'
 			}
 		}
 	}

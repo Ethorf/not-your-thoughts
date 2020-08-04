@@ -14,6 +14,8 @@ import {
 	TOGGLE_PROGRESS_AUDIO,
 	ADD_CUSTOM_PROMPT,
 	DELETE_CUSTOM_PROMPT,
+	ADD_TRACKED_PHRASE,
+	DELETE_TRACKED_PHRASE,
 	CUSTOM_PROMPT_ERROR,
 	TOGGLE_CUSTOM_PROMPTS_ENABLED
 } from './actionTypes';
@@ -159,7 +161,7 @@ export const toggleProgressAudio = () => async (dispatch) => {
 };
 
 //Prompt Actions -- Maybe try to move this to somewhere else as this file is getting a little bloated
-/// things are getting a little more piled on top of each other than is helpful
+
 export const addCustomPrompt = ({ prompt }) => async (dispatch) => {
 	const config = {
 		headers: {
@@ -210,5 +212,44 @@ export const toggleCustomPromptsEnabled = () => async (dispatch) => {
 		dispatch(loadUser());
 	} catch (err) {
 		console.log('toggle prompts error');
+	}
+};
+
+//Tracked Phrases
+
+export const addTrackedPhrase = ({ phrase }) => async (dispatch) => {
+	const config = {
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	};
+	const body = JSON.stringify({ phrase });
+	try {
+		const res = await axios.post('/api/updateUser/phrases', body, config);
+		dispatch({
+			type: ADD_TRACKED_PHRASE,
+			payload: res.data
+		});
+		console.log('phrase submitted');
+		dispatch(loadUser());
+	} catch (err) {
+		dispatch({
+			type: CUSTOM_PROMPT_ERROR
+		});
+	}
+};
+
+export const deleteTrackedPhrase = (id) => async (dispatch) => {
+	try {
+		const res = await axios.delete(`/api/updateUser/phrases/${id}`);
+		dispatch({
+			type: DELETE_TRACKED_PHRASE,
+			payload: id
+		});
+		dispatch(loadUser());
+	} catch (err) {
+		dispatch({
+			type: CUSTOM_PROMPT_ERROR
+		});
 	}
 };
