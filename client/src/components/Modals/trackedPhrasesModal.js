@@ -4,7 +4,7 @@ import { Input, Button, Dialog, Container } from '@material-ui/core';
 import { connect } from 'react-redux';
 import { addTrackedPhrase, deleteTrackedPhrase } from '../../redux/actions/authActions';
 
-function TrackedPhrasesModal({ auth: { user } }) {
+function TrackedPhrasesModal({ addTrackedPhrase, deleteTrackedPhrase, auth: { user } }) {
 	const [modalOpen, setModalOpen] = useState(false);
 	const [phraseData, setPhraseData] = useState({
 		phrase: ''
@@ -18,6 +18,7 @@ function TrackedPhrasesModal({ auth: { user } }) {
 		await addTrackedPhrase({ phrase: phraseData });
 		setPhraseData({ phrase: '' });
 	};
+
 	return (
 		<>
 			<Button onClick={() => setModalOpen(!modalOpen)}>Edit</Button>
@@ -28,7 +29,7 @@ function TrackedPhrasesModal({ auth: { user } }) {
 						{user.trackedPhrases.map((item) => (
 							<li key={item.id}>
 								<h3>{item.phrase}</h3>
-								<Button>Delete</Button>
+								<Button onClick={() => deleteTrackedPhrase(item.id)}>Delete</Button>
 							</li>
 						))}
 					</ol>
@@ -37,10 +38,10 @@ function TrackedPhrasesModal({ auth: { user } }) {
 							Add New Phrase:
 							<input onChange={phraseInput} placeholder="phrase" value={phraseData.phrase}></input>{' '}
 						</h3>
-						<button onClick={onSubmit} type="submit">
-							Add Phrase
-						</button>
 					</form>
+					<Button onClick={onSubmit} type="submit">
+						Add Phrase
+					</Button>
 
 					<Button onClick={() => setModalOpen(!modalOpen)}>Close</Button>
 				</Container>

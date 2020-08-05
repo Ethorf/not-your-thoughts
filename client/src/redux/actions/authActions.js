@@ -225,7 +225,7 @@ export const addTrackedPhrase = ({ phrase }) => async (dispatch) => {
 	};
 	const body = JSON.stringify({ phrase });
 	try {
-		const res = await axios.post('/api/updateUser/phrases', body, config);
+		const res = await axios.post('/api/updateUser/phrases/', body, config);
 		dispatch({
 			type: ADD_TRACKED_PHRASE,
 			payload: res.data
@@ -241,7 +241,7 @@ export const addTrackedPhrase = ({ phrase }) => async (dispatch) => {
 
 export const deleteTrackedPhrase = (id) => async (dispatch) => {
 	try {
-		const res = await axios.delete(`/api/updateUser/phrases/${id}`);
+		await axios.delete(`/api/updateUser/phrases/${id}`);
 		dispatch({
 			type: DELETE_TRACKED_PHRASE,
 			payload: id
