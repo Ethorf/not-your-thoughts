@@ -55,6 +55,19 @@ export const muiTheme = createMuiTheme({
 				borderRadius: '7px',
 				padding: '15px'
 			}
+		},
+		MuiInput: {
+			root: {
+				color: 'white',
+				borderRadius: '7px',
+				padding: '5px',
+				textAlign: 'center',
+				border: '1px solid grey'
+			},
+			text: {
+				color: 'white',
+				textAlign: 'center'
+			}
 		}
 	}
 });

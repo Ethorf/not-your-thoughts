@@ -1,4 +1,5 @@
-import React, { Component, Fragment, useRef, useState, useEffect } from 'react';
+import React, { Fragment, useRef, useState, useEffect } from 'react';
+import { Button } from '@material-ui/core';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { TimelineMax } from 'gsap';
@@ -42,14 +43,14 @@ const SuccessModal = ({
 		setGratitudeCompleted(true);
 	};
 	const openModalOverlayAnimation = () => {
-		setOverlayAnimation(overlayTl.to(modalOverlayContainer, { duration: 1, delay: 2.5, opacity: 0.7 }).play());
+		setOverlayAnimation(overlayTl.to(modalOverlayContainer, { duration: 1, delay: 1.2, opacity: 0.7 }).play());
 	};
 	const closeModalOverlayAnimation = () => {
 		setOverlayAnimation(overlayTl.to(modalOverlayContainer, { duration: 1, opacity: 0.7 }).reverse());
 	};
 	const openModalContentAnimation = () => {
 		setContentAnimation(
-			contentTl.to(modalContentContainer, { duration: 1, delay: 2.5, y: 100, opacity: 1 }).play()
+			contentTl.to(modalContentContainer, { duration: 1, delay: 1.2, y: 100, opacity: 1 }).play()
 		);
 	};
 	const closeModalContentAnimation = () => {
@@ -62,10 +63,10 @@ const SuccessModal = ({
 		increaseDays();
 		setTimeout(() => {
 			loadUser();
-		}, 300);
+		}, 100);
 		setTimeout(() => {
 			openSuccessModal();
-		}, 1600);
+		}, 1000);
 	};
 
 	const closeModalAll = () => {
@@ -88,7 +89,7 @@ const SuccessModal = ({
 	}, [wordCount, goalReachedStatus, goal, user]);
 	return (
 		<Fragment>
-			{/*<button onClick={openModalAll}>Modal Open Test</button> */}
+			<button onClick={openModalAll}>Modal Open Test</button>
 			<div
 				className={`${modals.successModalOpen ? 'main__modal2OverlayOpen' : 'main__modal2OverlayClosed'}`}
 				ref={(div) => (modalOverlayContainer = div)}
@@ -113,12 +114,12 @@ const SuccessModal = ({
 									Would you like to do a bonus gratitude practice?
 								</h4>
 								<div className="modal__gratitude-buttons-container">
-									<button className="modal__gratitude-button" onClick={openGratitude}>
+									<Button className="modal__gratitude-button" onClick={openGratitude}>
 										Yes
-									</button>
-									<button onClick={closeGratitude} className="modal__gratitude-button">
+									</Button>
+									<Button onClick={closeGratitude} className="modal__gratitude-button">
 										No
-									</button>
+									</Button>
 								</div>
 							</>
 						)}

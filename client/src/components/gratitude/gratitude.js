@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
+import { Input } from '@material-ui/core';
 import './gratitude.scss';
 
 export const Gratitude = (props) => {
@@ -7,16 +7,16 @@ export const Gratitude = (props) => {
 		<form className={`gratitude`}>
 			<h2 className={`gratitude__header`}>Quickly Describe 6 things you are grateful for</h2>
 			<div className={`gratitude__two-input-container`}>
-				<input className={`gratitude__input`} placeholder="gratitude here"></input>
-				<input className={`gratitude__input`} placeholder="gratitude here"></input>
+				<Input placeholder="gratitude here"></Input>
+				<Input placeholder="gratitude here"></Input>
 			</div>
 			<div className={`gratitude__two-input-container`}>
-				<input className={`gratitude__input`} placeholder="gratitude here"></input>
-				<input className={`gratitude__input`} placeholder="gratitude here"></input>
+				<Input placeholder="gratitude here"></Input>
+				<Input placeholder="gratitude here"></Input>
 			</div>
 			<div className={`gratitude__two-input-container`}>
-				<input className={`gratitude__input`} placeholder="gratitude here"></input>
-				<input className={`gratitude__input`} placeholder="gratitude here"></input>
+				<Input placeholder="gratitude here"></Input>
+				<Input placeholder="gratitude here"></Input>
 			</div>
 			<button onClick={props.closeGratitude} className={`gratitude__done-button`}>
 				Done
@@ -25,8 +25,4 @@ export const Gratitude = (props) => {
 	);
 };
 
-const mapStateToProps = (state) => ({});
-
-const mapDispatchToProps = {};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Gratitude);
+export default Gratitude;
