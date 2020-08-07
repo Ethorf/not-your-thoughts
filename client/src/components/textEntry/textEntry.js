@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Redirect, StaticRouter } from 'react-router-dom';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { HotKeys, configure } from 'react-hotkeys';
+
 import '../../pages/main/main.scss';
-import { useHotkeys } from 'react-hotkeys-hook';
+// import Timer from '../timer/timer.js';
 
 //Redux Function Imports
 import { connect } from 'react-redux';
@@ -28,9 +28,35 @@ import IntroModal from '../Modals/introModal.js';
 import SaveEntryModal from '../Modals/saveEntryModal.js';
 import Spinner from '../spinner/spinner';
 
-configure({
-	ignoreTags: []
-});
+function Timer(props) {
+	const [minutes, setMinutes] = useState(0);
+	const [seconds, setSeconds] = useState(0);
+
+	useEffect(() => {
+		let secondsInterval = null;
+		if (props.timerActive) {
+			secondsInterval = setInterval(() => {
+				setSeconds((seconds) => seconds + 1);
+			}, 1000);
+		} else if (!props.timerActive && seconds !== 0) {
+			clearInterval(secondsInterval);
+		}
+		if (props.timerActive && seconds === 59) {
+			setSeconds(0);
+			setMinutes((minutes) => minutes + 1);
+		}
+		return () => clearInterval(secondsInterval);
+	}, [props.timerActive, seconds, minutes]);
+
+	return (
+		<div className="timer">
+			<div>
+				{minutes}:{seconds}s
+			</div>
+		</div>
+	);
+}
+
 const TextEntry = ({
 	openSaveEntryModal,
 	wordCount,
@@ -45,6 +71,7 @@ const TextEntry = ({
 	const [entryData, setEntryData] = useState({
 		entry: ''
 	});
+	const [timerActive, setTimerActive] = useState(false);
 
 	if (!isAuthenticated) {
 		return <Redirect to="/login" />;
@@ -71,7 +98,7 @@ const TextEntry = ({
 				<div className={`main ${mode}`}>
 					<Header />
 					<SaveEntryModal />
-					<SuccessModal />
+					<SuccessModal timerActive={timerActive} setTimerActive={setTimerActive} />
 					<IntroModal />
 					<Prompt />
 					<ProgressWord />
@@ -85,6 +112,7 @@ const TextEntry = ({
 								<h2 className={`main__goal`}>
 									Goal: {user ? user.dailyWordsGoal : 'loading daily goal'} Words
 								</h2>
+								<Timer timerActive={timerActive} />
 								<h3 className={`main__wordcount`}>{wordCount} Words</h3>
 							</div>
 							<div className={`main__textarea-border ${mode}`}>

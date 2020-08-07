@@ -21,7 +21,7 @@ export const getEntries = () => async (dispatch) => {
 	}
 };
 //Entry Actions
-export const saveEntry = ({ entry }) => async (dispatch) => {
+export const saveEntry = ({ entry }, time) => async (dispatch) => {
 	let date = moment().format(`MMMM Do YYYY, h:mm:ss a`);
 	const config = {
 		headers: {
@@ -29,7 +29,7 @@ export const saveEntry = ({ entry }) => async (dispatch) => {
 		}
 	};
 
-	const body = { entry, date };
+	const body = { entry, date, time };
 	try {
 		const res = await axios.post('/api/updateUser', body, config);
 		dispatch({

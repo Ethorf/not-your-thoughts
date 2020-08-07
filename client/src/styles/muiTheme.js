@@ -29,7 +29,6 @@ export const muiTheme = createMuiTheme({
 				padding: '3px 6px',
 				color: 'white',
 				backgroundColor: 'black',
-				margin: '5px 10px',
 				border: '1px solid silver',
 				borderRadius: '4px',
 				fontFamily: 'Syncopate',
@@ -60,7 +59,7 @@ export const muiTheme = createMuiTheme({
 			root: {
 				color: 'white',
 				borderRadius: '7px',
-				padding: '5px',
+				padding: '3px',
 				textAlign: 'center',
 				border: '1px solid grey'
 			},

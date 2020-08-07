@@ -19,6 +19,7 @@ function Entry(props) {
 			<div className="entry__entry-date-wordcount-container">
 				<EntryAnalysisModal
 					content={props.content}
+					date={props.date}
 					toggleAnalysisModalOpen={() => setAnalysisModalOpen(!analysisModalOpen)}
 					analysisModalOpen={analysisModalOpen}
 					trackedPhrases={props.trackedPhrases}

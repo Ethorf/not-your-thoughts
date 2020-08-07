@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import './entryAnalysisModal.scss';
+import './trackedPhrasesModal.scss';
 import { Input, Button, Dialog, Container } from '@material-ui/core';
 import { connect } from 'react-redux';
 import { addTrackedPhrase, deleteTrackedPhrase } from '../../redux/actions/authActions';
@@ -27,22 +27,24 @@ function TrackedPhrasesModal({ addTrackedPhrase, deleteTrackedPhrase, auth: { us
 					<h1 className="entry-analysis-modal__header">Tracked Phrases</h1>
 					<ol>
 						{user.trackedPhrases.map((item) => (
-							<li key={item.id}>
-								<h3>{item.phrase}</h3>
+							<li className={`list-item`}>
+								<h3 style={{ margin: '0' }}>{item.phrase}</h3>
 								<Button onClick={() => deleteTrackedPhrase(item.id)}>Delete</Button>
 							</li>
 						))}
 					</ol>
-					<form>
-						<h3>
-							Add New Phrase:
-							<input onChange={phraseInput} placeholder="phrase" value={phraseData.phrase}></input>{' '}
-						</h3>
+					<form className={`add-new-phrase-form`}>
+						<h3 className={`add-new-phrase`}>Add New Phrase:</h3>
+						<Input
+							disableUnderline="true"
+							onChange={phraseInput}
+							placeholder="phrase"
+							value={phraseData.phrase}
+						></Input>{' '}
 					</form>
 					<Button onClick={onSubmit} type="submit">
 						Add Phrase
 					</Button>
-
 					<Button onClick={() => setModalOpen(!modalOpen)}>Close</Button>
 				</Container>
 			</Dialog>

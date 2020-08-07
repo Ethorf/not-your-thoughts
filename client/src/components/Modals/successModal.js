@@ -23,6 +23,7 @@ const SuccessModal = ({
 	goalReached,
 	goal,
 	loadUser,
+	setTimerActive,
 	goalReachedStatus,
 	increaseDays
 }) => {
@@ -83,13 +84,17 @@ const SuccessModal = ({
 		saveEntry({ entry: entry });
 	};
 	useEffect(() => {
+		if (wordCount > 0 && wordCount <= user.dailyWordsGoal) {
+			setTimerActive(true);
+		}
 		if (wordCount >= user.dailyWordsGoal && goalReachedStatus === false) {
 			openModalAll();
+			setTimerActive(false);
 		}
 	}, [wordCount, goalReachedStatus, goal, user]);
 	return (
 		<Fragment>
-			<button onClick={openModalAll}>Modal Open Test</button>
+			{/*<button onClick={openModalAll}>Modal Open Test</button> */}
 			<div
 				className={`${modals.successModalOpen ? 'main__modal2OverlayOpen' : 'main__modal2OverlayClosed'}`}
 				ref={(div) => (modalOverlayContainer = div)}
@@ -146,14 +151,15 @@ SuccessModal.propTypes = {
 	auth: PropTypes.object.isRequired
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state, props) => ({
 	auth: state.auth,
 	modals: state.modals,
 	wordCount: state.wordCount.wordCount,
 	entry: state.entries.entry,
 	goalReachedStatus: state.wordCount.goalReachedStatus,
 	goal: state.wordCount.goal,
-	mode: state.modes.mode
+	mode: state.modes.mode,
+	setTimerActive: props.setTimerActive
 });
 
 export default connect(mapStateToProps, {

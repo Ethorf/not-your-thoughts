@@ -8,6 +8,7 @@ import { logout, loadUser, toggleProgressAudio } from '../../redux/actions/authA
 import { deleteEntry, getEntries } from '../../redux/actions/entryActions.js';
 import Entry from '../../components/entry/entry.js';
 import ProfileGoalEdit from '../../components/profileGoalEdit/profileGoalEdit.js';
+import TrackedPhrasesModal from '../../components/Modals/trackedPhrasesModal.js';
 import CustomPrompts from '../../components/customPrompts/customPrompts.js';
 
 import Spinner from '../../components/spinner/spinner.js';
@@ -112,6 +113,11 @@ const Profile = ({
 							Off
 						</span>{' '}
 					</div>
+				</div>
+
+				<div className={`profile__toggle-container`}>
+					Tracked Phrases
+					<TrackedPhrasesModal />
 				</div>
 				<CustomPrompts />
 				<h2 className={`profile__entries-header ${mode}`}>SAVED ENtRIES</h2>
