@@ -53,6 +53,7 @@ const Profile = ({
 							className="profile profile__entry"
 							wordCount={userData.numOfWords}
 							date={userData.date}
+							timeElapsed={userData.timeElapsed}
 							content={userData.content}
 							deleteEntry={deleteEntry}
 							getEntries={getEntries}

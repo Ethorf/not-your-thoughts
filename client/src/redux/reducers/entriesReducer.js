@@ -1,12 +1,22 @@
-import { SAVE_ENTRY, DELETE_ENTRY, SET_ENTRY, GET_ENTRIES, ENTRIES_ERROR } from '../actions/actionTypes';
+import {
+	SAVE_ENTRY,
+	DELETE_ENTRY,
+	SET_ENTRY,
+	GET_ENTRIES,
+	ENTRIES_ERROR,
+	SET_TIME_ELAPSED,
+	TOGGLE_TIMER_ACTIVE
+} from '../actions/actionTypes';
 
 const initialState = {
 	entries: [],
 	entry: '',
-	loading: true
+	timeElapsed: '',
+	loading: true,
+	timerActive: false
 };
 
-export default function(state = initialState, action) {
+export default function (state = initialState, action) {
 	const { type, payload } = action;
 
 	switch (type) {
@@ -31,6 +41,16 @@ export default function(state = initialState, action) {
 			return {
 				...state,
 				entry: payload
+			};
+		case SET_TIME_ELAPSED:
+			return {
+				...state,
+				timeElapsed: payload
+			};
+		case TOGGLE_TIMER_ACTIVE:
+			return {
+				...state,
+				timerActive: payload
 			};
 		case ENTRIES_ERROR:
 			return {

@@ -27,36 +27,7 @@ import SuccessModal from '../Modals/successModal.js';
 import IntroModal from '../Modals/introModal.js';
 import SaveEntryModal from '../Modals/saveEntryModal.js';
 import Spinner from '../spinner/spinner';
-
-function Timer(props) {
-	const [minutes, setMinutes] = useState(0);
-	const [seconds, setSeconds] = useState(0);
-
-	useEffect(() => {
-		let secondsInterval = null;
-		if (props.timerActive) {
-			secondsInterval = setInterval(() => {
-				setSeconds((seconds) => seconds + 1);
-			}, 1000);
-		} else if (!props.timerActive && seconds !== 0) {
-			clearInterval(secondsInterval);
-		}
-		if (props.timerActive && seconds === 59) {
-			setSeconds(0);
-			setMinutes((minutes) => minutes + 1);
-		}
-		return () => clearInterval(secondsInterval);
-	}, [props.timerActive, seconds, minutes]);
-
-	return (
-		<div className="timer">
-			<div>
-				{minutes}:{seconds}s
-			</div>
-		</div>
-	);
-}
-
+import Timer from '../timer/timer.js';
 const TextEntry = ({
 	openSaveEntryModal,
 	wordCount,
@@ -66,12 +37,12 @@ const TextEntry = ({
 	setEntry,
 	mode,
 	auth: { user },
-	entry
+	entry,
+	timeElapsed
 }) => {
 	const [entryData, setEntryData] = useState({
 		entry: ''
 	});
-	const [timerActive, setTimerActive] = useState(false);
 
 	if (!isAuthenticated) {
 		return <Redirect to="/login" />;
@@ -87,7 +58,7 @@ const TextEntry = ({
 	const onSubmit = async (e) => {
 		e.preventDefault();
 		openSaveEntryModal();
-		saveEntry({ entry: entryData });
+		saveEntry({ entry: entryData, timeElapsed: timeElapsed });
 	};
 	return user === null ? (
 		<Spinner />
@@ -98,7 +69,7 @@ const TextEntry = ({
 				<div className={`main ${mode}`}>
 					<Header />
 					<SaveEntryModal />
-					<SuccessModal timerActive={timerActive} setTimerActive={setTimerActive} />
+					<SuccessModal />
 					<IntroModal />
 					<Prompt />
 					<ProgressWord />
@@ -112,7 +83,7 @@ const TextEntry = ({
 								<h2 className={`main__goal`}>
 									Goal: {user ? user.dailyWordsGoal : 'loading daily goal'} Words
 								</h2>
-								<Timer timerActive={timerActive} />
+								<Timer />
 								<h3 className={`main__wordcount`}>{wordCount} Words</h3>
 							</div>
 							<div className={`main__textarea-border ${mode}`}>
@@ -154,7 +125,9 @@ const mapStateToProps = (state) => ({
 	isAuthenticated: state.auth.isAuthenticated,
 	modals: state.modals,
 	mode: state.modes.mode,
-	entry: state.entries.entry
+	entry: state.entries.entry,
+	timeElapsed: state.entries.timeElapsed,
+	timerActive: state.entries.timerActive
 });
 
 export default connect(mapStateToProps, {

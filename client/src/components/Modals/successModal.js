@@ -7,7 +7,7 @@ import '../../pages/main/main.scss';
 import './successModal.scss';
 //Redux Actions
 import { openSuccessModal, closeSuccessModal } from '../../redux/actions/modalActions.js';
-import { saveEntry } from '../../redux/actions/entryActions';
+import { saveEntry, toggleTimerActive } from '../../redux/actions/entryActions';
 import { goalReached } from '../../redux/actions/index';
 import { increaseDays, loadUser } from '../../redux/actions/authActions';
 import { Gratitude } from '../gratitude/gratitude';
@@ -23,7 +23,7 @@ const SuccessModal = ({
 	goalReached,
 	goal,
 	loadUser,
-	setTimerActive,
+	toggleTimerActive,
 	goalReachedStatus,
 	increaseDays
 }) => {
@@ -85,11 +85,11 @@ const SuccessModal = ({
 	};
 	useEffect(() => {
 		if (wordCount > 0 && wordCount <= user.dailyWordsGoal) {
-			setTimerActive(true);
+			toggleTimerActive(true);
 		}
 		if (wordCount >= user.dailyWordsGoal && goalReachedStatus === false) {
 			openModalAll();
-			setTimerActive(false);
+			toggleTimerActive(false);
 		}
 	}, [wordCount, goalReachedStatus, goal, user]);
 	return (
@@ -168,5 +168,6 @@ export default connect(mapStateToProps, {
 	closeSuccessModal,
 	saveEntry,
 	goalReached,
-	increaseDays
+	increaseDays,
+	toggleTimerActive
 })(SuccessModal);

@@ -22,6 +22,9 @@ export const SET_ENTRY = 'SET_ENTRY';
 export const SAVE_ENTRY = 'SAVE_ENTRY';
 export const DELETE_ENTRY = 'DELETE_ENTRY';
 export const ENTRIES_ERROR = 'ENTRIES_ERROR';
+//Timer
+export const SET_TIME_ELAPSED = 'SET_TIME_ELAPSED';
+export const TOGGLE_TIMER_ACTIVE = 'TOGGLE_TIMER_ACTIVE';
 //Prompts Stuff
 export const ADD_CUSTOM_PROMPT = 'ADD_CUSTOM_PROMPT';
 export const DELETE_CUSTOM_PROMPT = 'DELETE_CUSTOM_PROMPT';

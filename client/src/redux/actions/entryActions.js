@@ -1,7 +1,15 @@
 import axios from 'axios';
 import setAuthToken from '../../utils/setAuthToken';
 import moment from 'moment';
-import { SAVE_ENTRY, DELETE_ENTRY, GET_ENTRIES, ENTRIES_ERROR, SET_ENTRY } from './actionTypes';
+import {
+	SAVE_ENTRY,
+	DELETE_ENTRY,
+	GET_ENTRIES,
+	ENTRIES_ERROR,
+	SET_ENTRY,
+	SET_TIME_ELAPSED,
+	TOGGLE_TIMER_ACTIVE
+} from './actionTypes';
 
 // Get Entries
 export const getEntries = () => async (dispatch) => {
@@ -21,7 +29,7 @@ export const getEntries = () => async (dispatch) => {
 	}
 };
 //Entry Actions
-export const saveEntry = ({ entry }, time) => async (dispatch) => {
+export const saveEntry = ({ entry, timeElapsed }) => async (dispatch) => {
 	let date = moment().format(`MMMM Do YYYY, h:mm:ss a`);
 	const config = {
 		headers: {
@@ -29,7 +37,7 @@ export const saveEntry = ({ entry }, time) => async (dispatch) => {
 		}
 	};
 
-	const body = { entry, date, time };
+	const body = { entry, timeElapsed, date };
 	try {
 		const res = await axios.post('/api/updateUser', body, config);
 		dispatch({
@@ -64,6 +72,20 @@ export const deleteEntry = (id) => async (dispatch) => {
 export const setEntry = (payload) => (dispatch) => {
 	dispatch({
 		type: SET_ENTRY,
+		payload
+	});
+};
+
+export const setTimeElapsed = (payload) => (dispatch) => {
+	dispatch({
+		type: SET_TIME_ELAPSED,
+		payload
+	});
+};
+
+export const toggleTimerActive = (payload) => (dispatch) => {
+	dispatch({
+		type: TOGGLE_TIMER_ACTIVE,
 		payload
 	});
 };

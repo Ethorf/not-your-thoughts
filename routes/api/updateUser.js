@@ -37,7 +37,7 @@ router.post('/', [auth, [check('entry', 'No empty entries allowed!').not().isEmp
 		user.entries.push({
 			content: req.body.entry,
 			date: req.body.date,
-			date: req.body.time,
+			timeElapsed: req.body.timeElapsed,
 			id: uuidv4(),
 			numOfWords: req.body.entry.split(' ').filter((item) => item !== '').length
 		});
