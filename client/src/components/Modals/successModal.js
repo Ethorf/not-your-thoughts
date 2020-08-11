@@ -25,7 +25,8 @@ const SuccessModal = ({
 	loadUser,
 	toggleTimerActive,
 	goalReachedStatus,
-	increaseDays
+	increaseDays,
+	timeElapsed
 }) => {
 	let modalOverlayContainer = useRef(null);
 	let modalContentContainer = useRef(null);
@@ -81,13 +82,12 @@ const SuccessModal = ({
 		closeModalOverlayAnimation();
 		closeSuccessModal();
 		goalReached();
-		saveEntry({ entry: entry });
+		saveEntry({ entry: entry, timeElapsed: timeElapsed });
 	};
 	useEffect(() => {
 		if (wordCount > 0 && wordCount <= user.dailyWordsGoal) {
 			toggleTimerActive(true);
-		}
-		if (wordCount >= user.dailyWordsGoal && goalReachedStatus === false) {
+		} else if (wordCount >= user.dailyWordsGoal && goalReachedStatus === false) {
 			openModalAll();
 			toggleTimerActive(false);
 		}
@@ -159,7 +159,8 @@ const mapStateToProps = (state, props) => ({
 	goalReachedStatus: state.wordCount.goalReachedStatus,
 	goal: state.wordCount.goal,
 	mode: state.modes.mode,
-	setTimerActive: props.setTimerActive
+	setTimerActive: props.setTimerActive,
+	timeElapsed: state.entries.timeElapsed
 });
 
 export default connect(mapStateToProps, {

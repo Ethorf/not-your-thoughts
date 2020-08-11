@@ -3,30 +3,24 @@ import { connect } from 'react-redux';
 import './timer.scss';
 import { setTimeElapsed } from '../../redux/actions/entryActions.js';
 
-function Timer({ setTimeElapsed, timerActive }) {
-	const [minutes, setMinutes] = useState(0);
+function Timer({ setTimeElapsed, timerActive, timeElapsed }) {
 	const [seconds, setSeconds] = useState(0);
 
 	useEffect(() => {
 		let secondsInterval = null;
+
 		if (timerActive) {
 			secondsInterval = setInterval(() => {
 				setSeconds((seconds) => seconds + 1);
-				setTimeElapsed(`${minutes}:${seconds}`);
+				setTimeElapsed(seconds);
 			}, 1000);
-		} else if (!timerActive && seconds !== 0) {
-			clearInterval(secondsInterval);
-		}
-		if (timerActive && seconds === 59) {
-			setSeconds(0);
-			setMinutes((minutes) => minutes + 1);
 		}
 		return () => clearInterval(secondsInterval);
-	}, [timerActive, seconds, minutes]);
+	}, [timerActive, seconds]);
 
 	return (
 		<div className="timer">
-			{minutes}m:{seconds}s
+			{Math.round(timeElapsed / 60)}m:{timeElapsed % 60}s
 		</div>
 	);
 }
