@@ -9,6 +9,7 @@ import './App.scss';
 import NavBarSide from './components/nav/navBarSide.js';
 import NavBarTop from './components/nav/navBarTop.js';
 import AudioPlayer from './components/audioPlayer/audioPlayer.js';
+import Timer from './components/timer/timer.js';
 //Pages Imports
 import Landing from './pages/landing/landing';
 import TextEntry from './components/textEntry/textEntry.js';
@@ -41,6 +42,7 @@ const App = () => {
 					<NavBarTop />
 					<NavBarSide />
 					<AudioPlayer />
+					<Timer />
 					<Route
 						render={({ location }) => (
 							<TransitionGroup>

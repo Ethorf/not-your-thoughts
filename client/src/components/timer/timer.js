@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import './timer.scss';
 import { setTimeElapsed } from '../../redux/actions/entryActions.js';
 
-function Timer({ setTimeElapsed, timerActive, timeElapsed }) {
+function Timer({ setTimeElapsed, timerActive }) {
 	const [seconds, setSeconds] = useState(0);
 
 	useEffect(() => {
@@ -18,15 +18,10 @@ function Timer({ setTimeElapsed, timerActive, timeElapsed }) {
 		return () => clearInterval(secondsInterval);
 	}, [timerActive, seconds]);
 
-	return (
-		<div className="timer">
-			{Math.round(timeElapsed / 60)}m:{timeElapsed % 60}s
-		</div>
-	);
+	return null;
 }
 
 const mapStateToProps = (state) => ({
-	timeElapsed: state.entries.timeElapsed,
 	timerActive: state.entries.timerActive
 });
 

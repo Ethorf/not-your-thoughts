@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Redirect, StaticRouter } from 'react-router-dom';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-
+//SCSS
 import '../../pages/main/main.scss';
-// import Timer from '../timer/timer.js';
-
+import '../timer/timer.scss';
 //Redux Function Imports
 import { connect } from 'react-redux';
 import { changeWordCount } from '../../redux/actions/index';
@@ -83,7 +82,9 @@ const TextEntry = ({
 								<h2 className={`main__goal`}>
 									Goal: {user ? user.dailyWordsGoal : 'loading daily goal'} Words
 								</h2>
-								<Timer />
+								<div className="timer">
+									{Math.trunc(timeElapsed / 60)}m:{timeElapsed % 60}s
+								</div>
 								<h3 className={`main__wordcount`}>{wordCount} Words</h3>
 							</div>
 							<div className={`main__textarea-border ${mode}`}>

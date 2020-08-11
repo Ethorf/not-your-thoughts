@@ -32,7 +32,7 @@ function Entry(props) {
 					<h3 className="entry__entry-date-wordcount entry__words">
 						Time:{' '}
 						{props.timeElapsed
-							? `${Math.round(props.timeElapsed / 60)}m:${props.timeElapsed % 60}s`
+							? `${Math.trunc(props.timeElapsed / 60)}m:${props.timeElapsed % 60}s`
 							: 'N/A'}
 					</h3>
 				</div>
