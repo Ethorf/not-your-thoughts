@@ -38,6 +38,7 @@ router.post('/', [auth, [check('entry', 'No empty entries allowed!').not().isEmp
 			content: req.body.entry,
 			date: req.body.date,
 			timeElapsed: req.body.timeElapsed,
+			wpm: req.body.wpm,
 			id: uuidv4(),
 			numOfWords: req.body.entry.split(' ').filter((item) => item !== '').length
 		});
@@ -146,6 +147,30 @@ router.post('/toggleAudio', auth, async (req, res) => {
 		user.progressAudioEnabled = !user.progressAudioEnabled;
 		await user.save();
 		res.json(user.progressAudioEnabled);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500);
+	}
+});
+//Toggle Timer
+router.post('/toggleTimer', auth, async (req, res) => {
+	try {
+		const user = await User.findById(req.user.id);
+		user.timerEnabled = !user.timerEnabled;
+		await user.save();
+		res.json(user.timerEnabled);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500);
+	}
+});
+//Toggle Wpm
+router.post('/toggleWpm', auth, async (req, res) => {
+	try {
+		const user = await User.findById(req.user.id);
+		user.wpmEnabled = !user.wpmEnabled;
+		await user.save();
+		res.json(user.wpmEnabled);
 	} catch (err) {
 		console.error(err.message);
 		res.status(500);

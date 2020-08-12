@@ -1,7 +1,15 @@
-import { CHANGE_WORDCOUNT, GOAL_REACHED, SET_NEW_GOAL, CHANGE_GOAL, TOGGLE_EDIT_GOAL } from '../actions/actionTypes';
+import {
+	CHANGE_WORDCOUNT,
+	CHANGE_CHARCOUNT,
+	GOAL_REACHED,
+	SET_NEW_GOAL,
+	CHANGE_GOAL,
+	TOGGLE_EDIT_GOAL
+} from '../actions/actionTypes';
 
 const initialState = {
 	wordCount: 0,
+	charCount: 0,
 	goalReachedStatus: false,
 	goal: 400,
 	newGoal: 0,
@@ -9,24 +17,22 @@ const initialState = {
 };
 
 function wordCountReducer(state = initialState, action) {
-	switch (action.type) {
+	const { type, payload } = action;
+
+	switch (type) {
 		case CHANGE_WORDCOUNT:
-			return Object.assign({}, state, {
-				wordCount: action.payload
-			});
+			return { ...state, wordCount: payload };
+		case CHANGE_CHARCOUNT:
+			return { ...state, charCount: payload };
 		case GOAL_REACHED:
 			return {
 				...state,
 				goalReachedStatus: true
 			};
 		case SET_NEW_GOAL:
-			return Object.assign({}, state, {
-				newGoal: action.payload
-			});
+			return { ...state, newGoal: payload };
 		case CHANGE_GOAL:
-			return Object.assign({}, state, {
-				goal: action.payload
-			});
+			return { ...state, goal: payload };
 		case TOGGLE_EDIT_GOAL:
 			if (state.goalIsEditable === false) {
 				return {

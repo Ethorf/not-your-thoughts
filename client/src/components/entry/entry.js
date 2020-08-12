@@ -23,18 +23,12 @@ function Entry(props) {
 					toggleAnalysisModalOpen={() => setAnalysisModalOpen(!analysisModalOpen)}
 					analysisModalOpen={analysisModalOpen}
 					trackedPhrases={props.trackedPhrases}
+					wpm={props.wpm}
+					timeElapsed={props.timeElapsed}
 				/>
 				<h3 className="entry__entry-date-wordcount entry__date">{props.date}</h3>
 				<div className="entry__wordcount-container">
 					<h3 className="entry__entry-date-wordcount entry__words">Words: {props.wordCount}</h3>
-				</div>
-				<div className="entry__wordcount-container">
-					<h3 className="entry__entry-date-wordcount entry__words">
-						Time:{' '}
-						{props.timeElapsed
-							? `${Math.trunc(props.timeElapsed / 60)}m:${props.timeElapsed % 60}s`
-							: 'N/A'}
-					</h3>
 				</div>
 				<button
 					className={`entry__button ${open ? 'entry__button-open' : 'entry__button-closed'}`}

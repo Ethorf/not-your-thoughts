@@ -5,13 +5,20 @@ import {
 	CHANGE_GOAL,
 	SET_NEW_GOAL,
 	TOGGLE_EDIT_GOAL,
-	SET_NEW_GOAL_ERROR
+	SET_NEW_GOAL_ERROR,
+	CHANGE_CHARCOUNT
 } from './actionTypes';
 import { loadUser } from './authActions.js';
 
 export const changeWordCount = (payload) => (dispatch) => {
 	dispatch({
 		type: CHANGE_WORDCOUNT,
+		payload
+	});
+};
+export const changeCharCount = (payload) => (dispatch) => {
+	dispatch({
+		type: CHANGE_CHARCOUNT,
 		payload
 	});
 };

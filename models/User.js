@@ -36,6 +36,14 @@ const UserSchema = new mongoose.Schema({
 		type: Boolean,
 		default: true
 	},
+	wpmEnabled: {
+		type: Boolean,
+		default: false
+	},
+	timerEnabled: {
+		type: Boolean,
+		default: false
+	},
 	dailyWordsGoal: {
 		type: Number,
 		default: 400

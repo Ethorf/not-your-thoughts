@@ -7,7 +7,7 @@ import '../../pages/main/main.scss';
 import '../timer/timer.scss';
 //Redux Function Imports
 import { connect } from 'react-redux';
-import { changeWordCount } from '../../redux/actions/index';
+import { changeWordCount, changeCharCount } from '../../redux/actions/index';
 import { saveEntry, setEntry } from '../../redux/actions/entryActions.js';
 import { openSuccessModal, openSaveEntryModal } from '../../redux/actions/modalActions';
 import { changeMode } from '../../redux/actions/modeActions';
@@ -26,10 +26,12 @@ import SuccessModal from '../Modals/successModal.js';
 import IntroModal from '../Modals/introModal.js';
 import SaveEntryModal from '../Modals/saveEntryModal.js';
 import Spinner from '../spinner/spinner';
-import Timer from '../timer/timer.js';
+
 const TextEntry = ({
 	openSaveEntryModal,
 	wordCount,
+	charCount,
+	changeCharCount,
 	changeWordCount,
 	saveEntry,
 	isAuthenticated,
@@ -37,7 +39,9 @@ const TextEntry = ({
 	mode,
 	auth: { user },
 	entry,
-	timeElapsed
+	timeElapsed,
+	timerEnabled,
+	wpmEnabled
 }) => {
 	const [entryData, setEntryData] = useState({
 		entry: ''
@@ -52,12 +56,13 @@ const TextEntry = ({
 		setEntryData(e.target.value);
 		setEntry(e.target.value);
 		changeWordCount(e.target.value.split(' ').filter((item) => item !== '').length);
+		changeCharCount(e.target.value.split('').length);
 	};
 
 	const onSubmit = async (e) => {
 		e.preventDefault();
 		openSaveEntryModal();
-		saveEntry({ entry: entryData, timeElapsed: timeElapsed });
+		saveEntry({ entry: entryData, timeElapsed: timeElapsed, wpm: Math.trunc((charCount / 5 / timeElapsed) * 60) });
 	};
 	return user === null ? (
 		<Spinner />
@@ -82,10 +87,18 @@ const TextEntry = ({
 								<h2 className={`main__goal`}>
 									Goal: {user ? user.dailyWordsGoal : 'loading daily goal'} Words
 								</h2>
-								<div className="timer">
-									{Math.trunc(timeElapsed / 60)}m:{timeElapsed % 60}s
-								</div>
+								{user && user.timerEnabled ? (
+									<div className="timer">
+										{Math.trunc(timeElapsed / 60)}m:{timeElapsed % 60}s
+									</div>
+								) : null}
+
 								<h3 className={`main__wordcount`}>{wordCount} Words</h3>
+								{user && user.wpmEnabled ? (
+									<h3 className={`main__wordcount`}>
+										{charCount >= 20 ? Math.trunc((charCount / 5 / timeElapsed) * 60) : 'N/A'} WPM
+									</h3>
+								) : null}
 							</div>
 							<div className={`main__textarea-border ${mode}`}>
 								<textarea
@@ -122,6 +135,7 @@ TextEntry.propTypes = {
 const mapStateToProps = (state) => ({
 	auth: state.auth,
 	wordCount: state.wordCount.wordCount,
+	charCount: state.wordCount.charCount,
 	goal: state.wordCount.goal,
 	isAuthenticated: state.auth.isAuthenticated,
 	modals: state.modals,
@@ -136,6 +150,7 @@ export default connect(mapStateToProps, {
 	openSaveEntryModal,
 	openSuccessModal,
 	changeWordCount,
+	changeCharCount,
 	setEntry,
 	increaseDays,
 	changeMode

@@ -141,19 +141,20 @@ export const setFirstLogin = () => async (dispatch) => {
 		}
 	}
 };
-export const toggleProgressAudio = () => async (dispatch) => {
+//all of the settings have to be capitalized for the backend shit
+export const toggleUserSetting = (setting) => async (dispatch) => {
 	const config = {
 		headers: {
 			'x-auth-token': localStorage.getItem('token')
 		}
 	};
 	try {
-		const res = await axios.post('/api/updateUser/toggleAudio', config);
+		const res = await axios.post(`/api/updateUser/toggle${setting}`, config);
 		dispatch({
+			//still gotta change this to be somethin else? okay so right now these literally do absolutely nothing
 			type: TOGGLE_PROGRESS_AUDIO,
 			payload: res.data
 		});
-		console.log(res);
 		dispatch(loadUser());
 	} catch (err) {
 		console.log('toggle error');

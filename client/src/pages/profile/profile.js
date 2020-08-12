@@ -4,7 +4,7 @@ import '../../styles/rubberDucky.scss';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { logout, loadUser, toggleProgressAudio } from '../../redux/actions/authActions';
+import { logout, loadUser, toggleUserSetting } from '../../redux/actions/authActions';
 import { deleteEntry, getEntries } from '../../redux/actions/entryActions.js';
 import Entry from '../../components/entry/entry.js';
 import ProfileGoalEdit from '../../components/profileGoalEdit/profileGoalEdit.js';
@@ -20,21 +20,38 @@ const Profile = ({
 	getEntries,
 	entries,
 	mode,
-	toggleProgressAudio,
-	progressAudioEnabled
+	toggleUserSetting,
+	progressAudioEnabled,
+	timerEnabled,
+	wpmEnabled
 }) => {
 	const [localProgressAudioEnabled, setLocalProgressAudioEnabled] = useState(progressAudioEnabled);
+	const [localTimerEnabled, setLocalTimerEnabled] = useState(timerEnabled);
+	const [localWpmEnabled, setLocalWpmEnabled] = useState(wpmEnabled);
+
 	useEffect(() => {
 		loadUser();
 		getEntries();
 		if (user !== null) {
 			setLocalProgressAudioEnabled(user.progressAudioEnabled);
+			setLocalTimerEnabled(user.timerEnabled);
+			setLocalWpmEnabled(user.wpmEnabled);
 		}
 	}, [getEntries]);
 
+	//Could I make this into a functional thing? might as well try
+
 	const toggleLocalProgressAudio = () => {
 		setLocalProgressAudioEnabled(!localProgressAudioEnabled);
-		toggleProgressAudio();
+		toggleUserSetting('Audio');
+	};
+	const toggleLocalTimer = () => {
+		setLocalTimerEnabled(!localTimerEnabled);
+		toggleUserSetting('Timer');
+	};
+	const toggleLocalWpm = () => {
+		setLocalWpmEnabled(!localWpmEnabled);
+		toggleUserSetting('Wpm');
 	};
 
 	if (!isAuthenticated) {
@@ -54,6 +71,7 @@ const Profile = ({
 							wordCount={userData.numOfWords}
 							date={userData.date}
 							timeElapsed={userData.timeElapsed}
+							wpm={userData.wpm}
 							content={userData.content}
 							deleteEntry={deleteEntry}
 							getEntries={getEntries}
@@ -117,6 +135,46 @@ const Profile = ({
 				</div>
 
 				<div className={`profile__toggle-container`}>
+					Timer:
+					<div onClick={toggleLocalTimer} className={`profile__toggle-switch`}>
+						<span
+							className={` profile__toggle-button profile__on-button ${
+								localTimerEnabled ? 'profile__active' : 'profile__inactive'
+							}`}
+						>
+							On
+						</span>
+						<span
+							className={` profile__toggle-button profile__off-button ${
+								localTimerEnabled ? 'profile__inactive' : 'profile__active'
+							}`}
+						>
+							Off
+						</span>{' '}
+					</div>
+				</div>
+
+				<div className={`profile__toggle-container`}>
+					WPM readout:
+					<div onClick={toggleLocalWpm} className={`profile__toggle-switch`}>
+						<span
+							className={` profile__toggle-button profile__on-button ${
+								localWpmEnabled ? 'profile__active' : 'profile__inactive'
+							}`}
+						>
+							On
+						</span>
+						<span
+							className={` profile__toggle-button profile__off-button ${
+								localWpmEnabled ? 'profile__inactive' : 'profile__active'
+							}`}
+						>
+							Off
+						</span>{' '}
+					</div>
+				</div>
+
+				<div className={`profile__toggle-container`}>
 					Tracked Phrases
 					<TrackedPhrasesModal />
 				</div>
@@ -145,4 +203,4 @@ const mapStateToProps = (state) => ({
 	mode: state.modes.mode
 });
 
-export default connect(mapStateToProps, { logout, deleteEntry, loadUser, getEntries, toggleProgressAudio })(Profile);
+export default connect(mapStateToProps, { logout, deleteEntry, loadUser, getEntries, toggleUserSetting })(Profile);

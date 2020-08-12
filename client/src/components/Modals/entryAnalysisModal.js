@@ -18,6 +18,14 @@ function EntryAnalysisModal(props) {
 			<Container>
 				<h1 className="entry-analysis-modal__header">Entry Analysis</h1>
 				<h2>{props.date}</h2>
+				<h3 className="entry__entry-date-wordcount entry__words">
+					Time:{' '}
+					{props.timeElapsed ? `${Math.trunc(props.timeElapsed / 60)}m:${props.timeElapsed % 60}s` : 'N/A'}
+				</h3>
+				<h3 className="entry__entry-date-wordcount entry__words">
+					Wpm:
+					{props.wpm ? props.wpm : 'N/A'}
+				</h3>
 				<p> {props.content ? gradeLevel(props.content) : 'Loading Grade Level'}</p>
 				<h2 className="entry-analysis-modal__header">Tracked Phrases :</h2>
 				{props.trackedPhrases.map((item) => (
