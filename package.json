@@ -30,6 +30,7 @@
 		"mongoose": "^5.9.2",
 		"nodemailer": "^6.4.3",
 		"nodemon": "^2.0.1",
+		"paralleldots": "^3.2.5",
 		"puppeteer": "^5.2.1",
 		"react-hotkeys": "^2.0.0",
 		"react-hotkeys-hook": "^2.1.3",
