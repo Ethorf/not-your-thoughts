@@ -76,6 +76,7 @@ const Profile = ({
 							deleteEntry={deleteEntry}
 							getEntries={getEntries}
 							trackedPhrases={user.trackedPhrases}
+							pdEmotionAnalysis={userData.pdEmotionAnalysis}
 						/>
 					))
 				)}

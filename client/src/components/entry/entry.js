@@ -20,9 +20,11 @@ function Entry(props) {
 				<EntryAnalysisModal
 					content={props.content}
 					date={props.date}
+					id={props.id}
 					toggleAnalysisModalOpen={() => setAnalysisModalOpen(!analysisModalOpen)}
 					analysisModalOpen={analysisModalOpen}
 					trackedPhrases={props.trackedPhrases}
+					pdEmotionAnalysis={props.pdEmotionAnalysis}
 					wpm={props.wpm}
 					timeElapsed={props.timeElapsed}
 				/>

@@ -12,7 +12,7 @@ app.use(express.json({ extended: false }));
 connectDB();
 // Routes
 app.use('/api/auth', require('./routes/api/auth'));
-app.use('/api/textAnalysis', require('./routes/api/textAnalysis.js'));
+// app.use('/api/textAnalysis', require('./routes/api/textAnalysis.js'));
 app.use('/api/registerUser', require('./routes/api/registerUser.js'));
 app.use('/api/updateUser', require('./routes/api/updateUser.js'));
 app.use('/api/setFirstLogin', require('./routes/api/setFirstLogin.js'));

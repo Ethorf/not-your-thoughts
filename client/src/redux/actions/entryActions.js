@@ -10,6 +10,7 @@ import {
 	SET_TIME_ELAPSED,
 	TOGGLE_TIMER_ACTIVE
 } from './actionTypes';
+import { loadUser } from './authActions.js';
 
 // Get Entries
 export const getEntries = () => async (dispatch) => {
@@ -44,6 +45,24 @@ export const saveEntry = ({ entry, timeElapsed, wpm }) => async (dispatch) => {
 			type: SAVE_ENTRY,
 			payload: res.data
 		});
+	} catch (err) {
+		dispatch({
+			type: ENTRIES_ERROR
+		});
+	}
+};
+
+export const addEntryAnalysis = (id) => async (dispatch) => {
+	const config = {
+		headers: {
+			'Content-Type': 'application/json',
+			'x-auth-token': localStorage.getItem('token')
+		}
+	};
+	try {
+		console.log('entryAnalysis sent');
+		await axios.post(`/api/updateUser/entryAnalysis/${id}`, config);
+		dispatch(loadUser());
 	} catch (err) {
 		dispatch({
 			type: ENTRIES_ERROR

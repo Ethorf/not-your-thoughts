@@ -39,9 +39,7 @@ const TextEntry = ({
 	mode,
 	auth: { user },
 	entry,
-	timeElapsed,
-	timerEnabled,
-	wpmEnabled
+	timeElapsed
 }) => {
 	const [entryData, setEntryData] = useState({
 		entry: ''

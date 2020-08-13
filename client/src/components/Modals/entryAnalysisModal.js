@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import './entryAnalysisModal.scss';
-import TrackedPhrasesModal from './trackedPhrasesModal.js';
 import { gradeLevel } from '../../misc/gradeLevel.js';
 import { Button, Dialog, Container } from '@material-ui/core';
 import { connect } from 'react-redux';
+import axios from 'axios';
+
+// import { addEntryAnalysis } from '../../redux/actions/entryActions.js';
+import { loadUser } from '../../redux/actions/authActions.js';
+import { getEntries } from '../../redux/actions/entryActions.js';
 
 function EntryAnalysisModal(props) {
 	const phraseRepetitionCount = (phrase, text) => {
@@ -12,6 +16,22 @@ function EntryAnalysisModal(props) {
 			return text.toLowerCase().match(re).length;
 		}
 		return 0;
+	};
+	const addEntryAnalysis = async (id) => {
+		const config = {
+			headers: {
+				'Content-Type': 'application/json',
+				'x-auth-token': localStorage.getItem('token')
+			}
+		};
+		try {
+			console.log('entryAnalysis sent');
+			await axios.post(`/api/updateUser/entryAnalysis/${id}`, config);
+			await loadUser();
+			await getEntries();
+		} catch (err) {
+			console.log('error with adding entry analysis');
+		}
 	};
 	return (
 		<Dialog open={props.analysisModalOpen}>
@@ -25,6 +45,14 @@ function EntryAnalysisModal(props) {
 				<h3 className="entry__entry-date-wordcount entry__words">
 					Wpm:
 					{props.wpm ? props.wpm : 'N/A'}
+				</h3>
+				<h3 className="entry__entry-date-wordcount entry__words">
+					Emotional Analysis:
+					{props.pdEmotionAnalysis ? (
+						`${props.pdEmotionAnalysis}`
+					) : (
+						<Button onClick={() => addEntryAnalysis(props.id)}>Analyze</Button>
+					)}
 				</h3>
 				<p> {props.content ? gradeLevel(props.content) : 'Loading Grade Level'}</p>
 				<h2 className="entry-analysis-modal__header">Tracked Phrases :</h2>
@@ -42,4 +70,4 @@ const mapStateToProps = (state) => ({
 	auth: state.auth
 });
 
-export default connect(mapStateToProps)(EntryAnalysisModal);
+export default connect(mapStateToProps, { loadUser, getEntries })(EntryAnalysisModal);

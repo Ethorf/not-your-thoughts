@@ -58,6 +58,11 @@ router.post('/entryAnalysis/:id', auth, async (req, res) => {
 		const user = await User.findById(req.user.id);
 		const entryIndex = await user.entries.map((item) => item.id).indexOf(req.params.id);
 		const textToAnalyze = user.entries[entryIndex].content;
+
+		if (user.entries[entryIndex].pdEmotionAnalysis === undefined) {
+			user.entries[entryIndex].pdEmotionAnalysis = null;
+			await user.save();
+		}
 		let textAnalysis = {};
 		if (user.entries[entryIndex].pdEmotionAnalysis === null) {
 			await pd
