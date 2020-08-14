@@ -102,7 +102,7 @@ const TextEntry = ({
 								<textarea
 									onChange={textNum}
 									name="textEntry"
-									className={`main__textarea${mode}`}
+									className={`main__textarea${mode} ${mode === ' blind' ? 'textblind' : null}`}
 									placeholder="note those thoughts here"
 									value={entry}
 								></textarea>

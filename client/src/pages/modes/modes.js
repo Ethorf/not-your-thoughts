@@ -9,21 +9,34 @@ const Modes = ({ auth: { user }, changeMode, mode, isAuthenticated }) => {
 	if (!isAuthenticated) {
 		return <Redirect to="/login" />;
 	}
-	const changeModeLight = () => {
-		changeMode('-light');
-	};
+
 	const changeModeDefault = () => {
 		changeMode('');
 	};
-	const Buttons = () => {
+	const LightModeButtons = () => {
 		return (
 			<Fragment>
 				{mode === '-light' ? (
-					<button onClick={changeModeDefault} className={`modes__light-mode-button`}>
+					<button onClick={() => changeMode('')} className={`modes__light-mode-button`}>
 						Deactivate
 					</button>
 				) : (
-					<button onClick={changeModeLight} className={`modes__light-mode-button`}>
+					<button onClick={() => changeMode('-light')} className={`modes__light-mode-button`}>
+						Activate
+					</button>
+				)}
+			</Fragment>
+		);
+	};
+	const BlindModeButtons = () => {
+		return (
+			<Fragment>
+				{mode === ' blind' ? (
+					<button onClick={() => changeMode('')} className={`modes__light-mode-button`}>
+						Deactivate
+					</button>
+				) : (
+					<button onClick={() => changeMode(' blind')} className={`modes__light-mode-button`}>
 						Activate
 					</button>
 				)}
@@ -46,7 +59,7 @@ const Modes = ({ auth: { user }, changeMode, mode, isAuthenticated }) => {
 						>
 							Light Mode
 						</h2>
-						{user && user.consecutiveDays >= 4 ? <Buttons /> : ''}
+						{user && user.consecutiveDays >= 4 ? <LightModeButtons /> : ''}
 					</div>
 					<div className="modes__achievement-mode-container">
 						<h2 className="modes__mode-requirement">6 Consecutive Days </h2>
@@ -72,9 +85,9 @@ const Modes = ({ auth: { user }, changeMode, mode, isAuthenticated }) => {
 								user && user.consecutiveDays >= 9 ? ' ' : 'strikethrough'
 							} ${mode}`}
 						>
-							Bull sh*tiffy Mode
+							Blind Mode
 						</h2>
-						<span className={`modes__coming-soon ${mode}`}> **Coming Soon!</span>
+						{user && user.consecutiveDays >= 4 ? <BlindModeButtons /> : ''}
 					</div>
 
 					<div className="modes__achievement-mode-container">
