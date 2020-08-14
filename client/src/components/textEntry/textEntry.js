@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+//Package Imports
+import React, { useState, useEffect, useRef } from 'react';
 import { Redirect, StaticRouter } from 'react-router-dom';
+import { gsap, TimelineMax } from 'gsap';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 //SCSS
@@ -41,14 +43,79 @@ const TextEntry = ({
 	entry,
 	timeElapsed
 }) => {
+	const textAreaTl = new TimelineMax({ paused: true });
+	let textAreaRef = useRef(null);
+
 	const [entryData, setEntryData] = useState({
 		entry: ''
 	});
+	const [readyToAnimateText, setReadyToAnimateText] = useState(true);
+	const [textAreaAnimation, setTextAreaAnimation] = useState(null);
 
 	if (!isAuthenticated) {
 		return <Redirect to="/login" />;
 	}
+	const wpmCalc = () => {
+		Math.trunc((charCount / 5 / timeElapsed) * 60);
+	};
+	const textDissapearingAnim = () => {
+		if (readyToAnimateText)
+			setTextAreaAnimation(
+				textAreaTl
+					.from(textAreaRef, {
+						duration: 0.8,
+						x: 1,
+						opacity: 1,
+						ease: 'power1.out'
+					})
+					.to(textAreaRef, {
+						duration: 0.8,
+						x: -1,
+						opacity: 0,
+						ease: 'power1.out'
+					})
+					.to(textAreaRef, {
+						duration: 0.8,
+						y: 10,
+						opacity: 0.5,
+						ease: 'power1.out'
+					})
+					.to(textAreaRef, {
+						duration: 0.8,
+						x: -1,
+						opacity: 0,
+						ease: 'power1.out'
+					})
+					.play()
+			);
+		setTimeout(() => {
+			setReadyToAnimateText(false);
+		}, 100);
+		setTimeout(() => {
+			setReadyToAnimateText(true);
+		}, 4800);
+	};
 
+	const textKeepItLitAnim = () => {
+		// if (readyToAnimateText)
+		setTextAreaAnimation(
+			textAreaTl
+				.from(textAreaRef, {
+					duration: 0.1,
+					x: 1,
+					opacity: 0.1,
+					ease: 'power1.out'
+				})
+				.to(textAreaRef, {
+					duration: 0.8,
+					x: -1,
+					opacity: `${Math.trunc(charCount / 5 / timeElapsed)}`,
+					ease: 'power1.out'
+				})
+
+				.play()
+		);
+	};
 	const textNum = (e) => {
 		e.preventDefault();
 		setEntryData(e.target.value);
@@ -102,9 +169,13 @@ const TextEntry = ({
 								<textarea
 									onChange={textNum}
 									name="textEntry"
-									className={`main__textarea${mode} ${mode === ' blind' ? 'textblind' : null}`}
+									className={`main__textarea${mode} ${mode === 'blind' ? 'textblind' : null}`}
 									placeholder="note those thoughts here"
 									value={entry}
+									ref={(textarea) => (textAreaRef = textarea)}
+									spellcheck="false"
+									onKeyPress={textKeepItLitAnim}
+									// onKeyPress={textDissapearingAnim}
 								></textarea>
 							</div>
 
