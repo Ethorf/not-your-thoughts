@@ -27,6 +27,11 @@
 		@content;
 	}
 }
+@mixin laptop-xl() {
+	@media #{$laptop-large} {
+		@content;
+	}
+}
 
 @mixin button-styles() {
 	padding: 8% 10%;

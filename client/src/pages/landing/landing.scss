@@ -8,12 +8,11 @@
 	flex-direction: column;
 	width: 100vw;
 	background-color: black;
-	height: 120vh;
 	color: white;
 	margin: 0 auto;
 	position: absolute;
-	top: 10vh;
 	z-index: 1;
+	font-family: 'Syncopate', sans-serif;
 
 	&__bg-img {
 		position: absolute;
@@ -26,38 +25,22 @@
 		z-index: 3;
 	}
 	&__you-are {
-		width: 100%;
 		text-align: center;
 		font-size: 3rem;
-		opacity: 0;
+		opacity: 1;
 		position: relative;
-		top: -660px;
-		margin-bottom: 90px;
-		font-family: 'Syncopate', sans-serif;
+		margin-top: 90px;
 	}
 
 	&__title {
 		display: flex;
-		justify-content: center;
+		justify-content: space-between;
 		font-size: 4.5rem;
-		width: 100vw;
+		width: 65vw;
 		text-align: center;
-		margin-top: -32%;
 	}
-	&__title-not {
-		opacity: 0;
-		font-family: 'Syncopate', sans-serif;
-	}
-	&__title-your {
-		margin-left: 11vw;
-		margin-top: 100px;
-		opacity: 0;
-		font-family: 'Syncopate', sans-serif;
-	}
-	&__title-thoughts {
-		margin-left: 8vw;
-		opacity: 0;
-		font-family: 'Syncopate', sans-serif;
+	&__title-text {
+		margin: 1%;
 	}
 	&__description-container {
 		display: flex;
@@ -67,12 +50,13 @@
 		width: 100%;
 	}
 	&__description {
-		margin-top: -100px;
 		font-size: 2rem;
 		margin-right: 0;
 		width: 70%;
-		opacity: 0;
+		opacity: 1;
 		color: silver;
+		margin: 0;
+		margin-bottom: 30px;
 		font-family: 'Poppins', sans-serif;
 		line-height: 1.1;
 		transition: opacity 0.6s;
@@ -81,7 +65,7 @@
 	&__all-buttons-container {
 		display: flex;
 		justify-content: space-between;
-		width: 14%;
+		width: 18%;
 	}
 	&__login-button,
 	&__register-button {
@@ -102,16 +86,13 @@
 		}
 	}
 
+	@include laptop-xl() {
+	}
 	@include laptop-small() {
-		top: 10vh;
+		// top: 10vh;
 		&__title {
 			font-size: 3.9rem;
-		}
-		&__title-not {
-			margin-right: 1.5vw;
-		}
-		&__title-your {
-			margin-right: 1.5vw;
+			width: 75vw;
 		}
 		&__description {
 			font-size: 2.1rem;
@@ -120,29 +101,19 @@
 	}
 	@include tablet-only() {
 		position: absolute;
-		top: 20%;
 		height: 100vh;
+		top: 10%;
 		&__title {
 			font-size: 3rem;
+			width: 88%;
 		}
 		&__you-are {
 			width: 100%;
-			text-align: center;
-			position: relative;
-			top: -410px;
-			margin-bottom: 90px;
+			top: 30px;
 		}
 		&__description {
 			font-size: 1.7rem;
-			margin-top: -6%;
 			width: 80%;
-		}
-		&__title-not {
-			margin-right: 1.5vw;
-		}
-		&__title-your {
-			margin-right: 1.5vw;
-			margin-top: 66px;
 		}
 		&__all-buttons-container {
 			display: flex;
@@ -154,26 +125,11 @@
 		&__you-are {
 			font-size: 1.5rem;
 			position: relative;
-			top: 20%;
 		}
 		&__title {
 			font-size: 1.8rem;
-			margin-top: 0vh;
-			margin-left: 10vw;
-			margin-right: 0;
 			flex-direction: row;
 			justify-content: center;
-		}
-		&__title-not {
-			margin-right: 7vw;
-			margin-left: -16vw;
-		}
-		&__title-your {
-			margin-right: 7vw;
-			margin-left: 20vw;
-		}
-		&__title-thoughts {
-			margin-left: 11vw;
 		}
 		&__description {
 			font-size: 1.6rem;
@@ -191,29 +147,16 @@
 	@include mobile-small-only() {
 		justify-content: center;
 		width: 100vw;
+		top: 14%;
 
 		&__you-are {
 			font-size: 1.1rem;
-			top: -30%;
 		}
 		&__title {
 			font-size: 1.3rem;
-			margin-left: 10%;
 			margin-right: 0;
-			margin-top: -60%;
 			flex-direction: row;
 			justify-content: center;
-		}
-		&__title-not {
-			margin-right: 3vw;
-			margin-left: -16vw;
-		}
-		&__title-your {
-			margin-right: 4vw;
-			margin-left: 8vw;
-		}
-		&__title-thoughts {
-			margin-left: 5vw;
 		}
 		&__description {
 			font-size: 1.2rem;

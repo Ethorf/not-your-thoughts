@@ -13,8 +13,11 @@ $tablet-max: 992px;
 $laptop-small-min: 993px;
 $laptop-small-max: 1199px;
 $laptop-large-min: 1200px;
+$laptop-xl-min: 1500px;
+
 $mobile-small-only: 'screen and (max-width:#{$mobile-max})';
 $mobile-only: 'screen and (min-width:#{$mobile-small-max}) and (max-width: #{$mobile-max})';
 $tablet-only: 'screen and (min-width:#{$tablet-min}) and (max-width: #{$tablet-max})';
 $laptop-small: 'screen and (min-width:#{$laptop-small-min}) and (max-width: #{$laptop-small-max})';
 $laptop-large: 'screen and (min-width: #{$laptop-large-min})';
+$laptop-xl: 'screen and (min-width: #{$laptop-xl-min})';

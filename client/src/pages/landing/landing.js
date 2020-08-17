@@ -38,42 +38,74 @@ export default class Landing extends React.Component {
 		return y;
 	};
 	componentDidMount() {
-		this.youareTween = new TimelineLite({ paused: true }).to(this.youareContainer, {
-			duration: 2.5,
-			y: '200px',
-			ease: 'power1.out',
-			opacity: 1
-		});
+		this.youareTween = new TimelineLite({ paused: true })
+			.from(this.youareContainer, {
+				duration: 2.5,
+				y: '-200px',
+				ease: 'power1.out',
+				opacity: 0
+			})
+			.to(this.youareContainer, {
+				duration: 2.5,
+				y: '0',
+				ease: 'power1.out',
+				opacity: 1
+			});
 		this.youareTween.play();
-		this.notTween = new TimelineLite({ paused: true }).to(this.notContainer, {
-			duration: 2.6,
-			x: '8vw',
-			opacity: 1
-		});
+		this.notTween = new TimelineLite({ paused: true })
+			.from(this.notContainer, {
+				duration: 2.6,
+				x: '-8vw',
+				opacity: 0
+			})
+			.to(this.notContainer, {
+				duration: 2.6,
+				x: '0',
+				opacity: 1
+			});
 		setTimeout(() => {
 			this.notTween.play();
 		}, 900);
-		this.yourTween = new TimelineLite({ paused: true }).to(this.yourContainer, {
-			duration: 2,
-			y: this.yourAnimSize(),
-			opacity: 1
-		});
+		this.yourTween = new TimelineLite({ paused: true })
+			.from(this.yourContainer, {
+				duration: 2,
+				// y: `-${this.yourAnimSize()}`,
+				y: '150px',
+				opacity: 0
+			})
+			.to(this.yourContainer, {
+				duration: 2,
+				y: 0,
+				opacity: 1
+			});
 		setTimeout(() => {
 			this.yourTween.play();
 		}, 1000);
-		this.thoughtsTween = new TimelineLite({ paused: true }).to(this.thoughtsContainer, {
-			duration: 2,
-			x: '-6vw',
-			opacity: 1
-		});
+		this.thoughtsTween = new TimelineLite({ paused: true })
+			.from(this.thoughtsContainer, {
+				duration: 2,
+				x: '6vw',
+				opacity: 0
+			})
+			.to(this.thoughtsContainer, {
+				duration: 2,
+				x: 0,
+				opacity: 1
+			});
 		setTimeout(() => {
 			this.thoughtsTween.play();
 		}, 900);
-		this.descriptionTween = new TimelineLite({ paused: true }).to(this.descriptionContainer, {
-			duration: 2,
-			y: -1,
-			opacity: 1
-		});
+		this.descriptionTween = new TimelineLite({ paused: true })
+			.from(this.descriptionContainer, {
+				duration: 2,
+				y: -1,
+				opacity: 0
+			})
+			.to(this.descriptionContainer, {
+				duration: 2,
+				y: 0,
+				opacity: 1
+			});
 		setTimeout(() => {
 			this.descriptionTween.play();
 		}, 1500);
@@ -96,7 +128,7 @@ export default class Landing extends React.Component {
 		}, 4000);
 		this.allTween = new TimelineLite({ paused: true }).to(this.allContainer, {
 			duration: 3.5,
-			y: -100,
+			y: -130,
 			opacity: 1
 		});
 		setTimeout(() => {
@@ -127,13 +159,13 @@ export default class Landing extends React.Component {
 					You are
 				</h2>
 				<h1 className="landing__title">
-					<div className="landing__title-not" ref={(h1) => (this.notContainer = h1)}>
+					<div className="landing__title-text" ref={(h1) => (this.notContainer = h1)}>
 						Not
 					</div>
-					<div className="landing__title-your" ref={(h1) => (this.yourContainer = h1)}>
+					<div className="landing__title-text" ref={(h1) => (this.yourContainer = h1)}>
 						Your{' '}
 					</div>
-					<div className="landing__title-thoughts" ref={(h1) => (this.thoughtsContainer = h1)}>
+					<div className="landing__title-text" ref={(h1) => (this.thoughtsContainer = h1)}>
 						Thoughts{' '}
 					</div>
 				</h1>
