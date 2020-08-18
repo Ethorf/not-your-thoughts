@@ -55,17 +55,16 @@ const TextEntry = ({
 	if (!isAuthenticated) {
 		return <Redirect to="/login" />;
 	}
-	const wpmCalc = () => {
-		Math.trunc((charCount / 5 / timeElapsed) * 60);
-	};
 	const textDissapearingAnim = () => {
-		if (readyToAnimateText)
+		if (readyToAnimateText) {
+			setReadyToAnimateText(false);
+
 			setTextAreaAnimation(
 				textAreaTl
 					.from(textAreaRef, {
-						duration: 0.8,
+						duration: 0.4,
 						x: 1,
-						opacity: 1,
+						opacity: 0.8,
 						ease: 'power1.out'
 					})
 					.to(textAreaRef, {
@@ -77,45 +76,23 @@ const TextEntry = ({
 					.to(textAreaRef, {
 						duration: 0.8,
 						y: 10,
-						opacity: 0.5,
+						opacity: 0.2,
 						ease: 'power1.out'
 					})
 					.to(textAreaRef, {
-						duration: 0.8,
+						duration: 2.8,
 						x: -1,
 						opacity: 0,
 						ease: 'power1.out'
 					})
 					.play()
 			);
-		setTimeout(() => {
-			setReadyToAnimateText(false);
-		}, 100);
-		setTimeout(() => {
-			setReadyToAnimateText(true);
-		}, 4800);
+			setTimeout(() => {
+				setReadyToAnimateText(true);
+			}, 6800);
+		}
 	};
 
-	const textKeepItLitAnim = () => {
-		// if (readyToAnimateText)
-		setTextAreaAnimation(
-			textAreaTl
-				.from(textAreaRef, {
-					duration: 0.1,
-					x: 1,
-					opacity: 0.1,
-					ease: 'power1.out'
-				})
-				.to(textAreaRef, {
-					duration: 0.8,
-					x: -1,
-					opacity: `${Math.trunc(charCount / 5 / timeElapsed)}`,
-					ease: 'power1.out'
-				})
-
-				.play()
-		);
-	};
 	const textNum = (e) => {
 		e.preventDefault();
 		setEntryData(e.target.value);
@@ -129,12 +106,14 @@ const TextEntry = ({
 		openSaveEntryModal();
 		saveEntry({ entry: entryData, timeElapsed: timeElapsed, wpm: Math.trunc((charCount / 5 / timeElapsed) * 60) });
 	};
+
 	return user === null ? (
 		<Spinner />
 	) : (
 		<>
-			<BgImage />
 			<div className={`main__all-container modalize ${mode}`}>
+				<BgImage />
+
 				<div className={`main ${mode}`}>
 					<Header />
 					<SaveEntryModal />
@@ -174,7 +153,6 @@ const TextEntry = ({
 									value={entry}
 									ref={(textarea) => (textAreaRef = textarea)}
 									spellcheck="false"
-									onKeyPress={textKeepItLitAnim}
 									// onKeyPress={textDissapearingAnim}
 								></textarea>
 							</div>

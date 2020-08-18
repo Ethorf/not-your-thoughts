@@ -19,6 +19,7 @@ import Profile from './pages/profile/profile';
 import Resources from './pages/resources/resources';
 import Modes from './pages/modes/modes.js';
 import About from './pages/about/about';
+import Entries from './pages/entries/entries.js';
 
 //redux Stuff
 import store from './redux/store/index';
@@ -56,17 +57,20 @@ const App = () => {
 										<Route path="/" exact>
 											{({ match }) => <Landing show={match !== null} />}
 										</Route>
-										<PrivateRoute path="/main" exact>
-											{({ match }) => <TextEntry show={match !== null} />}
-										</PrivateRoute>
 										<Route path="/login" exact>
 											{({ match }) => <Login show={match !== null} />}
 										</Route>
 										<Route path="/register" exact>
 											{({ match }) => <Register show={match !== null} />}
 										</Route>
+										<PrivateRoute path="/main" exact>
+											{({ match }) => <TextEntry show={match !== null} />}
+										</PrivateRoute>
 										<PrivateRoute path="/profile">
 											{({ match }) => <Profile show={match !== null} />}
+										</PrivateRoute>
+										<PrivateRoute path="/profile">
+											{({ match }) => <Entries show={match !== null} />}
 										</PrivateRoute>
 										<PrivateRoute path="/resources" exact>
 											{({ match }) => <Resources show={match !== null} />}

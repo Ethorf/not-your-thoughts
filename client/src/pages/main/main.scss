@@ -20,6 +20,8 @@
 	color: silver;
 	align-items: center;
 	flex-direction: column;
+	height: 100vh;
+
 	@include main-page-global-styles();
 
 	&__list {
@@ -165,6 +167,7 @@
 		position: relative;
 		z-index: 2;
 		width: 100%;
+		transition: all 0.2s;
 	}
 	&__textarea-border {
 		background-color: rgb(4, 4, 4);

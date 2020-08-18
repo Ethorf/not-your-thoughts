@@ -12,7 +12,7 @@
 		align-items: flex-start;
 		justify-content: space-between;
 		margin-left: $not-main-margin-left;
-		width: 50%;
+		width: 70%;
 	}
 	&__header {
 		width: 100%;
@@ -25,7 +25,7 @@
 	}
 	&__container {
 		display: flex;
-		width: 35%;
+		width: 50%;
 		flex-direction: column;
 		justify-content: flex-start;
 		margin-right: 6vw;

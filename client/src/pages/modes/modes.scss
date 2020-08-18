@@ -6,6 +6,8 @@
 	margin-left: $not-main-margin-left;
 	color: silver;
 	flex-direction: column;
+	height: 100vh;
+	margin-bottom: 400px;
 	@include main-page-global-styles();
 
 	&__bg {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import './profile.scss';
+import '../profile/profile.scss';
 import '../../styles/rubberDucky.scss';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
@@ -13,7 +13,7 @@ import CustomPrompts from '../../components/customPrompts/customPrompts.js';
 
 import Spinner from '../../components/spinner/spinner.js';
 
-const Profile = ({
+const Entries = ({
 	isAuthenticated,
 	auth: { user },
 	deleteEntry,
@@ -42,7 +42,7 @@ const Profile = ({
 	if (!isAuthenticated) {
 		return <Redirect to="/login" />;
 	}
-	const Entries = () => {
+	const SavedEntries = () => {
 		return (
 			<>
 				{entries.length === 0 ? (
@@ -75,14 +75,14 @@ const Profile = ({
 			<div className={`profile ${mode}`}>
 				<div className="profile__content">
 					<h2 className={`profile__entries-header ${mode}`}>SAVED ENtRIES</h2>
-					{user === null ? <Spinner /> : <Entries />}
+					{user === null ? <Spinner /> : <SavedEntries />}
 				</div>
 			</div>
 		</>
 	);
 };
 
-Profile.propTypes = {
+Entries.propTypes = {
 	auth: PropTypes.object.isRequired,
 	logout: PropTypes.func.isRequired,
 	isAuthenticated: PropTypes.bool,
@@ -99,4 +99,4 @@ const mapStateToProps = (state) => ({
 	mode: state.modes.mode
 });
 
-export default connect(mapStateToProps, { logout, deleteEntry, loadUser, getEntries, toggleUserSetting })(Profile);
+export default connect(mapStateToProps, { logout, deleteEntry, loadUser, getEntries, toggleUserSetting })(Entries);
