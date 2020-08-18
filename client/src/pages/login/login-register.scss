@@ -54,7 +54,7 @@
 		display: flex;
 		justify-content: center;
 		background-color: black;
-		margin: 4% 0%;
+		margin: 7% 0%;
 		border-radius: 1px;
 		transition: all 2s;
 		&:hover {
@@ -67,11 +67,10 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 15%;
-		padding: 1% 0;
+		padding: 10%;
 		border-radius: 7px;
 		font-size: 1rem;
-		margin-top: 1.5%;
+		margin-top: 20px;
 		margin-bottom: 2%;
 		font-family: 'Syncopate', sans-serif;
 		transition: all 0.4s;
@@ -108,7 +107,6 @@
 			margin-bottom: 0%;
 		}
 		&__input {
-			width: 80%;
 			text-align: center;
 			font-size: 1rem;
 			margin-top: 2vh;
@@ -116,8 +114,6 @@
 		&__submit-button {
 			margin-top: 3vh;
 			font-size: 1rem;
-			width: 40%;
-			padding: 2% 0;
 		}
 		&__login-button,
 		&__register-button {
@@ -138,7 +134,6 @@
 			margin-bottom: 0%;
 		}
 		&__input {
-			width: 80%;
 			text-align: center;
 			font-size: 1.2rem;
 		}
@@ -158,12 +153,10 @@
 			font-size: 2.9rem;
 		}
 		&__input {
-			width: 40%;
 			text-align: center;
 			font-size: 1.2rem;
 		}
 		&__submit-button {
-			margin-top: 5%;
 			font-size: 1rem;
 		}
 		&__signup,
@@ -185,7 +178,6 @@
 			font-size: 2.9rem;
 		}
 		&__input {
-			width: 40%;
 			text-align: center;
 			font-size: 1.2rem;
 		}

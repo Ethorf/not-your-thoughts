@@ -6,6 +6,7 @@ import { register } from '../../redux/actions/authActions';
 import PropTypes from 'prop-types';
 import './register.scss';
 import '../login/login-register.scss';
+import FadeInAnimationOnMount from '../../components/higherOrderComponents/fadeInAnimationOnMount.js';
 
 const Register = ({ setAlert, register, isAuthenticated, alert }) => {
 	const [formData, setFormData] = useState({
@@ -34,55 +35,70 @@ const Register = ({ setAlert, register, isAuthenticated, alert }) => {
 
 	return (
 		<div className="login-register">
-			<h1 className="login-register__title">Sign Up</h1>
+			<FadeInAnimationOnMount wrapperElement="div" direction="down">
+				<h1 className="login-register__title">Sign Up</h1>
+			</FadeInAnimationOnMount>
+
 			<h2 className={`login__alert  ${alert.length > 0 ? 'login__alert-open' : 'login__alert-closed'}`}>
 				{alert[0] && alert[0].msg}
 			</h2>
 			<form className="login-register__form" onSubmit={(e) => onSubmit(e)}>
-				<input
-					type="text"
-					placeholder="Name"
-					name="name"
-					value={name}
-					onChange={(e) => onChange(e)}
-					className="login-register__input"
-				/>
-				<input
-					type="email"
-					placeholder="Email Address"
-					name="email"
-					value={email}
-					onChange={(e) => onChange(e)}
-					className="login-register__input"
-				/>
-				<input
-					type="password"
-					placeholder="Password"
-					name="password"
-					value={password}
-					onChange={(e) => onChange(e)}
-					className="login-register__input"
-				/>
-				<input
-					type="password"
-					placeholder="Confirm Password"
-					name="password2"
-					value={password2}
-					onChange={(e) => onChange(e)}
-					className="login-register__input"
-				/>
-				<input
-					type="submit"
-					className="login-register__submit-button login-register__register-button"
-					value="Register"
-				/>
+				<FadeInAnimationOnMount wrapperElement="div" direction="left">
+					<input
+						type="text"
+						placeholder="Name"
+						name="name"
+						value={name}
+						onChange={(e) => onChange(e)}
+						className="login-register__input"
+					/>
+				</FadeInAnimationOnMount>
+				<FadeInAnimationOnMount wrapperElement="div" direction="right">
+					<input
+						type="email"
+						placeholder="Email Address"
+						name="email"
+						value={email}
+						onChange={(e) => onChange(e)}
+						className="login-register__input"
+					/>
+				</FadeInAnimationOnMount>
+				<FadeInAnimationOnMount wrapperElement="div" direction="left">
+					<input
+						type="password"
+						placeholder="Password"
+						name="password"
+						value={password}
+						onChange={(e) => onChange(e)}
+						className="login-register__input"
+					/>
+				</FadeInAnimationOnMount>
+				<FadeInAnimationOnMount wrapperElement="div" direction="right">
+					<input
+						type="password"
+						placeholder="Confirm Password"
+						name="password2"
+						value={password2}
+						onChange={(e) => onChange(e)}
+						className="login-register__input"
+					/>
+				</FadeInAnimationOnMount>
+				<FadeInAnimationOnMount wrapperElement="div" direction="up">
+					<input
+						type="submit"
+						className="login-register__submit-button login-register__register-button"
+						value="Register"
+					/>
+				</FadeInAnimationOnMount>
 			</form>
-			<p className="login-register__signup">
-				Already have an account?{' '}
-				<Link to="/login" className="login-register__signup-link">
-					Sign In
-				</Link>
-			</p>
+			<FadeInAnimationOnMount wrapperElement="div" direction="up">
+				<p className="login-register__signup">
+					Already have an account?{' '}
+					<Link to="/login" className="login-register__signup-link">
+						Sign In
+					</Link>
+				</p>
+			</FadeInAnimationOnMount>
 		</div>
 	);
 };

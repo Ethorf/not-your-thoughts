@@ -53,7 +53,7 @@
 		font-size: 2rem;
 		margin-right: 0;
 		width: 70%;
-		opacity: 1;
+		opacity: 0;
 		color: silver;
 		margin: 0;
 		margin-bottom: 30px;
@@ -65,24 +65,28 @@
 	&__all-buttons-container {
 		display: flex;
 		justify-content: space-between;
-		width: 18%;
+		width: 20%;
 	}
 	&__login-button,
 	&__register-button {
 		font-family: 'Syncopate', sans-serif;
 		text-decoration: none;
 		color: black;
-		padding: 4% 6%;
-		border-radius: 7px;
+		padding: 3% 5%;
+		width: 45%;
+		border-radius: 6px;
 		border: 1px solid white;
-		border-bottom: 2px solid silver;
-		border-left: 2px solid silver;
+		border-bottom: 1px solid silver;
+		border-left: 1px solid silver;
 		opacity: 0;
 		background-color: white;
+		text-align: center;
+
 		&:hover {
 			color: white;
 			background-color: black;
 			transition: all 1s;
+			cursor: pointer;
 		}
 	}
 

@@ -207,6 +207,22 @@ router.post('/toggleTimer', auth, async (req, res) => {
 		res.status(500);
 	}
 });
+//Toggle Goal Preference
+router.post('/toggleGoal', auth, async (req, res) => {
+	try {
+		const user = await User.findById(req.user.id);
+		if (user.goalPreference === 'words') {
+			user.goalPreference = 'time';
+		} else {
+			user.goalPreference = 'words';
+		}
+		await user.save();
+		res.json(user.goalPreference);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500);
+	}
+});
 //Toggle Wpm
 router.post('/toggleWpm', auth, async (req, res) => {
 	try {

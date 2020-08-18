@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { gsap, TimelineMax } from 'gsap';
+import { TimelineMax } from 'gsap';
 
-const FadeInAnimation = ({ children, wrapperElement = 'div', direction = null, delay = 1, ...props }) => {
+const FadeInAnimationOnMount = ({ children, wrapperElement = 'div', direction = null, delay = 0.5, ...props }) => {
 	let compRef = useRef(null);
 	const Component = wrapperElement;
 	const [animation, setAnimation] = useState(null);
@@ -9,18 +9,26 @@ const FadeInAnimation = ({ children, wrapperElement = 'div', direction = null, d
 
 	const distance = 100;
 	let fadeDirection;
+	let oppFadeDirection;
+
 	switch (direction) {
 		case 'left':
 			fadeDirection = { x: -distance };
+			oppFadeDirection = { x: distance };
 			break;
 		case 'right':
 			fadeDirection = { x: distance };
+			oppFadeDirection = { x: -distance };
+
 			break;
 		case 'up':
 			fadeDirection = { y: distance };
+			oppFadeDirection = { y: -distance };
+
 			break;
 		case 'down':
 			fadeDirection = { y: -distance };
+			oppFadeDirection = { y: distance };
 			break;
 		default:
 			fadeDirection = { x: 0 };
@@ -47,4 +55,4 @@ const FadeInAnimation = ({ children, wrapperElement = 'div', direction = null, d
 	);
 };
 
-export default FadeInAnimation;
+export default FadeInAnimationOnMount;

@@ -44,6 +44,14 @@ const UserSchema = new mongoose.Schema({
 		type: Boolean,
 		default: false
 	},
+	goalPreference: {
+		type: String,
+		default: 'words'
+	},
+	dailyTimeGoal: {
+		type: Number,
+		default: 300000
+	},
 	dailyWordsGoal: {
 		type: Number,
 		default: 400
