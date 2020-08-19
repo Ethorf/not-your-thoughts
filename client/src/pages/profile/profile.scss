@@ -19,6 +19,12 @@
 		margin-bottom: 30px;
 		color: white;
 	}
+	&__sub-header {
+		font-family: 'Syncopate', sans-serif;
+		font-size: 1.7em;
+		margin-bottom: 30px;
+		color: white;
+	}
 	&__user {
 		font-size: 1.9rem;
 		margin-bottom: 27px;
@@ -100,12 +106,12 @@
 		border-radius: 10px;
 		background-color: white;
 		color: black;
-		transition: all 0.1s;
+		transition: all 0.2s;
 	}
 	&__toggle-button {
-		padding: 2%;
+		padding: 4%;
 		font-family: 'Syncopate', sans-serif;
-		transition: all 0.1s;
+		transition: all 0.2s;
 		font-size: 1.2rem;
 		cursor: pointer;
 	}

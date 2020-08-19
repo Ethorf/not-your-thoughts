@@ -87,6 +87,14 @@ class NavBarSide extends React.Component {
 						</NavLink>
 						<NavLink
 							exact
+							to="/entries"
+							activeClassName="nav__active"
+							className={`nav__link${this.props.mode}`}
+						>
+							Entries
+						</NavLink>
+						<NavLink
+							exact
 							to="/resources"
 							activeClassName="nav__active"
 							className={`nav__link${this.props.mode}`}

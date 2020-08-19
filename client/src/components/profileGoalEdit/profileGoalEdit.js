@@ -91,7 +91,7 @@ function ProfileGoalEdit({
 								onChange={goalNum}
 								defaultValue={user.dailyTimeGoal}
 							></input>{' '}
-							Minutes
+							Minute{user.dailyTimeGoal >= 2 ? 's' : ''}
 							<Button onClick={() => saveGoal('Time')} className="profile__goal-editable-button">
 								Save
 							</Button>
@@ -107,7 +107,9 @@ function ProfileGoalEdit({
 					<>
 						<div className={`profile__day-number ${mode}`}>
 							{' '}
-							{localGoalPreference === 'words' ? user.dailyWordsGoal : `${user.dailyTimeGoal} minutes`}
+							{localGoalPreference === 'words'
+								? user.dailyWordsGoal
+								: `${user.dailyTimeGoal} minute${user.dailyTimeGoal >= 2 ? 's' : ''}`}
 						</div>
 						<Button onClick={toggleEditGoal}>Edit</Button>
 					</>

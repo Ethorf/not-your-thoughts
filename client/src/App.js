@@ -69,7 +69,7 @@ const App = () => {
 										<PrivateRoute path="/profile">
 											{({ match }) => <Profile show={match !== null} />}
 										</PrivateRoute>
-										<PrivateRoute path="/profile">
+										<PrivateRoute path="/entries">
 											{({ match }) => <Entries show={match !== null} />}
 										</PrivateRoute>
 										<PrivateRoute path="/resources" exact>

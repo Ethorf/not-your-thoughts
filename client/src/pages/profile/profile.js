@@ -6,7 +6,6 @@ import { Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { logout, loadUser, toggleUserSetting } from '../../redux/actions/authActions';
 import { deleteEntry, getEntries } from '../../redux/actions/entryActions.js';
-import Entry from '../../components/entry/entry.js';
 import ProfileGoalEdit from '../../components/profileGoalEdit/profileGoalEdit.js';
 import TrackedPhrasesModal from '../../components/Modals/trackedPhrasesModal.js';
 import CustomPrompts from '../../components/customPrompts/customPrompts.js';
@@ -16,9 +15,6 @@ import Spinner from '../../components/spinner/spinner.js';
 const Profile = ({
 	isAuthenticated,
 	auth: { user },
-	deleteEntry,
-	getEntries,
-	entries,
 	mode,
 	toggleUserSetting,
 	progressAudioEnabled,
@@ -31,15 +27,12 @@ const Profile = ({
 
 	useEffect(() => {
 		loadUser();
-		getEntries();
 		if (user !== null) {
 			setLocalProgressAudioEnabled(user.progressAudioEnabled);
 			setLocalTimerEnabled(user.timerEnabled);
 			setLocalWpmEnabled(user.wpmEnabled);
 		}
-	}, [getEntries]);
-
-	//Could I make this into a functional thing? might as well try
+	}, []);
 
 	const toggleLocalProgressAudio = () => {
 		setLocalProgressAudioEnabled(!localProgressAudioEnabled);
@@ -57,32 +50,6 @@ const Profile = ({
 	if (!isAuthenticated) {
 		return <Redirect to="/login" />;
 	}
-	const Entries = () => {
-		return (
-			<>
-				{entries.length === 0 ? (
-					<h2>You have no saved journal entries</h2>
-				) : (
-					entries.map((userData) => (
-						<Entry
-							key={userData.id}
-							id={userData.id}
-							className="profile profile__entry"
-							wordCount={userData.numOfWords}
-							date={userData.date}
-							timeElapsed={userData.timeElapsed}
-							wpm={userData.wpm}
-							content={userData.content}
-							deleteEntry={deleteEntry}
-							getEntries={getEntries}
-							trackedPhrases={user.trackedPhrases}
-							pdEmotionAnalysis={userData.pdEmotionAnalysis}
-						/>
-					))
-				)}
-			</>
-		);
-	};
 	return user === null ? (
 		<Spinner />
 	) : (
@@ -90,6 +57,7 @@ const Profile = ({
 			<div className="profile__content">
 				<header className={`profile__header ${mode}`}>User Profile</header>
 				<h2 className={`profile__user ${mode}`}>{user && user.name}</h2>
+				<h2 className={`profile__sub-header ${mode}`}>Stats</h2>
 
 				{user.lastDayCompleted !== null ? (
 					<>
@@ -108,6 +76,7 @@ const Profile = ({
 								Last Day Completed:
 								<span className={`profile__day-number ${mode}`}> {user.lastDayCompleted}</span>
 							</h2>
+							<h2 className={`profile__sub-header ${mode}`}>Settings</h2>
 							<ProfileGoalEdit />
 						</div>
 					</>
@@ -174,14 +143,11 @@ const Profile = ({
 						</span>{' '}
 					</div>
 				</div>
-
+				<CustomPrompts />
 				<div className={`profile__toggle-container`}>
 					Tracked Phrases
 					<TrackedPhrasesModal />
 				</div>
-				<CustomPrompts />
-				<h2 className={`profile__entries-header ${mode}`}>SAVED ENtRIES</h2>
-				{user === null ? <Spinner /> : <Entries />}
 			</div>
 		</div>
 	);

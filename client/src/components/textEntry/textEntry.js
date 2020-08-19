@@ -1,7 +1,7 @@
 //Package Imports
-import React, { useState, useEffect, useRef } from 'react';
-import { Redirect, StaticRouter } from 'react-router-dom';
-import { gsap, TimelineMax } from 'gsap';
+import React, { useState, useRef } from 'react';
+import { Redirect } from 'react-router-dom';
+import { TimelineMax } from 'gsap';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 //SCSS
@@ -132,7 +132,7 @@ const TextEntry = ({
 									Goal:{' '}
 									{user.goalPreference === 'words'
 										? `${user.dailyWordsGoal} Words`
-										: `${user.dailyTimeGoal} Minutes`}
+										: `${user.dailyTimeGoal} Minute${user.dailyTimeGoal >= 2 ? 's' : ''}`}
 								</h2>
 								{user && user.timerEnabled ? (
 									<div className="timer">
