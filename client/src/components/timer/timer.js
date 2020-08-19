@@ -13,7 +13,7 @@ function Timer({ setTimeElapsed, timerActive }) {
 			secondsInterval = setInterval(() => {
 				setSeconds((seconds) => seconds + 1);
 				setTimeElapsed(seconds);
-			}, 1000);
+			}, 100);
 		}
 		return () => clearInterval(secondsInterval);
 	}, [timerActive, seconds]);

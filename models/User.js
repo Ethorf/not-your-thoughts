@@ -50,7 +50,7 @@ const UserSchema = new mongoose.Schema({
 	},
 	dailyTimeGoal: {
 		type: Number,
-		default: 300000
+		default: 5
 	},
 	dailyWordsGoal: {
 		type: Number,

@@ -29,7 +29,7 @@ export const setNewGoal = (payload) => (dispatch) => {
 	});
 };
 
-export const changeGoal = (payload) => async (dispatch) => {
+export const changeGoal = (payload, type) => async (dispatch) => {
 	const config = {
 		headers: {
 			'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ export const changeGoal = (payload) => async (dispatch) => {
 	};
 	const body = { goal: payload };
 	try {
-		const res = await axios.post('/api/updateUser/setNewWordsGoal', body, config);
+		const res = await axios.post(`/api/updateUser/setNew${type}Goal`, body, config);
 		dispatch({
 			type: CHANGE_GOAL,
 			payload
@@ -49,7 +49,6 @@ export const changeGoal = (payload) => async (dispatch) => {
 		dispatch({
 			type: SET_NEW_GOAL_ERROR
 		});
-		// console.log(res);
 	}
 };
 

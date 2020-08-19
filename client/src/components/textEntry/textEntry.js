@@ -23,7 +23,7 @@ import PillarTop from '../pillars/pillarTop.js';
 import PillarLeft from '../pillars/pillarLeft.js';
 import PillarRight from '../pillars/pillarRight.js';
 import PillarBottom from '../pillars/pillarBottom.js';
-import ProgressWord from '../../components/progress/progressRight.js';
+import ProgressWord from '../../components/progress/progressWord.js';
 import SuccessModal from '../Modals/successModal.js';
 import IntroModal from '../Modals/introModal.js';
 import SaveEntryModal from '../Modals/saveEntryModal.js';
@@ -129,7 +129,10 @@ const TextEntry = ({
 							<div className={`main__date-goal-wordcount-container${mode}`}>
 								<h3 className={`main__date `}>{moment().format('MM/DD/YYYY')}</h3>
 								<h2 className={`main__goal`}>
-									Goal: {user ? user.dailyWordsGoal : 'loading daily goal'} Words
+									Goal:{' '}
+									{user.goalPreference === 'words'
+										? `${user.dailyWordsGoal} Words`
+										: `${user.dailyTimeGoal} Minutes`}
 								</h2>
 								{user && user.timerEnabled ? (
 									<div className="timer">

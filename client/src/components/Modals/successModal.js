@@ -69,7 +69,7 @@ const SuccessModal = ({
 		}, 100);
 		setTimeout(() => {
 			openSuccessModal();
-		}, 1000);
+		}, 800);
 	};
 
 	const closeModalAll = () => {
@@ -85,14 +85,28 @@ const SuccessModal = ({
 		goalReached();
 		saveEntry({ entry: entry, timeElapsed: timeElapsed, wpm: Math.trunc((charCount / 5 / timeElapsed) * 60) });
 	};
+	let timeGoalSeconds = user.dailyTimeGoal * 60;
 	useEffect(() => {
-		if (wordCount > 0 && wordCount <= user.dailyWordsGoal) {
-			toggleTimerActive(true);
-		} else if (wordCount >= user.dailyWordsGoal && goalReachedStatus === false) {
-			openModalAll();
-			toggleTimerActive(false);
+		if (user.goalPreference === 'words') {
+			if (wordCount > 0 && wordCount <= user.dailyWordsGoal) {
+				toggleTimerActive(true);
+			} else if (wordCount >= user.dailyWordsGoal && goalReachedStatus === false) {
+				openModalAll();
+				toggleTimerActive(false);
+			}
+		} else if (user.goalPreference === 'time') {
+			if (wordCount > 0) {
+				toggleTimerActive(true);
+			}
+			if (timeElapsed > timeGoalSeconds - 1 && goalReachedStatus == false) {
+				openModalAll();
+			}
+			if (timeElapsed > timeGoalSeconds - 1) {
+				toggleTimerActive(false);
+			}
 		}
-	}, [wordCount, goalReachedStatus, goal, user]);
+	}, [wordCount, timeElapsed, goalReachedStatus, goal, user]);
+
 	return (
 		<Fragment>
 			{/*<button onClick={openModalAll}>Modal Open Test</button> */}

@@ -7,19 +7,29 @@ import PillarLeftOutlineInverted from '../../assets/Pillars/NewPillarLeft-2-inve
 import crawBoxLeft from '../../assets/Animations/SpikyCrawBox-Left-1.gif';
 import crawBoxLeftInverted from '../../assets/Pillars/CrawBoxes/NewCrawBox-Inverted-Left.gif';
 
-const PillarLeft = ({ wordCount, mode, auth: { user } }) => {
-	let calc = wordCount / ((user.dailyWordsGoal / 4) * 0.01);
-
+const PillarLeft = ({ wordCount, mode, auth: { user }, timeElapsed }) => {
 	const pillarLeftStyleHeight = () => {
-		const testStyle = {
-			height: `${calc + 1}%`,
-			opacity: `${wordCount / (user.dailyWordsGoal / 10)}`
-		};
+		let testStyle;
+		let userGoal;
+		let goalCount;
+
+		if (user.goalPreference === 'words') {
+			userGoal = user.dailyWordsGoal;
+			goalCount = wordCount;
+		} else if (user.goalPreference === 'time') {
+			userGoal = user.dailyTimeGoal * 60;
+			goalCount = timeElapsed;
+		}
+		let calc = goalCount / ((userGoal / 4) * 0.01);
 
 		const limit = {
 			height: `100%`
 		};
-		if (wordCount <= user.dailyWordsGoal / 4) {
+		testStyle = {
+			height: `${calc + 1}%`,
+			opacity: `${goalCount / (userGoal / 10)}`
+		};
+		if (goalCount <= userGoal / 4) {
 			return testStyle;
 		} else {
 			return limit;
@@ -59,7 +69,8 @@ const PillarLeft = ({ wordCount, mode, auth: { user } }) => {
 const mapStateToProps = (state) => ({
 	wordCount: state.wordCount.wordCount,
 	auth: state.auth,
-	mode: state.modes.mode
+	mode: state.modes.mode,
+	timeElapsed: state.entries.timeElapsed
 });
 
 export default connect(mapStateToProps, null)(PillarLeft);

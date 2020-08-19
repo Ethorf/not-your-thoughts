@@ -28,6 +28,25 @@ router.post(
 		}
 	}
 );
+router.post(
+	'/setNewTimeGoal',
+	[auth, [check('goal', 'Must have some new goal in there!').not().isEmpty()]],
+	async (req, res) => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+		try {
+			const user = await await User.findById(req.user.id);
+			user.dailyTimeGoal = req.body.goal;
+			await user.save();
+			res.json(user);
+		} catch (err) {
+			console.error(err.message);
+			res.status(500);
+		}
+	}
+);
 //Adding an Entry
 router.post('/', [auth, [check('entry', 'No empty entries allowed!').not().isEmpty()]], async (req, res) => {
 	const errors = validationResult(req);

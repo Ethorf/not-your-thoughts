@@ -11,6 +11,7 @@ function ProfileGoalEdit({
 	goal,
 	toggleEditGoal,
 	goalIsEditable,
+	toggleUserSetting,
 	changeGoal,
 	setNewGoal,
 	mode,
@@ -23,8 +24,9 @@ function ProfileGoalEdit({
 		setNewGoal(e.target.value);
 	};
 
-	const saveGoal = () => {
-		changeGoal(newGoal);
+	const saveGoal = (type) => {
+		changeGoal(newGoal, type);
+		changeGoal(newGoal, type);
 		toggleEditGoal();
 	};
 
@@ -65,25 +67,48 @@ function ProfileGoalEdit({
 			<h2 className="profile__stats-text profile__goal-edit-container">
 				Daily {localGoalPreference === 'words' ? 'Words' : 'Time'} Goal :
 				{goalIsEditable ? (
-					<div className={`profile__goal-edit-buttons-container`}>
-						<input
-							className={`profile__goal-input ${mode}`}
-							onChange={goalNum}
-							defaultValue={user.dailyWordsGoal}
-						></input>
-						<Button onClick={saveGoal} className="profile__goal-editable-button">
-							Save
-						</Button>
-						<Button
-							onClick={cancelEditGoal}
-							className="profile__goal-editable-button profile__goal-cancel-button"
-						>
-							Cancel
-						</Button>
-					</div>
+					localGoalPreference === 'words' ? (
+						<div className={`profile__goal-edit-buttons-container`}>
+							<input
+								className={`profile__goal-input ${mode}`}
+								onChange={goalNum}
+								defaultValue={user.dailyWordsGoal}
+							></input>
+							<Button onClick={() => saveGoal('Words')} className="profile__goal-editable-button">
+								Save
+							</Button>
+							<Button
+								onClick={cancelEditGoal}
+								className="profile__goal-editable-button profile__goal-cancel-button"
+							>
+								Cancel
+							</Button>
+						</div>
+					) : (
+						<div className={`profile__goal-edit-buttons-container`}>
+							<input
+								className={`profile__goal-input ${mode}`}
+								onChange={goalNum}
+								defaultValue={user.dailyTimeGoal}
+							></input>{' '}
+							Minutes
+							<Button onClick={() => saveGoal('Time')} className="profile__goal-editable-button">
+								Save
+							</Button>
+							<Button
+								onClick={cancelEditGoal}
+								className="profile__goal-editable-button profile__goal-cancel-button"
+							>
+								Cancel
+							</Button>
+						</div>
+					)
 				) : (
 					<>
-						<div className={`profile__day-number ${mode}`}> {user.dailyWordsGoal}</div>
+						<div className={`profile__day-number ${mode}`}>
+							{' '}
+							{localGoalPreference === 'words' ? user.dailyWordsGoal : `${user.dailyTimeGoal} minutes`}
+						</div>
 						<Button onClick={toggleEditGoal}>Edit</Button>
 					</>
 				)}
@@ -100,4 +125,4 @@ const mapStateToProps = (state) => ({
 	goalIsEditable: state.wordCount.goalIsEditable,
 	mode: state.modes.mode
 });
-export default connect(mapStateToProps, { toggleEditGoal, changeGoal, setNewGoal })(ProfileGoalEdit);
+export default connect(mapStateToProps, { toggleEditGoal, changeGoal, setNewGoal, toggleUserSetting })(ProfileGoalEdit);
