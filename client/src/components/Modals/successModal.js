@@ -86,12 +86,17 @@ const SuccessModal = ({
 		saveEntry({ entry: entry, timeElapsed: timeElapsed, wpm: Math.trunc((charCount / 5 / timeElapsed) * 60) });
 	};
 	let timeGoalSeconds = user.dailyTimeGoal * 60;
+
 	useEffect(() => {
 		if (user.goalPreference === 'words') {
 			if (wordCount > 0 && wordCount <= user.dailyWordsGoal) {
 				toggleTimerActive(true);
-			} else if (wordCount >= user.dailyWordsGoal && goalReachedStatus === false) {
+			}
+
+			if (wordCount >= user.dailyWordsGoal && goalReachedStatus === false) {
 				openModalAll();
+			}
+			if (wordCount >= user.dailyWordsGoal) {
 				toggleTimerActive(false);
 			}
 		} else if (user.goalPreference === 'time') {
@@ -105,7 +110,7 @@ const SuccessModal = ({
 				toggleTimerActive(false);
 			}
 		}
-	}, [wordCount, timeElapsed, goalReachedStatus, goal, user]);
+	}, [wordCount, timeElapsed, goalReachedStatus, goal, user.goalPreference]);
 
 	return (
 		<Fragment>
