@@ -6,6 +6,7 @@
 	color: silver;
 	flex-direction: column;
 	@include main-page-global-styles();
+	margin-bottom: 150px;
 
 	&__content-container {
 		display: flex;

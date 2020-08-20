@@ -78,34 +78,23 @@ router.post('/entryAnalysis/:id', auth, async (req, res) => {
 		const entryIndex = await user.entries.map((item) => item.id).indexOf(req.params.id);
 		const textToAnalyze = user.entries[entryIndex].content;
 
-		// if (user.entries[entryIndex].pdEmotionAnalysis === undefined) {
-		// 	user.entries[entryIndex].pdEmotionAnalysis = {};
-		// 	await user.save();
-		// }
 		let textAnalysis = {};
-		// if (
-		// 	// user.entries[entryIndex].pdEmotionAnalysis === null &&
-		// 	!user.entries[entryIndex].hasOwnProperty(pdEmotionAnalysis)
-		// ) {
-		user.entries[entryIndex].pdEmotionAnalysis = null;
-		// await user.save();
-		// await pd
-		// 	.emotion(textToAnalyze, 'en')
-		// 	.then((response) => {
-		// 		textAnalysis = response;
-		// 	})
-		// 	.catch((error) => {
-		// 		console.log(error);
-		// 	});
-		// user.entries[entryIndex].pdEmotionAnalysis = JSON.parse(textAnalysis);
-
-		await user.save();
-		// res.json(user.entries[entryIndex].pdEmotionAnalysis.emotion);
-		res.json('great job');
-		// }
-		// } else {
-		// 	res.send('Analysis already exists for this entry, preventing unnecessary API call');
-		// }
+		if (user.entries[entryIndex].pdEmotionAnalysis === null) {
+			await pd
+				.emotion(textToAnalyze, 'en')
+				.then((response) => {
+					textAnalysis = response;
+				})
+				.catch((error) => {
+					console.log(error);
+				});
+			user.entries[entryIndex].pdEmotionAnalysis = JSON.parse(textAnalysis);
+			await user.markModified('entries');
+			await user.save();
+			res.json(user.entries[entryIndex]);
+		} else {
+			res.send('Analysis already exists for this entry, preventing unnecessary API call');
+		}
 	} catch (err) {
 		console.error(err.message);
 		res.status(500);

@@ -122,7 +122,6 @@ const TextEntry = ({
 					<Prompt />
 					<ProgressWord />
 					<PillarTop />
-
 					<div className={`main__pillars-date-goal-wordcount-textarea-container`}>
 						<PillarLeft />
 						<form className={`main__date-goal-wordcount-textarea-container`} onSubmit={(e) => onSubmit(e)}>

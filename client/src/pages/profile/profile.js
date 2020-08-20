@@ -143,11 +143,11 @@ const Profile = ({
 						</span>{' '}
 					</div>
 				</div>
-				<CustomPrompts />
 				<div className={`profile__toggle-container`}>
 					Tracked Phrases
 					<TrackedPhrasesModal />
 				</div>
+				<CustomPrompts />
 			</div>
 		</div>
 	);

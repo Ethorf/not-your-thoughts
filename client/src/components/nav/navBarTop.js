@@ -60,6 +60,14 @@ class NavBarTop extends React.Component {
 					</NavLink>
 					<NavLink
 						exact
+						to="/entries"
+						activeClassName="navTop__active"
+						className={`navTop__link ${this.props.mode}`}
+					>
+						Entries
+					</NavLink>
+					<NavLink
+						exact
 						to="/resources"
 						activeClassName="navTop__active"
 						className={`navTop__link ${this.props.mode}`}
