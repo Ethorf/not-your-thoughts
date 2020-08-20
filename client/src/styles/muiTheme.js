@@ -7,6 +7,8 @@ export const muiTheme = createMuiTheme({
 	},
 	palette: {
 		primary: { main: '#DF1B1B' },
+		secondary: { main: '#c0c0c0' },
+
 		background: {
 			default: '#fbfcff'
 		}

@@ -79,7 +79,7 @@ router.post('/entryAnalysis/:id', auth, async (req, res) => {
 		const textToAnalyze = user.entries[entryIndex].content;
 
 		let textAnalysis = {};
-		if (user.entries[entryIndex].pdEmotionAnalysis === null) {
+		if (user.entries[entryIndex].pdEmotionAnalysis === null || !user.entries[entryIndex].pdEmotionAnalysis) {
 			await pd
 				.emotion(textToAnalyze, 'en')
 				.then((response) => {
@@ -91,7 +91,7 @@ router.post('/entryAnalysis/:id', auth, async (req, res) => {
 			user.entries[entryIndex].pdEmotionAnalysis = JSON.parse(textAnalysis);
 			await user.markModified('entries');
 			await user.save();
-			res.json(user.entries[entryIndex]);
+			res.json(user.entries[entryIndex].pdEmotionAnalysis.emotion);
 		} else {
 			res.send('Analysis already exists for this entry, preventing unnecessary API call');
 		}

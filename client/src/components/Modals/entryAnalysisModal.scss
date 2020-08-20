@@ -4,11 +4,31 @@
 	background-color: black;
 	width: 60vw;
 	height: 400px;
-	border: 1px solid white;
+	border: 1px solid #ffffff;
 	border-radius: 3px;
 	padding: 2%;
 	display: flex;
 	justify-content: center;
+	&__header {
+		margin: 0;
+	}
+	&__close-button {
+		border: none;
+		color: grey;
+		background-color: black;
+		font-size: 1.3em;
+		transition: all 0.3s;
+		outline: none;
+		&:hover {
+			cursor: pointer;
+			color: red;
+			font-size: 1.4em;
+			transition: all 0.3s;
+		}
+	}
+	&__sub-header {
+		margin-right: 15px;
+	}
 }
 .invisible {
 	opacity: 0;
