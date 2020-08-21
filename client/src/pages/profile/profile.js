@@ -79,6 +79,10 @@ const Profile = ({
 							<h2 className={`profile__sub-header ${mode}`}>Settings</h2>
 							<ProfileGoalEdit />
 						</div>
+						<div className={`profile__toggle-container`}>
+							Tracked Phrases:
+							<TrackedPhrasesModal />
+						</div>
 					</>
 				) : (
 					<h2 className={`profile__day-number profile__no-days  ${mode}`}>No days complete yet</h2>
@@ -143,10 +147,7 @@ const Profile = ({
 						</span>{' '}
 					</div>
 				</div>
-				<div className={`profile__toggle-container`}>
-					Tracked Phrases
-					<TrackedPhrasesModal />
-				</div>
+
 				<CustomPrompts />
 			</div>
 		</div>

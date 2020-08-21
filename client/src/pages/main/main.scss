@@ -68,7 +68,8 @@
 		justify-content: center;
 		font-size: 2.6rem;
 		margin-top: 7vh;
-		width: 50%;
+		width: 100%;
+		// opacity: 1;
 		transform-origin: 50% 50%;
 		font-family: 'Syncopate', sans-serif;
 		color: white;
@@ -570,4 +571,8 @@
 .less-opacity {
 	opacity: 0.6;
 	// transition: all 0.5s;
+}
+
+#header {
+	opacity: 1;
 }

@@ -52,9 +52,9 @@ const TextEntry = ({
 	const [readyToAnimateText, setReadyToAnimateText] = useState(true);
 	const [textAreaAnimation, setTextAreaAnimation] = useState(null);
 
-	if (!isAuthenticated) {
-		return <Redirect to="/login" />;
-	}
+	// if (!isAuthenticated) {
+	// 	return <Redirect to="/login" />;
+	// }
 	const textDissapearingAnim = () => {
 		if (readyToAnimateText) {
 			setReadyToAnimateText(false);

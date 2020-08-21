@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { TimelineMax } from 'gsap';
+import { Linear } from 'gsap/all';
 
 const FadeInAnimationOnMount = ({ children, wrapperElement = 'div', direction = null, delay = 0.5, ...props }) => {
 	let compRef = useRef(null);
@@ -36,14 +37,14 @@ const FadeInAnimationOnMount = ({ children, wrapperElement = 'div', direction = 
 	useEffect(() => {
 		setAnimation(
 			animationTl
-				.from(compRef.current, 1, {
+				.from(compRef.current, 1.7, {
 					...fadeDirection,
 					opacity: 0,
-					delay
+					...delay
 				})
 				.to(compRef.current, 1, {
 					opacity: 1,
-					delay
+					...delay
 				})
 				.play()
 		);

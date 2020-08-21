@@ -43,7 +43,7 @@ function ProfileGoalEdit({
 	};
 	return (
 		<>
-			<h2 className="profile__stats-text profile__goal-edit-container">
+			<h2 className="profile__stats-text profile__toggle-container">
 				Goal Preference:{' '}
 				<div className={`profile__toggle-switch`}>
 					<span
@@ -64,7 +64,7 @@ function ProfileGoalEdit({
 					</span>{' '}
 				</div>
 			</h2>
-			<h2 className="profile__stats-text profile__goal-edit-container">
+			<h2 className="profile__stats-text profile__toggle-container">
 				Daily {localGoalPreference === 'words' ? 'Words' : 'Time'} Goal :
 				{goalIsEditable ? (
 					localGoalPreference === 'words' ? (

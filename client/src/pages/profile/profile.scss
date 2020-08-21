@@ -92,14 +92,25 @@
 	&__toggle-container {
 		display: flex;
 		font-size: 1.7rem;
-		width: 35%;
+		width: 39%;
+		justify-content: space-between;
 		margin-bottom: 2%;
+		// border: 1px solid red;
+	}
+	&__edit-container {
+		display: flex;
+		font-size: 1.7rem;
+		width: 35%;
+		justify-content: space-between;
+		margin-bottom: 2%;
+		// border: 1px solid red;
 	}
 	&__toggle-switch {
 		display: flex;
 		align-items: center;
 		margin-left: 2%;
 		font-size: 1.4rem;
+		color: white;
 	}
 	&__active {
 		border: 1px solid white;
