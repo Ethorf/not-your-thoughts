@@ -79,7 +79,7 @@ const Profile = ({
 							<h2 className={`profile__sub-header ${mode}`}>Settings</h2>
 							<ProfileGoalEdit />
 						</div>
-						<div className={`profile__toggle-container`}>
+						<div className={`profile__edit-container`}>
 							Tracked Phrases:
 							<TrackedPhrasesModal />
 						</div>

@@ -39,13 +39,11 @@ class NavBarSide extends React.Component {
 		this.navBarTween = new TimelineLite({ paused: true }).to(this.navBarContainer, {
 			duration: 0.4,
 			x: 45
-			// ease: 'power1.out'
 		});
 
 		this.linksTween = new TimelineLite({ paused: true }).to(this.linksContainer, { duration: 1, x: 0, opacity: 1 });
 		this.arrowTween = new TimelineLite({ paused: true }).to(this.arrowContainer, {
 			duration: 1
-			// rotation: -180
 		});
 	}
 	render(logout) {

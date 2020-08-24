@@ -1,7 +1,6 @@
 //Word Count & Goals
 export const CHANGE_WORDCOUNT = 'CHANGE_WORDCOUNT';
 export const CHANGE_CHARCOUNT = 'CHANGE_CHARCOUNT';
-
 export const GOAL_REACHED = 'GOAL_REACHED';
 export const CHANGE_GOAL = 'CHANGE_GOAL';
 export const TOGGLE_EDIT_GOAL = 'TOGGLE_EDIT_GOAL';

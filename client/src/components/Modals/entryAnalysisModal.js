@@ -56,6 +56,10 @@ function EntryAnalysisModal(props) {
 				<h2>{props.date}</h2>
 				<div style={{ display: 'flex', width: '70%', justifyContent: 'space-between' }}>
 					<h3 className="entry__entry-date-wordcount entry__words">
+						Words:
+						{props.wordCount}
+					</h3>
+					<h3 className="entry__entry-date-wordcount entry__words">
 						Time:{' '}
 						{props.timeElapsed
 							? `${Math.trunc(props.timeElapsed / 60)}m:${props.timeElapsed % 60}s`

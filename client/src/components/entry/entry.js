@@ -25,6 +25,7 @@ function Entry(props) {
 					analysisModalOpen={analysisModalOpen}
 					trackedPhrases={props.trackedPhrases}
 					pdEmotionAnalysis={props.pdEmotionAnalysis}
+					wordCount={props.wordCount}
 					wpm={props.wpm}
 					timeElapsed={props.timeElapsed}
 				/>

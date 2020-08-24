@@ -100,10 +100,10 @@
 	&__edit-container {
 		display: flex;
 		font-size: 1.7rem;
-		width: 35%;
-		justify-content: space-between;
 		margin-bottom: 2%;
-		// border: 1px solid red;
+	}
+	&__goal-edit-buttons-container {
+		width: 50%;
 	}
 	&__toggle-switch {
 		display: flex;

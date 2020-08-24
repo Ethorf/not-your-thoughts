@@ -10,7 +10,7 @@ import '../timer/timer.scss';
 //Redux Function Imports
 import { connect } from 'react-redux';
 import { changeWordCount, changeCharCount } from '../../redux/actions/index';
-import { saveEntry, setEntry } from '../../redux/actions/entryActions.js';
+import { saveEntry, setEntry, toggleTimerActive } from '../../redux/actions/entryActions.js';
 import { openSuccessModal, openSaveEntryModal } from '../../redux/actions/modalActions';
 import { changeMode } from '../../redux/actions/modeActions';
 import { increaseDays } from '../../redux/actions/authActions.js';
@@ -28,6 +28,7 @@ import SuccessModal from '../Modals/successModal.js';
 import IntroModal from '../Modals/introModal.js';
 import SaveEntryModal from '../Modals/saveEntryModal.js';
 import Spinner from '../spinner/spinner';
+import TimerDisplay from '../timerDisplay/timerDisplay';
 
 const TextEntry = ({
 	openSaveEntryModal,
@@ -52,9 +53,9 @@ const TextEntry = ({
 	const [readyToAnimateText, setReadyToAnimateText] = useState(true);
 	const [textAreaAnimation, setTextAreaAnimation] = useState(null);
 
-	// if (!isAuthenticated) {
-	// 	return <Redirect to="/login" />;
-	// }
+	if (!isAuthenticated) {
+		return <Redirect to="/login" />;
+	}
 	const textDissapearingAnim = () => {
 		if (readyToAnimateText) {
 			setReadyToAnimateText(false);
@@ -133,17 +134,16 @@ const TextEntry = ({
 										? `${user.dailyWordsGoal} Words`
 										: `${user.dailyTimeGoal} Minute${user.dailyTimeGoal >= 2 ? 's' : ''}`}
 								</h2>
-								{user && user.timerEnabled ? (
-									<div className="timer">
-										{Math.trunc(timeElapsed / 60)}m:{timeElapsed % 60}s
-									</div>
-								) : null}
+								{user && user.timerEnabled ? <TimerDisplay /> : null}
 
 								<h3 className={`main__wordcount`}>{wordCount} Words</h3>
 								{user && user.wpmEnabled ? (
-									<h3 className={`main__wordcount`}>
-										{charCount >= 20 ? Math.trunc((charCount / 5 / timeElapsed) * 60) : 'N/A'} WPM
-									</h3>
+									<>
+										<h3 className={`main__wordcount`}>
+											{charCount >= 20 ? Math.trunc((charCount / 5 / timeElapsed) * 60) : 'N/A'}{' '}
+											WPM
+										</h3>
+									</>
 								) : null}
 							</div>
 							<div className={`main__textarea-border ${mode}`}>
@@ -202,5 +202,6 @@ export default connect(mapStateToProps, {
 	changeCharCount,
 	setEntry,
 	increaseDays,
-	changeMode
+	changeMode,
+	toggleTimerActive
 })(TextEntry);

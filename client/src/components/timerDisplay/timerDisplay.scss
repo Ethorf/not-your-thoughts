@@ -1,0 +1,14 @@
+.timer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	&__play-pause {
+		width: 10px;
+		height: 15px;
+		margin-left: 13px;
+		opacity: 0.8;
+		&:hover {
+			cursor: pointer;
+		}
+	}
+}
