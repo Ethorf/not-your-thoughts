@@ -1,5 +1,7 @@
 .page {
 	position: absolute;
+	width: 100%;
+	height: 100%;
 	top: 10000px;
 	left: 0;
 	right: 0;
@@ -8,6 +10,8 @@
 
 .fad-appear,
 .fad-enter {
+	width: 100%;
+	height: 100%;
 	opacity: 0;
 	z-index: 1;
 	transition: 1s all;
@@ -16,6 +20,7 @@
 
 .fad-appear-active,
 .fad-enter.fad-enter-active {
+	width: 100%;
 	opacity: 1;
 	transition: opacity 550ms linear 550ms;
 	background-color: black;
@@ -24,6 +29,8 @@
 .fad-exit {
 	position: absolute;
 	opacity: 1;
+	width: 100%;
+
 	transition: 500ms all;
 	background-color: black;
 }
@@ -32,6 +39,8 @@
 	position: absolute;
 	opacity: 0;
 	transition: 1s all;
+	width: 100%;
+
 	transition: opacity 500ms linear;
 	background-color: black;
 }

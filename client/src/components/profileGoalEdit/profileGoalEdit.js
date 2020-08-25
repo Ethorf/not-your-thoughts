@@ -110,8 +110,8 @@ function ProfileGoalEdit({
 							{localGoalPreference === 'words'
 								? user.dailyWordsGoal
 								: `${user.dailyTimeGoal} minute${user.dailyTimeGoal >= 2 ? 's' : ''}`}
+							<Button onClick={toggleEditGoal}>Edit</Button>
 						</div>
-						<Button onClick={toggleEditGoal}>Edit</Button>
 					</>
 				)}
 			</h2>

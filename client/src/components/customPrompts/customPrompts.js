@@ -41,7 +41,7 @@ const CustomPrompts = ({
 	}, []);
 	return (
 		<div className={`custom-prompts`}>
-			<div className={`profile__toggle-container`}>
+			<div className={`profile__stats-text profile__toggle-container`}>
 				Custom Prompts:
 				<div className={`profile__toggle-switch`} onClick={togglePrompts}>
 					<span

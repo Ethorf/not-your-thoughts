@@ -1,0 +1,11 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/variables.scss';
+@import '../../styles/base.scss';
+
+.entries {
+	&__sort-container {
+		width: 20%;
+		color: grey;
+		display: flex;
+	}
+}

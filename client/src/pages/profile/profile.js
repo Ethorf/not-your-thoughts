@@ -79,7 +79,7 @@ const Profile = ({
 							<h2 className={`profile__sub-header ${mode}`}>Settings</h2>
 							<ProfileGoalEdit />
 						</div>
-						<div className={`profile__edit-container`}>
+						<div className={` profile__stats-text profile__edit-container`}>
 							Tracked Phrases:
 							<TrackedPhrasesModal />
 						</div>
@@ -88,7 +88,7 @@ const Profile = ({
 					<h2 className={`profile__day-number profile__no-days  ${mode}`}>No days complete yet</h2>
 				)}
 
-				<div className={`profile__toggle-container`}>
+				<div className={`profile__stats-text profile__toggle-container`}>
 					Progress Audio:
 					<div onClick={toggleLocalProgressAudio} className={`profile__toggle-switch`}>
 						<span
@@ -108,7 +108,7 @@ const Profile = ({
 					</div>
 				</div>
 
-				<div className={`profile__toggle-container`}>
+				<div className={`profile__stats-text profile__toggle-container`}>
 					Timer:
 					<div onClick={toggleLocalTimer} className={`profile__toggle-switch`}>
 						<span
@@ -128,7 +128,7 @@ const Profile = ({
 					</div>
 				</div>
 
-				<div className={`profile__toggle-container`}>
+				<div className={`profile__stats-text profile__toggle-container`}>
 					WPM readout:
 					<div onClick={toggleLocalWpm} className={`profile__toggle-switch`}>
 						<span

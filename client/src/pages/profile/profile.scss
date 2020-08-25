@@ -21,7 +21,7 @@
 	}
 	&__sub-header {
 		font-family: 'Syncopate', sans-serif;
-		font-size: 1.7em;
+		font-size: 1.9em;
 		margin-bottom: 30px;
 		color: white;
 	}
@@ -91,7 +91,6 @@
 	}
 	&__toggle-container {
 		display: flex;
-		font-size: 1.7rem;
 		width: 39%;
 		justify-content: space-between;
 		margin-bottom: 2%;
@@ -99,11 +98,16 @@
 	}
 	&__edit-container {
 		display: flex;
-		font-size: 1.7rem;
 		margin-bottom: 2%;
+		width: 40%;
+		// border: 1px solid red;
+		justify-content: space-between;
 	}
 	&__goal-edit-buttons-container {
 		width: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
 	}
 	&__toggle-switch {
 		display: flex;
