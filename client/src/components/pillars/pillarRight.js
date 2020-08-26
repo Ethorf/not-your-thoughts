@@ -8,12 +8,15 @@ import PillarLeftOutlineInverted from '../../assets/Pillars/NewPillarLeft-2-inve
 import crawBoxRight from '../../assets/Animations/SpikyCrawBox-Right-1.gif';
 import crawBoxRightInverted from '../../assets/Pillars/CrawBoxes/NewCrawBox-Inverted-Right.gif';
 
-const PillarRight = ({ wordCount, auth: { user }, mode, timeElapsed }) => {
+const PillarRight = ({ wordCount, auth: { user }, mode, timeElapsed, guestMode }) => {
 	const pillarRightStyleHeight = () => {
 		let userGoal;
 		let goalCount;
 
-		if (user.goalPreference === 'words') {
+		if (guestMode) {
+			userGoal = 200;
+			goalCount = wordCount;
+		} else if (user.goalPreference === 'words') {
 			userGoal = user.dailyWordsGoal;
 			goalCount = wordCount;
 		} else if (user.goalPreference === 'time') {
@@ -22,7 +25,6 @@ const PillarRight = ({ wordCount, auth: { user }, mode, timeElapsed }) => {
 		}
 		let calc = goalCount / ((userGoal / 4) * 0.01);
 		const testStyle = {
-			//This -197 was -200 originally
 			height: `${-201 + calc + 1}%`
 		};
 		const start = { height: `0%` };
@@ -65,6 +67,7 @@ const PillarRight = ({ wordCount, auth: { user }, mode, timeElapsed }) => {
 const mapStateToProps = (state) => ({
 	wordCount: state.wordCount.wordCount,
 	auth: state.auth,
+	guestMode: state.auth.guestMode,
 	mode: state.modes.mode,
 	timeElapsed: state.entries.timeElapsed
 });

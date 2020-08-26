@@ -6,7 +6,7 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 //SCSS
 import '../../pages/main/main.scss';
-import '../timer/timer.scss';
+import '../../components/timer/timer.scss';
 //Redux Function Imports
 import { connect } from 'react-redux';
 import { changeWordCount, changeCharCount } from '../../redux/actions/index';
@@ -18,19 +18,19 @@ import { increaseDays } from '../../redux/actions/authActions.js';
 //Component Imports
 import Header from '../../components/header/header';
 import BgImage from '../../components/bgImage/bgImage.js';
-import Prompt from '../prompt/prompt.js';
-import PillarTop from '../pillars/pillarTop.js';
-import PillarLeft from '../pillars/pillarLeft.js';
-import PillarRight from '../pillars/pillarRight.js';
-import PillarBottom from '../pillars/pillarBottom.js';
+import Prompt from '../../components/prompt/prompt.js';
+import PillarTop from '../../components/pillars/pillarTop.js';
+import PillarLeft from '../../components/pillars/pillarLeft.js';
+import PillarRight from '../../components/pillars/pillarRight.js';
+import PillarBottom from '../../components/pillars/pillarBottom.js';
 import ProgressWord from '../../components/progress/progressWord.js';
-import SuccessModal from '../Modals/successModal.js';
-import IntroModal from '../Modals/introModal.js';
-import SaveEntryModal from '../Modals/saveEntryModal.js';
-import Spinner from '../spinner/spinner';
-import TimerDisplay from '../timerDisplay/timerDisplay';
+import SuccessModal from '../../components/Modals/successModal.js';
+import IntroModal from '../../components/Modals/introModal.js';
+import SaveEntryModal from '../../components/Modals/saveEntryModal.js';
+import Spinner from '../../components/spinner/spinner';
+import TimerDisplay from '../../components/timerDisplay/timerDisplay';
 
-const TextEntry = ({
+const Main = ({
 	openSaveEntryModal,
 	wordCount,
 	charCount,
@@ -42,7 +42,8 @@ const TextEntry = ({
 	mode,
 	auth: { user },
 	entry,
-	timeElapsed
+	timeElapsed,
+	guestMode
 }) => {
 	const textAreaTl = new TimelineMax({ paused: true });
 	let textAreaRef = useRef(null);
@@ -53,7 +54,7 @@ const TextEntry = ({
 	const [readyToAnimateText, setReadyToAnimateText] = useState(true);
 	const [textAreaAnimation, setTextAreaAnimation] = useState(null);
 
-	if (!isAuthenticated) {
+	if (!guestMode && !isAuthenticated) {
 		return <Redirect to="/login" />;
 	}
 	const textDissapearingAnim = () => {
@@ -108,13 +109,12 @@ const TextEntry = ({
 		saveEntry({ entry: entryData, timeElapsed: timeElapsed, wpm: Math.trunc((charCount / 5 / timeElapsed) * 60) });
 	};
 
-	return user === null ? (
+	return user === null && !guestMode ? (
 		<Spinner />
 	) : (
 		<>
 			<div className={`main__all-container modalize ${mode}`}>
 				<BgImage />
-
 				<div className={`main ${mode}`}>
 					<Header />
 					<SaveEntryModal />
@@ -128,16 +128,19 @@ const TextEntry = ({
 						<form className={`main__date-goal-wordcount-textarea-container`} onSubmit={(e) => onSubmit(e)}>
 							<div className={`main__date-goal-wordcount-container${mode}`}>
 								<h3 className={`main__date `}>{moment().format('MM/DD/YYYY')}</h3>
-								<h2 className={`main__goal`}>
-									Goal:{' '}
-									{user.goalPreference === 'words'
-										? `${user.dailyWordsGoal} Words`
-										: `${user.dailyTimeGoal} Minute${user.dailyTimeGoal >= 2 ? 's' : ''}`}
-								</h2>
-								{user && user.timerEnabled ? <TimerDisplay /> : null}
-
+								{guestMode ? (
+									<h2 className={`main__goal`}>Goal:200 words</h2>
+								) : (
+									<h2 className={`main__goal`}>
+										Goal:{' '}
+										{user.goalPreference === 'words'
+											? `${user.dailyWordsGoal} Words`
+											: `${user.dailyTimeGoal} Minute${user.dailyTimeGoal >= 2 ? 's' : ''}`}
+									</h2>
+								)}
+								{guestMode || user.timerEnabled ? <TimerDisplay /> : null}
 								<h3 className={`main__wordcount`}>{wordCount} Words</h3>
-								{user && user.wpmEnabled ? (
+								{guestMode || user.wpmEnabled ? (
 									<>
 										<h3 className={`main__wordcount`}>
 											{charCount >= 20 ? Math.trunc((charCount / 5 / timeElapsed) * 60) : 'N/A'}{' '}
@@ -160,9 +163,15 @@ const TextEntry = ({
 							</div>
 
 							<div className={`main__save-entry-button-container  `}>
-								<button onClick={onSubmit} type="submit" className={`main__save-entry-button${mode}`}>
-									Save Entry
-								</button>
+								{guestMode ? null : (
+									<button
+										onClick={onSubmit}
+										type="submit"
+										className={`main__save-entry-button${mode}`}
+									>
+										Save Entry
+									</button>
+								)}
 							</div>
 						</form>
 						<PillarRight />
@@ -175,7 +184,7 @@ const TextEntry = ({
 	);
 };
 
-TextEntry.propTypes = {
+Main.propTypes = {
 	auth: PropTypes.object.isRequired,
 	saveEntry: PropTypes.func.isRequired,
 	setEntry: PropTypes.func.isRequired
@@ -183,6 +192,7 @@ TextEntry.propTypes = {
 
 const mapStateToProps = (state) => ({
 	auth: state.auth,
+	guestMode: state.auth.guestMode,
 	wordCount: state.wordCount.wordCount,
 	charCount: state.wordCount.charCount,
 	goal: state.wordCount.goal,
@@ -204,4 +214,4 @@ export default connect(mapStateToProps, {
 	increaseDays,
 	changeMode,
 	toggleTimerActive
-})(TextEntry);
+})(Main);

@@ -1,201 +1,201 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import './landing.scss';
+import { connect } from 'react-redux';
 import { gsap } from 'gsap';
 import { CSSPlugin } from 'gsap/CSSPlugin';
 import { TimelineLite } from 'gsap/all';
+import { toggleGuestMode } from '../../redux/actions/authActions.js';
+
 import bgOverlayTextureWhite from '../../assets/Background-Images/background-texture-bigPan-white-blur.png';
+import './landing.scss';
 gsap.registerPlugin(CSSPlugin);
 
-export default class Landing extends React.Component {
-	allContainer = null;
-	allTween = null;
-	youareContainer = null;
-	youareTween = null;
-	notContainer = null;
-	notTween = null;
-	yourContainer = null;
-	yourTween = null;
-	thoughtsContainer = null;
-	thoughtsTween = null;
-	descriptionContainer = null;
-	descriptionTween = null;
-	loginButtonContainer = null;
-	registerButtonContainer = null;
-	buttonTween = null;
-	startState = { autoAlpha: 0, y: -1000 };
-	bgImgContainer = null;
-	bgImgTween = null;
+const Landing = ({ guestMode, toggleGuestMode }) => {
+	let allContainer = useRef(null);
+	let youareContainer = useRef(null);
+	let notContainer = useRef(null);
+	let yourContainer = useRef(null);
+	let thoughtsContainer = useRef(null);
+	let descriptionContainer = useRef(null);
+	let loginButtonContainer = useRef(null);
+	let registerButtonContainer = useRef(null);
+	let guestModeButtonContainer = useRef(null);
+	let bgImgContainer = useRef(null);
 
-	yourAnimSize = () => {
-		let y = 0;
-		console.log(window.innerWidth);
-		if (window.innerWidth <= 767) {
-			y = '-15vh';
-		} else {
-			y = '-131%';
-		}
-		return y;
-	};
-	componentDidMount() {
-		this.youareTween = new TimelineLite({ paused: true })
-			.from(this.youareContainer, {
+	useEffect(() => {
+		let youareTween = new TimelineLite({ paused: true })
+			.from(youareContainer, {
 				duration: 2.5,
 				y: '-200px',
 				ease: 'power1.out',
 				opacity: 0
 			})
-			.to(this.youareContainer, {
+			.to(youareContainer, {
 				duration: 2.5,
 				y: '0',
 				ease: 'power1.out',
 				opacity: 1
 			});
-		this.youareTween.play();
-		this.notTween = new TimelineLite({ paused: true })
-			.from(this.notContainer, {
+		youareTween.play();
+		let notTween = new TimelineLite({ paused: true })
+			.from(notContainer, {
 				duration: 2.6,
 				x: '-8vw',
 				opacity: 0
 			})
-			.to(this.notContainer, {
+			.to(notContainer, {
 				duration: 2.6,
 				x: '0',
 				opacity: 1
 			});
 		setTimeout(() => {
-			this.notTween.play();
+			notTween.play();
 		}, 900);
-		this.yourTween = new TimelineLite({ paused: true })
-			.from(this.yourContainer, {
+		let yourTween = new TimelineLite({ paused: true })
+			.from(yourContainer, {
 				duration: 2,
-				// y: `-${this.yourAnimSize()}`,
 				y: '150px',
 				opacity: 0
 			})
-			.to(this.yourContainer, {
+			.to(yourContainer, {
 				duration: 2,
 				y: 0,
 				opacity: 1
 			});
 		setTimeout(() => {
-			this.yourTween.play();
+			yourTween.play();
 		}, 1000);
-		this.thoughtsTween = new TimelineLite({ paused: true })
-			.from(this.thoughtsContainer, {
+		let thoughtsTween = new TimelineLite({ paused: true })
+			.from(thoughtsContainer, {
 				duration: 2,
 				x: '6vw',
 				opacity: 0
 			})
-			.to(this.thoughtsContainer, {
+			.to(thoughtsContainer, {
 				duration: 2,
 				x: 0,
 				opacity: 1
 			});
 		setTimeout(() => {
-			this.thoughtsTween.play();
+			thoughtsTween.play();
 		}, 900);
-		this.descriptionTween = new TimelineLite({ paused: true })
-			.from(this.descriptionContainer, {
+		let descriptionTween = new TimelineLite({ paused: true })
+			.from(descriptionContainer, {
 				duration: 2,
 				y: -1,
 				opacity: 0
 			})
-			.to(this.descriptionContainer, {
+			.to(descriptionContainer, {
 				duration: 2,
 				y: 0,
 				opacity: 1
 			});
 		setTimeout(() => {
-			this.descriptionTween.play();
+			descriptionTween.play();
 		}, 1500);
 
-		this.loginButtonTween = new TimelineLite({ paused: true }).to(this.loginButtonContainer, {
+		let loginButtonTween = new TimelineLite({ paused: true }).to(loginButtonContainer, {
 			duration: 3,
 			y: -1,
 			ease: 'slow(0.7, 0.7, false)',
 			opacity: 1
 		});
-		this.registerButtonTween = new TimelineLite({ paused: true }).to(this.registerButtonContainer, {
+		let registerButtonTween = new TimelineLite({ paused: true }).to(registerButtonContainer, {
+			duration: 3,
+			y: -1,
+			ease: 'slow(0.7, 0.7, false)',
+			opacity: 1
+		});
+		let guestModeButtonTween = new TimelineLite({ paused: true }).to(guestModeButtonContainer, {
 			duration: 3,
 			y: -1,
 			ease: 'slow(0.7, 0.7, false)',
 			opacity: 1
 		});
 		setTimeout(() => {
-			this.loginButtonTween.play();
-			this.registerButtonTween.play();
+			loginButtonTween.play();
+			registerButtonTween.play();
+			guestModeButtonTween.play();
 		}, 4000);
-		this.allTween = new TimelineLite({ paused: true }).to(this.allContainer, {
+		let allTween = new TimelineLite({ paused: true }).to(allContainer, {
 			duration: 3.5,
 			y: -130,
 			opacity: 1
 		});
 		setTimeout(() => {
-			this.allTween.play();
+			allTween.play();
 		}, 3000);
-		this.bgImgTween = new TimelineLite({ paused: true }).to(this.bgImgContainer, { duration: 2, opacity: 0.25 });
+		let bgImgTween = new TimelineLite({ paused: true }).to(bgImgContainer, { duration: 2, opacity: 0.25 });
 		setTimeout(() => {
-			this.youareTween.reverse();
+			youareTween.reverse();
 		}, 3100);
 		setTimeout(() => {
-			this.bgImgTween.play();
+			bgImgTween.play();
 		}, 3500);
 		setTimeout(() => {
-			this.bgImgTween.reverse();
+			bgImgTween.reverse();
 		}, 6500);
-	}
-	render() {
-		return (
-			<div ref={(div) => (this.allContainer = div)} className="landing">
-				<img
-					ref={(img) => (this.bgImgContainer = img)}
-					className="landing__bg-img"
-					src={bgOverlayTextureWhite}
-					alt="background"
-				></img>
+	}, []);
 
-				<h2 ref={(img) => (this.youareContainer = img)} className="landing__you-are">
-					You are
-				</h2>
-				<h1 className="landing__title">
-					<div className="landing__title-text" ref={(h1) => (this.notContainer = h1)}>
-						Not
-					</div>
-					<div className="landing__title-text" ref={(h1) => (this.yourContainer = h1)}>
-						Your{' '}
-					</div>
-					<div className="landing__title-text" ref={(h1) => (this.thoughtsContainer = h1)}>
-						Thoughts{' '}
-					</div>
-				</h1>
-				<div className="landing__description-container">
-					<p ref={(p) => (this.descriptionContainer = p)} className="landing__description">
-						Not Your Thoughts is a mindfulness-based gamified journaling website dedicated to empowering the
-						average human to develop a healthy relationship with the whirlwind of thoughts they find
-						themselves inside daily. Through a consistent daily journaling practice and engagement with
-						mindfulness prompts, the user will unlock new modes, features, and achievements as they progress
-						towards the solidification of their practice.
-					</p>
-				</div>
-				<div className="landing__all-buttons-container">
-					<Link
-						ref={(button) => (this.loginButtonContainer = button)}
-						to="/login"
-						className="landing__login-button"
-					>
-						Login
-					</Link>
+	return (
+		<div ref={(div) => (allContainer = div)} className="landing">
+			<img
+				ref={(img) => (bgImgContainer = img)}
+				className="landing__bg-img"
+				src={bgOverlayTextureWhite}
+				alt="background"
+			></img>
 
-					<Link
-						ref={(button) => (this.registerButtonContainer = button)}
-						to="/register"
-						className="landing__register-button"
-					>
-						Register
-					</Link>
+			<h2 ref={(img) => (youareContainer = img)} className="landing__you-are">
+				You are
+			</h2>
+			<h1 className="landing__title">
+				<div className="landing__title-text" ref={(h1) => (notContainer = h1)}>
+					Not
 				</div>
+				<div className="landing__title-text" ref={(h1) => (yourContainer = h1)}>
+					Your{' '}
+				</div>
+				<div className="landing__title-text" ref={(h1) => (thoughtsContainer = h1)}>
+					Thoughts{' '}
+				</div>
+			</h1>
+			<div className="landing__description-container">
+				<p ref={(p) => (descriptionContainer = p)} className="landing__description">
+					Not Your Thoughts is a mindfulness-based gamified journaling website dedicated to empowering the
+					average human to develop a healthy relationship with the whirlwind of thoughts they find themselves
+					inside daily. Through a consistent daily journaling practice and engagement with mindfulness
+					prompts, the user will unlock new modes, features, and achievements as they progress towards the
+					solidification of their practice.
+				</p>
 			</div>
-		);
-	}
-}
+			<div className="landing__all-buttons-container">
+				<Link ref={(button) => (loginButtonContainer = button)} to="/login" className="landing__login-button">
+					Login
+				</Link>
+
+				<Link
+					ref={(button) => (registerButtonContainer = button)}
+					to="/register"
+					className="landing__register-button"
+				>
+					Register
+				</Link>
+				<Link
+					onClick={toggleGuestMode}
+					ref={(button) => (guestModeButtonContainer = button)}
+					to="/main"
+					className="landing__register-button"
+				>
+					Guest
+				</Link>
+			</div>
+		</div>
+	);
+};
+
+const mapStateToProps = (state) => ({
+	guestMode: state.auth.guestMode
+});
+
+export default connect(mapStateToProps, { toggleGuestMode })(Landing);

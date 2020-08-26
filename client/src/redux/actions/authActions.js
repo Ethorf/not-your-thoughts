@@ -17,7 +17,8 @@ import {
 	ADD_TRACKED_PHRASE,
 	DELETE_TRACKED_PHRASE,
 	CUSTOM_PROMPT_ERROR,
-	TOGGLE_CUSTOM_PROMPTS_ENABLED
+	TOGGLE_CUSTOM_PROMPTS_ENABLED,
+	TOGGLE_GUEST_MODE
 } from './actionTypes';
 
 import setAuthToken from '../../utils/setAuthToken';
@@ -92,7 +93,9 @@ export const login = (email, password) => async (dispatch) => {
 		});
 	}
 };
-
+export const toggleGuestMode = () => (dispatch) => {
+	dispatch({ type: TOGGLE_GUEST_MODE });
+};
 // Logout / Clear Profile
 export const logout = () => (dispatch) => {
 	dispatch({ type: LOGOUT });

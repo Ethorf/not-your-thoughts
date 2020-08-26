@@ -6,12 +6,15 @@ import PillarTopOutlineInverted from '../../assets/Pillars/NewPillarTop-4-invert
 import crawBoxBottom from '../../assets/Animations/SpikyCrawBox-Bottom-1.gif';
 import crawBoxBottomInverted from '../../assets/Pillars/CrawBoxes/NewCrawBox-Inverted-Bottom.gif';
 
-const PillarBottom = ({ wordCount, auth: { user }, mode, timeElapsed }) => {
+const PillarBottom = ({ wordCount, auth: { user }, mode, timeElapsed, guestMode }) => {
 	const pillarBottomStyleWidth = () => {
 		let userGoal;
 		let goalCount;
 
-		if (user.goalPreference === 'words') {
+		if (guestMode) {
+			userGoal = 200;
+			goalCount = wordCount;
+		} else if (user.goalPreference === 'words') {
 			userGoal = user.dailyWordsGoal;
 			goalCount = wordCount;
 		} else if (user.goalPreference === 'time') {
@@ -74,10 +77,10 @@ const PillarBottom = ({ wordCount, auth: { user }, mode, timeElapsed }) => {
 	);
 };
 
-PillarBottom.propTypes = {};
 const mapStateToProps = (state) => ({
 	wordCount: state.wordCount.wordCount,
 	auth: state.auth,
+	guestMode: state.auth.guestMode,
 	mode: state.modes.mode,
 	timeElapsed: state.entries.timeElapsed
 });

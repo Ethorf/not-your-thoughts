@@ -9,7 +9,7 @@ import shuffleIcon from '../../assets/Icons/prompt-icons/shuffle-gray.png';
 import nextIcon from '../../assets/Icons/prompt-icons/next-gray.png';
 import lastIcon from '../../assets/Icons/prompt-icons/last-gray.png';
 
-const Prompt = ({ auth: { user } }) => {
+const Prompt = ({ auth: { user }, guestMode }) => {
 	const randomNum = (max) => {
 		return Math.floor(Math.random() * max);
 	};
@@ -26,12 +26,15 @@ const Prompt = ({ auth: { user } }) => {
 			})
 			.catch((error) => console.log(error, 'you had errorboi getPrompts'));
 	};
+	let customPromptArr = [];
 	useEffect(() => {
 		getPrompts();
 	}, [customPromptContent]);
-	let customPromptArr = user.customPrompts.map((item) => {
-		return item.content;
-	});
+	if (!guestMode) {
+		customPromptArr = user.customPrompts.map((item) => {
+			return item.content;
+		});
+	}
 
 	const argsShuffle = () => {
 		if (user) {
@@ -39,20 +42,20 @@ const Prompt = ({ auth: { user } }) => {
 		}
 	};
 	const prev = () => {
-		setCustomPromptContent((jim) => {
-			if (customPromptArr.indexOf(jim) > 0) {
-				return user.customPrompts[customPromptArr.indexOf(jim) - 1].content;
+		setCustomPromptContent((prompt) => {
+			if (customPromptArr.indexOf(prompt) > 0) {
+				return user.customPrompts[customPromptArr.indexOf(prompt) - 1].content;
 			}
-			return jim;
+			return prompt;
 		});
 	};
 
 	const next = () => {
-		setCustomPromptContent((jim) => {
-			if (customPromptArr.indexOf(jim) < user.customPrompts.length - 1) {
-				return user.customPrompts[customPromptArr.indexOf(jim) + 1].content;
+		setCustomPromptContent((prompt) => {
+			if (customPromptArr.indexOf(prompt) < user.customPrompts.length - 1) {
+				return user.customPrompts[customPromptArr.indexOf(prompt) + 1].content;
 			}
-			return jim;
+			return prompt;
 		});
 	};
 	const first = () => {
@@ -101,7 +104,11 @@ const Prompt = ({ auth: { user } }) => {
 		{ enableOnTags: ['TEXTAREA'] }
 	);
 
-	return user && user.customPromptsEnabled ? (
+	return guestMode && !user ? (
+		<div className={`prompt`}>
+			<h2>{promptContent}</h2>
+		</div>
+	) : (
 		<div className={`prompt`}>
 			<h2 className={`prompt__content`}>
 				{customPromptArr.indexOf(customPromptContent) + 1}.{'  '} {customPromptContent}
@@ -154,16 +161,13 @@ const Prompt = ({ auth: { user } }) => {
 				></img>
 			</div>
 		</div>
-	) : (
-		<div className={`prompt`}>
-			<h2>{promptContent}</h2>
-		</div>
 	);
 };
 
 const mapStateToProps = (state) => ({
 	auth: state.auth,
-	user: state.auth.user
+	user: state.auth.user,
+	guestMode: state.auth.guestMode
 });
 
 export default connect(mapStateToProps, {})(Prompt);

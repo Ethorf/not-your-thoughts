@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Button } from '@material-ui/core';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -27,7 +27,8 @@ const SuccessModal = ({
 	goalReachedStatus,
 	increaseDays,
 	timeElapsed,
-	charCount
+	charCount,
+	guestMode
 }) => {
 	let modalOverlayContainer = useRef(null);
 	let modalContentContainer = useRef(null);
@@ -85,10 +86,19 @@ const SuccessModal = ({
 		goalReached();
 		saveEntry({ entry: entry, timeElapsed: timeElapsed, wpm: Math.trunc((charCount / 5 / timeElapsed) * 60) });
 	};
-	let timeGoalSeconds = user.dailyTimeGoal * 60;
 
 	useEffect(() => {
-		if (user.goalPreference === 'words') {
+		if (guestMode) {
+			if (wordCount > 0 && wordCount <= 200) {
+				toggleTimerActive(true);
+			}
+			if (wordCount >= 200 && goalReachedStatus === false) {
+				openModalAll();
+			}
+			if (wordCount >= 200) {
+				toggleTimerActive(false);
+			}
+		} else if (user.goalPreference === 'words') {
 			if (wordCount > 0 && wordCount <= user.dailyWordsGoal) {
 				toggleTimerActive(true);
 			}
@@ -103,17 +113,17 @@ const SuccessModal = ({
 			if (wordCount > 0) {
 				toggleTimerActive(true);
 			}
-			if (timeElapsed > timeGoalSeconds - 1 && goalReachedStatus == false) {
+			if (timeElapsed > user.dailyTimeGoal * 60 - 1 && goalReachedStatus == false) {
 				openModalAll();
 			}
-			if (timeElapsed > timeGoalSeconds - 1) {
+			if (timeElapsed > user.dailyTimeGoal * 60 - 1) {
 				toggleTimerActive(false);
 			}
 		}
-	}, [wordCount, timeElapsed, goalReachedStatus, goal, user.goalPreference]);
+	}, [wordCount, timeElapsed, goalReachedStatus, goal]);
 
 	return (
-		<Fragment>
+		<>
 			{/*<button onClick={openModalAll}>Modal Open Test</button> */}
 			<div
 				className={`${modals.successModalOpen ? 'main__modal2OverlayOpen' : 'main__modal2OverlayClosed'}`}
@@ -163,7 +173,7 @@ const SuccessModal = ({
 					</>
 				)}
 			</div>
-		</Fragment>
+		</>
 	);
 };
 
@@ -181,7 +191,8 @@ const mapStateToProps = (state, props) => ({
 	mode: state.modes.mode,
 	setTimerActive: props.setTimerActive,
 	timeElapsed: state.entries.timeElapsed,
-	charCount: state.wordCount.charCount
+	charCount: state.wordCount.charCount,
+	guestMode: state.auth.guestMode
 });
 
 export default connect(mapStateToProps, {

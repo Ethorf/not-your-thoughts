@@ -13,7 +13,7 @@ const progressSound50 = new Audio(progressSound50File);
 const progressSound75 = new Audio(progressSound75File);
 const progressSound100 = new Audio(progressSound100File);
 
-const ProgressWord = ({ wordCount, user, timeElapsed }) => {
+const ProgressWord = ({ wordCount, user, timeElapsed, guestMode }) => {
 	let progressWordContainer = useRef(null);
 	let progressNumberContainer = useRef(null);
 	const [animationReady, setAnimationReady] = useState(true);
@@ -48,7 +48,10 @@ const ProgressWord = ({ wordCount, user, timeElapsed }) => {
 	};
 
 	useEffect(() => {
-		if (user.goalPreference === 'words') {
+		if (guestMode) {
+			userGoal = 200;
+			goalCount = wordCount;
+		} else if (user.goalPreference === 'words') {
 			userGoal = user.dailyWordsGoal;
 			goalCount = wordCount;
 		} else if (user.goalPreference === 'time') {
@@ -81,9 +84,9 @@ const ProgressWord = ({ wordCount, user, timeElapsed }) => {
 	return (
 		<div>
 			<h2 ref={(h2) => (progressNumberContainer = h2)} className="main__progress-number">
-				{user.goalPreference === 'words'
-					? percentCalc(wordCount, user.dailyWordsGoal)
-					: percentCalc(timeElapsed, user.dailyTimeGoal * 60)}
+				{guestMode || user.goalPreference === 'words'
+					? percentCalc(wordCount, userGoal)
+					: percentCalc(timeElapsed, userGoal * 60)}
 			</h2>
 			<h2 ref={(h2) => (progressWordContainer = h2)} className="main__progress-word">
 				Complete
@@ -100,7 +103,8 @@ const mapStateToProps = (state) => ({
 	wordCount: state.wordCount.wordCount,
 	goal: state.wordCount.goal,
 	user: state.auth.user,
-	timeElapsed: state.entries.timeElapsed
+	timeElapsed: state.entries.timeElapsed,
+	guestMode: state.auth.guestMode
 });
 
 export default connect(mapStateToProps)(ProgressWord);

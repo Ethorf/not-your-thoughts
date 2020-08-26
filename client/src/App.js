@@ -12,7 +12,8 @@ import AudioPlayer from './components/audioPlayer/audioPlayer.js';
 import Timer from './components/timer/timer.js';
 //Pages Imports
 import Landing from './pages/landing/landing';
-import TextEntry from './components/textEntry/textEntry.js';
+import Main from './pages/main/main.js';
+
 import Login from './pages/login/login.js';
 import Register from './pages/register/register.js';
 import Profile from './pages/profile/profile';
@@ -64,7 +65,7 @@ const App = () => {
 											{({ match }) => <Register show={match !== null} />}
 										</Route>
 										<PrivateRoute path="/main" exact>
-											{({ match }) => <TextEntry show={match !== null} />}
+											{({ match }) => <Main show={match !== null} />}
 										</PrivateRoute>
 										<PrivateRoute path="/profile">
 											{({ match }) => <Profile show={match !== null} />}

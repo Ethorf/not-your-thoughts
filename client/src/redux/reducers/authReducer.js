@@ -9,6 +9,7 @@ import {
 	INCREASE_DAYS,
 	SET_FIRST_LOGIN,
 	TOGGLE_PROGRESS_AUDIO,
+	TOGGLE_GUEST_MODE,
 	ADD_CUSTOM_PROMPT,
 	TOGGLE_CUSTOM_PROMPTS_ENABLED
 } from '../actions/actionTypes';
@@ -17,7 +18,8 @@ const initialState = {
 	token: localStorage.getItem('token'),
 	isAuthenticated: null,
 	loading: true,
-	user: null
+	user: null,
+	guestMode: false
 };
 
 export default function (state = initialState, action) {
@@ -36,6 +38,11 @@ export default function (state = initialState, action) {
 		case TOGGLE_CUSTOM_PROMPTS_ENABLED:
 			return {
 				...state
+			};
+		case TOGGLE_GUEST_MODE:
+			return {
+				...state,
+				guestMode: !state.guestMode
 			};
 		case REGISTER_SUCCESS:
 		case LOGIN_SUCCESS:
