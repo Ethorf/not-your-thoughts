@@ -31,7 +31,20 @@ function Entry(props) {
 				/>
 				<h3 className="entry__entry-date-wordcount entry__date">{props.date}</h3>
 				<div className="entry__wordcount-container">
-					<h3 className="entry__entry-date-wordcount entry__words">Words: {props.wordCount}</h3>
+					<h3 className="entry__entry-date-wordcount entry__words">
+						Time:{' '}
+						<span style={{ color: 'white' }}>
+							{' '}
+							{props.timeElapsed
+								? `${Math.trunc(props.timeElapsed / 60)}m:${props.timeElapsed % 60}s`
+								: 'N/A'}
+						</span>
+					</h3>
+				</div>
+				<div className="entry__wordcount-container">
+					<h3 className="entry__entry-date-wordcount entry__words">
+						Words:<span style={{ color: 'white' }}> {props.wordCount}</span>
+					</h3>
 				</div>
 				<button
 					className={`entry__button ${open ? 'entry__button-open' : 'entry__button-closed'}`}

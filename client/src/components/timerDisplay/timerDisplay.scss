@@ -1,14 +1,15 @@
 .timer {
-	width: 32%;
+	width: 120%;
 	display: flex;
 	justify-content: center;
-	// margin-right: 5px;
-	margin-left: 20px;
+	// margin-left: 20px;
 	align-items: center;
 	font-size: 0.8em;
+	padding: 0 4px;
 	position: relative;
 	z-index: 40;
-
+	// border: 1px solid red;
+	transition: all 1s;
 	&__play-pause {
 		width: 10px;
 		height: 12px;

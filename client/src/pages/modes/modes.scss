@@ -78,20 +78,10 @@
 		width: 100px;
 	}
 	&__light-mode-button {
-		outline: none;
-		color: black;
-		font-size: 0.6rem;
-		font-family: 'Syncopate', sans-serif;
-		border-radius: 5%;
+		@include main-button-style();
 		margin-left: 6%;
 		font-size: 1rem;
 		padding: 0.9vh 2vw;
-		transition: all 1s;
-		&:hover {
-			background-color: black;
-			color: white;
-			transition: all 1s;
-		}
 	}
 	&__coming-soon {
 		font-size: 1rem;

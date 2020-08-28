@@ -6,7 +6,7 @@ import { login, toggleGuestMode } from '../../redux/actions/authActions';
 import './login-register.scss';
 import FadeInAnimationOnMount from '../../components/higherOrderComponents/fadeInAnimationOnMount.js';
 
-const Login = ({ login, isAuthenticated, alert, toggleGuestMode }) => {
+const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) => {
 	let loginInputRef = useRef(null);
 	const [formData, setFormData] = useState({
 		email: '',
@@ -22,6 +22,7 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode }) => {
 
 	const onSubmit = async (e) => {
 		e.preventDefault();
+		if (guestMode) toggleGuestMode();
 		login(email, password);
 	};
 
@@ -75,7 +76,7 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode }) => {
 				</FadeInAnimationOnMount>
 			</form>
 			<FadeInAnimationOnMount wrapperElement="div" direction="up">
-				<p className="login-register__signup">
+				<div className="login-register__signup">
 					Don't have an account?
 					<br />
 					<div>
@@ -88,7 +89,7 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode }) => {
 						</Link>{' '}
 						a try!
 					</div>
-				</p>
+				</div>
 			</FadeInAnimationOnMount>
 		</div>
 	);
@@ -102,7 +103,8 @@ Login.propTypes = {
 
 const mapStateToProps = (state) => ({
 	isAuthenticated: state.auth.isAuthenticated,
-	alert: state.alert
+	alert: state.alert,
+	guestMode: state.auth.guestMode
 });
 
 export default connect(mapStateToProps, { login, toggleGuestMode })(Login);

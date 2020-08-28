@@ -8,7 +8,7 @@ import './register.scss';
 import '../login/login-register.scss';
 import FadeInAnimationOnMount from '../../components/higherOrderComponents/fadeInAnimationOnMount.js';
 
-const Register = ({ setAlert, register, isAuthenticated, alert }) => {
+const Register = ({ setAlert, register, isAuthenticated, alert, guestMode, toggleGuestMode }) => {
 	const [formData, setFormData] = useState({
 		name: '',
 		email: '',
@@ -25,6 +25,7 @@ const Register = ({ setAlert, register, isAuthenticated, alert }) => {
 		if (password !== password2) {
 			setAlert('Passwords do not match', 'danger');
 		} else {
+			if (guestMode) toggleGuestMode();
 			register({ name, email, password });
 		}
 	};
@@ -92,12 +93,12 @@ const Register = ({ setAlert, register, isAuthenticated, alert }) => {
 				</FadeInAnimationOnMount>
 			</form>
 			<FadeInAnimationOnMount wrapperElement="div" direction="up">
-				<p className="login-register__signup">
+				<div className="login-register__signup">
 					Already have an account?
 					<br />
 					<div>
-						<Link className="login-register__signup-link" to="/register">
-							Sign Up
+						<Link className="login-register__signup-link" to="/login">
+							Login
 						</Link>{' '}
 						or give{''}
 						<Link className="login-register__signup-link" to="/main" onClick={toggleGuestMode}>
@@ -105,7 +106,7 @@ const Register = ({ setAlert, register, isAuthenticated, alert }) => {
 						</Link>{' '}
 						a try!
 					</div>
-				</p>
+				</div>
 			</FadeInAnimationOnMount>
 		</div>
 	);
@@ -119,7 +120,8 @@ Register.propTypes = {
 
 const mapStateToProps = (state) => ({
 	isAuthenticated: state.auth.isAuthenticated,
-	alert: state.alert
+	alert: state.alert,
+	guestMode: state.auth.guestMode
 });
 
-export default connect(mapStateToProps, { setAlert, register })(Register);
+export default connect(mapStateToProps, { setAlert, register, toggleGuestMode })(Register);

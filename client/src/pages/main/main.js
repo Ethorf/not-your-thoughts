@@ -1,5 +1,5 @@
 //Package Imports
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Redirect } from 'react-router-dom';
 import { TimelineMax } from 'gsap';
 import moment from 'moment';
@@ -50,8 +50,19 @@ const Main = ({
 	const [entryData, setEntryData] = useState({
 		entry: ''
 	});
+	const [wpmCalc, setWpmCalc] = useState(Math.trunc((charCount / 5 / timeElapsed) * 60));
+	const [wpmCounter, setWpmCounter] = useState(0);
 	const [readyToAnimateText, setReadyToAnimateText] = useState(true);
 	const [textAreaAnimation, setTextAreaAnimation] = useState(null);
+
+	useEffect(() => {
+		// setWpmCalc((timeElapsed / 2) % 5 === 0 ? Math.trunc((charCount / 5 / timeElapsed) * 60) : wpmCalc);
+		let wpmInterval = null;
+		wpmInterval = setInterval(() => {
+			setWpmCounter(wpmCalc);
+		}, 2000);
+		return () => clearInterval(wpmInterval);
+	}, [charCount, timeElapsed, wpmCalc, wpmCounter]);
 
 	if (!guestMode && !isAuthenticated) {
 		return <Redirect to="/login" />;
@@ -107,7 +118,6 @@ const Main = ({
 		openSaveEntryModal();
 		saveEntry({ entry: entryData, timeElapsed: timeElapsed, wpm: Math.trunc((charCount / 5 / timeElapsed) * 60) });
 	};
-
 	return user === null && !guestMode ? (
 		<Spinner />
 	) : (
@@ -156,12 +166,11 @@ const Main = ({
 								<textarea
 									onChange={textNum}
 									name="textEntry"
-									className={`main__textarea${mode} ${mode === 'blind' ? 'textblind' : null}`}
+									className={`main__textarea${mode} ${mode === ' blind' ? 'textblind' : null}`}
 									placeholder="note those thoughts here"
 									value={entry}
 									ref={(textarea) => (textAreaRef = textarea)}
-									spellcheck="false"
-									// onKeyPress={textDissapearingAnim}
+									spellCheck="false"
 								></textarea>
 							</div>
 

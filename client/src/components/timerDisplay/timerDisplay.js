@@ -10,7 +10,7 @@ import { toggleTimerActive } from '../../redux/actions/entryActions.js';
 function TimerDisplay({ toggleTimerActive, timeElapsed, timerActive }) {
 	return (
 		<div className="timer">
-			{Math.trunc(timeElapsed / 60)}m:{timeElapsed % 60}s
+			{Math.trunc(timeElapsed / 60)}m:{timeElapsed % 60} s
 			<img
 				className="timer__play-pause"
 				onClick={() => toggleTimerActive(!timerActive)}
