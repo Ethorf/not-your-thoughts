@@ -75,22 +75,26 @@ class NavBarSide extends React.Component {
 						>
 							Main
 						</NavLink>
-						<NavLink
-							exact
-							to="/profile"
-							activeClassName="nav__active"
-							className={`nav__link${this.props.mode}`}
-						>
-							Profile
-						</NavLink>
-						<NavLink
-							exact
-							to="/entries"
-							activeClassName="nav__active"
-							className={`nav__link${this.props.mode}`}
-						>
-							Entries
-						</NavLink>
+						{!this.props.guestMode ? (
+							<>
+								<NavLink
+									exact
+									to="/profile"
+									activeClassName="nav__active"
+									className={`nav__link${this.props.mode}`}
+								>
+									Profile
+								</NavLink>
+								<NavLink
+									exact
+									to="/entries"
+									activeClassName="nav__active"
+									className={`nav__link${this.props.mode}`}
+								>
+									Entries
+								</NavLink>
+							</>
+						) : null}
 						<NavLink
 							exact
 							to="/resources"
@@ -99,14 +103,17 @@ class NavBarSide extends React.Component {
 						>
 							Resources
 						</NavLink>
-						<NavLink
-							exact
-							to="/modes"
-							activeClassName="nav__active"
-							className={`nav__link${this.props.mode}`}
-						>
-							Modes
-						</NavLink>
+						{!this.props.guestMode ? (
+							<NavLink
+								exact
+								to="/modes"
+								activeClassName="nav__active"
+								className={`nav__link${this.props.mode}`}
+							>
+								Modes
+							</NavLink>
+						) : null}
+
 						<NavLink
 							exact
 							to="/about"
@@ -137,6 +144,7 @@ class NavBarSide extends React.Component {
 }
 const mapStateToProps = (state) => ({
 	mode: state.modes.mode,
+	guestMode: state.auth.guestMode,
 	isAuthenticated: state.auth.isAuthenticated
 });
 export default connect(mapStateToProps, { logout })(NavBarSide);

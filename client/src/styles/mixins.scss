@@ -50,6 +50,44 @@
 	}
 }
 
+@mixin main-button-style() {
+	color: silver;
+	background-color: black;
+	padding-top: 5px;
+	border: 1px solid silver;
+	border-radius: 20px;
+	outline: none;
+	transition: all 0.3s;
+	font-family: 'Syncopate', sans-serif;
+	z-index: 10;
+
+	&:hover {
+		transition: all 0.3s;
+		color: black;
+		background-color: white;
+		cursor: pointer;
+	}
+}
+
+@mixin main-button-style-inverted() {
+	color: black;
+	background-color: white;
+	padding-top: 5px;
+	border: 1px solid silver;
+	border-radius: 20px;
+	outline: none;
+	transition: all 0.3s;
+	font-family: 'Syncopate', sans-serif;
+	z-index: 10;
+
+	&:hover {
+		transition: all 0.3s;
+		color: white;
+		background-color: black;
+		cursor: pointer;
+	}
+}
+
 @mixin main-page-global-styles() {
 	position: relative;
 	height: 100%;

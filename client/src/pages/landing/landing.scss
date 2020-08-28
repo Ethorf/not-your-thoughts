@@ -69,25 +69,10 @@
 	}
 	&__login-button,
 	&__register-button {
-		font-family: 'Syncopate', sans-serif;
+		@include main-button-style-inverted();
+		padding: 10px 17px;
 		text-decoration: none;
-		color: black;
-		padding: 12px 17px;
-		// width: 20%;
-		border-radius: 6px;
-		border: 1px solid white;
-		border-bottom: 1px solid silver;
-		border-left: 1px solid silver;
 		opacity: 0;
-		background-color: white;
-		text-align: center;
-
-		&:hover {
-			color: white;
-			background-color: black;
-			transition: all 1s;
-			cursor: pointer;
-		}
 	}
 
 	@include laptop-xl() {

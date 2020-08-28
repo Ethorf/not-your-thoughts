@@ -135,14 +135,15 @@ const SuccessModal = ({
 			>
 				<div className={gratitudeOpen ? 'invisible' : 'visible'}>
 					<h2 className="modal__congratulations">
-						CONGRATULATIONS {user && user.name.toUpperCase().split(' ')[0]}!
+						CONGRATULATIONS {!guestMode ? user.name.toUpperCase().split(' ')[0] : 'Guest User!'}!
 					</h2>
 					<div className="modal__mainText">
 						<h2 className="modal__goal">You've reached your goal for today</h2>
-						<h3 className="modal__goal">
-							You have completed {user && user.consecutiveDays} days in a row, and{' '}
-							{user && user.totalDays} days total
-						</h3>
+						{!guestMode ? (
+							<h3 className="modal__goal">
+								You have completed {user.consecutiveDays} days in a row, and {user.totalDays} days total
+							</h3>
+						) : null}
 						{gratitudeCompleted ? null : (
 							<>
 								<h4 className="modal__gratitude-prompt">
@@ -164,9 +165,11 @@ const SuccessModal = ({
 				{gratitudeOpen ? <Gratitude closeGratitude={closeGratitude} /> : null}
 				{gratitudeOpen || gratitudeCompleted === false ? null : (
 					<>
-						<button onClick={closeSaveModalAll} className="modal__close-button">
-							Save and Close
-						</button>
+						{!guestMode ? (
+							<button onClick={closeSaveModalAll} className="modal__close-button">
+								Save and Close
+							</button>
+						) : null}
 						<button onClick={closeModalAll} className="modal__close-button">
 							Just Close
 						</button>

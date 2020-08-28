@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import './timer.scss';
 import { setTimeElapsed } from '../../redux/actions/entryActions.js';
 
 function Timer({ setTimeElapsed, timerActive }) {

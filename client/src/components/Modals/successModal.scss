@@ -32,18 +32,10 @@
 		margin-bottom: 10px;
 	}
 	&__close-button {
+		@include main-button-style();
 		margin-top: 15px;
-		color: black;
 		padding: 1% 4%;
 		border-radius: 20px;
-		font-family: 'Syncopate', sans-serif;
-		outline: none;
-		transition: all 0.5s;
-		&:hover {
-			background-color: black;
-			color: white;
-			cursor: pointer;
-		}
 	}
 	&__gratitude-prompt {
 		font-size: 1.2rem;
@@ -56,17 +48,10 @@
 		margin-bottom: 3%;
 	}
 	&__gratitude-button {
+		@include main-button-style();
 		font-size: 1.2rem;
-		border: 1px solid grey;
-		border-radius: 9px;
 		width: 45%;
 		transition: all 0.2s;
-
-		&:hover {
-			background-color: black;
-			color: white;
-			transition: all 0.2s;
-		}
 	}
 	@include laptop-small() {
 		font-size: 0.8rem;

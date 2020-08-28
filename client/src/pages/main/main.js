@@ -6,7 +6,6 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 //SCSS
 import '../../pages/main/main.scss';
-import '../../components/timer/timer.scss';
 //Redux Function Imports
 import { connect } from 'react-redux';
 import { changeWordCount, changeCharCount } from '../../redux/actions/index';
@@ -128,8 +127,12 @@ const Main = ({
 						<form className={`main__date-goal-wordcount-textarea-container`} onSubmit={(e) => onSubmit(e)}>
 							<div className={`main__date-goal-wordcount-container${mode}`}>
 								<h3 className={`main__date `}>{moment().format('MM/DD/YYYY')}</h3>
+								<span style={guestMode || user.timerEnabled ? { opacity: 1 } : { opacity: 0 }}>
+									<TimerDisplay />
+								</span>
+
 								{guestMode ? (
-									<h2 className={`main__goal`}>Goal:200 words</h2>
+									<h2 className={`main__goal`}>Goal: 200 words</h2>
 								) : (
 									<h2 className={`main__goal`}>
 										Goal:{' '}
@@ -138,16 +141,16 @@ const Main = ({
 											: `${user.dailyTimeGoal} Minute${user.dailyTimeGoal >= 2 ? 's' : ''}`}
 									</h2>
 								)}
-								{guestMode || user.timerEnabled ? <TimerDisplay /> : null}
-								<h3 className={`main__wordcount`}>{wordCount} Words</h3>
-								{guestMode || user.wpmEnabled ? (
-									<>
-										<h3 className={`main__wordcount`}>
-											{charCount >= 20 ? Math.trunc((charCount / 5 / timeElapsed) * 60) : 'N/A'}{' '}
-											WPM
-										</h3>
-									</>
-								) : null}
+
+								<h3
+									className={`main__wpm-text`}
+									style={guestMode || user.wpmEnabled ? { opacity: 1 } : { opacity: 0 }}
+								>
+									{charCount >= 20 ? Math.trunc((charCount / 5 / timeElapsed) * 60) : 'N/A'} WPM
+								</h3>
+								<h3 className={`main__wordcount`}>
+									<span style={{ color: 'white', marginRight: '5px' }}>{wordCount}</span> Words
+								</h3>
 							</div>
 							<div className={`main__textarea-border ${mode}`}>
 								<textarea

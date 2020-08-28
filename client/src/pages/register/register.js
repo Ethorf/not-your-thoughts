@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import { setAlert } from '../../redux/actions/alert';
-import { register } from '../../redux/actions/authActions';
+import { register, toggleGuestMode } from '../../redux/actions/authActions';
 import PropTypes from 'prop-types';
 import './register.scss';
 import '../login/login-register.scss';
@@ -93,10 +93,18 @@ const Register = ({ setAlert, register, isAuthenticated, alert }) => {
 			</form>
 			<FadeInAnimationOnMount wrapperElement="div" direction="up">
 				<p className="login-register__signup">
-					Already have an account?{' '}
-					<Link to="/login" className="login-register__signup-link">
-						Sign In
-					</Link>
+					Already have an account?
+					<br />
+					<div>
+						<Link className="login-register__signup-link" to="/register">
+							Sign Up
+						</Link>{' '}
+						or give{''}
+						<Link className="login-register__signup-link" to="/main" onClick={toggleGuestMode}>
+							Guest Mode
+						</Link>{' '}
+						a try!
+					</div>
 				</p>
 			</FadeInAnimationOnMount>
 		</div>

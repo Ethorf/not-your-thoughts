@@ -1,11 +1,18 @@
 .timer {
+	width: 32%;
 	display: flex;
-	justify-content: space-between;
+	justify-content: center;
+	// margin-right: 5px;
+	margin-left: 20px;
 	align-items: center;
+	font-size: 0.8em;
+	position: relative;
+	z-index: 40;
+
 	&__play-pause {
 		width: 10px;
-		height: 15px;
-		margin-left: 13px;
+		height: 12px;
+		margin-left: 5px;
 		opacity: 0.8;
 		&:hover {
 			cursor: pointer;

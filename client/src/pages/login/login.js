@@ -2,11 +2,11 @@ import React, { useState, useRef } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { login } from '../../redux/actions/authActions';
+import { login, toggleGuestMode } from '../../redux/actions/authActions';
 import './login-register.scss';
 import FadeInAnimationOnMount from '../../components/higherOrderComponents/fadeInAnimationOnMount.js';
 
-const Login = ({ login, isAuthenticated, alert }) => {
+const Login = ({ login, isAuthenticated, alert, toggleGuestMode }) => {
 	let loginInputRef = useRef(null);
 	const [formData, setFormData] = useState({
 		email: '',
@@ -77,9 +77,17 @@ const Login = ({ login, isAuthenticated, alert }) => {
 			<FadeInAnimationOnMount wrapperElement="div" direction="up">
 				<p className="login-register__signup">
 					Don't have an account?
-					<Link className="login-register__signup-link" to="/register">
-						Sign Up
-					</Link>
+					<br />
+					<div>
+						<Link className="login-register__signup-link" to="/register">
+							Sign Up
+						</Link>{' '}
+						or give{''}
+						<Link className="login-register__signup-link" to="/main" onClick={toggleGuestMode}>
+							Guest Mode
+						</Link>{' '}
+						a try!
+					</div>
 				</p>
 			</FadeInAnimationOnMount>
 		</div>
@@ -97,4 +105,4 @@ const mapStateToProps = (state) => ({
 	alert: state.alert
 });
 
-export default connect(mapStateToProps, { login })(Login);
+export default connect(mapStateToProps, { login, toggleGuestMode })(Login);

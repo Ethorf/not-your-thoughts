@@ -104,7 +104,7 @@ const Prompt = ({ auth: { user }, guestMode }) => {
 		{ enableOnTags: ['TEXTAREA'] }
 	);
 
-	return guestMode && !user ? (
+	return guestMode || !user.customPromptsEnabled ? (
 		<div className={`prompt`}>
 			<h2>{promptContent}</h2>
 		</div>

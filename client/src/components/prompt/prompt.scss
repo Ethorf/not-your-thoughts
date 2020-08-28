@@ -15,6 +15,8 @@
 	height: 80px;
 	transition: all 3s;
 	margin-top: 1%;
+	position: relative;
+	z-index: 40;
 	&__content {
 		display: flex;
 		height: 75%;
@@ -22,14 +24,14 @@
 		margin: 0;
 	}
 	&__buttons-container {
-		width: 35%;
+		width: 30%;
 		position: relative;
 		bottom: 0%;
 		display: flex;
 		justify-content: flex-start;
 	}
 	&__button {
-		height: 20px;
+		height: 17px;
 		width: auto;
 		padding: 0 5%;
 		border-radius: 3px;
