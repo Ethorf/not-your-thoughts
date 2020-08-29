@@ -137,7 +137,10 @@ const Main = ({
 						<form className={`main__date-goal-wordcount-textarea-container`} onSubmit={(e) => onSubmit(e)}>
 							<div className={`main__date-goal-wordcount-container${mode}`}>
 								<h3 className={`main__date `}>{moment().format('MM/DD/YYYY')}</h3>
-								<span style={guestMode || user.timerEnabled ? { opacity: 1 } : { opacity: 0 }}>
+								<span
+									className={'main__timer-display'}
+									style={guestMode || user.timerEnabled ? { opacity: 1 } : { opacity: 0 }}
+								>
 									<TimerDisplay />
 								</span>
 
@@ -153,10 +156,13 @@ const Main = ({
 								)}
 
 								<h3
-									className={`main__wpm-text`}
+									className={`main__wpm-text-container`}
 									style={guestMode || user.wpmEnabled ? { opacity: 1 } : { opacity: 0 }}
 								>
-									{charCount >= 20 ? Math.trunc((charCount / 5 / timeElapsed) * 60) : 'N/A'} WPM
+									<div className={`main__wpm-text-left`}>
+										{charCount >= 20 ? Math.trunc((charCount / 5 / timeElapsed) * 60) : 'N/A'}
+									</div>
+									<div className={`main__wpm-text-right`}> WPM</div>
 								</h3>
 								<h3 className={`main__wordcount`}>
 									<span style={{ color: 'white', marginRight: '5px' }}>{wordCount}</span> Words

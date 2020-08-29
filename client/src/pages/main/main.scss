@@ -117,24 +117,44 @@
 	}
 	&__date {
 		font-size: 1.3rem;
-		width: 23%;
+		width: 15%;
+	}
+	&__timer-display {
+		// border: 1px solid red;
+		display: flex;
+		height: 100%;
+		width: 15%;
 	}
 	&__wordcount {
 		font-size: 1.3rem;
-		width: 20%;
+		width: 15%;
+		display: flex;
+
+		justify-content: flex-end;
+	}
+	&__wpm-text-container {
+		display: flex;
+		width: 15%;
+		// border: 1px solid red;
+		width: 15%;
+		align-items: center;
+		justify-content: space-between;
+		font-size: 0.9rem;
+	}
+	&__wpm-text-left {
+		width: 47%;
 		display: flex;
 		justify-content: flex-end;
 	}
-	&__wpm-text {
+	&__wpm-text-right {
+		width: 47%;
 		display: flex;
-		width: 18%;
-		justify-content: center;
-		font-size: 0.9rem;
+		justify-content: flex-start;
 	}
 	&__goal {
 		display: flex;
 		z-index: 1;
-		width: 45%;
+		width: 40%;
 		display: flex;
 		justify-content: center;
 		font-size: 1.6rem;
