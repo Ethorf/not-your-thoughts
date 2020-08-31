@@ -21,7 +21,8 @@ Visit http://www.notyourthoughts.com/
 * User will be able to see their progress towards their goal visually indicated by glowing pillars which gradually fill in as they write more. 
 * User can listen to some sweet soothing ambient music while journalling
 * User Can unlock new modes / features by achieving certain amounts of consecutive days while journalling (Still in Progress)
-* User can save entries for analyis later (Still in progress)
+* User can save entries for analysis later
+
 
 
 
