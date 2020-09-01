@@ -1,40 +1,41 @@
 #header g {
 	stroke-dasharray: 300;
 	stroke-dashoffset: 300;
-	// animation-name: draw;
-	animation-duration: 20s;
-	animation-fill-mode: forwards;
 	opacity: 0.2;
+}
+
+#rachel-chunk path {
+	stroke-dasharray: 26526;
+	stroke-dashoffset: 26526;
+	animation-name: draw;
+	animation-duration: 50s;
+	animation-delay: 1s;
+	animation-fill-mode: forwards;
 
 	@keyframes draw {
 		from {
-			stroke-dashoffset: 300;
-			opacity: 0.5;
+			stroke-dashoffset: 26526;
 		}
 		to {
-			stroke-dashoffset: 0;
-			opacity: 1;
+			stroke-dashoffset: 25000;
 		}
 	}
 }
 
-#rachel-chunk path {
-	// stroke-dasharray: 300;
-	// stroke-dashoffset: 300;
-	stroke-dashoffset: 4000;
+#test-header path {
+	stroke-dashoffset: 1702.4;
+	stroke-dasharray: 1702.4;
 
-	animation-name: draw;
-	animation-duration: 20s;
+	animation-name: draw2;
+	animation-duration: 10s;
 	animation-fill-mode: forwards;
 
-	@keyframes draw {
+	@keyframes draw2 {
 		from {
-			// stroke-dashoffset: 4000;
-			stroke-dasharray: 4000;
+			stroke-dashoffset: 1702.4;
 		}
 		to {
-			// stroke-dashoffset: 0;
-			stroke-dasharray: 0;
+			stroke-dashoffset: 0;
 		}
 	}
 }

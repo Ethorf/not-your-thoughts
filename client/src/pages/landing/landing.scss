@@ -48,12 +48,13 @@
 		flex-wrap: wrap;
 		margin-right: 0;
 		width: 100%;
+		border: 1px;
+		opacity: 0;
 	}
 	&__description {
 		font-size: 2rem;
 		margin-right: 0;
-		width: 70%;
-		opacity: 0;
+		width: 50%;
 		color: silver;
 		margin: 0;
 		margin-bottom: 30px;

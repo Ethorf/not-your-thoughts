@@ -1,16 +1,22 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, createRef } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { gsap } from 'gsap';
 import { CSSPlugin } from 'gsap/CSSPlugin';
 import { TimelineLite } from 'gsap/all';
 import { toggleGuestMode } from '../../redux/actions/authActions.js';
+//Component Imports
+import { You } from '../../components/svgs/you.js';
+import { Are } from '../../components/svgs/are.js';
+import { RachelDoodle1 } from '../../components/svgs/rachel-doodle-1.js';
+import { RachelDoodle2 } from '../../components/svgs/rachel-doodle-2.js';
 
+//Misc Imports
 import bgOverlayTextureWhite from '../../assets/Background-Images/background-texture-bigPan-white-blur.png';
 import './landing.scss';
 gsap.registerPlugin(CSSPlugin);
 
-const Landing = ({ guestMode, toggleGuestMode }) => {
+const Landing = ({ toggleGuestMode }) => {
 	let allContainer = useRef(null);
 	let youareContainer = useRef(null);
 	let notContainer = useRef(null);
@@ -21,6 +27,8 @@ const Landing = ({ guestMode, toggleGuestMode }) => {
 	let registerButtonContainer = useRef(null);
 	let guestModeButtonContainer = useRef(null);
 	let bgImgContainer = useRef(null);
+	let lengthRef = createRef();
+	const [pathLength, setPathLength] = useState();
 
 	useEffect(() => {
 		let youareTween = new TimelineLite({ paused: true })
@@ -136,7 +144,6 @@ const Landing = ({ guestMode, toggleGuestMode }) => {
 			bgImgTween.reverse();
 		}, 6500);
 	}, []);
-
 	return (
 		<div ref={(div) => (allContainer = div)} className="landing">
 			<img
@@ -147,7 +154,8 @@ const Landing = ({ guestMode, toggleGuestMode }) => {
 			></img>
 
 			<h2 ref={(img) => (youareContainer = img)} className="landing__you-are">
-				You are
+				<You />
+				<Are />
 			</h2>
 			<h1 className="landing__title">
 				<div className="landing__title-text" ref={(h1) => (notContainer = h1)}>
@@ -160,14 +168,16 @@ const Landing = ({ guestMode, toggleGuestMode }) => {
 					Thoughts{' '}
 				</div>
 			</h1>
-			<div className="landing__description-container">
-				<p ref={(p) => (descriptionContainer = p)} className="landing__description">
+			<div ref={(p) => (descriptionContainer = p)} className="landing__description-container">
+				<RachelDoodle1 />
+				<p className="landing__description">
 					Not Your Thoughts is a mindfulness-based gamified journaling website dedicated to empowering the
 					average human to develop a healthy relationship with the whirlwind of thoughts they find themselves
 					inside daily. Through a consistent daily journaling practice and engagement with mindfulness
 					prompts, the user will unlock new modes, features, and achievements as they progress towards the
 					solidification of their practice.
 				</p>
+				<RachelDoodle2 />
 			</div>
 			<div className="landing__all-buttons-container">
 				<Link ref={(button) => (loginButtonContainer = button)} to="/login" className="landing__login-button">

@@ -1,0 +1,23 @@
+#rachel-chunk-landing path {
+	stroke-dasharray: 26526;
+	stroke-dashoffset: 26526;
+	animation: drawb;
+	animation-duration: 50s;
+	animation-delay: 4s;
+	animation-fill-mode: forwards;
+	animation-timing-function: ease-in;
+	stroke-width: 2;
+	opacity: 0.7;
+	@keyframes drawb {
+		from {
+			stroke-dashoffset: 26526;
+			stroke-opacity: 0.5;
+		}
+		to {
+			stroke-dashoffset: 4000;
+			stroke-opacity: 1;
+		}
+	}
+}
+
+//Okay so animation // keyframe declarations are globally scoped no matter what??

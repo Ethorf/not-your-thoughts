@@ -17,5 +17,9 @@
 		font-size: 1em;
 		padding: 2px;
 		border-radius: 5px;
+		font-family: 'Poppins';
+		&:hover {
+			cursor: pointer;
+		}
 	}
 }

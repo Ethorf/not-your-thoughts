@@ -1,0 +1,20 @@
+#you-svg path {
+	stroke-dasharray: 557.856;
+	stroke-dashoffset: 557.856;
+	animation-name: drango;
+	animation-duration: 4s;
+	animation-fill-mode: forwards;
+	animation-timing-function: ease-in-out;
+	stroke-opacity: 1;
+
+	@keyframes drango {
+		from {
+			stroke-dashoffset: 557.856;
+			// stroke-opacity: 0;
+		}
+		to {
+			stroke-dashoffset: 0;
+			// stroke-opacity: 1;
+		}
+	}
+}
