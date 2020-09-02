@@ -4,7 +4,8 @@ import {
 	OPEN_SAVE_ENTRY_MODAL,
 	CLOSE_SAVE_ENTRY_MODAL,
 	OPEN_INTRO_MODAL,
-	CLOSE_INTRO_MODAL
+	CLOSE_INTRO_MODAL,
+	TOGGLE_GUEST_MODE_MODAL_SEEN
 } from './actionTypes';
 
 export const openSuccessModal = () => (dispatch) => {
@@ -16,6 +17,11 @@ export const openSuccessModal = () => (dispatch) => {
 export const closeSuccessModal = () => (dispatch) => {
 	dispatch({
 		type: CLOSE_SUCCESS_MODAL
+	});
+};
+export const toggleGuestModeModalSeen = () => (dispatch) => {
+	dispatch({
+		type: TOGGLE_GUEST_MODE_MODAL_SEEN
 	});
 };
 

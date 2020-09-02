@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Dialog, Container, CircularProgress } from '@material-ui/core';
+import { Dialog, Container } from '@material-ui/core';
 
 const GuestModeModal = (props) => {
-	useEffect(() => {}, []);
 	return (
 		<Dialog open={props.guestModeModalOpen}>
 			<Container>

@@ -4,13 +4,15 @@ import {
 	OPEN_INTRO_MODAL,
 	CLOSE_INTRO_MODAL,
 	CLOSE_SAVE_ENTRY_MODAL,
-	OPEN_SAVE_ENTRY_MODAL
+	OPEN_SAVE_ENTRY_MODAL,
+	TOGGLE_GUEST_MODE_MODAL_SEEN
 } from '../actions/actionTypes';
 
 const initialState = {
 	successModalOpen: false,
 	saveEntryModalOpen: false,
-	introModalOpen: false
+	introModalOpen: false,
+	guestModeModalSeen: false
 };
 
 function modalReducer(state = initialState, action) {
@@ -19,6 +21,11 @@ function modalReducer(state = initialState, action) {
 			return {
 				...state,
 				successModalOpen: true
+			};
+		case TOGGLE_GUEST_MODE_MODAL_SEEN:
+			return {
+				...state,
+				guestModeModalSeen: !state.guestModeModalSeen
 			};
 		case CLOSE_SUCCESS_MODAL:
 			return {

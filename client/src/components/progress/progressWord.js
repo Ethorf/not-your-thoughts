@@ -18,10 +18,8 @@ const ProgressWord = ({ wordCount, user, timeElapsed, guestMode }) => {
 	let progressNumberContainer = useRef(null);
 	const [animationReady, setAnimationReady] = useState(true);
 	const [progressNum, setProgressNum] = useState('25%');
-
 	const [progressWordAnimation, setProgressAnimation] = useState(null);
 	const tl = new TimelineMax({ paused: true });
-	const tl2 = new TimelineMax({ paused: true });
 
 	let userGoal;
 	let goalCount;
@@ -59,14 +57,12 @@ const ProgressWord = ({ wordCount, user, timeElapsed, guestMode }) => {
 			}
 		} else if (animationReady && goalCount === userGoal / 2) {
 			setProgressNum('50%');
-
 			progressAnimation();
 			if (user && user.progressAudioEnabled) {
 				progressSound50.play();
 			}
 		} else if (animationReady && goalCount === userGoal * 0.75) {
 			setProgressNum('75%');
-
 			progressAnimation();
 			if (user && user.progressAudioEnabled) {
 				setProgressNum('100%');

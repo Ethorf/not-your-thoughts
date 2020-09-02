@@ -10,7 +10,7 @@ import '../../pages/main/main.scss';
 import { connect } from 'react-redux';
 import { changeWordCount, changeCharCount } from '../../redux/actions/index';
 import { saveEntry, setEntry, toggleTimerActive } from '../../redux/actions/entryActions.js';
-import { openSuccessModal, openSaveEntryModal } from '../../redux/actions/modalActions';
+import { openSuccessModal, openSaveEntryModal, toggleGuestModeModalSeen } from '../../redux/actions/modalActions';
 import { changeMode } from '../../redux/actions/modeActions';
 import { increaseDays } from '../../redux/actions/authActions.js';
 
@@ -45,7 +45,9 @@ const Main = ({
 	auth: { user },
 	entry,
 	timeElapsed,
-	guestMode
+	guestMode,
+	modals,
+	toggleGuestModeModalSeen
 }) => {
 	const textAreaTl = new TimelineMax({ paused: true });
 	let textAreaRef = useRef(null);
@@ -66,10 +68,10 @@ const Main = ({
 		wpmInterval = setInterval(() => {
 			setWpmCounter(wpmCalc);
 		}, 2000);
-		if (guestMode && guestModeModalSeen === false) {
-			setGuestModeModalSeen(true);
+		if (guestMode && modals.guestModeModalSeen === false) {
 			console.log(`guest modal seen?${guestModeModalSeen}`);
 			setTimeout(() => {
+				toggleGuestModeModalSeen();
 				setGuestModeModalOpen(true);
 			}, 1500);
 		}
@@ -247,5 +249,6 @@ export default connect(mapStateToProps, {
 	setEntry,
 	increaseDays,
 	changeMode,
-	toggleTimerActive
+	toggleTimerActive,
+	toggleGuestModeModalSeen
 })(Main);
