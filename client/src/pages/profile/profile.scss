@@ -10,6 +10,8 @@
 	padding-bottom: 10vh;
 	margin-left: $not-main-margin-left;
 	height: 100%;
+	width: 100%;
+	transition: all 1s;
 
 	@include main-page-global-styles();
 

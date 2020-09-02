@@ -61,7 +61,10 @@ const CustomPrompts = ({
 				</div>
 			</div>
 			<div className={localCustomPromptsEnabled ? 'visible' : 'invisible'}>
-				<h2 className={`custom-prompts__title`}>
+				<h2
+					className={`custom-prompts__title`}
+					style={localCustomPromptsEnabled ? { color: 'white' } : { color: 'silver' }}
+				>
 					Your Prompts
 					<span onClick={toggleAddPromptOpen} className={`custom-prompts__add-new`}>
 						{' '}

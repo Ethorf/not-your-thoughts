@@ -9,7 +9,6 @@ import { logout, loadUser, toggleUserSetting } from '../../redux/actions/authAct
 import { deleteEntry, getEntries } from '../../redux/actions/entryActions.js';
 import Entry from '../../components/entry/entry.js';
 import Spinner from '../../components/spinner/spinner.js';
-import { FormControl, InputLabel, Select, option } from '@material-ui/core';
 
 const Entries = ({ isAuthenticated, auth: { user }, deleteEntry, getEntries, entries, mode }) => {
 	const [sort, setSort] = useState('Newest');

@@ -18,12 +18,15 @@ import { increaseDays } from '../../redux/actions/authActions.js';
 import Header from '../../components/header/header';
 import BgImage from '../../components/bgImage/bgImage.js';
 import Prompt from '../../components/prompt/prompt.js';
+//Pillars
 import PillarTop from '../../components/pillars/pillarTop.js';
 import PillarLeft from '../../components/pillars/pillarLeft.js';
 import PillarRight from '../../components/pillars/pillarRight.js';
 import PillarBottom from '../../components/pillars/pillarBottom.js';
 import ProgressWord from '../../components/progress/progressWord.js';
+//Modals
 import SuccessModal from '../../components/Modals/successModal.js';
+import GuestModeModal from '../../components/Modals/guestModeModal.js';
 import IntroModal from '../../components/Modals/introModal.js';
 import SaveEntryModal from '../../components/Modals/saveEntryModal.js';
 import Spinner from '../../components/spinner/spinner';
@@ -53,6 +56,8 @@ const Main = ({
 	const [wpmCalc, setWpmCalc] = useState(Math.trunc((charCount / 5 / timeElapsed) * 60));
 	const [wpmCounter, setWpmCounter] = useState(0);
 	const [readyToAnimateText, setReadyToAnimateText] = useState(true);
+	const [guestModeModalOpen, setGuestModeModalOpen] = useState(false);
+	const [guestModeModalSeen, setGuestModeModalSeen] = useState(false);
 	const [textAreaAnimation, setTextAreaAnimation] = useState(null);
 
 	useEffect(() => {
@@ -61,6 +66,13 @@ const Main = ({
 		wpmInterval = setInterval(() => {
 			setWpmCounter(wpmCalc);
 		}, 2000);
+		if (guestMode && guestModeModalSeen === false) {
+			setGuestModeModalSeen(true);
+			console.log(`guest modal seen?${guestModeModalSeen}`);
+			setTimeout(() => {
+				setGuestModeModalOpen(true);
+			}, 1500);
+		}
 		return () => clearInterval(wpmInterval);
 	}, [charCount, timeElapsed, wpmCalc, wpmCounter]);
 
@@ -129,6 +141,10 @@ const Main = ({
 					<SaveEntryModal />
 					<SuccessModal />
 					<IntroModal />
+					<GuestModeModal
+						toggleGuestModeModalOpen={() => setGuestModeModalOpen(!guestModeModalOpen)}
+						guestModeModalOpen={guestModeModalOpen}
+					/>
 					<Prompt />
 					<ProgressWord />
 					<PillarTop />

@@ -17,8 +17,11 @@ const ProgressWord = ({ wordCount, user, timeElapsed, guestMode }) => {
 	let progressWordContainer = useRef(null);
 	let progressNumberContainer = useRef(null);
 	const [animationReady, setAnimationReady] = useState(true);
+	const [progressNum, setProgressNum] = useState('25%');
+
 	const [progressWordAnimation, setProgressAnimation] = useState(null);
 	const tl = new TimelineMax({ paused: true });
+	const tl2 = new TimelineMax({ paused: true });
 
 	let userGoal;
 	let goalCount;
@@ -35,17 +38,6 @@ const ProgressWord = ({ wordCount, user, timeElapsed, guestMode }) => {
 		);
 		setTimeout(() => setAnimationReady(true), 4000);
 	};
-	const percentCalc = (goalCount, userGoal) => {
-		if (goalCount >= userGoal / 4 && goalCount <= userGoal / 4 + 6) {
-			return '25%';
-		} else if (goalCount >= userGoal / 2 && goalCount <= userGoal / 2 + 10) {
-			return '50%';
-		} else if (goalCount >= userGoal * 0.75 && goalCount <= userGoal * 0.75 + 10) {
-			return '75%';
-		} else if (goalCount >= userGoal && goalCount <= userGoal + 10) {
-			return '100%';
-		}
-	};
 
 	useEffect(() => {
 		if (guestMode) {
@@ -60,18 +52,24 @@ const ProgressWord = ({ wordCount, user, timeElapsed, guestMode }) => {
 		}
 
 		if (animationReady && goalCount === userGoal / 4) {
+			setProgressNum('25%');
 			progressAnimation();
 			if (user && user.progressAudioEnabled) {
 				progressSound25.play();
 			}
 		} else if (animationReady && goalCount === userGoal / 2) {
+			setProgressNum('50%');
+
 			progressAnimation();
 			if (user && user.progressAudioEnabled) {
 				progressSound50.play();
 			}
 		} else if (animationReady && goalCount === userGoal * 0.75) {
+			setProgressNum('75%');
+
 			progressAnimation();
 			if (user && user.progressAudioEnabled) {
+				setProgressNum('100%');
 				progressSound75.play();
 			}
 		} else if (animationReady && goalCount === userGoal) {
@@ -84,9 +82,7 @@ const ProgressWord = ({ wordCount, user, timeElapsed, guestMode }) => {
 	return (
 		<div>
 			<h2 ref={(h2) => (progressNumberContainer = h2)} className="main__progress-number">
-				{guestMode || user.goalPreference === 'words'
-					? percentCalc(wordCount, userGoal)
-					: percentCalc(timeElapsed, userGoal * 60)}
+				{progressNum}
 			</h2>
 			<h2 ref={(h2) => (progressWordContainer = h2)} className="main__progress-word">
 				Complete
