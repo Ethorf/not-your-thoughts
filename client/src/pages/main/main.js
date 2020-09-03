@@ -69,7 +69,6 @@ const Main = ({
 			setWpmCounter(wpmCalc);
 		}, 2000);
 		if (guestMode && modals.guestModeModalSeen === false) {
-			console.log(`guest modal seen?${guestModeModalSeen}`);
 			setTimeout(() => {
 				toggleGuestModeModalSeen();
 				setGuestModeModalOpen(true);
@@ -175,7 +174,11 @@ const Main = ({
 
 								<h3
 									className={`main__wpm-text-container`}
-									style={guestMode || user.wpmEnabled ? { opacity: 1 } : { opacity: 0 }}
+									style={
+										guestMode || (user.wpmEnabled && window.innerWidth > 767)
+											? { opacity: 1 }
+											: { opacity: 0 }
+									}
 								>
 									<div className={`main__wpm-text-left`}>
 										{charCount >= 20 ? Math.trunc((charCount / 5 / timeElapsed) * 60) : 'N/A'}

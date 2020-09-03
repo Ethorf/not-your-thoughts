@@ -30,6 +30,11 @@
 		opacity: 1;
 		position: relative;
 		margin-top: 90px;
+		border: 1px solid red;
+		width: 23%;
+		height: 50px;
+		display: flex;
+		justify-content: space-between;
 	}
 
 	&__title {
@@ -37,10 +42,12 @@
 		justify-content: space-between;
 		font-size: 4.5rem;
 		width: 65vw;
+		margin-top: 0;
 		text-align: center;
 	}
 	&__title-text {
 		margin: 1%;
+		margin-top: 0;
 	}
 	&__description-container {
 		display: flex;
@@ -77,9 +84,11 @@
 	}
 
 	@include laptop-xl() {
+		&__all-buttons-container {
+			width: 30%;
+		}
 	}
 	@include laptop-small() {
-		// top: 10vh;
 		&__title {
 			font-size: 3.9rem;
 			width: 75vw;
@@ -87,6 +96,9 @@
 		&__description {
 			font-size: 2.1rem;
 			width: 80%;
+		}
+		&__all-buttons-container {
+			width: 37%;
 		}
 	}
 	@include tablet-only() {
@@ -98,39 +110,14 @@
 			width: 88%;
 		}
 		&__you-are {
-			width: 100%;
-			top: 30px;
+			width: 35%;
 		}
 		&__description {
 			font-size: 1.7rem;
 			width: 80%;
 		}
 		&__all-buttons-container {
-			display: flex;
-			justify-content: space-between;
-			width: 30%;
-		}
-	}
-	@include mobile-only() {
-		&__you-are {
-			font-size: 1.5rem;
-			position: relative;
-		}
-		&__title {
-			font-size: 1.8rem;
-			flex-direction: row;
-			justify-content: center;
-		}
-		&__description {
-			font-size: 1.6rem;
-			width: 80%;
-		}
-		&__register-button,
-		&__login-button {
-			@include button-styles;
-			padding: 6% 14%;
-			font-size: 0.9rem;
-			border-radius: 2px;
+			width: 43%;
 		}
 	}
 
@@ -140,7 +127,7 @@
 		top: 14%;
 
 		&__you-are {
-			font-size: 1.1rem;
+			width: 40%;
 		}
 		&__title {
 			font-size: 1.3rem;
@@ -153,17 +140,30 @@
 			width: 80%;
 		}
 		&__all-buttons-container {
-			display: flex;
-			justify-content: space-between;
-			width: 50%;
+			width: 85%;
+			margin-bottom: 40px;
 		}
 		&__register-button,
 		&__login-button {
 			text-align: center;
-			padding: 2% 4%;
 			font-size: 0.8rem;
-			width: 48%;
-			border-radius: 5px;
+		}
+	}
+	@include mobile-only() {
+		&__you-are {
+			width: 28%;
+		}
+		&__title {
+			font-size: 1.8rem;
+			flex-direction: row;
+			justify-content: center;
+		}
+		&__description {
+			font-size: 1.6rem;
+			width: 80%;
+		}
+		&__all-buttons-container {
+			width: 65%;
 		}
 	}
 }

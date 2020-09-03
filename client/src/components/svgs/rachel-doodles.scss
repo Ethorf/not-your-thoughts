@@ -1,3 +1,7 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/variables.scss';
+@import '../../styles/base.scss';
+
 #rachel-chunk-landing path {
 	stroke-dasharray: 26526.5;
 	stroke-dashoffset: 26526;
@@ -27,4 +31,15 @@
 	}
 }
 
+.rachel-chunk {
+	@include laptop-small() {
+		display: none;
+	}
+	@include mobile-small-only() {
+		display: none;
+	}
+	@include tablet-only() {
+		display: none;
+	}
+}
 //Okay so animation // keyframe declarations are globally scoped no matter what??

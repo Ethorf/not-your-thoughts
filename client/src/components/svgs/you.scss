@@ -1,3 +1,7 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/variables.scss';
+@import '../../styles/base.scss';
+
 #you-svg path {
 	stroke-dasharray: 557.856;
 	stroke-dashoffset: 557.856;
@@ -6,15 +10,19 @@
 	animation-fill-mode: forwards;
 	animation-timing-function: ease-in-out;
 	stroke-opacity: 1;
+	stroke-linecap: round;
+	stroke-linejoin: round;
 
 	@keyframes drango {
 		from {
 			stroke-dashoffset: 557.856;
-			// stroke-opacity: 0;
 		}
 		to {
 			stroke-dashoffset: 0;
-			// stroke-opacity: 1;
 		}
 	}
+}
+#you-svg {
+
+margin:0;
 }

@@ -13,6 +13,7 @@ export const RachelDoodle2 = () => {
 			viewBox="0 0 576 576"
 			overflow="visible"
 			style={{ transform: 'scaleX(-1)' }}
+			className="rachel-chunk"
 		>
 			<path
 				fill="none"

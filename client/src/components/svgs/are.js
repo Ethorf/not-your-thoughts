@@ -9,9 +9,8 @@ export const Are = () => {
 		}
 	}, [pathRef]);
 
-	console.log(`Are Svg path length is:${pathLength}`);
 	return (
-		<svg id="are-svg" width="115" height="36" viewBox="0 0 115 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<svg id="are-svg" width="47%" height="100%" viewBox="0 0 115 36" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<mask id="path-2-inside-2" fill="white">
 				<path
 					fillRule="evenodd"

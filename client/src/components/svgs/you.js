@@ -10,7 +10,7 @@ export const You = () => {
 	}, [pathRef]);
 
 	return (
-		<svg id="you-svg" width="126" height="36" viewBox="0 0 126 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<svg width="45%" height="100%" id="you-svg" viewBox="0 0 126 36" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<mask id="path-1-inside-1" fill="white">
 				<path
 					fillRule="evenodd"
