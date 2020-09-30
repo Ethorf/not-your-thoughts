@@ -76,7 +76,7 @@
 	}
 	&__login-button,
 	&__register-button {
-		@include main-button-style-inverted();
+		@include main-button-style-landing();
 		padding: 10px 17px;
 		text-decoration: none;
 		opacity: 0;
