@@ -69,6 +69,7 @@ const ProgressWord = ({ wordCount, user, timeElapsed, guestMode }) => {
 				progressSound75.play();
 			}
 		} else if (animationReady && goalCount === userGoal) {
+			setProgressNum('100%');
 			progressAnimation();
 			if (user && user.progressAudioEnabled) {
 				progressSound100.play();
