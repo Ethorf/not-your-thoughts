@@ -14,9 +14,7 @@ const Prompt = ({ auth: { user }, guestMode }) => {
 		return Math.floor(Math.random() * max);
 	};
 	const [promptContent, setPromptContent] = useState('The Milk is the Bag that you have become all along');
-	const [customPromptContent, setCustomPromptContent] = useState(
-		user ? user.customPrompts[randomNum(user.customPrompts.length - 1)].content : null
-	);
+	const [customPromptContent, setCustomPromptContent] = useState(null);
 
 	const getPrompts = () => {
 		axios
@@ -26,11 +24,20 @@ const Prompt = ({ auth: { user }, guestMode }) => {
 			})
 			.catch((error) => console.log(error, 'you had errorboi getPrompts'));
 	};
+
 	let customPromptArr = [];
+
 	useEffect(() => {
 		getPrompts();
 	}, [customPromptContent]);
-	if (!guestMode) {
+
+	useEffect(() => {
+		if (user && user.customPrompts.length) {
+			setCustomPromptContent(user.customPrompts[randomNum(user.customPrompts.length - 1)].content);
+		}
+	}, [user]);
+
+	if (!guestMode && user.customPrompts.length) {
 		customPromptArr = user.customPrompts.map((item) => {
 			return item.content;
 		});
