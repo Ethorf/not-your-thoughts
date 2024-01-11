@@ -36,9 +36,9 @@ const App = () => {
 		store.dispatch(loadUser());
 	}, []);
 	const mode = useSelector((state) => state.modes.mode);
-
+	console.log("I AM A MAN IN AN APP")
 	return (
-		<MuiThemeProvider theme={muiTheme}>
+		// <MuiThemeProvider theme={muiTheme}>
 			<div className={`App ${mode}`}>
 				<BrowserRouter>
 					<NavBarTop />
@@ -89,7 +89,7 @@ const App = () => {
 					></Route>
 				</BrowserRouter>
 			</div>
-		</MuiThemeProvider>
+		// </MuiThemeProvider>
 	);
 };
 

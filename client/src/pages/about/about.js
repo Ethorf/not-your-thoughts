@@ -38,7 +38,6 @@ function About({ mode }) {
 		const body = JSON.stringify({ name, email, message });
 		try {
 			axios.post('/api/contact', body, config);
-			// axios.post('http://localhost:8082/api/contact', body, config);
 		} catch (err) {
 			console.log('Error submitting form ');
 		}
