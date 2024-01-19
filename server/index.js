@@ -17,8 +17,7 @@ app.use(express.json({ extended: false }))
 
 // Routes
 
-// const getPromptData = require('./getPromptData')
-// app.use('/api/auth/', require('./routes/api/auth'))
+app.use('/api/auth', require('./routes/auth'))
 // app.use('/api/registerUser', require('./routes/api/registerUser.js'))
 // app.use('/api/updateUser', require('./routes/api/updateUser.js'))
 // app.use('/api/setFirstLogin', require('./routes/api/setFirstLogin.js'))
