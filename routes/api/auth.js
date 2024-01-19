@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 const bcrypt = require('bcryptjs');
 
-// @route    POST api/auth
+// @route    POST /api/auth
 // @desc     Authenticate user & get token / Login user
 // @access   Public
 
@@ -50,7 +50,7 @@ router.post(
 	}
 );
 
-//// @route    GET api/auth
+// @route    GET /api/auth
 // @desc     Get user by token
 // @access   Private
 
