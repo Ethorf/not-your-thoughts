@@ -11,7 +11,7 @@ const validInfo = require('../middleware/validInfo')
 
 router.get('/user', validInfo, async (req, res) => {
   try {
-    const user = await pool.query('SELECT * FROM users WHERE user_email = gaycob@gmail.com')
+    const user = await pool.query('SELECT * FROM test_users WHERE user_email = gaycob@gmail.com')
 
     if (user.rows.length === 0) {
       return res.status(401).json('Invalid Credential')

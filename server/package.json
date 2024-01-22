@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "nodemon index.js"
   },
   "author": "Eric Thorfinnson",
   "license": "ISC",
@@ -27,7 +27,6 @@
     "moment": "^2.27.0",
     "mongoose": "^8.0.4",
     "nodemailer": "^6.4.3",
-    "nodemon": "^2.0.1",
     "paralleldots": "^1.1.42",
     "pg": "^8.11.3",
     "puppeteer": "^5.2.1",
@@ -40,6 +39,6 @@
   },
   "devDependencies": {
     "concurrently": "^5.1.0",
-    "nodemon": "^2.0.1"
+    "nodemon": "^2.0.22"
   }
 }
