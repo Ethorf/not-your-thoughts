@@ -21,6 +21,7 @@ app.use(express.json({ extended: false }))
 app.use('/api/auth', require('./routes/auth'))
 app.use('/api/test', require('./routes/test'))
 app.use('/api/entries', require('./routes/entries'))
+app.use('/api/journal_config', require('./routes/journal_config'))
 
 // app.use('/api/setFirstLogin', require('./routes/api/setFirstLogin.js'))
 // app.use('/api/contact', require('./routes/api/contact.js'))

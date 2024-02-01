@@ -1,9 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const bcrypt = require('bcrypt')
 const pool = require('../config/neonDb')
 const validInfo = require('../middleware/validInfo')
-const jwtGenerator = require('../utils/jwtGenerator')
 const authorize = require('../middleware/authorize')
 
 // post /auth/register

@@ -13,21 +13,38 @@ router.post('/register', validInfo, async (req, res) => {
   const { email, name, password } = req.body
 
   try {
+    // Check if user already exists
     const user = await pool.query('SELECT * FROM users WHERE email = $1', [email])
     if (user.rows.length > 0) {
       return res.status(401).json('User already exists!')
     }
 
+    // Hash Password
     const salt = await bcrypt.genSalt(10)
     const bcryptPassword = await bcrypt.hash(password, salt)
+
+    // Insert new user into database
     let newUser = await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *', [
       name,
       email,
       bcryptPassword,
     ])
-
     console.log(`User with email ${newUser.rows[0].email} created successfully`)
-    const jwtToken = jwtGenerator(newUser.rows[0].user_id)
+    const userId = newUser.rows[0].id
+
+    // Create journal config in user_journal_config database
+    const newJournalConfig = await pool.query('INSERT INTO user_journal_config (user_id) VALUES ($1) RETURNING *', [
+      userId,
+    ])
+    const newJournalConfigId = newJournalConfig.rows[0].id
+
+    console.log(`User with id ${userId} Journal config created successfully`)
+
+    // Associate new user with journal config
+    await pool.query('UPDATE users SET journal_config = $1 WHERE id = $2', [newJournalConfigId, userId])
+
+    // Return JWT token
+    const jwtToken = jwtGenerator(userId)
     return res.json({ jwtToken })
   } catch (err) {
     console.error(err.message)

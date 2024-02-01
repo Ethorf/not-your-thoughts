@@ -44,25 +44,31 @@ CREATE TABLE user_journal_config (
 
 CREATE TYPE entry_type_enum AS ENUM ('node', 'journal');
 
+CREATE TYPE goal_preference_enum AS ENUM ('words', 'time');
+
 CREATE TABLE entries (
   entry_id SERIAL PRIMARY KEY,
-  user_id uuid REFERENCES users(id) NOT,
+  user_id uuid REFERENCES users(id) NOT NULL,
+  title VARCHAR(255) DEFAULT NULL
+  category INT[] DEFAULT (ARRAY[]::INT[])
+  connections INT[] DEFAULT (ARRAY[]::INT[])
+  tags INT[] DEFAULT (ARRAY[]::INT[])
   content TEXT NOT NULL,
   type entry_type_enum DEFAULT,
-  date TIMESTAMP NOT NULL,
-  total_time_taken INT NOT NULL,
+  date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  total_time_taken INT DEFAULT 0,
   wpm INT DEFAULT 1,
   num_of_words INT DEFAULT 1,
   pd_emotion_analysis TEXT;
+  
 );
 
 ALTER TABLE entries
-  ALTER COLUMN num_of_words INT DEFAULT 0
-  ALTER COLUMN wpm INT DEFAULT 0,
-  ALTER COLUMN total_time_taken INT DEFAULT 0,
-  ALTER COLUMN type SET DEFAULT 'journal';
-
-
+  ADD COLUMN title VARCHAR(255) DEFAULT NULL
+  ADD COLUMN category INT[] DEFAULT (ARRAY[]::INT[])
+  ADD COLUMN tags INT[] DEFAULT (ARRAY[]::INT[])
+  ADD COLUMN connections INT[] DEFAULT (ARRAY[]::INT[])
+  ADD COLUMN date_last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 
 
