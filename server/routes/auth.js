@@ -68,7 +68,7 @@ router.post('/login', validInfo, async (req, res) => {
     if (!validPassword) {
       return res.status(401).json('Invalid Credential')
     }
-    const jwtToken = jwtGenerator(user.rows[0].user_id)
+    const jwtToken = jwtGenerator(user.rows[0].id)
     return res.json({ jwtToken })
   } catch (err) {
     console.error(err.message)
@@ -82,6 +82,7 @@ router.post('/login', validInfo, async (req, res) => {
 router.post('/verify', authorize, (req, res) => {
   try {
     res.json(true)
+    console.log(req.user)
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -91,15 +92,13 @@ router.post('/verify', authorize, (req, res) => {
 // Get /auth/user
 // Get a new user
 
-router.get('/user', validInfo, async (req, res) => {
+router.get('/user', async (req, res) => {
   try {
-    const user = await pool.query('SELECT * FROM user WHERE user_email = gaycob@gmail.com')
+    const emailToSearch = 'jeff@jeff.com'
+
+    const user = await pool.query('SELECT * FROM users WHERE email = $1', [emailToSearch])
 
     if (user.rows.length === 0) {
-      return res.status(401).json('Invalid Credential')
-    }
-
-    if (!validPassword) {
       return res.status(401).json('Invalid Credential')
     }
 

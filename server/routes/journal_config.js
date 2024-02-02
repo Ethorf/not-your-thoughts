@@ -26,7 +26,7 @@ router.get('/', validInfo, async (req, res) => {
 // tracked_phrases_ids,
 
 // TODO will have to add indications and validation for the time goal i.e. is it in seconds etc?
-router.post('/update_goals', validInfo, async (req, res) => {
+router.post('/update_goals', authorize, async (req, res) => {
   const { user_id, goal_preference, daily_time_goal, daily_words_goal } = req.body
 
   try {
