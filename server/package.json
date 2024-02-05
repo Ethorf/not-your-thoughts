@@ -10,6 +10,7 @@
   "author": "Eric Thorfinnson",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",
     "concurrently": "^5.1.0",
