@@ -69,6 +69,7 @@ router.post('/login', validInfo, async (req, res) => {
       return res.status(401).json('Invalid Credential')
     }
     const jwtToken = jwtGenerator(user.rows[0].id)
+
     return res.json({ jwtToken })
   } catch (err) {
     console.error(err.message)
@@ -92,14 +93,14 @@ router.post('/verify', authorize, (req, res) => {
 // Get /auth/user
 // Get a new user
 
-router.get('/user', async (req, res) => {
+router.get('/user', authorize, async (req, res) => {
   try {
-    const emailToSearch = 'jeff@jeff.com'
+    const { id } = req.user
 
-    const user = await pool.query('SELECT * FROM users WHERE email = $1', [emailToSearch])
+    const user = await pool.query('SELECT * FROM users WHERE id = $1', [id])
 
     if (user.rows.length === 0) {
-      return res.status(401).json('Invalid Credential')
+      return res.status(401).json('No user')
     }
 
     const userRes = user.rows[0]
