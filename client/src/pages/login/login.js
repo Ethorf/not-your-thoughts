@@ -12,17 +12,19 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
     password: '',
   })
 
-  if (isAuthenticated) {
-    return <Redirect to="/main" />
-  }
   const { email, password } = formData
 
   const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value })
 
   const onSubmit = async (e) => {
     e.preventDefault()
+
     if (guestMode) toggleGuestMode()
     login(email, password)
+  }
+
+  if (isAuthenticated) {
+    return <Redirect to="/main" />
   }
 
   return (

@@ -29,28 +29,6 @@ const axiosConfig = {
   },
 }
 
-// Load User
-export const loadUser = (email) => async (dispatch) => {
-  if (localStorage.token) {
-    setAuthToken(localStorage.token)
-  }
-
-  try {
-    const body = JSON.stringify({ email })
-
-    const res = await axios.post('/api/auth/user', body, axiosConfig)
-
-    dispatch({
-      type: USER_LOADED,
-      payload: res.data,
-    })
-  } catch (err) {
-    dispatch({
-      type: AUTH_ERROR,
-    })
-  }
-}
-
 // Register User
 export const register =
   ({ name, email, password }) =>
@@ -59,11 +37,10 @@ export const register =
     try {
       const res = await axios.post('/api/auth/register', body, axiosConfig)
 
-      dispatch({
+      await dispatch({
         type: REGISTER_SUCCESS,
         payload: res.data,
       })
-      dispatch(loadUser(email))
     } catch (err) {
       const errors = err.response.data.errors
 
@@ -84,11 +61,10 @@ export const login = (email, password) => async (dispatch) => {
     const res = await axios.post('/api/auth/login', body, axiosConfig)
 
     // This is the reducer where the localStorage token is set
-    dispatch({
+    await dispatch({
       type: LOGIN_SUCCESS,
       payload: res.data,
     })
-    dispatch(loadUser(email))
   } catch (err) {
     const errors = err.response.data.errors
 
@@ -97,6 +73,28 @@ export const login = (email, password) => async (dispatch) => {
     }
     dispatch({
       type: LOGIN_FAIL,
+    })
+  }
+}
+
+// Load User
+export const loadUser = () => async (dispatch) => {
+  console.log('LOAD USER pre token HIT')
+  if (localStorage.token) {
+    setAuthToken(localStorage.token)
+  }
+
+  try {
+    console.log('LOAD USER try HIT')
+    const res = await axios.get('/api/auth/user', axiosConfig)
+
+    await dispatch({
+      type: USER_LOADED,
+      payload: res.data,
+    })
+  } catch (err) {
+    dispatch({
+      type: AUTH_ERROR,
     })
   }
 }
@@ -152,7 +150,6 @@ export const toggleUserSetting = (setting) => async (dispatch) => {
       type: TOGGLE_PROGRESS_AUDIO,
       payload: res.data,
     })
-    dispatch(loadUser())
   } catch (err) {
     console.log('toggle error')
   }
@@ -170,7 +167,6 @@ export const addCustomPrompt =
         type: ADD_CUSTOM_PROMPT,
         payload: res.data,
       })
-      dispatch(loadUser())
     } catch (err) {
       dispatch({
         type: CUSTOM_PROMPT_ERROR,
@@ -185,7 +181,6 @@ export const deleteCustomPrompt = (id) => async (dispatch) => {
       type: DELETE_CUSTOM_PROMPT,
       payload: id,
     })
-    dispatch(loadUser())
   } catch (err) {
     dispatch({
       type: CUSTOM_PROMPT_ERROR,
@@ -204,7 +199,6 @@ export const toggleCustomPromptsEnabled = () => async (dispatch) => {
     dispatch({
       type: TOGGLE_CUSTOM_PROMPTS_ENABLED,
     })
-    dispatch(loadUser())
   } catch (err) {
     console.log('toggle prompts error')
   }
@@ -223,7 +217,6 @@ export const addTrackedPhrase =
         payload: res.data,
       })
       console.log('phrase submitted')
-      dispatch(loadUser())
     } catch (err) {
       dispatch({
         type: CUSTOM_PROMPT_ERROR,
@@ -238,7 +231,6 @@ export const deleteTrackedPhrase = (id) => async (dispatch) => {
       type: DELETE_TRACKED_PHRASE,
       payload: id,
     })
-    dispatch(loadUser())
   } catch (err) {
     dispatch({
       type: CUSTOM_PROMPT_ERROR,

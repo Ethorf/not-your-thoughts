@@ -5,33 +5,36 @@ import moment from 'moment'
 import PropTypes from 'prop-types'
 
 //SCSS
-import '../../pages/main/main.scss'
+import './Main.scss'
 
 //Redux Function Imports
 import { connect } from 'react-redux'
 import { changeWordCount, changeCharCount } from '../../redux/actions/index'
 import { saveEntry, setEntry, toggleTimerActive } from '../../redux/actions/entryActions.js'
-import { openSuccessModal, openSaveEntryModal, toggleGuestModeModalSeen } from '../../redux/actions/modalActions'
-import { changeMode } from '../../redux/actions/modeActions'
+import { loadUser } from '../../redux/actions/authActions.js'
+import { openSuccessModal, openSaveEntryModal, toggleGuestModeModalSeen } from '../../redux/actions/modalActions.js'
+import { changeMode } from '../../redux/actions/modeActions.js'
 import { increaseDays } from '../../redux/actions/authActions.js'
 
 //Component Imports
-import Header from '../../components/header/header'
+import Header from '../../components/header/header.js'
 import BgImage from '../../components/bgImage/bgImage.js'
 import Prompt from '../../components/prompt/prompt.js'
+
 //Pillars
 import PillarTop from '../../components/pillars/pillarTop.js'
 import PillarLeft from '../../components/pillars/pillarLeft.js'
 import PillarRight from '../../components/pillars/pillarRight.js'
 import PillarBottom from '../../components/pillars/pillarBottom.js'
 import ProgressWord from '../../components/progress/progressWord.js'
+
 //Modals
 import SuccessModal from '../../components/Modals/successModal.js'
 import GuestModeModal from '../../components/Modals/guestModeModal.js'
 import IntroModal from '../../components/Modals/introModal.js'
 import SaveEntryModal from '../../components/Modals/saveEntryModal.js'
-import Spinner from '../../components/spinner/spinner'
-import TimerDisplay from '../../components/timerDisplay/timerDisplay'
+import Spinner from '../../components/spinner/spinner.js'
+import TimerDisplay from '../../components/timerDisplay/timerDisplay.js'
 
 const Main = ({
   openSaveEntryModal,
@@ -40,13 +43,11 @@ const Main = ({
   changeCharCount,
   changeWordCount,
   saveEntry,
-  isAuthenticated,
   setEntry,
   mode,
-  auth: { user },
+  auth: { guestMode, user, loading },
   entry,
   timeElapsed,
-  guestMode,
   modals,
   toggleGuestModeModalSeen,
 }) => {
@@ -75,10 +76,6 @@ const Main = ({
     return () => clearInterval(wpmInterval)
   }, [charCount, timeElapsed, wpmCalc, wpmCounter])
 
-  if (!guestMode && !isAuthenticated) {
-    return <Redirect to="/login" />
-  }
-
   const textNum = (e) => {
     e.preventDefault()
     setEntryData(e.target.value)
@@ -92,19 +89,21 @@ const Main = ({
     openSaveEntryModal()
     saveEntry({ entry: entryData, timeElapsed: timeElapsed, wpm: Math.trunc((charCount / 5 / timeElapsed) * 60) })
   }
-  console.log('I am in this main')
-  console.log('user is:')
-  console.log(user)
 
-  return user === null && !guestMode ? (
-    <Spinner />
-  ) : (
-    <>
+  if (loading) {
+    return <Spinner />
+  }
+
+  // We need this User check here because of all the user accessing in the JSX
+  // On initial render this won't even run even if loading === false because it'll be trying
+  //  to access a bunch of values in the JSX (which renders before useEffect)
+  return (
+    user && (
       <div className={`main__all-container modalize ${mode}`}>
         <BgImage />
         <div className={`main ${mode}`}>
-          {/* <Header />
-          <SaveEntryModal />
+          {/* <Header /> */}
+          {/* <SaveEntryModal />
           <SuccessModal />
           <IntroModal />
           <GuestModeModal
@@ -112,7 +111,7 @@ const Main = ({
             guestModeModalOpen={guestModeModalOpen}
           /> */}
           {/* <Prompt /> */}
-          {/* <ProgressWord /> */}
+          <ProgressWord />
           <PillarTop />
           <div className={`main__pillars-date-goal-wordcount-textarea-container`}>
             <PillarLeft />
@@ -173,7 +172,7 @@ const Main = ({
           <PillarBottom />
         </div>
       </div>
-    </>
+    )
   )
 }
 
@@ -185,7 +184,6 @@ Main.propTypes = {
 
 const mapStateToProps = (state) => ({
   auth: state.auth,
-  guestMode: state.auth.guestMode,
   wordCount: state.wordCount.wordCount,
   charCount: state.wordCount.charCount,
   goal: state.wordCount.goal,
@@ -203,6 +201,7 @@ export default connect(mapStateToProps, {
   openSuccessModal,
   changeWordCount,
   changeCharCount,
+  loadUser,
   setEntry,
   increaseDays,
   changeMode,

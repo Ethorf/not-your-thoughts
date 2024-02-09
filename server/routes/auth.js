@@ -93,14 +93,14 @@ router.post('/verify', authorize, (req, res) => {
 // Get /auth/user
 // Get a new user
 
-router.post('/user', authorize, async (req, res) => {
+router.get('/user', authorize, async (req, res) => {
   try {
-    const { email } = req.body
+    const { id } = req.user
 
-    const user = await pool.query('SELECT * FROM users WHERE email = $1', [email])
+    const user = await pool.query('SELECT * FROM users WHERE id = $1', [id])
 
     if (user.rows.length === 0) {
-      return res.status(401).json('Invalid Credential')
+      return res.status(401).json('No user')
     }
 
     const userRes = user.rows[0]

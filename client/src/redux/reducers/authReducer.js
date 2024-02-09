@@ -10,14 +10,13 @@ import {
   SET_FIRST_LOGIN,
   TOGGLE_PROGRESS_AUDIO,
   TOGGLE_GUEST_MODE,
-  ADD_CUSTOM_PROMPT,
   TOGGLE_CUSTOM_PROMPTS_ENABLED,
 } from '../actions/actionTypes'
 
 const initialState = {
   token: localStorage.getItem('token'),
-  isAuthenticated: null,
-  loading: true,
+  isAuthenticated: false,
+  loading: false,
   user: null,
   guestMode: false,
 }
@@ -46,12 +45,13 @@ export default function (state = initialState, action) {
       }
     case REGISTER_SUCCESS:
     case LOGIN_SUCCESS:
+      console.log('LOGIN SUCCESS SUCCESSED')
       localStorage.setItem('token', payload.jwtToken)
       return {
         ...state,
         ...payload,
         isAuthenticated: true,
-        loading: false,
+        loading: true,
       }
     case REGISTER_FAIL:
     case AUTH_ERROR:
