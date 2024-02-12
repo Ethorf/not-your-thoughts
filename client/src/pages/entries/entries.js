@@ -6,16 +6,16 @@ import { connect } from 'react-redux'
 import { Redirect } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { logout, loadUser, toggleUserSetting } from '../../redux/actions/authActions.js'
-import { deleteEntry, getEntries } from '../../redux/actions/entryActions.js'
+import { deleteJournalEntry, getJournalEntries } from '../../redux/actions/journalActions.js'
 import Entry from '../../components/entry/entry.js'
 import Spinner from '../../components/spinner/spinner.js'
 
-const Entries = ({ isAuthenticated, auth: { user }, deleteEntry, getEntries, entries, mode }) => {
+const Entries = ({ isAuthenticated, auth: { user }, deleteJournalEntry, getJournalEntries, entries, mode }) => {
   const [sort, setSort] = useState('Newest')
   useEffect(() => {
     loadUser()
-    getEntries()
-  }, [getEntries, sort])
+    getJournalEntries()
+  }, [getJournalEntries, sort])
 
   if (!isAuthenticated) {
     return <Redirect to="/login" />
@@ -38,8 +38,8 @@ const Entries = ({ isAuthenticated, auth: { user }, deleteEntry, getEntries, ent
           timeElapsed={userData.timeElapsed}
           wpm={userData.wpm}
           content={userData.content}
-          deleteEntry={deleteEntry}
-          getEntries={getEntries}
+          deleteJournalEntry={deleteJournalEntry}
+          getJournalEntries={getJournalEntries}
           trackedPhrases={user.trackedPhrases}
           pdEmotionAnalysis={userData.pdEmotionAnalysis}
         />
@@ -58,8 +58,8 @@ const Entries = ({ isAuthenticated, auth: { user }, deleteEntry, getEntries, ent
           timeElapsed={userData.timeElapsed}
           wpm={userData.wpm}
           content={userData.content}
-          deleteEntry={deleteEntry}
-          getEntries={getEntries}
+          deleteJournalEntry={deleteJournalEntry}
+          getJournalEntries={getJournalEntries}
           trackedPhrases={user.trackedPhrases}
           pdEmotionAnalysis={userData.pdEmotionAnalysis}
         />
@@ -132,7 +132,7 @@ Entries.propTypes = {
   auth: PropTypes.object.isRequired,
   logout: PropTypes.func.isRequired,
   isAuthenticated: PropTypes.bool,
-  getEntries: PropTypes.func.isRequired,
+  getJournalEntries: PropTypes.func.isRequired,
   entries: PropTypes.array.isRequired,
 }
 
@@ -145,4 +145,6 @@ const mapStateToProps = (state) => ({
   mode: state.modes.mode,
 })
 
-export default connect(mapStateToProps, { logout, deleteEntry, loadUser, getEntries, toggleUserSetting })(Entries)
+export default connect(mapStateToProps, { logout, deleteJournalEntry, loadUser, getJournalEntries, toggleUserSetting })(
+  Entries
+)

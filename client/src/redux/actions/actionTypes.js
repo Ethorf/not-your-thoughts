@@ -21,12 +21,15 @@ export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
 export const LOGIN_FAIL = 'LOGIN_FAIL'
 export const LOGOUT = 'LOGOUT'
 
-//Entries stuffs
-export const GET_ENTRIES = 'GET_ENTRIES'
+// Journal Entries stuff
 export const SET_ENTRY = 'SET_ENTRY'
 export const SAVE_ENTRY = 'SAVE_ENTRY'
 export const DELETE_ENTRY = 'DELETE_ENTRY'
 export const ENTRIES_ERROR = 'ENTRIES_ERROR'
+
+// Journal Config stuff
+export const GET_JOURNAL_ENTRIES = 'GET_JOURNAL_ENTRIES'
+export const GET_JOURNAL_CONFIG = 'GET_JOURNAL_CONFIG'
 
 //Timer
 export const SET_TIME_ELAPSED = 'SET_TIME_ELAPSED'
@@ -59,6 +62,7 @@ export const TOGGLE_PROGRESS_AUDIO = 'TOGGLE_PROGRESS_AUDIO'
 
 //Modes
 export const CHANGE_MODE = 'CHANGE_MODE'
+
 //Contact
 export const SUBMIT_CONTACT_FORM = 'SUBMIT_CONTACT_FORM'
 export const CONTACT_FORM_ERROR = 'CONTACT_FORM_ERROR'

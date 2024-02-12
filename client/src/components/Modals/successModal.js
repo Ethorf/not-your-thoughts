@@ -5,10 +5,11 @@ import PropTypes from 'prop-types'
 import { TimelineMax } from 'gsap'
 import '../../pages/Main/Main.scss'
 import './successModal.scss'
+
 //Redux Actions
 import { openSuccessModal, closeSuccessModal } from '../../redux/actions/modalActions.js'
-import { saveEntry, toggleTimerActive } from '../../redux/actions/entryActions'
-import { goalReached } from '../../redux/actions/index'
+import { saveJournalEntry, goalReached } from '../../redux/actions/journalActions'
+import { toggleTimerActive } from '../../redux/actions/journalConfigActions'
 import { increaseDays, loadUser } from '../../redux/actions/authActions'
 import { Gratitude } from '../gratitude/gratitude'
 
@@ -18,7 +19,7 @@ const SuccessModal = ({
   modals,
   openSuccessModal,
   closeSuccessModal,
-  saveEntry,
+  saveJournalEntry,
   wordCount,
   goalReached,
   goal,
@@ -82,7 +83,7 @@ const SuccessModal = ({
     closeModalOverlayAnimation()
     closeSuccessModal()
     goalReached()
-    saveEntry({ entry: entry, timeElapsed: timeElapsed, wpm: Math.trunc((charCount / 5 / timeElapsed) * 60) })
+    saveJournalEntry({ entry: entry, timeElapsed: timeElapsed, wpm: Math.trunc((charCount / 5 / timeElapsed) * 60) })
   }
 
   useEffect(() => {
@@ -198,7 +199,7 @@ export default connect(mapStateToProps, {
   loadUser,
   openSuccessModal,
   closeSuccessModal,
-  saveEntry,
+  saveJournalEntry,
   goalReached,
   increaseDays,
   toggleTimerActive,

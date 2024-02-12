@@ -19,8 +19,8 @@ import Register from './pages/Register/Register.js'
 import Profile from './pages/profile/profile'
 import Resources from './pages/resources/resources'
 import Modes from './pages/modes/modes.js'
-import About from './pages/About/about.js'
-import Entries from './pages/Entries/entries.js'
+import About from './pages/About/About.js'
+import Entries from './pages/Entries/Entries.js'
 
 //redux Stuff
 import store from './redux/store/index'

@@ -1,6 +1,5 @@
 //Package Imports
 import React, { useState, useEffect, useRef } from 'react'
-import { Redirect } from 'react-router-dom'
 import moment from 'moment'
 import PropTypes from 'prop-types'
 
@@ -9,12 +8,16 @@ import './Main.scss'
 
 //Redux Function Imports
 import { connect } from 'react-redux'
-import { changeWordCount, changeCharCount } from '../../redux/actions/index'
-import { saveEntry, setEntry, toggleTimerActive } from '../../redux/actions/entryActions.js'
-import { loadUser } from '../../redux/actions/authActions.js'
+import {
+  changeWordCount,
+  changeCharCount,
+  saveJournalEntry,
+  setJournalEntry,
+} from '../../redux/actions/journalActions.js'
+import { toggleTimerActive } from '../../redux/actions/journalConfigActions.js'
+import { loadUser, increaseDays } from '../../redux/actions/authActions.js'
 import { openSuccessModal, openSaveEntryModal, toggleGuestModeModalSeen } from '../../redux/actions/modalActions.js'
 import { changeMode } from '../../redux/actions/modeActions.js'
-import { increaseDays } from '../../redux/actions/authActions.js'
 
 //Component Imports
 import Header from '../../components/header/header.js'
@@ -42,8 +45,8 @@ const Main = ({
   charCount,
   changeCharCount,
   changeWordCount,
-  saveEntry,
-  setEntry,
+  saveJournalEntry,
+  setJournalEntry,
   mode,
   auth: { guestMode, user, loading },
   entry,
@@ -79,7 +82,7 @@ const Main = ({
   const textNum = (e) => {
     e.preventDefault()
     setEntryData(e.target.value)
-    setEntry(e.target.value)
+    setJournalEntry(e.target.value)
     changeWordCount(e.target.value.split(' ').filter((item) => item !== '').length)
     changeCharCount(e.target.value.split('').length)
   }
@@ -87,7 +90,11 @@ const Main = ({
   const onSubmit = async (e) => {
     e.preventDefault()
     openSaveEntryModal()
-    saveEntry({ entry: entryData, timeElapsed: timeElapsed, wpm: Math.trunc((charCount / 5 / timeElapsed) * 60) })
+    saveJournalEntry({
+      entry: entryData,
+      timeElapsed: timeElapsed,
+      wpm: Math.trunc((charCount / 5 / timeElapsed) * 60),
+    })
   }
 
   if (loading) {
@@ -178,8 +185,8 @@ const Main = ({
 
 Main.propTypes = {
   auth: PropTypes.object.isRequired,
-  saveEntry: PropTypes.func.isRequired,
-  setEntry: PropTypes.func.isRequired,
+  saveJournalEntry: PropTypes.func.isRequired,
+  setJournalEntry: PropTypes.func.isRequired,
 }
 
 const mapStateToProps = (state) => ({
@@ -196,13 +203,13 @@ const mapStateToProps = (state) => ({
 })
 
 export default connect(mapStateToProps, {
-  saveEntry,
+  saveJournalEntry,
   openSaveEntryModal,
   openSuccessModal,
   changeWordCount,
   changeCharCount,
   loadUser,
-  setEntry,
+  setJournalEntry,
   increaseDays,
   changeMode,
   toggleTimerActive,

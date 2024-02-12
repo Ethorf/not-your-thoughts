@@ -1,29 +1,29 @@
-import { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
-// import { setPauseArray, startPauseTimer } from '../../redux/actions/entryActions.js';
+import { useState, useEffect } from 'react'
+import { connect } from 'react-redux'
+// import { setPauseArray, startPauseTimer } from '../../redux/actions/journalActions.js';
 
 function pauseTimer({ timerActive }) {
-	const [seconds, setSeconds] = useState(0);
+  const [seconds, setSeconds] = useState(0)
 
-	useEffect(() => {
-		let secondsInterval = null;
+  useEffect(() => {
+    let secondsInterval = null
 
-		if (timerActive) {
-			secondsInterval = setInterval(() => {
-				setSeconds((seconds) => seconds + 1);
-			}, 1000);
-		}
-		return () => clearInterval(secondsInterval);
-	}, [timerActive, seconds]);
+    if (timerActive) {
+      secondsInterval = setInterval(() => {
+        setSeconds((seconds) => seconds + 1)
+      }, 1000)
+    }
+    return () => clearInterval(secondsInterval)
+  }, [timerActive, seconds])
 
-	return null;
+  return null
 }
 
 const mapStateToProps = (state) => ({
-	timerActive: state.entries.timerActive,
-	timeElapsed: state.entries.timeElapsed
-});
+  timerActive: state.entries.timerActive,
+  timeElapsed: state.entries.timeElapsed,
+})
 
 export default connect(mapStateToProps, {
-	setTimeElapsed
-})(Timer);
+  setTimeElapsed,
+})(Timer)
