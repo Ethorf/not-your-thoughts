@@ -3,12 +3,14 @@ import {
   DELETE_ENTRY,
   SET_ENTRY,
   GET_JOURNAL_ENTRIES,
+  SET_JOURNAL_CONFIG,
   ENTRIES_ERROR,
   SET_TIME_ELAPSED,
   TOGGLE_TIMER_ACTIVE,
 } from '../actions/actionTypes'
 
 const initialState = {
+  journalConfig: null,
   entries: [],
   entry: '',
   timeElapsed: '',
@@ -24,6 +26,12 @@ export default function (state = initialState, action) {
       return {
         ...state,
         entries: payload.entries,
+        loading: false,
+      }
+    case SET_JOURNAL_CONFIG:
+      return {
+        ...state,
+        journalConfig: payload.journalConfig,
         loading: false,
       }
     case SAVE_ENTRY:

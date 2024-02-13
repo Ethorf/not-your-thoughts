@@ -13,7 +13,7 @@ const progressSound50 = new Audio(progressSound50File)
 const progressSound75 = new Audio(progressSound75File)
 const progressSound100 = new Audio(progressSound100File)
 
-const ProgressWord = ({ wordCount, user, timeElapsed, guestMode }) => {
+const ProgressWord = ({ wordCount, user, timeElapsed, guestMode, journalConfig }) => {
   let progressWordContainer = useRef(null)
   let progressNumberContainer = useRef(null)
   const [animationReady, setAnimationReady] = useState(true)
@@ -41,10 +41,10 @@ const ProgressWord = ({ wordCount, user, timeElapsed, guestMode }) => {
     if (guestMode) {
       userGoal = 200
       goalCount = wordCount
-    } else if (user.goalPreference === 'words') {
-      userGoal = user.dailyWordsGoal
+    } else if (journalConfig.goal_preference === 'words') {
+      userGoal = journalConfig.daily_words_goal
       goalCount = wordCount
-    } else if (user.goalPreference === 'time') {
+    } else if (journalConfig.goal_preference === 'time') {
       userGoal = user.dailyTimeGoal * 60
       goalCount = timeElapsed
     }
@@ -98,6 +98,7 @@ const mapStateToProps = (state) => ({
   user: state.auth.user,
   timeElapsed: state.entries.timeElapsed,
   guestMode: state.auth.guestMode,
+  journalConfig: state.entries.journalConfig,
 })
 
 export default connect(mapStateToProps)(ProgressWord)

@@ -29,7 +29,7 @@ export const ENTRIES_ERROR = 'ENTRIES_ERROR'
 
 // Journal Config stuff
 export const GET_JOURNAL_ENTRIES = 'GET_JOURNAL_ENTRIES'
-export const GET_JOURNAL_CONFIG = 'GET_JOURNAL_CONFIG'
+export const SET_JOURNAL_CONFIG = 'SET_JOURNAL_CONFIG'
 
 //Timer
 export const SET_TIME_ELAPSED = 'SET_TIME_ELAPSED'

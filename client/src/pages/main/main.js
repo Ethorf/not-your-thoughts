@@ -14,7 +14,7 @@ import {
   saveJournalEntry,
   setJournalEntry,
 } from '../../redux/actions/journalActions.js'
-import { toggleTimerActive } from '../../redux/actions/journalConfigActions.js'
+import { getJournalConfig, toggleTimerActive } from '../../redux/actions/journalConfigActions.js'
 import { loadUser, increaseDays } from '../../redux/actions/authActions.js'
 import { openSuccessModal, openSaveEntryModal, toggleGuestModeModalSeen } from '../../redux/actions/modalActions.js'
 import { changeMode } from '../../redux/actions/modeActions.js'
@@ -45,8 +45,10 @@ const Main = ({
   charCount,
   changeCharCount,
   changeWordCount,
+  getJournalConfig,
   saveJournalEntry,
   setJournalEntry,
+  journalConfig,
   mode,
   auth: { guestMode, user, loading },
   entry,
@@ -96,11 +98,15 @@ const Main = ({
       wpm: Math.trunc((charCount / 5 / timeElapsed) * 60),
     })
   }
+  useEffect(() => {
+    getJournalConfig()
+  }, [])
 
   if (loading) {
     return <Spinner />
   }
-
+  console.log('journalConfig is:')
+  console.log(journalConfig)
   // We need this User check here because of all the user accessing in the JSX
   // On initial render this won't even run even if loading === false because it'll be trying
   //  to access a bunch of values in the JSX (which renders before useEffect)
@@ -109,7 +115,7 @@ const Main = ({
       <div className={`main__all-container modalize ${mode}`}>
         <BgImage />
         <div className={`main ${mode}`}>
-          {/* <Header /> */}
+          <Header />
           {/* <SaveEntryModal />
           <SuccessModal />
           <IntroModal />
@@ -136,14 +142,18 @@ const Main = ({
                 ) : (
                   <h2 className={`main__goal`}>
                     Goal:{' '}
-                    {user.goalPreference === 'words'
-                      ? `${user.dailyWordsGoal} Words`
-                      : `${user.dailyTimeGoal} Minute${user.dailyTimeGoal >= 2 ? 's' : ''}`}
+                    {journalConfig.goal_preference === 'words'
+                      ? `${journalConfig.daily_words_goal} Words`
+                      : `${journalConfig.daily_time_goal} Minute${journalConfig.daily_time_goal >= 2 ? 's' : ''}`}
                   </h2>
                 )}
                 <h3
                   className={`main__wpm-text-container`}
-                  style={guestMode || (user.wpmEnabled && window.innerWidth > 767) ? { opacity: 1 } : { opacity: 0 }}
+                  style={
+                    guestMode || (journalConfig.wpm_enabled && window.innerWidth > 767)
+                      ? { opacity: 1 }
+                      : { opacity: 0 }
+                  }
                 >
                   <div className={`main__wpm-text-left`}>
                     {charCount >= 20 ? Math.trunc((charCount / 5 / timeElapsed) * 60) : 'N/A'}
@@ -199,6 +209,7 @@ const mapStateToProps = (state) => ({
   mode: state.modes.mode,
   entry: state.entries.entry,
   timeElapsed: state.entries.timeElapsed,
+  journalConfig: state.entries.journalConfig,
   timerActive: state.entries.timerActive,
 })
 
@@ -213,5 +224,6 @@ export default connect(mapStateToProps, {
   increaseDays,
   changeMode,
   toggleTimerActive,
+  getJournalConfig,
   toggleGuestModeModalSeen,
 })(Main)

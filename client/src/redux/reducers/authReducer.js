@@ -45,7 +45,6 @@ export default function (state = initialState, action) {
       }
     case REGISTER_SUCCESS:
     case LOGIN_SUCCESS:
-      console.log('LOGIN SUCCESS SUCCESSED')
       localStorage.setItem('token', payload.jwtToken)
       return {
         ...state,

@@ -6,7 +6,7 @@ import {
   TOGGLE_EDIT_GOAL,
   SET_NEW_GOAL_ERROR,
   SET_NEW_GOAL,
-  GET_JOURNAL_CONFIG,
+  SET_JOURNAL_CONFIG,
 } from './actionTypes'
 import setAuthToken from '../../utils/setAuthToken'
 import { loadUser } from './authActions.js'
@@ -17,9 +17,11 @@ export const getJournalConfig = () => async (dispatch) => {
     setAuthToken(localStorage.token)
   }
   try {
-    const res = await axios.get('/api/auth')
+    const res = await axios.get('/api/journal_config')
+    console.log(res)
+
     dispatch({
-      type: GET_JOURNAL_CONFIG,
+      type: SET_JOURNAL_CONFIG,
       payload: res.data,
     })
   } catch (err) {

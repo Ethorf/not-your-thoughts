@@ -15,8 +15,9 @@ function ProfileGoalEdit({
   setNewGoal,
   mode,
   auth: { user },
+  journalConfig,
 }) {
-  const [localGoalPreference, setLocalGoalPreference] = useState(user.goalPreference)
+  const [localGoalPreference, setLocalGoalPreference] = useState(journalConfig.goal_preference)
 
   const goalNum = (e) => {
     e.preventDefault()
@@ -71,7 +72,7 @@ function ProfileGoalEdit({
               <input
                 className={`profile__goal-input ${mode}`}
                 onChange={goalNum}
-                defaultValue={user.dailyWordsGoal}
+                defaultValue={journalConfig.daily_words_goal}
               ></input>
               <Button onClick={() => saveGoal('Words')} className="profile__goal-editable-button">
                 Save
@@ -101,7 +102,7 @@ function ProfileGoalEdit({
             <div className={`profile__day-number ${mode}`}>
               {' '}
               {localGoalPreference === 'words'
-                ? user.dailyWordsGoal
+                ? journalConfig.daily_words_goal
                 : `${user.dailyTimeGoal} minute${user.dailyTimeGoal >= 2 ? 's' : ''}`}
               <Button onClick={toggleEditGoal}>Edit</Button>
             </div>
@@ -119,6 +120,7 @@ const mapStateToProps = (state) => ({
   newGoal: state.wordCount.newGoal,
   goalIsEditable: state.wordCount.goalIsEditable,
   mode: state.modes.mode,
+  journalConfig: state.entries.journalConfig,
 })
 
 export default connect(mapStateToProps, { toggleEditGoal, changeJournalGoal, setNewGoal, toggleUserSetting })(

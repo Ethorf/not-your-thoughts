@@ -79,13 +79,11 @@ export const login = (email, password) => async (dispatch) => {
 
 // Load User
 export const loadUser = () => async (dispatch) => {
-  console.log('LOAD USER pre token HIT')
   if (localStorage.token) {
     setAuthToken(localStorage.token)
   }
 
   try {
-    console.log('LOAD USER try HIT')
     const res = await axios.get('/api/auth/user', axiosConfig)
 
     await dispatch({
