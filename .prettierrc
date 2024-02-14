@@ -5,5 +5,8 @@
   "semi": false,
   "singleQuote": true,
   "printWidth": 120,
-  "jsxBracketSameLine": false
+  "jsxBracketSameLine": false,
+  "function": {
+    "blankLine": "always"
+  }
 }

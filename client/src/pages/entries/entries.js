@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import '../profile/profile.scss'
+import '../Profile/profile.scss'
 import '../../styles/rubberDucky.scss'
 import './entries.scss'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router-dom'
 import PropTypes from 'prop-types'
-import { logout, loadUser, toggleUserSetting } from '../../redux/actions/authActions.js'
+import { logout, loadUser } from '../../redux/actions/authActions.js'
 import { deleteJournalEntry, getJournalEntries } from '../../redux/actions/journalActions.js'
+import { toggleJournalConfigSetting } from '../../redux/actions/journalConfigActions.js'
+
 import Entry from '../../components/entry/entry.js'
 import Spinner from '../../components/spinner/spinner.js'
 
@@ -145,6 +147,10 @@ const mapStateToProps = (state) => ({
   mode: state.modes.mode,
 })
 
-export default connect(mapStateToProps, { logout, deleteJournalEntry, loadUser, getJournalEntries, toggleUserSetting })(
-  Entries
-)
+export default connect(mapStateToProps, {
+  logout,
+  deleteJournalEntry,
+  loadUser,
+  getJournalEntries,
+  toggleJournalConfigSetting,
+})(Entries)

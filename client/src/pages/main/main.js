@@ -105,13 +105,13 @@ const Main = ({
   if (loading) {
     return <Spinner />
   }
-  console.log('journalConfig is:')
-  console.log(journalConfig)
+
   // We need this User check here because of all the user accessing in the JSX
   // On initial render this won't even run even if loading === false because it'll be trying
   //  to access a bunch of values in the JSX (which renders before useEffect)
   return (
-    user && (
+    user &&
+    journalConfig && (
       <div className={`main__all-container modalize ${mode}`}>
         <BgImage />
         <div className={`main ${mode}`}>

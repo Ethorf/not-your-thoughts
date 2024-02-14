@@ -29,7 +29,7 @@ export default function (state = initialState, action) {
         ...state,
         isAuthenticated: true,
         loading: false,
-        user: payload,
+        user: payload.userRes,
       }
     case INCREASE_DAYS:
     case SET_FIRST_LOGIN:

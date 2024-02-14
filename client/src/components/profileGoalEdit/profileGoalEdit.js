@@ -1,17 +1,15 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { Button } from '@material-ui/core'
-import { toggleEditGoal, changeJournalGoal, setNewGoal } from '../../redux/actions/journalConfigActions'
-import { toggleUserSetting } from '../../redux/actions/authActions'
+import { toggleEditGoal, updateJournalGoal, setNewGoal } from '../../redux/actions/journalConfigActions'
 
-import '../../pages/profile/profile.scss'
+import '../../pages/Profile/profile.scss'
 
 function ProfileGoalEdit({
   newGoal,
   toggleEditGoal,
   goalIsEditable,
-  toggleUserSetting,
-  changeJournalGoal,
+  updateJournalGoal,
   setNewGoal,
   mode,
   auth: { user },
@@ -21,33 +19,36 @@ function ProfileGoalEdit({
 
   const goalNum = (e) => {
     e.preventDefault()
-    setNewGoal(e.target.value)
+    setNewGoal(Number(e.target.value))
   }
 
-  const saveGoal = (type) => {
-    changeJournalGoal(newGoal, type)
-    changeJournalGoal(newGoal, type)
+  const updateGoal = () => {
+    if (localGoalPreference === 'words') {
+      updateJournalGoal({ daily_words_goal: newGoal })
+    } else if (localGoalPreference === 'time') {
+      updateJournalGoal({ daily_time_goal: newGoal })
+    }
     toggleEditGoal()
   }
 
   const cancelEditGoal = () => {
     toggleEditGoal()
   }
-  const toggleGoalPreference = () => {
-    if (localGoalPreference === 'words') {
-      setLocalGoalPreference('time')
-    } else {
-      setLocalGoalPreference('words')
-    }
-    toggleUserSetting('Goal')
-  }
+
+  useEffect(() => {
+    updateJournalGoal({ goal_preference: localGoalPreference })
+  }, [localGoalPreference])
+
+  // TODO still may need to do some updating here so that we can see the new values as soon as they happen
   return (
     <>
       <h2 className="profile__stats-text profile__toggle-container">
-        Goal Preference:{' '}
+        Goal Preference:
         <div className={`profile__toggle-switch`}>
           <span
-            onClick={toggleGoalPreference}
+            onClick={() => {
+              setLocalGoalPreference('words')
+            }}
             className={` profile__toggle-button profile__on-button ${
               localGoalPreference === 'words' ? 'profile__active' : 'profile__inactive'
             }`}
@@ -55,13 +56,15 @@ function ProfileGoalEdit({
             Words
           </span>
           <span
-            onClick={toggleGoalPreference}
+            onClick={() => {
+              setLocalGoalPreference('time')
+            }}
             className={` profile__toggle-button profile__off-button ${
               localGoalPreference !== 'time' ? 'profile__inactive' : 'profile__active'
             }`}
           >
             Time
-          </span>{' '}
+          </span>
         </div>
       </h2>
       <h2 className="profile__stats-text profile__edit-container">
@@ -72,9 +75,10 @@ function ProfileGoalEdit({
               <input
                 className={`profile__goal-input ${mode}`}
                 onChange={goalNum}
+                type="number"
                 defaultValue={journalConfig.daily_words_goal}
-              ></input>
-              <Button onClick={() => saveGoal('Words')} className="profile__goal-editable-button">
+              />
+              <Button onClick={updateGoal} className="profile__goal-editable-button">
                 Save
               </Button>
               <Button onClick={cancelEditGoal} className="profile__goal-editable-button profile__goal-cancel-button">
@@ -86,10 +90,11 @@ function ProfileGoalEdit({
               <input
                 className={`profile__goal-input ${mode}`}
                 onChange={goalNum}
-                defaultValue={user.dailyTimeGoal}
-              ></input>{' '}
-              Minute{user.dailyTimeGoal >= 2 ? 's' : ''}
-              <Button onClick={() => saveGoal('Time')} className="profile__goal-editable-button">
+                type="number"
+                defaultValue={journalConfig.daily_time_goal}
+              />
+              Minute{journalConfig.daily_time_goal >= 2 ? 's' : ''}
+              <Button onClick={updateGoal} className="profile__goal-editable-button">
                 Save
               </Button>
               <Button onClick={cancelEditGoal} className="profile__goal-editable-button profile__goal-cancel-button">
@@ -100,10 +105,9 @@ function ProfileGoalEdit({
         ) : (
           <>
             <div className={`profile__day-number ${mode}`}>
-              {' '}
               {localGoalPreference === 'words'
                 ? journalConfig.daily_words_goal
-                : `${user.dailyTimeGoal} minute${user.dailyTimeGoal >= 2 ? 's' : ''}`}
+                : `${journalConfig.daily_time_goal} minute${journalConfig.daily_time_goal >= 2 ? 's' : ''}`}
               <Button onClick={toggleEditGoal}>Edit</Button>
             </div>
           </>
@@ -123,6 +127,4 @@ const mapStateToProps = (state) => ({
   journalConfig: state.entries.journalConfig,
 })
 
-export default connect(mapStateToProps, { toggleEditGoal, changeJournalGoal, setNewGoal, toggleUserSetting })(
-  ProfileGoalEdit
-)
+export default connect(mapStateToProps, { toggleEditGoal, updateJournalGoal, setNewGoal })(ProfileGoalEdit)
