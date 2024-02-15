@@ -1,52 +1,27 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-
 import { logout, loadUser } from '../../redux/actions/authActions.js'
 import { deleteJournalEntry, getJournalEntries } from '../../redux/actions/journalActions.js'
 import { getJournalConfig, toggleJournalConfigSetting } from '../../redux/actions/journalConfigActions.js'
-
 import ProfileGoalEdit from '../../components/ProfileGoalEdit/ProfileGoalEdit.js'
 import TrackedPhrasesModal from '../../components/Modals/trackedPhrasesModal.js'
 import CustomPrompts from '../../components/customPrompts/customPrompts.js'
 import Spinner from '../../components/spinner/spinner.js'
-
 import './profile.scss'
 import '../../styles/rubberDucky.scss'
 
 const Profile = ({ auth: { user, loading }, mode, toggleJournalConfigSetting, getJournalConfig, journalConfig }) => {
-  const [localProgressAudioEnabled, setLocalProgressAudioEnabled] = useState(true)
-  const [localTimerEnabled, setLocalTimerEnabled] = useState(null)
-  const [localWpmEnabled, setLocalWpmEnabled] = useState(null)
-
-  // Can we also extract this so that it's not so component specific?
-
   useEffect(() => {
     getJournalConfig()
   }, [])
 
-  useEffect(() => {
-    if (journalConfig !== null) {
-      setLocalProgressAudioEnabled(journalConfig.progress_audio_enabled)
-      setLocalTimerEnabled(journalConfig.timer_enabled)
-      setLocalWpmEnabled(journalConfig.wpm_enabled)
-    }
-  }, [journalConfig])
-
-  useEffect(() => {
-    toggleJournalConfigSetting('Audio', localProgressAudioEnabled)
-  }, [localProgressAudioEnabled])
-
-  useEffect(() => {
-    toggleJournalConfigSetting('Timer', localTimerEnabled)
-  }, [localTimerEnabled])
-
-  useEffect(() => {
-    toggleJournalConfigSetting('Wpm', localWpmEnabled)
-  }, [localWpmEnabled])
-
   if (loading) {
     return <Spinner />
+  }
+
+  const handleToggle = (settingName, isEnabled) => {
+    toggleJournalConfigSetting(settingName, isEnabled)
   }
 
   return (
@@ -90,17 +65,17 @@ const Profile = ({ auth: { user, loading }, mode, toggleJournalConfigSetting, ge
             Progress Audio:
             <div className={`profile__toggle-switch`}>
               <span
-                onClick={() => setLocalProgressAudioEnabled(true)}
+                onClick={() => handleToggle('progress_audio_enabled', true)}
                 className={` profile__toggle-button profile__on-button ${
-                  localProgressAudioEnabled ? 'profile__active' : 'profile__inactive'
+                  journalConfig.progress_audio_enabled ? 'profile__active' : 'profile__inactive'
                 }`}
               >
                 On
               </span>
               <span
-                onClick={() => setLocalProgressAudioEnabled(false)}
+                onClick={() => handleToggle('progress_audio_enabled', false)}
                 className={` profile__toggle-button profile__off-button ${
-                  localProgressAudioEnabled ? 'profile__inactive' : 'profile__active'
+                  journalConfig.progress_audio_enabled ? 'profile__inactive' : 'profile__active'
                 }`}
               >
                 Off
@@ -112,17 +87,17 @@ const Profile = ({ auth: { user, loading }, mode, toggleJournalConfigSetting, ge
             Timer:
             <div className={`profile__toggle-switch`}>
               <span
-                onClick={() => setLocalTimerEnabled(true)}
+                onClick={() => handleToggle('timer_enabled', true)}
                 className={` profile__toggle-button profile__on-button ${
-                  localTimerEnabled ? 'profile__active' : 'profile__inactive'
+                  journalConfig.timer_enabled ? 'profile__active' : 'profile__inactive'
                 }`}
               >
                 On
               </span>
               <span
-                onClick={() => setLocalTimerEnabled(false)}
+                onClick={() => handleToggle('timer_enabled', false)}
                 className={` profile__toggle-button profile__off-button ${
-                  localTimerEnabled ? 'profile__inactive' : 'profile__active'
+                  journalConfig.timer_enabled ? 'profile__inactive' : 'profile__active'
                 }`}
               >
                 Off
@@ -134,17 +109,17 @@ const Profile = ({ auth: { user, loading }, mode, toggleJournalConfigSetting, ge
             WPM readout:
             <div className={`profile__toggle-switch`}>
               <span
-                onClick={() => setLocalWpmEnabled(true)}
+                onClick={() => handleToggle('wpm_enabled', true)}
                 className={` profile__toggle-button profile__on-button ${
-                  localWpmEnabled ? 'profile__active' : 'profile__inactive'
+                  journalConfig.wpm_enabled ? 'profile__active' : 'profile__inactive'
                 }`}
               >
                 On
               </span>
               <span
-                onClick={() => setLocalWpmEnabled(false)}
+                onClick={() => handleToggle('wpm_enabled', false)}
                 className={` profile__toggle-button profile__off-button ${
-                  localWpmEnabled ? 'profile__inactive' : 'profile__active'
+                  journalConfig.wpm_enabled ? 'profile__inactive' : 'profile__active'
                 }`}
               >
                 Off
@@ -172,15 +147,17 @@ const mapStateToProps = (state) => ({
   goal: state.wordCount.goal,
   entries: state.entries.entries,
   journalConfig: state.entries.journalConfig,
-  loading: state.entries,
+  loading: state.entries.loading,
   mode: state.modes.mode,
 })
 
-export default connect(mapStateToProps, {
-  logout,
-  getJournalConfig,
-  deleteJournalEntry,
-  loadUser,
-  getJournalEntries,
-  toggleJournalConfigSetting,
-})(Profile)
+const mapDispatchToProps = (dispatch) => ({
+  logout: () => dispatch(logout()),
+  getJournalConfig: () => dispatch(getJournalConfig()),
+  deleteJournalEntry: (entryId) => dispatch(deleteJournalEntry(entryId)),
+  loadUser: () => dispatch(loadUser()),
+  getJournalEntries: () => dispatch(getJournalEntries()),
+  toggleJournalConfigSetting: (settingName, isEnabled) => dispatch(toggleJournalConfigSetting(settingName, isEnabled)),
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Profile)

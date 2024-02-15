@@ -3,11 +3,11 @@ import {
   TOGGLE_TIMER_ACTIVE,
   CHANGE_GOAL,
   ENTRIES_ERROR,
-  TOGGLE_PROGRESS_AUDIO,
   TOGGLE_EDIT_GOAL,
   SET_NEW_GOAL_ERROR,
   SET_NEW_GOAL,
   SET_JOURNAL_CONFIG,
+  UPDATE_JOURNAL_CONFIG,
 } from './actionTypes'
 import setAuthToken from '../../utils/setAuthToken'
 
@@ -25,11 +25,10 @@ export const getJournalConfig = () => async (dispatch) => {
   }
   try {
     const res = await axios.get('/api/journal_config')
-    console.log(res)
 
     dispatch({
       type: SET_JOURNAL_CONFIG,
-      payload: res.data,
+      payload: res.data.journalConfig,
     })
   } catch (err) {
     dispatch({
@@ -40,31 +39,17 @@ export const getJournalConfig = () => async (dispatch) => {
 
 //all of the settings have to be capitalized for the backend shit
 export const toggleJournalConfigSetting = (setting, bool) => async (dispatch) => {
-  let body
-  console.log('setting is:')
-  console.log(setting)
-  console.log('bool is:')
-  console.log(bool)
-  switch (setting) {
-    case 'Audio':
-      body = { progress_audio_enabled: bool }
-      break
-    case 'Timer':
-      body = { timer_enabled: bool }
-      break
-    case 'Wpm':
-      body = { wpm_enabled: bool }
-      break
-    default:
-      return null
-  }
+  let body = { [setting]: bool }
 
   try {
+    // ** Doing it this way makes the state update on the front end slightly slower but feels like then we're seeing the actual data as opposed to just state?
+    // ** Maybe see if we can improve that?
+
     const res = await axios.post(`/api/journal_config/update_toggles`, body, axiosConfig)
+    let newConfig = res.data.newJournalConfigToggles.rows[0]
     dispatch({
-      //still gotta change this to be somethin else? okay so right now these literally do absolutely nothing
-      type: TOGGLE_PROGRESS_AUDIO,
-      payload: res.data,
+      type: UPDATE_JOURNAL_CONFIG,
+      payload: newConfig,
     })
   } catch (err) {
     console.log('toggle error')

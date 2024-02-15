@@ -29,6 +29,7 @@ router.get('/', authorize, async (req, res) => {
 // TODO will have to add indications and validation for the time goal i.e. is it in seconds etc?
 router.post('/update_goals', authorize, async (req, res) => {
   const { id: user_id } = req.user
+
   const { goal_preference, daily_time_goal, daily_words_goal } = req.body
 
   try {
@@ -91,8 +92,9 @@ router.post('/update_day_values', validInfo, async (req, res) => {
 // Update a user's journal config
 // ?? Should we use use the authorize jwt middleware here?
 
-router.post('/update_toggles', validInfo, async (req, res) => {
-  const { user_id, progress_audio_enabled, wpm_enabled, timer_enabled, custom_prompts_enabled } = req.body
+router.post('/update_toggles', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+  const { progress_audio_enabled, wpm_enabled, timer_enabled, custom_prompts_enabled } = req.body
 
   try {
     // Convert undefined values to null

@@ -4,6 +4,7 @@ import {
   SET_ENTRY,
   GET_JOURNAL_ENTRIES,
   SET_JOURNAL_CONFIG,
+  UPDATE_JOURNAL_CONFIG,
   ENTRIES_ERROR,
   SET_TIME_ELAPSED,
   TOGGLE_TIMER_ACTIVE,
@@ -29,9 +30,10 @@ export default function (state = initialState, action) {
         loading: false,
       }
     case SET_JOURNAL_CONFIG:
+    case UPDATE_JOURNAL_CONFIG:
       return {
         ...state,
-        journalConfig: payload.journalConfig,
+        journalConfig: payload,
         loading: false,
       }
     case SAVE_ENTRY:
