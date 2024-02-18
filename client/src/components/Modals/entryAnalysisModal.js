@@ -6,7 +6,7 @@ import { connect } from 'react-redux'
 import axios from 'axios'
 
 import { loadUser } from '../../redux/actions/authActions.js'
-import { getJournalEntries } from '../../redux/actions/journalActions.js'
+import { getJournalEntries } from '../../redux/actions/journalEntryActions.js'
 import DisplayEmotions from '../DisplayEmotions/DisplayEmotions.js'
 
 function EntryAnalysisModal(props) {

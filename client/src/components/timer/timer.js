@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { setTimeElapsed } from '../../redux/actions/journalActions.js'
+import { setTimeElapsed } from '../../redux/actions/journalEntryActions.js'
 
 function Timer({ setTimeElapsed, timerActive }) {
   const [seconds, setSeconds] = useState(0)

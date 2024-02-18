@@ -17,6 +17,7 @@ function TimerDisplay({ toggleTimerActive, timeElapsed, timerActive }) {
           onClick={() => toggleTimerActive(!timerActive)}
           src={timerActive ? pause : play}
         />
+        Timer
       </span>
     </div>
   )

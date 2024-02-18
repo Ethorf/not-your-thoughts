@@ -16,8 +16,8 @@ function Entry(props) {
 
   return (
     <>
-      <div className="entry__entry-date-wordcount-container">
-        <EntryAnalysisModal
+      {/* <div className="entry__entry-date-wordcount-container"> */}
+      {/* <EntryAnalysisModal
           content={props.content}
           date={props.date}
           id={props.id}
@@ -28,9 +28,9 @@ function Entry(props) {
           wordCount={props.wordCount}
           wpm={props.wpm}
           timeElapsed={props.timeElapsed}
-        />
-        <h3 className="entry__entry-date-wordcount entry__date">{props.date}</h3>
-        <div className="entry__wordcount-container">
+        /> */}
+      {/* <h3 className="entry__entry-date-wordcount entry__date">{props.date}</h3> */}
+      {/* <div className="entry__wordcount-container">
           <h3 className="entry__entry-date-wordcount entry__words">
             Time:{' '}
             <span style={{ color: 'white' }}>
@@ -38,10 +38,10 @@ function Entry(props) {
               {props.timeElapsed ? `${Math.trunc(props.timeElapsed / 60)}m:${props.timeElapsed % 60}s` : 'N/A'}
             </span>
           </h3>
-        </div>
-        <div className="entry__wordcount-container">
+        </div> */}
+      {/* <div className="entry__wordcount-container">
           <h3 className="entry__entry-date-wordcount entry__words">
-            Words:<span style={{ color: 'white' }}> {props.wordCount}</span>
+            Words:<span style={{ color: 'white' }}> {props.num_of_words}</span>
           </h3>
         </div>
         <button
@@ -74,7 +74,7 @@ function Entry(props) {
             </Button>
           </div>
         </Container>
-      </Dialog>
+      </Dialog> */}
       <h4 className={`entry__entry-content ${props.mode} ${open ? 'entry__entry-open' : 'entry__entry-closed'}`}>
         {props.content}
       </h4>

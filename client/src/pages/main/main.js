@@ -13,7 +13,7 @@ import {
   changeCharCount,
   saveJournalEntry,
   setJournalEntry,
-} from '../../redux/actions/journalActions.js'
+} from '../../redux/actions/journalEntryActions.js'
 import { getJournalConfig, toggleTimerActive } from '../../redux/actions/journalConfigActions.js'
 import { loadUser, increaseDays } from '../../redux/actions/authActions.js'
 import { openSuccessModal, openSaveEntryModal, toggleGuestModeModalSeen } from '../../redux/actions/modalActions.js'
@@ -56,14 +56,12 @@ const Main = ({
   modals,
   toggleGuestModeModalSeen,
 }) => {
-  const [entryData, setEntryData] = useState({
-    entry: '',
-  })
   const [wpmCalc, setWpmCalc] = useState(Math.trunc((charCount / 5 / timeElapsed) * 60))
   const [wpmCounter, setWpmCounter] = useState(0)
   const [guestModeModalOpen, setGuestModeModalOpen] = useState(false)
   const textAreaRef = useRef(null)
 
+  // TODO fix WPM this shit broken
   useEffect(() => {
     // setWpmCalc((timeElapsed / 2) % 5 === 0 ? Math.trunc((charCount / 5 / timeElapsed) * 60) : wpmCalc)
     let wpmInterval = null
@@ -72,18 +70,19 @@ const Main = ({
       setWpmCounter(wpmCalc)
     }, 2000)
 
+    return () => clearInterval(wpmInterval)
+  }, [charCount, timeElapsed, wpmCalc, wpmCounter])
+
+  useEffect(() => {
     if (guestMode && modals.guestModeModalSeen === false) {
       setTimeout(() => {
         toggleGuestModeModalSeen()
         setGuestModeModalOpen(true)
       }, 1500)
     }
-    return () => clearInterval(wpmInterval)
-  }, [charCount, timeElapsed, wpmCalc, wpmCounter])
+  }, [])
 
   const textNum = (e) => {
-    e.preventDefault()
-    setEntryData(e.target.value)
     setJournalEntry(e.target.value)
     changeWordCount(e.target.value.split(' ').filter((item) => item !== '').length)
     changeCharCount(e.target.value.split('').length)
@@ -93,11 +92,14 @@ const Main = ({
     e.preventDefault()
     openSaveEntryModal()
     saveJournalEntry({
-      entry: entryData,
-      timeElapsed: timeElapsed,
+      entry,
+      // TODO update with real values once we fix timer & wpm
+      timeElapsed: 0,
       wpm: Math.trunc((charCount / 5 / timeElapsed) * 60),
+      wordCount,
     })
   }
+
   useEffect(() => {
     getJournalConfig()
   }, [])
@@ -131,12 +133,12 @@ const Main = ({
             <form className={`main__date-goal-wordcount-textarea-container`} onSubmit={(e) => onSubmit(e)}>
               <div className={`main__date-goal-wordcount-container${mode}`}>
                 <h3 className={`main__date `}>{moment().format('MM/DD/YYYY')}</h3>
-                <span
+                {/* <span
                   className={'main__timer-display'}
                   style={guestMode || user.timerEnabled ? { opacity: 1 } : { opacity: 0 }}
                 >
                   <TimerDisplay />
-                </span>
+                </span> */}
                 {guestMode ? (
                   <h2 className={`main__goal`}>Goal: 200 words</h2>
                 ) : (
@@ -173,7 +175,7 @@ const Main = ({
                   value={entry}
                   ref={textAreaRef}
                   spellCheck="false"
-                ></textarea>
+                />
               </div>
 
               <div className={`main__save-entry-button-container  `}>

@@ -3,10 +3,9 @@ import '../Profile/profile.scss'
 import '../../styles/rubberDucky.scss'
 import './entries.scss'
 import { connect } from 'react-redux'
-import { Redirect } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { logout, loadUser } from '../../redux/actions/authActions.js'
-import { deleteJournalEntry, getJournalEntries } from '../../redux/actions/journalActions.js'
+import { deleteJournalEntry, getJournalEntries } from '../../redux/actions/journalEntryActions.js'
 import { toggleJournalConfigSetting } from '../../redux/actions/journalConfigActions.js'
 
 import Entry from '../../components/entry/entry.js'
@@ -14,38 +13,40 @@ import Spinner from '../../components/spinner/spinner.js'
 
 const Entries = ({ isAuthenticated, auth: { user }, deleteJournalEntry, getJournalEntries, entries, mode }) => {
   const [sort, setSort] = useState('Newest')
+
   useEffect(() => {
-    loadUser()
     getJournalEntries()
   }, [getJournalEntries, sort])
-
-  if (!isAuthenticated) {
-    return <Redirect to="/login" />
-  }
 
   const sortChange = (e) => {
     setSort(e.target.value)
   }
 
+  // const EntryComponent = () => {
+  //   return (
+  //     entries
+  //       // .sort(sortSwitch(sort))
+  //       .map((entry) => (
+  //         <Entry
+  //           key={entry.id}
+  //           id={entry.id}
+  //           className="profile profile__entry"
+  //           wordCount={entry.num_of_words}
+  //           // date={entry.date}
+  //           timeElapsed={entry.time_elapsed}
+  //           wpm={entry.wpm}
+  //           content={entry.content}
+  //           // deleteJournalEntry={deleteJournalEntry}
+  //           // getJournalEntries={getJournalEntries}
+  //           // trackedPhrases={user.trackedPhrases}
+  //           // pdEmotionAnalysis={entries.pdEmotionAnalysis}
+  //         />
+  //       ))
+  //   )
+  // }
+
   const EntryComponent = () => {
-    return entries
-      .sort(sortSwitch(sort))
-      .map((userData) => (
-        <Entry
-          key={userData.id}
-          id={userData.id}
-          className="profile profile__entry"
-          wordCount={userData.numOfWords}
-          date={userData.date}
-          timeElapsed={userData.timeElapsed}
-          wpm={userData.wpm}
-          content={userData.content}
-          deleteJournalEntry={deleteJournalEntry}
-          getJournalEntries={getJournalEntries}
-          trackedPhrases={user.trackedPhrases}
-          pdEmotionAnalysis={userData.pdEmotionAnalysis}
-        />
-      ))
+    return entries.map((entry) => <div>{entry.content}</div>)
   }
 
   const ReverseEntryComponent = () => {
@@ -108,25 +109,23 @@ const Entries = ({ isAuthenticated, auth: { user }, deleteJournalEntry, getJourn
             <option value={'Shortest Time'}>Shortest Time</option>
           </select>
         </form>
-        {entries.length === 0 ? (
+        {/* {entries.length === 0 ? (
           <h2>You have no saved journal entries</h2>
         ) : sort === 'Newest' ? (
           <ReverseEntryComponent />
         ) : (
           <EntryComponent />
-        )}
+        )} */}
+        {entries.length === 0 ? <h2>You have no saved journal entries</h2> : <EntryComponent />}
       </>
     )
   }
-  return user === null ? (
-    <Spinner />
-  ) : (
-    <>
-      <div className={`profile ${mode}`}>
-        <h2 className={`profile__header ${mode}`}>SAVED ENtRIES</h2>
-        {user === null ? <Spinner /> : <SavedEntries />}
-      </div>
-    </>
+
+  return (
+    <div className={`profile ${mode}`}>
+      <h2 className={`profile__header ${mode}`}>SAVED ENtRIES</h2>
+      <SavedEntries />
+    </div>
   )
 }
 

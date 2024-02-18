@@ -8,7 +8,7 @@ import './successModal.scss'
 
 //Redux Actions
 import { openSuccessModal, closeSuccessModal } from '../../redux/actions/modalActions.js'
-import { saveJournalEntry, goalReached } from '../../redux/actions/journalActions'
+import { saveJournalEntry, goalReached } from '../../redux/actions/journalEntryActions.js'
 import { toggleTimerActive } from '../../redux/actions/journalConfigActions'
 import { increaseDays, loadUser } from '../../redux/actions/authActions'
 import { Gratitude } from '../gratitude/gratitude'
