@@ -18,6 +18,7 @@ const PrivateRoute = ({ component: Component, auth: { isAuthenticated, user }, l
 
 PrivateRoute.propTypes = {
   auth: PropTypes.object.isRequired,
+  component: PropTypes.object.isRequired,
 }
 
 const mapStateToProps = (state) => ({
@@ -25,6 +26,3 @@ const mapStateToProps = (state) => ({
 })
 
 export default connect(mapStateToProps, { loadUser })(PrivateRoute)
-
-// Fun redux note cause I haven't done this in a while...
-// We need our dispatch functions to be imported, passed as props, and destructured in mapDispatchToProps

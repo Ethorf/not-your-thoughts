@@ -11,7 +11,6 @@ import {
   INCREASE_DAYS,
   DAY_INCREASE_ERROR,
   SET_FIRST_LOGIN,
-  TOGGLE_PROGRESS_AUDIO,
   ADD_CUSTOM_PROMPT,
   DELETE_CUSTOM_PROMPT,
   ADD_TRACKED_PHRASE,
@@ -79,13 +78,11 @@ export const login = (email, password) => async (dispatch) => {
 
 // Load User
 export const loadUser = () => async (dispatch) => {
-  console.log('LOAD USER pre token HIT')
   if (localStorage.token) {
     setAuthToken(localStorage.token)
   }
 
   try {
-    console.log('LOAD USER try HIT')
     const res = await axios.get('/api/auth/user', axiosConfig)
 
     await dispatch({
@@ -139,19 +136,6 @@ export const setFirstLogin = () => async (dispatch) => {
     if (errors) {
       errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')))
     }
-  }
-}
-//all of the settings have to be capitalized for the backend shit
-export const toggleUserSetting = (setting) => async (dispatch) => {
-  try {
-    const res = await axios.post(`/api/updateUser/toggle${setting}`, axiosConfig)
-    dispatch({
-      //still gotta change this to be somethin else? okay so right now these literally do absolutely nothing
-      type: TOGGLE_PROGRESS_AUDIO,
-      payload: res.data,
-    })
-  } catch (err) {
-    console.log('toggle error')
   }
 }
 

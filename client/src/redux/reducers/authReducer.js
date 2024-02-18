@@ -29,7 +29,7 @@ export default function (state = initialState, action) {
         ...state,
         isAuthenticated: true,
         loading: false,
-        user: payload,
+        user: payload.userRes,
       }
     case INCREASE_DAYS:
     case SET_FIRST_LOGIN:
@@ -45,7 +45,6 @@ export default function (state = initialState, action) {
       }
     case REGISTER_SUCCESS:
     case LOGIN_SUCCESS:
-      console.log('LOGIN SUCCESS SUCCESSED')
       localStorage.setItem('token', payload.jwtToken)
       return {
         ...state,

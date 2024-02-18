@@ -8,17 +8,17 @@ import PillarTopOutlineInverted from '../../assets/Pillars/NewPillarTop-4-invert
 import crawBoxTop from '../../assets/Animations/SpikyCrawBox-Top-1.gif'
 import crawBoxTopInverted from '../../assets/Pillars/CrawBoxes/NewCrawBox-Inverted-Top.gif'
 
-const PillarTop = ({ wordCount, goal, mode, auth: { user }, timeElapsed, guestMode }) => {
+const PillarTop = ({ wordCount, goal, mode, auth: { user }, timeElapsed, guestMode, journalConfig }) => {
   const pillarTopStyleWidth = () => {
     let userGoal
     let goalCount
     if (guestMode) {
       userGoal = 200
       goalCount = wordCount
-    } else if (user.goalPreference === 'words') {
-      userGoal = user.dailyWordsGoal
+    } else if (journalConfig.goal_preference === 'words') {
+      userGoal = journalConfig.daily_words_goal
       goalCount = wordCount
-    } else if (user.goalPreference === 'time') {
+    } else if (journalConfig.goal_preference === 'time') {
       userGoal = user.dailyTimeGoal * 60
       goalCount = timeElapsed
     }
@@ -76,6 +76,7 @@ const mapStateToProps = (state) => ({
   mode: state.modes.mode,
   guestMode: state.auth.guestMode,
   timeElapsed: state.entries.timeElapsed,
+  journalConfig: state.entries.journalConfig,
 })
 
 export default connect(mapStateToProps, null)(PillarTop)

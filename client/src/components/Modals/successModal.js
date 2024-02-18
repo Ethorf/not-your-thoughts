@@ -5,10 +5,11 @@ import PropTypes from 'prop-types'
 import { TimelineMax } from 'gsap'
 import '../../pages/Main/Main.scss'
 import './successModal.scss'
+
 //Redux Actions
 import { openSuccessModal, closeSuccessModal } from '../../redux/actions/modalActions.js'
-import { saveEntry, toggleTimerActive } from '../../redux/actions/entryActions'
-import { goalReached } from '../../redux/actions/index'
+import { saveJournalEntry, goalReached } from '../../redux/actions/journalEntryActions.js'
+import { toggleTimerActive } from '../../redux/actions/journalConfigActions'
 import { increaseDays, loadUser } from '../../redux/actions/authActions'
 import { Gratitude } from '../gratitude/gratitude'
 
@@ -18,10 +19,11 @@ const SuccessModal = ({
   modals,
   openSuccessModal,
   closeSuccessModal,
-  saveEntry,
+  saveJournalEntry,
   wordCount,
   goalReached,
   goal,
+  journalConfig,
   loadUser,
   toggleTimerActive,
   goalReachedStatus,
@@ -82,7 +84,7 @@ const SuccessModal = ({
     closeModalOverlayAnimation()
     closeSuccessModal()
     goalReached()
-    saveEntry({ entry: entry, timeElapsed: timeElapsed, wpm: Math.trunc((charCount / 5 / timeElapsed) * 60) })
+    saveJournalEntry({ entry: entry, timeElapsed: timeElapsed, wpm: Math.trunc((charCount / 5 / timeElapsed) * 60) })
   }
 
   useEffect(() => {
@@ -96,18 +98,18 @@ const SuccessModal = ({
       if (wordCount >= 200) {
         toggleTimerActive(false)
       }
-    } else if (user.goalPreference === 'words') {
-      if (wordCount > 0 && wordCount <= user.dailyWordsGoal) {
+    } else if (journalConfig.goal_preference === 'words') {
+      if (wordCount > 0 && wordCount <= journalConfig.daily_words_goal) {
         toggleTimerActive(true)
       }
 
-      if (wordCount >= user.dailyWordsGoal && goalReachedStatus === false) {
+      if (wordCount >= journalConfig.daily_words_goal && goalReachedStatus === false) {
         openModalAll()
       }
-      if (wordCount >= user.dailyWordsGoal) {
+      if (wordCount >= journalConfig.daily_words_goal) {
         toggleTimerActive(false)
       }
-    } else if (user.goalPreference === 'time') {
+    } else if (journalConfig.goal_preference === 'time') {
       if (wordCount > 0) {
         toggleTimerActive(true)
       }
@@ -190,6 +192,7 @@ const mapStateToProps = (state, props) => ({
   mode: state.modes.mode,
   setTimerActive: props.setTimerActive,
   timeElapsed: state.entries.timeElapsed,
+  journalConfig: state.entries.journalConfig,
   charCount: state.wordCount.charCount,
   guestMode: state.auth.guestMode,
 })
@@ -198,7 +201,7 @@ export default connect(mapStateToProps, {
   loadUser,
   openSuccessModal,
   closeSuccessModal,
-  saveEntry,
+  saveJournalEntry,
   goalReached,
   increaseDays,
   toggleTimerActive,

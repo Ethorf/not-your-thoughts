@@ -2,10 +2,9 @@ import React from 'react'
 import { connect } from 'react-redux'
 import '../../pages/Main/Main.scss'
 import './timerDisplay.scss'
-import '../../redux/actions'
+import { toggleTimerActive } from '../../redux/actions/journalConfigActions.js'
 import pause from '../../assets/Icons/Icon-pause.png'
 import play from '../../assets/Icons/Icon-play.png'
-import { toggleTimerActive } from '../../redux/actions/entryActions.js'
 
 function TimerDisplay({ toggleTimerActive, timeElapsed, timerActive }) {
   return (
@@ -18,6 +17,7 @@ function TimerDisplay({ toggleTimerActive, timeElapsed, timerActive }) {
           onClick={() => toggleTimerActive(!timerActive)}
           src={timerActive ? pause : play}
         />
+        Timer
       </span>
     </div>
   )

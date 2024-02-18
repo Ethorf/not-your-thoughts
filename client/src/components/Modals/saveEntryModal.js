@@ -43,7 +43,7 @@ const SaveEntryModal = ({ modals, openSaveEntryModal, closeSaveEntryModal }) => 
         ref={(div) => (modalContentContainer = div)}
       >
         <h1 className="save-entry-modal__text">Entry Saved!</h1>
-        {/* <button onClick={closeModalAll}>SaveEntry Modal CloseTest</button> */}
+        {/* <button onClick={closeModalAll}>saveJournalEntry Modal CloseTest</button> */}
       </div>
     </div>
   )

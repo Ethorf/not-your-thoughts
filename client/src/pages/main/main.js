@@ -1,6 +1,5 @@
 //Package Imports
 import React, { useState, useEffect, useRef } from 'react'
-import { Redirect } from 'react-router-dom'
 import moment from 'moment'
 import PropTypes from 'prop-types'
 
@@ -9,12 +8,16 @@ import './Main.scss'
 
 //Redux Function Imports
 import { connect } from 'react-redux'
-import { changeWordCount, changeCharCount } from '../../redux/actions/index'
-import { saveEntry, setEntry, toggleTimerActive } from '../../redux/actions/entryActions.js'
-import { loadUser } from '../../redux/actions/authActions.js'
+import {
+  changeWordCount,
+  changeCharCount,
+  saveJournalEntry,
+  setJournalEntry,
+} from '../../redux/actions/journalEntryActions.js'
+import { getJournalConfig, toggleTimerActive } from '../../redux/actions/journalConfigActions.js'
+import { loadUser, increaseDays } from '../../redux/actions/authActions.js'
 import { openSuccessModal, openSaveEntryModal, toggleGuestModeModalSeen } from '../../redux/actions/modalActions.js'
 import { changeMode } from '../../redux/actions/modeActions.js'
-import { increaseDays } from '../../redux/actions/authActions.js'
 
 //Component Imports
 import Header from '../../components/header/header.js'
@@ -42,8 +45,10 @@ const Main = ({
   charCount,
   changeCharCount,
   changeWordCount,
-  saveEntry,
-  setEntry,
+  getJournalConfig,
+  saveJournalEntry,
+  setJournalEntry,
+  journalConfig,
   mode,
   auth: { guestMode, user, loading },
   entry,
@@ -51,14 +56,12 @@ const Main = ({
   modals,
   toggleGuestModeModalSeen,
 }) => {
-  const [entryData, setEntryData] = useState({
-    entry: '',
-  })
   const [wpmCalc, setWpmCalc] = useState(Math.trunc((charCount / 5 / timeElapsed) * 60))
   const [wpmCounter, setWpmCounter] = useState(0)
   const [guestModeModalOpen, setGuestModeModalOpen] = useState(false)
   const textAreaRef = useRef(null)
 
+  // TODO fix WPM this shit broken
   useEffect(() => {
     // setWpmCalc((timeElapsed / 2) % 5 === 0 ? Math.trunc((charCount / 5 / timeElapsed) * 60) : wpmCalc)
     let wpmInterval = null
@@ -67,19 +70,20 @@ const Main = ({
       setWpmCounter(wpmCalc)
     }, 2000)
 
+    return () => clearInterval(wpmInterval)
+  }, [charCount, timeElapsed, wpmCalc, wpmCounter])
+
+  useEffect(() => {
     if (guestMode && modals.guestModeModalSeen === false) {
       setTimeout(() => {
         toggleGuestModeModalSeen()
         setGuestModeModalOpen(true)
       }, 1500)
     }
-    return () => clearInterval(wpmInterval)
-  }, [charCount, timeElapsed, wpmCalc, wpmCounter])
+  }, [])
 
   const textNum = (e) => {
-    e.preventDefault()
-    setEntryData(e.target.value)
-    setEntry(e.target.value)
+    setJournalEntry(e.target.value)
     changeWordCount(e.target.value.split(' ').filter((item) => item !== '').length)
     changeCharCount(e.target.value.split('').length)
   }
@@ -87,8 +91,18 @@ const Main = ({
   const onSubmit = async (e) => {
     e.preventDefault()
     openSaveEntryModal()
-    saveEntry({ entry: entryData, timeElapsed: timeElapsed, wpm: Math.trunc((charCount / 5 / timeElapsed) * 60) })
+    saveJournalEntry({
+      entry,
+      // TODO update with real values once we fix timer & wpm
+      timeElapsed: 0,
+      wpm: Math.trunc((charCount / 5 / timeElapsed) * 60),
+      wordCount,
+    })
   }
+
+  useEffect(() => {
+    getJournalConfig()
+  }, [])
 
   if (loading) {
     return <Spinner />
@@ -98,11 +112,12 @@ const Main = ({
   // On initial render this won't even run even if loading === false because it'll be trying
   //  to access a bunch of values in the JSX (which renders before useEffect)
   return (
-    user && (
+    user &&
+    journalConfig && (
       <div className={`main__all-container modalize ${mode}`}>
         <BgImage />
         <div className={`main ${mode}`}>
-          {/* <Header /> */}
+          <Header />
           {/* <SaveEntryModal />
           <SuccessModal />
           <IntroModal />
@@ -118,25 +133,29 @@ const Main = ({
             <form className={`main__date-goal-wordcount-textarea-container`} onSubmit={(e) => onSubmit(e)}>
               <div className={`main__date-goal-wordcount-container${mode}`}>
                 <h3 className={`main__date `}>{moment().format('MM/DD/YYYY')}</h3>
-                <span
+                {/* <span
                   className={'main__timer-display'}
                   style={guestMode || user.timerEnabled ? { opacity: 1 } : { opacity: 0 }}
                 >
                   <TimerDisplay />
-                </span>
+                </span> */}
                 {guestMode ? (
                   <h2 className={`main__goal`}>Goal: 200 words</h2>
                 ) : (
                   <h2 className={`main__goal`}>
                     Goal:{' '}
-                    {user.goalPreference === 'words'
-                      ? `${user.dailyWordsGoal} Words`
-                      : `${user.dailyTimeGoal} Minute${user.dailyTimeGoal >= 2 ? 's' : ''}`}
+                    {journalConfig.goal_preference === 'words'
+                      ? `${journalConfig.daily_words_goal} Words`
+                      : `${journalConfig.daily_time_goal} Minute${journalConfig.daily_time_goal >= 2 ? 's' : ''}`}
                   </h2>
                 )}
                 <h3
                   className={`main__wpm-text-container`}
-                  style={guestMode || (user.wpmEnabled && window.innerWidth > 767) ? { opacity: 1 } : { opacity: 0 }}
+                  style={
+                    guestMode || (journalConfig.wpm_enabled && window.innerWidth > 767)
+                      ? { opacity: 1 }
+                      : { opacity: 0 }
+                  }
                 >
                   <div className={`main__wpm-text-left`}>
                     {charCount >= 20 ? Math.trunc((charCount / 5 / timeElapsed) * 60) : 'N/A'}
@@ -156,7 +175,7 @@ const Main = ({
                   value={entry}
                   ref={textAreaRef}
                   spellCheck="false"
-                ></textarea>
+                />
               </div>
 
               <div className={`main__save-entry-button-container  `}>
@@ -178,8 +197,8 @@ const Main = ({
 
 Main.propTypes = {
   auth: PropTypes.object.isRequired,
-  saveEntry: PropTypes.func.isRequired,
-  setEntry: PropTypes.func.isRequired,
+  saveJournalEntry: PropTypes.func.isRequired,
+  setJournalEntry: PropTypes.func.isRequired,
 }
 
 const mapStateToProps = (state) => ({
@@ -192,19 +211,21 @@ const mapStateToProps = (state) => ({
   mode: state.modes.mode,
   entry: state.entries.entry,
   timeElapsed: state.entries.timeElapsed,
+  journalConfig: state.entries.journalConfig,
   timerActive: state.entries.timerActive,
 })
 
 export default connect(mapStateToProps, {
-  saveEntry,
+  saveJournalEntry,
   openSaveEntryModal,
   openSuccessModal,
   changeWordCount,
   changeCharCount,
   loadUser,
-  setEntry,
+  setJournalEntry,
   increaseDays,
   changeMode,
   toggleTimerActive,
+  getJournalConfig,
   toggleGuestModeModalSeen,
 })(Main)

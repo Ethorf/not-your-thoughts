@@ -8,7 +8,7 @@ import PillarLeftOutlineInverted from '../../assets/Pillars/NewPillarLeft-2-inve
 import crawBoxRight from '../../assets/Animations/SpikyCrawBox-Right-1.gif'
 import crawBoxRightInverted from '../../assets/Pillars/CrawBoxes/NewCrawBox-Inverted-Right.gif'
 
-const PillarRight = ({ wordCount, auth: { user }, mode, timeElapsed, guestMode }) => {
+const PillarRight = ({ wordCount, auth: { user }, mode, timeElapsed, guestMode, journalConfig }) => {
   const pillarRightStyleHeight = () => {
     let userGoal
     let goalCount
@@ -16,10 +16,10 @@ const PillarRight = ({ wordCount, auth: { user }, mode, timeElapsed, guestMode }
     if (guestMode) {
       userGoal = 200
       goalCount = wordCount
-    } else if (user.goalPreference === 'words') {
-      userGoal = user.dailyWordsGoal
+    } else if (journalConfig.goal_preference === 'words') {
+      userGoal = journalConfig.daily_words_goal
       goalCount = wordCount
-    } else if (user.goalPreference === 'time') {
+    } else if (journalConfig.goal_preference === 'time') {
       userGoal = user.dailyTimeGoal * 60
       goalCount = timeElapsed
     }
@@ -70,6 +70,7 @@ const mapStateToProps = (state) => ({
   guestMode: state.auth.guestMode,
   mode: state.modes.mode,
   timeElapsed: state.entries.timeElapsed,
+  journalConfig: state.entries.journalConfig,
 })
 
 export default connect(mapStateToProps)(PillarRight)

@@ -19,7 +19,7 @@ router.post(
     }
     try {
       const user = await await User.findById(req.user.id)
-      user.dailyWordsGoal = req.body.goal
+      journalConfig.daily_words_goal = req.body.goal
       await user.save()
       res.json(user)
     } catch (err) {
@@ -219,13 +219,13 @@ router.post('/toggleTimer', auth, async (req, res) => {
 router.post('/toggleGoal', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id)
-    if (user.goalPreference === 'words') {
-      user.goalPreference = 'time'
+    if (journalConfig.goal_preference === 'words') {
+      journalConfig.goal_preference = 'time'
     } else {
-      user.goalPreference = 'words'
+      journalConfig.goal_preference = 'words'
     }
     await user.save()
-    res.json(user.goalPreference)
+    res.json(journalConfig.goal_preference)
   } catch (err) {
     console.error(err.message)
     res.status(500)
