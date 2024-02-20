@@ -7,7 +7,7 @@ import { getJournalConfig, toggleJournalConfigSetting } from '../../redux/action
 import ProfileGoalEdit from '../../components/ProfileGoalEdit/ProfileGoalEdit.js'
 import TrackedPhrasesModal from '../../components/Modals/trackedPhrasesModal.js'
 import CustomPrompts from '../../components/customPrompts/customPrompts.js'
-import Spinner from '../../components/spinner/spinner.js'
+import Spinner from '../../components/Shared/Spinner/Spinner.js'
 import './profile.scss'
 import '../../styles/rubberDucky.scss'
 

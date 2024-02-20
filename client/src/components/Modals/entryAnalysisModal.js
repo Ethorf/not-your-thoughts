@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import './entryAnalysisModal.scss'
 import { gradeLevel } from '../../misc/gradeLevel.js'
-import { Button, Dialog, Container, CircularProgress } from '@material-ui/core'
 import { connect } from 'react-redux'
 import axios from 'axios'
 
@@ -45,49 +44,45 @@ function EntryAnalysisModal(props) {
     }
   }, [])
   return (
-    <Dialog open={props.analysisModalOpen}>
-      <Container>
-        <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
-          <h1 className="entry-analysis-modal__header">Entry Analysis</h1>
-          <button className="entry-analysis-modal__close-button" onClick={props.toggleAnalysisModalOpen}>
-            X
-          </button>
-        </div>
-        <h2>{props.date}</h2>
-        <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', color: 'silver' }}>
-          <h3 className="entry__entry-date-wordcount entry__words">
-            Words:
-            <span style={{ color: 'white' }}>{props.wordCount}</span>
-          </h3>
-          <h3 className="entry__entry-date-wordcount entry__words">
-            Time:{' '}
-            <span style={{ color: 'white' }}>
-              {props.timeElapsed ? `${Math.trunc(props.timeElapsed / 60)}m:${props.timeElapsed % 60}s` : 'N/A'}
-            </span>
-          </h3>
-          <h3 className="entry__entry-date-wordcount entry__words">
-            Wpm:
-            <span style={{ color: 'white' }}>{props.wpm ? props.wpm : 'N/A'}</span>
-          </h3>
-        </div>
-        <h3 className="entry-analysis-modal__sub-header">Emotional Analysis </h3>
+    <div open={props.analysisModalOpen}>
+      <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
+        <h1 className="entry-analysis-modal__header">Entry Analysis</h1>
+        <button className="entry-analysis-modal__close-button" onClick={props.toggleAnalysisModalOpen}>
+          X
+        </button>
+      </div>
+      <h2>{props.date}</h2>
+      <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', color: 'silver' }}>
+        <h3 className="entry__entry-date-wordcount entry__words">
+          Words:
+          <span style={{ color: 'white' }}>{props.wordCount}</span>
+        </h3>
+        <h3 className="entry__entry-date-wordcount entry__words">
+          Time:{' '}
+          <span style={{ color: 'white' }}>
+            {props.timeElapsed ? `${Math.trunc(props.timeElapsed / 60)}m:${props.timeElapsed % 60}s` : 'N/A'}
+          </span>
+        </h3>
+        <h3 className="entry__entry-date-wordcount entry__words">
+          Wpm:
+          <span style={{ color: 'white' }}>{props.wpm ? props.wpm : 'N/A'}</span>
+        </h3>
+      </div>
+      <h3 className="entry-analysis-modal__sub-header">Emotional Analysis </h3>
 
-        {localEmotionData ? (
-          <DisplayEmotions data={localEmotionData} />
-        ) : loading ? (
-          <CircularProgress color="secondary" />
-        ) : (
-          <Button onClick={() => addEntryAnalysis(props.id)}>Analyze</Button>
-        )}
+      {localEmotionData ? (
+        <DisplayEmotions data={localEmotionData} />
+      ) : loading ? null : ( // spinner goes here
+        <button onClick={() => addEntryAnalysis(props.id)}>Analyze</button>
+      )}
 
-        <p> {props.content ? gradeLevel(props.content) : 'Loading Grade Level'}</p>
-        <h2 className="entry-analysis-modal__header">Tracked Phrases :</h2>
-        {props.trackedPhrases.map((item) => (
-          <p key={item.id}>{`Occurences of: "${item.phrase}":
+      <p> {props.content ? gradeLevel(props.content) : 'Loading Grade Level'}</p>
+      <h2 className="entry-analysis-modal__header">Tracked Phrases :</h2>
+      {props.trackedPhrases.map((item) => (
+        <p key={item.id}>{`Occurences of: "${item.phrase}":
 				${props.content ? phraseRepetitionCount(item.phrase, props.content) : 'Loading phrase Count'}`}</p>
-        ))}
-      </Container>
-    </Dialog>
+      ))}
+    </div>
   )
 }
 

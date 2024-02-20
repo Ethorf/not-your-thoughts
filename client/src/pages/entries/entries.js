@@ -9,7 +9,7 @@ import { deleteJournalEntry, getJournalEntries } from '../../redux/actions/journ
 import { toggleJournalConfigSetting } from '../../redux/actions/journalConfigActions.js'
 
 import Entry from '../../components/entry/entry.js'
-import Spinner from '../../components/spinner/spinner.js'
+import Spinner from '../../components/Shared/Spinner/Spinner.js'
 
 const Entries = ({ isAuthenticated, auth: { user }, deleteJournalEntry, getJournalEntries, entries, mode }) => {
   const [sort, setSort] = useState('Newest')

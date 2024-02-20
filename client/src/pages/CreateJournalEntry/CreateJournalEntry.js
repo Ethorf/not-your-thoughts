@@ -4,7 +4,7 @@ import moment from 'moment'
 import PropTypes from 'prop-types'
 
 //SCSS
-import './Main.scss'
+import '../../styles/shared.scss'
 
 //Redux Function Imports
 import { connect } from 'react-redux'
@@ -36,10 +36,10 @@ import SuccessModal from '../../components/Modals/successModal.js'
 import GuestModeModal from '../../components/Modals/guestModeModal.js'
 import IntroModal from '../../components/Modals/introModal.js'
 import SaveEntryModal from '../../components/Modals/saveEntryModal.js'
-import Spinner from '../../components/spinner/spinner.js'
+import Spinner from '../../components/Shared/Spinner/Spinner.js'
 import TimerDisplay from '../../components/timerDisplay/timerDisplay.js'
 
-const Main = ({
+const CreateJournalEntry = ({
   openSaveEntryModal,
   wordCount,
   charCount,
@@ -116,7 +116,7 @@ const Main = ({
     journalConfig && (
       <div className={`main__all-container modalize ${mode}`}>
         <BgImage />
-        <div className={`main ${mode}`}>
+        <div className={`CreateJournalEntry ${mode}`}>
           <Header />
           {/* <SaveEntryModal />
           <SuccessModal />
@@ -195,7 +195,7 @@ const Main = ({
   )
 }
 
-Main.propTypes = {
+CreateJournalEntry.propTypes = {
   auth: PropTypes.object.isRequired,
   saveJournalEntry: PropTypes.func.isRequired,
   setJournalEntry: PropTypes.func.isRequired,
@@ -228,4 +228,4 @@ export default connect(mapStateToProps, {
   toggleTimerActive,
   getJournalConfig,
   toggleGuestModeModalSeen,
-})(Main)
+})(CreateJournalEntry)

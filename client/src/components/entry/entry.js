@@ -3,7 +3,6 @@ import { connect } from 'react-redux'
 import './entry.scss'
 import Arrow from '../../assets/Icons/single-arrow-3.png'
 import EntryAnalysisModal from '../Modals/entryAnalysisModal.js'
-import { Dialog, Button, Container } from '@material-ui/core'
 
 function Entry(props) {
   const [open, setOpen] = useState(false)

@@ -1,0 +1,15 @@
+.title {
+  font-size: 2.5rem;
+  font-family: 'Syncopate', sans-serif;
+}
+
+.wrapper {
+  width: 100vw;
+}
+
+.flexColumnCenter {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}

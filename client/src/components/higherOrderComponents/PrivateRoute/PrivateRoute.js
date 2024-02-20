@@ -3,6 +3,7 @@ import { Route, Redirect } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { loadUser } from '../../../redux/actions/authActions'
+import Spinner from '../../Shared/Spinner/Spinner'
 
 const PrivateRoute = ({ component: Component, auth: { isAuthenticated, user }, loadUser, ...rest }) => {
   useEffect(() => {
@@ -10,6 +11,11 @@ const PrivateRoute = ({ component: Component, auth: { isAuthenticated, user }, l
       loadUser()
     }
   }, [user, loadUser])
+
+  if (user === null) {
+    // Render Spinner if user is null
+    return <Spinner /> // Assuming Spinner is a component that shows a loading spinner
+  }
 
   return (
     <Route {...rest} render={(props) => (!isAuthenticated ? <Redirect to="/login" /> : <Component {...props} />)} />

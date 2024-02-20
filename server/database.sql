@@ -51,6 +51,7 @@ CREATE TABLE entries (
   user_id uuid REFERENCES users(id) NOT NULL,
   title VARCHAR(255) DEFAULT NULL
   category INT[] DEFAULT (ARRAY[]::INT[])
+  -- Connections is an array of other entry id's
   connections INT[] DEFAULT (ARRAY[]::INT[])
   tags INT[] DEFAULT (ARRAY[]::INT[])
   content TEXT NOT NULL,
@@ -60,15 +61,33 @@ CREATE TABLE entries (
   wpm INT DEFAULT 1,
   num_of_words INT DEFAULT 1,
   pd_emotion_analysis TEXT;
+  -- New fields
+  -- TODO
+  -- Change to "categories" ?? though that may make the point scribby
+  -- Make pd_emotion_analysis array
+  -- make content an array
+  -- and then 
   
 );
+
+
+CREATE TABLE tags (
+  id UUID NOT NULL
+  name 
+)
+
+CREATE TABLE categories (
+  id UUID NOT NULL
+  name VARCHAR
+  description TEXT 
+)
+
 
 ALTER TABLE entries
   ADD COLUMN title VARCHAR(255) DEFAULT NULL
   ADD COLUMN category INT[] DEFAULT (ARRAY[]::INT[])
   ADD COLUMN tags INT[] DEFAULT (ARRAY[]::INT[])
   ADD COLUMN connections INT[] DEFAULT (ARRAY[]::INT[])
-  ADD COLUMN date_last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 
 
