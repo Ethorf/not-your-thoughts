@@ -63,7 +63,6 @@ CREATE TABLE entries (
   pd_emotion_analysis TEXT;
   -- New fields
   -- TODO
-  -- Change to "categories" ?? though that may make the point scribby
   -- Make pd_emotion_analysis array
   -- make content an array
   -- and then 
@@ -77,11 +76,10 @@ CREATE TABLE tags (
 )
 
 CREATE TABLE categories (
-  id UUID NOT NULL
-  name VARCHAR
-  description TEXT 
-)
-
+    id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT
+);
 
 ALTER TABLE entries
   ADD COLUMN title VARCHAR(255) DEFAULT NULL

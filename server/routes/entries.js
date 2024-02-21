@@ -21,10 +21,11 @@ router.post('/create_node_entry', authorize, async (req, res) => {
     let category_id = null
     let tag_ids = []
 
-    // Check if category is provided
+    // Check if category is provided in request
     if (category) {
       // Check if category already exists
       let existingCategory = await pool.query('SELECT id FROM categories WHERE name = $1', [category])
+
       if (existingCategory.rows.length === 0) {
         // If category doesn't exist, create a new one
         let newCategory = await pool.query('INSERT INTO categories (name) VALUES ($1) RETURNING id', [category])
@@ -55,12 +56,88 @@ router.post('/create_node_entry', authorize, async (req, res) => {
 
     // Insert entry into entries table
     let newEntry = await pool.query(
-      'INSERT INTO entries (user_id, content, type, title, category, tags) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      'INSERT INTO entries (user_id, content, type, title, category_id, tags) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
       [user_id, content, type, title, category_id, tag_ids]
     )
 
     console.log('Node Entry created successfully!')
     return res.json({ newEntry })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// post /entries/update_node_entry
+// Update a node entry
+
+router.post('/update_node_entry', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+  const { entryId, content, category, title, tags } = req.body
+  const type = 'node'
+
+  try {
+    // Check if entryId, content, and user_id are provided
+    if (!entryId || !content || !user_id) {
+      return res.status(400).json({ message: 'entryId, content, and user_id are required' })
+    }
+
+    // Initialize variables to hold category ID and tag IDs
+    let category_id = null
+    let tag_ids = []
+
+    // Check if category is provided in request
+    if (category) {
+      // Check if category already exists
+      let existingCategory = await pool.query('SELECT id FROM categories WHERE name = $1', [category])
+
+      if (existingCategory.rows.length === 0) {
+        // If category doesn't exist, create a new one
+        let newCategory = await pool.query('INSERT INTO categories (name) VALUES ($1) RETURNING id', [category])
+        category_id = newCategory.rows[0].id
+      } else {
+        // If category exists, use its ID
+        category_id = existingCategory.rows[0].id
+      }
+    }
+
+    // Check if tags are provided
+    if (tags && tags.length > 0) {
+      for (const tag of tags) {
+        // Check if tag already exists
+        let existingTag = await pool.query('SELECT id FROM tags WHERE name = $1', [tag])
+        let tag_id = null
+        if (existingTag.rows.length === 0) {
+          // If tag doesn't exist, create a new one
+          let newTag = await pool.query('INSERT INTO tags (name) VALUES ($1) RETURNING id', [tag])
+          tag_id = newTag.rows[0].id
+        } else {
+          // If tag exists, use its ID
+          tag_id = existingTag.rows[0].id
+        }
+        tag_ids.push(tag_id)
+      }
+    }
+
+    // Get current content and date from the entry
+    let currentEntry = await pool.query('SELECT content, date FROM entries WHERE id = $1', [entryId])
+    let currentContent = currentEntry.rows[0].content.split(',').map((str) => str.replace(/[,"{}]/g, '')) || [] // Handle case where current content is null
+    let currentDate = currentEntry.rows[0].date || [] // Handle case where current date is null
+
+    // Prepare the new content array with the new content added to the start
+    let newContent = [content, ...currentContent]
+
+    // Prepare the new date array with the current date and the current date added to the start
+    let newDate = [new Date().toISOString(), ...currentDate]
+
+    // Update entry in the entries table
+    let updatedEntry = await pool.query(
+      'UPDATE entries SET content = $1, title = COALESCE($2, title), category_id = COALESCE($3, category_id), tags = COALESCE($4, tags), date = $5 WHERE id = $6 AND user_id = $7 RETURNING *',
+      [newContent, title, category_id, tag_ids, newDate, entryId, user_id]
+    )
+
+    console.log('Node Entry updated successfully!')
+    return res.json({ updatedEntry })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
