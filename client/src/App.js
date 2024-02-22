@@ -13,6 +13,7 @@ import Timer from './components/timer/timer.js'
 import Landing from './pages/landing/landing'
 import EntryTypeSwitcher from './pages/EntryTypeSwitcher/EntryTypeSwitcher.js'
 import CreateJournalEntry from './pages/CreateJournalEntry/CreateJournalEntry.js'
+import CreateNodeEntry from './pages/CreateNodeEntry/CreateNodeEntry.js'
 import Login from './pages/Login/Login.js'
 import Register from './pages/Register/Register.js'
 import Profile from './pages/Profile/Profile.js'
@@ -65,6 +66,7 @@ const App = () => {
                   </Route>
                   <PrivateRoute path="/entry-type-switcher" exact component={EntryTypeSwitcher} />
                   <PrivateRoute path="/create-journal-entry" exact component={CreateJournalEntry} />
+                  <PrivateRoute path="/create-node-entry" exact component={CreateNodeEntry} />
                   <PrivateRoute path="/profile">{({ match }) => <Profile show={match !== null} />}</PrivateRoute>
                   <PrivateRoute path="/entries">{({ match }) => <Entries show={match !== null} />}</PrivateRoute>
                   <Route path="/resources" exact>

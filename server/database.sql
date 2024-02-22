@@ -71,8 +71,8 @@ CREATE TABLE entries (
 
 
 CREATE TABLE tags (
-  id UUID NOT NULL
-  name 
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    name VARCHAR(255) NOT NULL, UUID NOT NULL
 )
 
 CREATE TABLE categories (

@@ -13,8 +13,7 @@ const PrivateRoute = ({ component: Component, auth: { isAuthenticated, user }, l
   }, [user, loadUser])
 
   if (user === null) {
-    // Render Spinner if user is null
-    return <Spinner /> // Assuming Spinner is a component that shows a loading spinner
+    return <Spinner />
   }
 
   return (

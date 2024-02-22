@@ -4,7 +4,7 @@ import wordCountReducer from './wordCountReducer'
 import entriesReducer from './journalEntriesReducer'
 import modalReducer from './modalReducer'
 import modesReducer from './modesReducer'
-import currentEntry from './currentEntryReducer'
+import currentEntryReducer from './currentEntryReducer' // Changed the import name
 
 import alert from './alert'
 
@@ -15,5 +15,5 @@ export default combineReducers({
   entries: entriesReducer,
   modals: modalReducer,
   modes: modesReducer,
-  currentEntry: currentEntry,
+  currentEntry: currentEntryReducer, // Updated the reducer name
 })

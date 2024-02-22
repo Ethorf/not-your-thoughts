@@ -1,0 +1,21 @@
+.textArea {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.2rem;
+  width: 70vw;
+  height: 70vh;
+  border-radius: 12px;
+  border: 1px solid rgba(192, 192, 192, 0.5);
+  background: black;
+  color: silver;
+  outline: none;
+  padding: 16px;
+  text-align: center;
+  transition: all 2s;
+
+  &:hover,
+  &:focus {
+    border: 1px solid rgba(192, 192, 192, 1);
+    transition: all 2s;
+    border-radius: 3px;
+  }
+}
