@@ -24,8 +24,7 @@ const CreateNodeEntry = () => {
       dispatch(updateNodeEntry({ entryId, content, category: '', title, tags: [] }))
     }
   }
-  console.log('entryId is:')
-  console.log(entryId)
+
   return (
     <div className={styles.wrapper}>
       <h2>create node</h2>

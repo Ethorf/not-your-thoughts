@@ -123,7 +123,8 @@ router.post('/update_node_entry', authorize, async (req, res) => {
 
     // Get current content and date from the entry
     let currentEntry = await pool.query('SELECT content, date FROM entries WHERE id = $1', [entryId])
-    let currentContent = currentEntry.rows[0].content.split(',').map((str) => str.replace(/[,"{}]/g, '')) || [] // Handle case where current content is null
+    //  A bunch of weird string modification so that we can split on , only when it's between " " so that normal commas aren't affected
+    let currentContent = currentEntry.rows[0].content.split(/",(?=")/).map((str) => str.replace(/[,"{}]/g, '')) || [] // Handle case where current content is null
     let currentDate = currentEntry.rows[0].date || [] // Handle case where current date is null
 
     // Prepare the new content array with the new content added to the start
@@ -234,6 +235,41 @@ router.get('/entries', authorize, async (req, res) => {
 
     // If journal entries are found, return them
     res.json({ entries: allEntries.rows })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// Route to retrieve an entry by id
+router.get('/entry/:entryId', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+  const { entryId } = req.params
+
+  try {
+    // Retrieve the entry with the provided entryId
+    const entry = await pool.query('SELECT * FROM entries WHERE id = $1', [entryId])
+
+    // Check if the entry is found
+    if (entry.rows.length === 0) {
+      return res.status(404).json({ msg: 'Entry not found' })
+    }
+
+    const entryData = entry.rows[0]
+    // Check if the user ID associated with the entry matches the user ID of the request
+    if (entry.rows[0].user_id !== user_id) {
+      return res.status(403).json({ msg: 'Unauthorized access to entry' })
+    }
+
+    const jsContentArray = entryData.content
+      .substring(1, entryData.content.length - 1)
+      .split(',')
+      .map((item, index) =>
+        index === 0 ? item.replace(/^"(.*)"$/, '$1').replace(/\\"/g, '"') : item.replace(/^"(.*)"$/, '$1')
+      )
+
+    // If the entry is found and the user ID matches, return it
+    res.json({ ...entryData, content: jsContentArray })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')

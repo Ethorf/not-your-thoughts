@@ -4,7 +4,6 @@ import { ENTRY_TYPES } from '../../constants/entryTypes'
 
 const { NODE, JOURNAL } = ENTRY_TYPES
 
-// Define initial state
 const initialState = {
   entryId: null,
   wordCount: 0,
@@ -18,14 +17,20 @@ const initialState = {
   currentVersion: 1,
 }
 
-// Thunk for creating a node entry
 export const createNodeEntry = createAsyncThunk(
   'currentEntryReducer/createNodeEntry',
   async ({ user_id, content, category, title, tags }, { rejectWithValue }) => {
-    console.log('createNodeEntry hit')
+    // Convert content to an array if it's not already one
+    const contentArray = Array.isArray(content) ? content : [content]
+
     try {
-      const response = await axios.post('api/entries/create_node_entry', { user_id, content, category, title, tags })
-      console.log(response.data)
+      const response = await axios.post('api/entries/create_node_entry', {
+        user_id,
+        content: contentArray,
+        category,
+        title,
+        tags,
+      })
       return response.data.newEntry.rows[0].id
     } catch (error) {
       return rejectWithValue(error.response.data)
@@ -33,19 +38,44 @@ export const createNodeEntry = createAsyncThunk(
   }
 )
 
-// Thunk for updating a node entry
 export const updateNodeEntry = createAsyncThunk(
   'currentEntryReducer/updateNodeEntry',
-  async ({ user_id, entryId, content, category, title, tags }, { rejectWithValue }) => {
+  async ({ user_id, entryId, content, category, title, tags }, { getState, rejectWithValue, dispatch }) => {
     try {
-      const response = await axios.post('api/entries/update_node_entry', {
-        user_id,
-        entryId,
-        content,
-        category,
-        title,
-        tags,
-      })
+      const fetchResponse = await dispatch(fetchEntryById(entryId))
+      const fetchedEntryContent = fetchResponse.payload.content
+
+      const currentState = getState().currentEntry
+
+      // Compare content with the fetched entry
+      if (fetchedEntryContent[0] === currentState.content) {
+        console.log('no change to content, no update')
+        return currentState
+      } else {
+        // Content is different, proceed with update
+        const response = await axios.post('api/entries/update_node_entry', {
+          user_id,
+          entryId,
+          content,
+          category,
+          title,
+          tags,
+        })
+        console.log('updated with new content')
+        return response.data
+      }
+    } catch (error) {
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+export const fetchEntryById = createAsyncThunk(
+  'currentEntryReducer/fetchEntryById',
+  async (entryId, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`api/entries/entry/${entryId}`)
+
       return response.data
     } catch (error) {
       return rejectWithValue(error.response.data)
@@ -93,24 +123,26 @@ const currentEntrySlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Handle createNodeEntry fulfilled action
     builder.addCase(createNodeEntry.fulfilled, (state, action) => {
       return {
         ...state,
         entryId: action.payload,
       }
     })
-    // Handle updateNodeEntry fulfilled action
     builder.addCase(updateNodeEntry.fulfilled, (state, action) => {
       return {
         ...state,
-        ...action.payload,
+      }
+    })
+    builder.addCase(fetchEntryById.fulfilled, (state, action) => {
+      return {
+        ...state,
+        entryId: action.payload.id,
       }
     })
   },
 })
 
-// Export reducer actions
 export const {
   setEntryId,
   setWordCount,
@@ -124,5 +156,4 @@ export const {
   setVersion,
 } = currentEntrySlice.actions
 
-// Export reducer function
 export default currentEntrySlice.reducer
