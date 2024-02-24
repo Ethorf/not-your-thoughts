@@ -8,6 +8,8 @@ import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
 import DefaultInput from '../../components/Shared/DefaultInput/DefaultInput'
 
 import styles from './CreateNodeEntry.module.scss'
+import CategoryInput from '../../components/CategoryInput/CategoryInput'
+import TagsInput from '../../components/TagsInput/TagsInput'
 
 const CreateNodeEntry = () => {
   const dispatch = useDispatch()
@@ -24,22 +26,26 @@ const CreateNodeEntry = () => {
       dispatch(updateNodeEntry({ entryId, content, category: '', title, tags: [] }))
     }
   }
-
+  // ex query params /create-node-entry?entryId=123 (with entryId parameter)
   return (
     <div className={styles.wrapper}>
-      <h2>create node</h2>
-      <div>
-        <DefaultInput
-          className={classNames(styles.titleInput, { [styles.titleInputNoBorder]: title.length })}
-          placeholder={'Enter Title'}
-          value={title}
-          onChange={handleTitleChange}
-        />
+      <div className={styles.editContainer}>
+        <h2>create node</h2>
+        <div className={styles.topContainer}>
+          <CategoryInput />
+          <DefaultInput
+            className={classNames(styles.titleInput, { [styles.titleInputNoBorder]: title.length })}
+            placeholder={'Enter Title'}
+            value={title}
+            onChange={handleTitleChange}
+          />
+          <TagsInput />
+        </div>
+        <CreateEntry />
+        <DefaultButton disabled={!content.length} onClick={handleSaveNode} className={styles.saveButton}>
+          Save Node
+        </DefaultButton>
       </div>
-      <CreateEntry />
-      <DefaultButton disabled={!content.length} onClick={handleSaveNode} className={styles.saveButton}>
-        Save Node
-      </DefaultButton>
     </div>
   )
 }
