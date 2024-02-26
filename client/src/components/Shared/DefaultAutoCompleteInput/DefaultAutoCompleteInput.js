@@ -3,14 +3,12 @@ import classNames from 'classnames'
 
 import styles from './DefaultAutoCompleteInput.module.scss'
 
-const AutoCompleteInput = ({ options, className, placeholder, onChange }) => {
-  const [inputValue, setInputValue] = useState('')
+const AutoCompleteInput = ({ inputValue, options, className, placeholder, onChange }) => {
   const [filteredOptions, setFilteredOptions] = useState([])
 
   // Handler for input change
   const handleInputChange = (event) => {
     const value = event.target.value
-    setInputValue(value)
     filterOptions(value)
     onChange && onChange(event.target.value)
   }
@@ -21,7 +19,7 @@ const AutoCompleteInput = ({ options, className, placeholder, onChange }) => {
   }
 
   const handleOptionSelect = (value) => {
-    setInputValue(value)
+    onChange && onChange(value)
     setFilteredOptions([])
   }
 

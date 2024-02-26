@@ -1,19 +1,12 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { setContent, setWordCount, setCharCount, setCategories } from '../../../redux/reducers/currentEntryReducer' // Replace with the correct path
+import { setContent, setWordCount, setCharCount } from '../../../redux/reducers/currentEntryReducer' // Replace with the correct path
 
 import styles from './CreateEntry.module.scss'
 
 const CreateEntry = () => {
-  const [categories, setCategoriesValue] = useState('')
-
   const dispatch = useDispatch()
   const { wordCount, charCount, content } = useSelector((state) => state.currentEntry)
-
-  const handleCategoriesChange = (e) => {
-    setCategoriesValue(e.target.value)
-    dispatch(setCategories(e.target.value))
-  }
 
   const handleContentChange = (e) => {
     dispatch(setContent(e.target.value))

@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import classNames from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
-import { setTitle, createNodeEntry, updateNodeEntry } from '../../redux/reducers/currentEntryReducer'
+import { useLocation, useHistory } from 'react-router-dom'
+import { setTitle, createNodeEntry, updateNodeEntry, setEntryById } from '../../redux/reducers/currentEntryReducer'
 
 import CreateEntry from '../../components/Shared/CreateEntry/CreateEntry'
 import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
@@ -13,7 +14,27 @@ import TagsInput from '../../components/TagsInput/TagsInput'
 
 const CreateNodeEntry = () => {
   const dispatch = useDispatch()
-  const { entryId, content, title } = useSelector((state) => state.currentEntry)
+  const location = useLocation()
+  const history = useHistory()
+  const { entryId, content, title, category } = useSelector((state) => state.currentEntry)
+
+  // Effect to update entryId query param in URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    if (entryId && !params.has('entryId')) {
+      params.append('entryId', entryId)
+      history.push({ search: params.toString() })
+    }
+  }, [entryId, history, location.search])
+
+  // Effect to dispatch setEntryById if entryId query param exists
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const entryIdParam = params.get('entryId')
+    if (entryIdParam) {
+      dispatch(setEntryById(entryIdParam))
+    }
+  }, [dispatch, location.search])
 
   const handleTitleChange = (e) => {
     dispatch(setTitle(e.target.value))
@@ -21,12 +42,12 @@ const CreateNodeEntry = () => {
 
   const handleSaveNode = () => {
     if (entryId === null) {
-      dispatch(createNodeEntry({ content, category: '', title, tags: [] }))
+      dispatch(createNodeEntry({ content, category, title, tags: [] }))
     } else {
-      dispatch(updateNodeEntry({ entryId, content, category: '', title, tags: [] }))
+      dispatch(updateNodeEntry({ entryId, content, category, title, tags: [] }))
     }
   }
-  // ex query params /create-node-entry?entryId=123 (with entryId parameter)
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.editContainer}>

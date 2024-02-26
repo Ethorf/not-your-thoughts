@@ -58,7 +58,7 @@ router.post('/create_node_entry', authorize, async (req, res) => {
 
     // Insert entry into entries table
     let newEntry = await pool.query(
-      'INSERT INTO entries (user_id, content, type, title, category_id, tags) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      'INSERT INTO entries (user_id, content, type, title, category_id, tags) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *, (SELECT name FROM categories WHERE id = $5) AS category_name',
       [user_id, content, type, title, category_id, tag_ids]
     )
 
@@ -76,7 +76,6 @@ router.post('/create_node_entry', authorize, async (req, res) => {
 router.post('/update_node_entry', authorize, async (req, res) => {
   const { id: user_id } = req.user
   const { entryId, content, category, title, tags } = req.body
-  const type = 'node'
 
   try {
     // Check if entryId, content, and user_id are provided
@@ -123,7 +122,6 @@ router.post('/update_node_entry', authorize, async (req, res) => {
 
     // Get current content and date from the entry
     let currentEntry = await pool.query('SELECT content, date FROM entries WHERE id = $1', [entryId])
-    //  A bunch of weird string modification so that we can split on , only when it's between " " so that normal commas aren't affected
     let currentContent = currentEntry.rows[0].content.split(/",(?=")/).map((str) => str.replace(/[,"{}]/g, '')) || [] // Handle case where current content is null
     let currentDate = currentEntry.rows[0].date || [] // Handle case where current date is null
 
@@ -139,8 +137,12 @@ router.post('/update_node_entry', authorize, async (req, res) => {
       [newContent, title, category_id, tag_ids, newDate, entryId, user_id]
     )
 
+    // Fetch the category name
+    let categoryData = await pool.query('SELECT name FROM categories WHERE id = $1', [category_id])
+    let category_name = categoryData.rows[0] ? categoryData.rows[0].name : null
+
     console.log('Node Entry updated successfully!')
-    return res.json({ updatedEntry })
+    return res.json({ updatedEntry: updatedEntry.rows[0], category_name })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -149,7 +151,6 @@ router.post('/update_node_entry', authorize, async (req, res) => {
 
 // post /entries/create_journal_entry
 // Add a new journal entry
-
 router.post('/create_journal_entry', authorize, async (req, res) => {
   const { id: user_id } = req.user
   const { content, total_time_taken, wpm, num_of_words } = req.body
@@ -170,7 +171,6 @@ router.post('/create_journal_entry', authorize, async (req, res) => {
 })
 
 // Route to retrieve all journal entries for a user
-
 router.get('/journal_entries', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
@@ -195,7 +195,6 @@ router.get('/journal_entries', authorize, async (req, res) => {
 })
 
 // Route to retrieve all journal entries for a user
-
 router.get('/node_entries', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
@@ -248,7 +247,13 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
 
   try {
     // Retrieve the entry with the provided entryId
-    const entry = await pool.query('SELECT * FROM entries WHERE id = $1', [entryId])
+    const entry = await pool.query(
+      `SELECT entries.*, categories.name AS category_name 
+       FROM entries 
+       LEFT JOIN categories ON entries.category_id = categories.id
+       WHERE entries.id = $1`,
+      [entryId]
+    )
 
     // Check if the entry is found
     if (entry.rows.length === 0) {
@@ -257,7 +262,7 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
 
     const entryData = entry.rows[0]
     // Check if the user ID associated with the entry matches the user ID of the request
-    if (entry.rows[0].user_id !== user_id) {
+    if (entryData.user_id !== user_id) {
       return res.status(403).json({ msg: 'Unauthorized access to entry' })
     }
 
@@ -270,6 +275,25 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
 
     // If the entry is found and the user ID matches, return it
     res.json({ ...entryData, content: jsContentArray })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// Route to retrieve all categories
+router.get('/categories', authorize, async (req, res) => {
+  try {
+    // Retrieve all categories
+    const allCategories = await pool.query('SELECT * FROM categories')
+
+    // Check if there are any categories found
+    if (allCategories.rows.length === 0) {
+      return res.status(404).json({ msg: 'No categories found' })
+    }
+
+    // If categories are found, return them
+    res.json({ categories: allCategories.rows })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
