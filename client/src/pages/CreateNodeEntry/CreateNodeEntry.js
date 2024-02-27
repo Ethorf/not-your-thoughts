@@ -16,7 +16,7 @@ const CreateNodeEntry = () => {
   const dispatch = useDispatch()
   const location = useLocation()
   const history = useHistory()
-  const { entryId, content, title, category } = useSelector((state) => state.currentEntry)
+  const { entryId, content, title, category, tags } = useSelector((state) => state.currentEntry)
 
   // Effect to update entryId query param in URL
   useEffect(() => {
@@ -42,9 +42,9 @@ const CreateNodeEntry = () => {
 
   const handleSaveNode = () => {
     if (entryId === null) {
-      dispatch(createNodeEntry({ content, category, title, tags: [] }))
+      dispatch(createNodeEntry({ content, category, title, tags }))
     } else {
-      dispatch(updateNodeEntry({ entryId, content, category, title, tags: [] }))
+      dispatch(updateNodeEntry({ entryId, content, category, title, tags }))
     }
   }
 

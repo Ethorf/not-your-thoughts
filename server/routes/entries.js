@@ -125,11 +125,18 @@ router.post('/update_node_entry', authorize, async (req, res) => {
     let currentContent = currentEntry.rows[0].content.split(/",(?=")/).map((str) => str.replace(/[,"{}]/g, '')) || [] // Handle case where current content is null
     let currentDate = currentEntry.rows[0].date || [] // Handle case where current date is null
 
-    // Prepare the new content array with the new content added to the start
-    let newContent = [content, ...currentContent]
+    let newContent, newDate
 
-    // Prepare the new date array with the current date and the current date added to the start
-    let newDate = [new Date().toISOString(), ...currentDate]
+    if (content !== currentContent[0]) {
+      // Prepare the new content array with the new content added to the start
+      newContent = [content, ...currentContent]
+
+      // Prepare the new date array with the current date and the current date added to the start
+      newDate = [new Date().toISOString(), ...currentDate]
+    } else {
+      newContent = [...currentContent]
+      newDate = [...currentDate]
+    }
 
     // Update entry in the entries table
     let updatedEntry = await pool.query(
@@ -239,8 +246,6 @@ router.get('/entries', authorize, async (req, res) => {
     res.status(500).send('Server error')
   }
 })
-
-// Route to retrieve an entry by id
 router.get('/entry/:entryId', authorize, async (req, res) => {
   const { id: user_id } = req.user
   const { entryId } = req.params
@@ -248,7 +253,8 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
   try {
     // Retrieve the entry with the provided entryId
     const entry = await pool.query(
-      `SELECT entries.*, categories.name AS category_name 
+      `SELECT entries.*, categories.name AS category_name, 
+      ARRAY(SELECT name FROM tags WHERE id = ANY(entries.tags)) AS tag_names
        FROM entries 
        LEFT JOIN categories ON entries.category_id = categories.id
        WHERE entries.id = $1`,

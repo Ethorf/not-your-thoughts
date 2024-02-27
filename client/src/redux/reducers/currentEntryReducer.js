@@ -16,8 +16,6 @@ const initialState = {
   tagInput: '',
   type: JOURNAL,
   content: '',
-  // TODO add an increment here?
-  currentVersion: 1,
 }
 
 export const createNodeEntry = createAsyncThunk(
@@ -48,28 +46,31 @@ export const updateNodeEntry = createAsyncThunk(
     try {
       const fetchResponse = await dispatch(fetchEntryById(entryId))
       const fetchedEntry = fetchResponse.payload
-
       const currentState = getState().currentEntry
 
-      // Compare content with the fetched entry
-      if (fetchedEntry.content[0] === currentState.content && fetchedEntry.category_name === currentState.category) {
-        console.log('no change to content, no update')
+      // Compare content, category, and tags with the fetched entry
+      const contentChanged = fetchedEntry.content[0] !== currentState.content
+      const categoryChanged = fetchedEntry.category_name !== currentState.category
+      const tagsChanged = JSON.stringify(fetchedEntry.tag_names) !== JSON.stringify(tags)
 
+      // If no change in content, category, and tags, return the current state
+      if (!contentChanged && !categoryChanged && !tagsChanged) {
+        console.log('No change to content, category, and tags. No update required.')
         return currentState
-      } else {
-        // Content is different, proceed with update
-
-        const response = await axios.post('api/entries/update_node_entry', {
-          user_id,
-          entryId,
-          content,
-          category,
-          title,
-          tags,
-        })
-        console.log('updated with new content')
-        return response.data
       }
+
+      // Content, category, or tags have changed, proceed with update
+      const response = await axios.post('api/entries/update_node_entry', {
+        user_id,
+        entryId,
+        content,
+        category,
+        title,
+        tags,
+      })
+
+      console.log('Updated with new content, category, or tags')
+      return response.data
     } catch (error) {
       return rejectWithValue(error.response.data)
     }
@@ -102,12 +103,11 @@ export const setEntryById = createAsyncThunk(
         date,
         id: entryId,
         num_of_words: wordCount,
-        tags,
+        tag_names: tags,
         title,
       } = response.data
 
       return { content: content[0], category, connections, date, entryId, wordCount, tags, title }
-      // return response.data
     } catch (error) {
       return rejectWithValue(error.response.data)
     }
@@ -129,11 +129,12 @@ export const fetchCategories = createAsyncThunk(
 export const fetchTags = createAsyncThunk('currentEntryReducer/fetchTags', async (_, { rejectWithValue }) => {
   try {
     const response = await axios.get('api/entries/tags')
-    return response.data.tags // Assuming the API response contains an array of category names
+    return response.data.tags
   } catch (error) {
     return rejectWithValue(error.response.data)
   }
 })
+
 // Define a slice
 const currentEntrySlice = createSlice({
   name: 'currentEntryReducer', // Name of your reducer slice
@@ -186,20 +187,19 @@ const currentEntrySlice = createSlice({
         ...state,
         entryId: action.payload.id,
         category: action.payload.category_name,
-        tagInput: '',
       }
     })
     builder.addCase(updateNodeEntry.fulfilled, (state, action) => {
       return {
         ...state,
         category: action.payload.category_name,
-        tagInput: '',
       }
     })
     builder.addCase(fetchEntryById.fulfilled, (state, action) => {
       return {
         ...state,
         entryId: action.payload.id,
+        tags: action.payload.tag_names,
       }
     })
     builder.addCase(setEntryById.fulfilled, (state, action) => {
