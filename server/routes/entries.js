@@ -300,4 +300,23 @@ router.get('/categories', authorize, async (req, res) => {
   }
 })
 
+// Route to retrieve all tags
+router.get('/tags', authorize, async (req, res) => {
+  try {
+    // Retrieve all categories
+    const allTags = await pool.query('SELECT * FROM tags')
+
+    // Check if there are any categories found
+    if (allTags.rows.length === 0) {
+      return res.status(404).json({ msg: 'No tags found' })
+    }
+
+    // If categories are found, return them
+    res.json({ tags: allTags.rows })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
 module.exports = router

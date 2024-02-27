@@ -1,29 +1,31 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import DefaultAutoCompleteInput from '../Shared/DefaultAutoCompleteInput/DefaultAutoCompleteInput.js'
 import { useDispatch, useSelector } from 'react-redux'
-import { setCategory } from '../../redux/reducers/currentEntryReducer.js'
+import { setCategory, fetchCategories } from '../../redux/reducers/currentEntryReducer.js'
 
 const CategoryInput = () => {
-  const options = ['jeff', 'fred', 'bong']
   const dispatch = useDispatch()
   const { category } = useSelector((state) => state.currentEntry)
+  const [options, setOptions] = useState([])
 
-  console.log('category is:')
-  console.log(category)
+  useEffect(() => {
+    dispatch(fetchCategories()).then((response) => {
+      const categoryNames = response.payload.map((category) => category.name)
+      setOptions(categoryNames)
+    })
+  }, [dispatch])
 
   const handleCategoryChange = (selectedCategory) => {
     dispatch(setCategory(selectedCategory))
   }
 
   return (
-    <div>
-      <DefaultAutoCompleteInput
-        inputValue={category}
-        onChange={handleCategoryChange}
-        options={options}
-        placeholder={'Category'}
-      />
-    </div>
+    <DefaultAutoCompleteInput
+      inputValue={category}
+      onChange={handleCategoryChange}
+      options={options}
+      placeholder={'Category'}
+    />
   )
 }
 

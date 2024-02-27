@@ -1,12 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import classNames from 'classnames'
 
 import styles from './DefaultAutoCompleteInput.module.scss'
 
 const AutoCompleteInput = ({ inputValue, options, className, placeholder, onChange }) => {
   const [filteredOptions, setFilteredOptions] = useState([])
+  const inputRef = useRef(null)
 
-  // Handler for input change
   const handleInputChange = (event) => {
     const value = event.target.value
     filterOptions(value)
@@ -23,19 +23,35 @@ const AutoCompleteInput = ({ inputValue, options, className, placeholder, onChan
     setFilteredOptions([])
   }
 
+  const handleKeyDown = (event) => {
+    if (event.key === 'Tab' && filteredOptions.length > 0) {
+      event.preventDefault()
+      handleOptionSelect(filteredOptions[0])
+      inputRef.current.focus()
+    }
+  }
+
   return (
     <div>
       <input
+        ref={inputRef}
         className={classNames(styles.wrapper, className)}
         type="text"
         value={inputValue}
         onChange={handleInputChange}
         placeholder={placeholder}
-        autoComplete="off"
+        autoComplete="on"
+        list="options"
+        onKeyDown={handleKeyDown}
       />
-      <datalist id="options">
+      <datalist className={classNames(styles.optionsList)} id="options">
         {filteredOptions.map((option, index) => (
-          <option key={index} value={option} onClick={() => handleOptionSelect(option)} />
+          <option
+            className={classNames(styles.option)}
+            key={index}
+            value={option}
+            onClick={() => handleOptionSelect(option)}
+          />
         ))}
       </datalist>
     </div>

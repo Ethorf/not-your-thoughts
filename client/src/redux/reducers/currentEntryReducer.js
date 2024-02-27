@@ -10,8 +10,10 @@ const initialState = {
   charCount: 0,
   title: '',
   category: '',
+  allCategories: [],
   connections: [],
   tags: [],
+  tagInput: '',
   type: JOURNAL,
   content: '',
   // TODO add an increment here?
@@ -56,6 +58,7 @@ export const updateNodeEntry = createAsyncThunk(
         return currentState
       } else {
         // Content is different, proceed with update
+
         const response = await axios.post('api/entries/update_node_entry', {
           user_id,
           entryId,
@@ -111,6 +114,26 @@ export const setEntryById = createAsyncThunk(
   }
 )
 
+export const fetchCategories = createAsyncThunk(
+  'currentEntryReducer/fetchCategories',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get('api/entries/categories')
+      return response.data.categories // Assuming the API response contains an array of category names
+    } catch (error) {
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+export const fetchTags = createAsyncThunk('currentEntryReducer/fetchTags', async (_, { rejectWithValue }) => {
+  try {
+    const response = await axios.get('api/entries/tags')
+    return response.data.tags // Assuming the API response contains an array of category names
+  } catch (error) {
+    return rejectWithValue(error.response.data)
+  }
+})
 // Define a slice
 const currentEntrySlice = createSlice({
   name: 'currentEntryReducer', // Name of your reducer slice
@@ -134,6 +157,9 @@ const currentEntrySlice = createSlice({
     setTags: (state, action) => {
       state.tags.push(action.payload)
     },
+    setTagInput: (state, action) => {
+      state.tagInput = action.payload
+    },
     setConnections: (state, action) => {
       state.connections = action.payload
     },
@@ -151,17 +177,23 @@ const currentEntrySlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    // TODO incorporate this into the general saving call etc. for
+    builder.addCase(fetchCategories.fulfilled, (state, action) => {
+      state.allCategories = action.payload
+    })
     builder.addCase(createNodeEntry.fulfilled, (state, action) => {
       return {
         ...state,
         entryId: action.payload.id,
         category: action.payload.category_name,
+        tagInput: '',
       }
     })
     builder.addCase(updateNodeEntry.fulfilled, (state, action) => {
       return {
         ...state,
         category: action.payload.category_name,
+        tagInput: '',
       }
     })
     builder.addCase(fetchEntryById.fulfilled, (state, action) => {
@@ -187,6 +219,8 @@ export const {
   setTitle,
   setCategory,
   setConnections,
+  setTags,
+  setTagInput,
   setTypeNode,
   setTypeJournal,
   setContent,

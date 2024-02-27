@@ -21,13 +21,8 @@ const CreateEntry = () => {
 
   return (
     // <div>
-    //   <div>
-    //     <label>Category:</label> <p>Word Count: {wordCount}</p>
-    //     <input type="text" value={categories} onChange={handleCategoriesChange} />
-    //   </div>
-    //   <div>
+    //   <p>Word Count: {wordCount}</p>
     <textarea className={styles.textArea} value={content} onChange={handleContentChange} />
-    //   </div>
     // </div>
   )
 }
