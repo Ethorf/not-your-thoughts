@@ -1,6 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { ENTRY_TYPES } from '../../constants/entryTypes'
+import { toast } from 'react-toastify'
+
+export const showToast = (message) => {
+  return () => {
+    toast(message)
+  }
+}
 
 const { NODE, JOURNAL } = ENTRY_TYPES
 
@@ -20,7 +27,7 @@ const initialState = {
 
 export const createNodeEntry = createAsyncThunk(
   'currentEntryReducer/createNodeEntry',
-  async ({ user_id, content, category, title, tags }, { rejectWithValue }) => {
+  async ({ user_id, content, category, title, tags }, { rejectWithValue, dispatch }) => {
     // Convert content to an array if it's not already one
     const contentArray = Array.isArray(content) ? content : [content]
 
@@ -32,6 +39,7 @@ export const createNodeEntry = createAsyncThunk(
         title,
         tags,
       })
+      dispatch(showToast('Node Created'))
 
       return response.data.newEntry.rows[0]
     } catch (error) {
@@ -68,7 +76,7 @@ export const updateNodeEntry = createAsyncThunk(
         title,
         tags,
       })
-
+      dispatch(showToast('Node updated'))
       console.log('Updated with new content, category, or tags')
       return response.data
     } catch (error) {

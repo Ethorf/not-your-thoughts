@@ -35,14 +35,14 @@ const TagsInput = () => {
   return (
     <div>
       <div className={styles.tagsContainer}>
+        <DefaultButton className={styles.tagsInputSectionButton} onClick={() => setTagsInputVisible(!tagsInputVisible)}>
+          {!tagsInputVisible ? '+' : 'x'}
+        </DefaultButton>
         <p className={styles.tagsLabel}>Tags:</p>
         {tags.slice(0, 3).map((tag) => (
           <Tag name={tag} />
         ))}
         {tags.length > 3 && <span className={styles.tagsElipsis}>...</span>}
-        <DefaultButton className={styles.tagsInputSectionButton} onClick={() => setTagsInputVisible(!tagsInputVisible)}>
-          {!tagsInputVisible ? '+' : 'x'}
-        </DefaultButton>
       </div>
       {tagsInputVisible && (
         <div className={styles.tagsInputContainer}>

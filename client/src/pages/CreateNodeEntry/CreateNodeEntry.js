@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import classNames from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useHistory } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { setTitle, createNodeEntry, updateNodeEntry, setEntryById } from '../../redux/reducers/currentEntryReducer'
 
 import CreateEntry from '../../components/Shared/CreateEntry/CreateEntry'

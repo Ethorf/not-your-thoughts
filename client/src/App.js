@@ -1,6 +1,9 @@
 import React, { useEffect } from 'react'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import { CSSTransition, TransitionGroup } from 'react-transition-group'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+
 import PrivateRoute from './components/higherOrderComponents/PrivateRoute/PrivateRoute.js'
 import { useSelector, connect } from 'react-redux'
 import './App.scss'
@@ -40,6 +43,7 @@ const App = () => {
 
   return (
     <div className={`App ${mode}`}>
+      <ToastContainer />
       <BrowserRouter>
         <NavBarTop />
         <NavBarSide />
