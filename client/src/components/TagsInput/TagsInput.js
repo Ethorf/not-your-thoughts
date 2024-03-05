@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import classNames from 'classnames'
 import DefaultAutoCompleteInput from '../Shared/DefaultAutoCompleteInput/DefaultAutoCompleteInput.js'
 import DefaultButton from '../Shared/DefaultButton/DefaultButton.js'
 
@@ -6,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setTags, setTagInput, fetchTags } from '../../redux/reducers/currentEntryReducer.js'
 
 import styles from './TagsInput.module.scss'
-const TagsInput = () => {
+const TagsInput = ({ className }) => {
   const dispatch = useDispatch()
   const { tagInput, tags } = useSelector((state) => state.currentEntry)
   const [options, setOptions] = useState([])
@@ -33,7 +34,7 @@ const TagsInput = () => {
   }
 
   return (
-    <div>
+    <div className={classNames(className, styles.wrapper)}>
       <div className={styles.tagsContainer}>
         <DefaultButton className={styles.tagsInputSectionButton} onClick={() => setTagsInputVisible(!tagsInputVisible)}>
           {!tagsInputVisible ? '+' : 'x'}

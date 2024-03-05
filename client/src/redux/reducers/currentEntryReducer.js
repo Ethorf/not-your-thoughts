@@ -1,13 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { ENTRY_TYPES } from '../../constants/entryTypes'
-import { toast } from 'react-toastify'
-
-export const showToast = (message) => {
-  return () => {
-    toast(message)
-  }
-}
+import { showToast } from '../../utils/toast'
 
 const { NODE, JOURNAL } = ENTRY_TYPES
 
@@ -39,10 +33,10 @@ export const createNodeEntry = createAsyncThunk(
         title,
         tags,
       })
-      dispatch(showToast('Node Created'))
-
+      dispatch(showToast('Node Created', 'success'))
       return response.data.newEntry.rows[0]
     } catch (error) {
+      dispatch(showToast('Node creation error', 'error'))
       return rejectWithValue(error.response.data)
     }
   }
@@ -57,16 +51,17 @@ export const updateNodeEntry = createAsyncThunk(
       const currentState = getState().currentEntry
 
       // Compare content, category, and tags with the fetched entry
+      const titleChanged = fetchedEntry.title !== currentState.title
       const contentChanged = fetchedEntry.content[0] !== currentState.content
       const categoryChanged = fetchedEntry.category_name !== currentState.category
       const tagsChanged = JSON.stringify(fetchedEntry.tag_names) !== JSON.stringify(tags)
 
       // If no change in content, category, and tags, return the current state
-      if (!contentChanged && !categoryChanged && !tagsChanged) {
+      if (!titleChanged && !contentChanged && !categoryChanged && !tagsChanged) {
+        dispatch(showToast('Nothing to update', 'warn'))
         console.log('No change to content, category, and tags. No update required.')
         return currentState
       }
-
       // Content, category, or tags have changed, proceed with update
       const response = await axios.post('api/entries/update_node_entry', {
         user_id,
@@ -76,7 +71,8 @@ export const updateNodeEntry = createAsyncThunk(
         title,
         tags,
       })
-      dispatch(showToast('Node updated'))
+      dispatch(showToast('Node updated', 'success'))
+
       console.log('Updated with new content, category, or tags')
       return response.data
     } catch (error) {

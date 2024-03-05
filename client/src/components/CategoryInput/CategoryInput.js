@@ -3,7 +3,7 @@ import DefaultAutoCompleteInput from '../Shared/DefaultAutoCompleteInput/Default
 import { useDispatch, useSelector } from 'react-redux'
 import { setCategory, fetchCategories } from '../../redux/reducers/currentEntryReducer.js'
 
-const CategoryInput = () => {
+const CategoryInput = ({ className }) => {
   const dispatch = useDispatch()
   const { category } = useSelector((state) => state.currentEntry)
   const [options, setOptions] = useState([])
@@ -20,12 +20,14 @@ const CategoryInput = () => {
   }
 
   return (
-    <DefaultAutoCompleteInput
-      inputValue={category}
-      onChange={handleCategoryChange}
-      options={options}
-      placeholder={'Category'}
-    />
+    <div className={className}>
+      <DefaultAutoCompleteInput
+        inputValue={category}
+        onChange={handleCategoryChange}
+        options={options}
+        placeholder={'Category'}
+      />
+    </div>
   )
 }
 

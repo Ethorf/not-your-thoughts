@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import classNames from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useHistory } from 'react-router-dom'
-import { toast } from 'react-toastify'
 import { setTitle, createNodeEntry, updateNodeEntry, setEntryById } from '../../redux/reducers/currentEntryReducer'
 
 import CreateEntry from '../../components/Shared/CreateEntry/CreateEntry'
@@ -17,25 +16,25 @@ const CreateNodeEntry = () => {
   const dispatch = useDispatch()
   const location = useLocation()
   const history = useHistory()
-  const { entryId, content, title, category, tags } = useSelector((state) => state.currentEntry)
+  const { wordCount, entryId, content, title, category, tags } = useSelector((state) => state.currentEntry)
+
+  const params = useMemo(() => new URLSearchParams(location.search), [location.search])
 
   // Effect to update entryId query param in URL
   useEffect(() => {
-    const params = new URLSearchParams(location.search)
     if (entryId && !params.has('entryId')) {
       params.append('entryId', entryId)
       history.push({ search: params.toString() })
     }
-  }, [entryId, history, location.search])
+  }, [entryId, history, params])
 
   // Effect to dispatch setEntryById if entryId query param exists
   useEffect(() => {
-    const params = new URLSearchParams(location.search)
     const entryIdParam = params.get('entryId')
     if (entryIdParam) {
       dispatch(setEntryById(entryIdParam))
     }
-  }, [dispatch, location.search])
+  }, [dispatch, params])
 
   const handleTitleChange = (e) => {
     dispatch(setTitle(e.target.value))
@@ -49,24 +48,41 @@ const CreateNodeEntry = () => {
     }
   }
 
+  //   This shit don't work
+  const handleNewNode = () => {
+    const newSearchParams = new URLSearchParams(history.location.search)
+    newSearchParams.delete('entryId')
+    history.push({ ...history.location, search: newSearchParams.toString() })
+  }
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.editContainer}>
         <h2>create node</h2>
-        <div className={styles.topContainer}>
-          <CategoryInput />
+        <div className={classNames(styles.topContainer, styles.grid3Columns)}>
+          <CategoryInput className={styles.flexStart} />
           <DefaultInput
-            className={classNames(styles.titleInput, { [styles.titleInputNoBorder]: title.length })}
+            className={classNames(styles.titleInput, styles.flexCenter, { [styles.titleInputNoBorder]: title.length })}
             placeholder={'Enter Title'}
             value={title}
             onChange={handleTitleChange}
           />
-          <TagsInput />
+          <TagsInput className={styles.flexEnd} />
         </div>
         <CreateEntry />
-        <DefaultButton disabled={!content.length} onClick={handleSaveNode} className={styles.saveButton}>
-          Save Node
-        </DefaultButton>
+        <div className={styles.grid3Columns}>
+          <span className={styles.flexStart}>Words: {wordCount}</span>
+          <span className={styles.flexCenter}>
+            <DefaultButton disabled={!content.length} onClick={handleSaveNode} className={styles.saveButton}>
+              Save Node
+            </DefaultButton>
+          </span>
+          <span className={styles.flexEnd}>
+            <DefaultButton disabled={!params.has('entryId')} onClick={handleNewNode} className={styles.saveButton}>
+              New Node
+            </DefaultButton>
+          </span>
+        </div>
       </div>
     </div>
   )

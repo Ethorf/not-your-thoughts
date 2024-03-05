@@ -9,7 +9,6 @@ const DefaultInput = ({ className, ...props }) => {
 
 DefaultInput.propTypes = {
   onChange: PropTypes.func.isRequired,
-  children: PropTypes.node.isRequired,
   className: PropTypes.string,
 }
 

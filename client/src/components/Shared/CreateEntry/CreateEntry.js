@@ -6,7 +6,7 @@ import styles from './CreateEntry.module.scss'
 
 const CreateEntry = () => {
   const dispatch = useDispatch()
-  const { wordCount, charCount, content } = useSelector((state) => state.currentEntry)
+  const { content } = useSelector((state) => state.currentEntry)
 
   const handleContentChange = (e) => {
     dispatch(setContent(e.target.value))
@@ -15,16 +15,10 @@ const CreateEntry = () => {
     const words = content.split(/\s+/).filter((word) => word.length > 0)
     dispatch(setWordCount(words.length))
 
-    // Calculate character count
     dispatch(setCharCount(content.length))
   }
 
-  return (
-    // <div>
-    //   <p>Word Count: {wordCount}</p>
-    <textarea className={styles.textArea} value={content} onChange={handleContentChange} />
-    // </div>
-  )
+  return <textarea className={styles.textArea} value={content} onChange={handleContentChange} />
 }
 
 export default CreateEntry

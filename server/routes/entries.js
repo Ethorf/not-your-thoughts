@@ -62,6 +62,12 @@ router.post('/create_node_entry', authorize, async (req, res) => {
       [user_id, content, type, title, category_id, tag_ids]
     )
 
+    // Set the title to "Untitled" if not provided in the request
+    const finalTitle = title || `Untitled #${newEntry.rows[0].id}`
+
+    // Update the newly created entry with the final title
+    await pool.query('UPDATE entries SET title = $1 WHERE id = $2', [finalTitle, newEntry.rows[0].id])
+
     console.log('Node Entry created successfully!')
     return res.json({ newEntry })
   } catch (err) {
