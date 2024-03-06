@@ -9,10 +9,13 @@ import { deleteJournalEntry, getJournalEntries } from '../../redux/actions/journ
 import { toggleJournalConfigSetting } from '../../redux/actions/journalConfigActions.js'
 
 import Entry from '../../components/entry/entry.js'
+import NodeEntriesList from '../../components/NodeEntriesList/NodeEntriesList.js'
+
 import Spinner from '../../components/Shared/Spinner/Spinner.js'
 
-const Entries = ({ isAuthenticated, auth: { user }, deleteJournalEntry, getJournalEntries, entries, mode }) => {
+const Entries = ({ auth: { user }, deleteJournalEntry, getJournalEntries, entries, mode }) => {
   const [sort, setSort] = useState('Newest')
+  const [activeEntryType, setActiveEntryType] = useState('')
 
   useEffect(() => {
     getJournalEntries()
@@ -124,7 +127,8 @@ const Entries = ({ isAuthenticated, auth: { user }, deleteJournalEntry, getJourn
   return (
     <div className={`profile ${mode}`}>
       <h2 className={`profile__header ${mode}`}>SAVED ENtRIES</h2>
-      <SavedEntries />
+      {/* <SavedEntries /> */}
+      <NodeEntriesList />
     </div>
   )
 }

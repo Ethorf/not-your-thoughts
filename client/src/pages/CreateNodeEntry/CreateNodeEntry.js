@@ -73,13 +73,13 @@ const CreateNodeEntry = () => {
         <div className={styles.grid3Columns}>
           <span className={styles.flexStart}>Words: {wordCount}</span>
           <span className={styles.flexCenter}>
-            <DefaultButton disabled={!content.length} onClick={handleSaveNode} className={styles.saveButton}>
-              Save Node
+            <DefaultButton disabled={!params.has('entryId')} onClick={handleNewNode} className={styles.saveButton}>
+              New Node
             </DefaultButton>
           </span>
           <span className={styles.flexEnd}>
-            <DefaultButton disabled={!params.has('entryId')} onClick={handleNewNode} className={styles.saveButton}>
-              New Node
+            <DefaultButton disabled={!content.length} onClick={handleSaveNode} className={styles.saveButton}>
+              Save Node
             </DefaultButton>
           </span>
         </div>

@@ -3,12 +3,14 @@ const cookieParser = require('cookie-parser')
 const path = require('path')
 const cors = require('cors')
 const compression = require('compression')
+const { fork } = require('child_process')
 require('dotenv').config()
 
 const app = express()
 const pool = require('./config/neonDb.js')
 
 pool.connect()
+// const backupProcess = fork('utils/backup.js')
 
 app.use(compression())
 app.use(express.urlencoded({ extended: false }))

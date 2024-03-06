@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const pool = require('../config/neonDb')
 const authorize = require('../middleware/authorize')
+const parseSqlArr = require('../utils/parseSqlArr')
 
 // TODO See if we can abstract some of these functions out and reuse them
 // TODO add check for lowercase categories
@@ -223,8 +224,9 @@ router.get('/node_entries', authorize, async (req, res) => {
       return res.status(404).json({ msg: 'No node entries found for this user' })
     }
 
-    // If journal entries are found, return them
-    res.json({ entries: allJournalEntries.rows })
+    const parsedEntries = allJournalEntries.rows.map((entry) => ({ ...entry, content: parseSqlArr(entry.content) }))
+
+    res.json({ entries: parsedEntries })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -252,6 +254,7 @@ router.get('/entries', authorize, async (req, res) => {
     res.status(500).send('Server error')
   }
 })
+
 router.get('/entry/:entryId', authorize, async (req, res) => {
   const { id: user_id } = req.user
   const { entryId } = req.params
