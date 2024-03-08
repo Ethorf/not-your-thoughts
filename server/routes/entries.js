@@ -213,18 +213,21 @@ router.get('/node_entries', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
   try {
-    // Retrieve all journal entries for the user with the provided user_id
-    const allJournalEntries = await pool.query('SELECT * FROM entries WHERE user_id = $1 AND type = $2', [
-      user_id,
-      'node',
-    ])
+    // Retrieve all node entries for the user with the provided user_id
+    const allNodeEntries = await pool.query(
+      'SELECT entries.*, categories.name AS category_name FROM entries LEFT JOIN categories ON entries.category_id = categories.id WHERE user_id = $1 AND type = $2',
+      [user_id, 'node']
+    )
 
     // Check if there are any entries found
-    if (allJournalEntries.rows.length === 0) {
+    if (allNodeEntries.rows.length === 0) {
       return res.status(404).json({ msg: 'No node entries found for this user' })
     }
 
-    const parsedEntries = allJournalEntries.rows.map((entry) => ({ ...entry, content: parseSqlArr(entry.content) }))
+    const parsedEntries = allNodeEntries.rows.map((entry) => ({
+      ...entry,
+      content: parseSqlArr(entry.content),
+    }))
 
     res.json({ entries: parsedEntries })
   } catch (err) {

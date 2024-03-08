@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom'
 import { parseDate } from '../../utils/parseDate'
 import styles from './NodeEntry.module.scss'
 
-export const NodeEntry = ({ node: { id, date, title, content, category } }) => {
+export const NodeEntry = ({ node: { id, date, title, content, category_name } }) => {
   const history = useHistory()
 
   const handleEditNode = () => {
@@ -16,7 +16,7 @@ export const NodeEntry = ({ node: { id, date, title, content, category } }) => {
     <li className={styles.wrapper} key={id}>
       <div className={styles.nodeValue}>Title: {title}</div>
       <div className={styles.nodeValue}>Last Modified: {parseDate(date[0])}</div>
-      <div className={styles.nodeValue}>Category: {category ?? 'n/a'}</div>
+      <div className={styles.nodeValue}>Category: {category_name ?? 'n/a'}</div>
       <div className={styles.nodeValue}>Content: {content[0]}</div>
       <EditPencil onClick={handleEditNode} className={styles.editButton} />
     </li>
