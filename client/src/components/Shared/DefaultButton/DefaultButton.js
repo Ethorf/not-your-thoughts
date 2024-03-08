@@ -12,7 +12,7 @@ const DefaultButton = ({ className, children, ...props }) => {
 }
 
 DefaultButton.propTypes = {
-  onClick: PropTypes.func.isRequired,
+  onClick: PropTypes.func,
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
 }

@@ -18,7 +18,9 @@ export const NodeEntry = ({ node: { id, date, title, content, category_name } })
       <div className={styles.nodeValue}>Last Modified: {parseDate(date[0])}</div>
       <div className={styles.nodeValue}>Category: {category_name ?? 'n/a'}</div>
       <div className={styles.nodeValue}>Content: {content[0]}</div>
-      <EditPencil onClick={handleEditNode} className={styles.editButton} />
+      <div className={styles.editContainer}>
+        <EditPencil onClick={handleEditNode} className={styles.editButton} />
+      </div>
     </li>
   )
 }

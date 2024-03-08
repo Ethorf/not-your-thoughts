@@ -1,18 +1,18 @@
 import React, { useEffect, useMemo } from 'react'
 import classNames from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation, useHistory } from 'react-router-dom'
+import { useLocation, useHistory, Redirect } from 'react-router-dom'
 import { setTitle, createNodeEntry, updateNodeEntry, setEntryById } from '../../redux/reducers/currentEntryReducer'
 
 import CreateEntry from '../../components/Shared/CreateEntry/CreateEntry'
 import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
 import DefaultInput from '../../components/Shared/DefaultInput/DefaultInput'
 
-import styles from './CreateNodeEntry.module.scss'
+import styles from './EditNodeEntry.module.scss'
 import CategoryInput from '../../components/CategoryInput/CategoryInput'
 import TagsInput from '../../components/TagsInput/TagsInput'
 
-const CreateNodeEntry = () => {
+const EditNodeEntry = () => {
   const dispatch = useDispatch()
   const location = useLocation()
   const history = useHistory()
@@ -21,20 +21,21 @@ const CreateNodeEntry = () => {
   const params = useMemo(() => new URLSearchParams(location.search), [location.search])
 
   // Effect to update entryId query param in URL
-  useEffect(() => {
-    if (entryId && !params.has('entryId')) {
-      params.append('entryId', entryId)
-      history.push(`/edit-node-entry?entryId=${entryId}`)
-    }
-  }, [entryId, history, params])
+  //   useEffect(() => {
+  //     if (entryId && !params.has('entryId')) {
+  //       params.append('entryId', entryId)
+  //       history.push(`/edit-node-entry?entryId=${entryId}`)
+  //     }
+  //   }, [entryId, history, params])
 
   // Effect to dispatch setEntryById if entryId query param exists
-  // useEffect(() => {
-  //   const entryIdParam = params.get('entryId')
-  //   if (entryIdParam) {
-  //     dispatch(setEntryById(entryIdParam))
-  //   }
-  // }, [dispatch, params])
+
+  useEffect(() => {
+    const entryIdParam = params.get('entryId')
+    if (entryIdParam) {
+      dispatch(setEntryById(entryIdParam))
+    }
+  }, [dispatch, params])
 
   const handleTitleChange = (e) => {
     dispatch(setTitle(e.target.value))
@@ -50,15 +51,14 @@ const CreateNodeEntry = () => {
 
   //   This shit don't work
   const handleNewNode = () => {
-    // const newSearchParams = new URLSearchParams(history.location.search)
-    // newSearchParams.delete('entryId')
-    history.push(`/create-node-entry`)
+    console.log('fudwich')
+    history.push('/create-node-entry')
   }
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.editContainer}>
-        <h2>create node</h2>
+        <h2>Edit Node</h2>
         <div className={classNames(styles.topContainer, styles.grid3Columns)}>
           <CategoryInput className={styles.flexStart} />
           <DefaultInput
@@ -73,9 +73,9 @@ const CreateNodeEntry = () => {
         <div className={styles.grid3Columns}>
           <span className={styles.flexStart}>Words: {wordCount}</span>
           <span className={styles.flexCenter}>
-            {/* <DefaultButton disabled={!params.has('entryId')} onClick={handleNewNode} className={styles.saveButton}>
+            <DefaultButton onClick={() => handleNewNode()} className={styles.saveButton}>
               New Node
-            </DefaultButton> */}
+            </DefaultButton>
           </span>
           <span className={styles.flexEnd}>
             <DefaultButton disabled={!content.length} onClick={handleSaveNode} className={styles.saveButton}>
@@ -88,4 +88,4 @@ const CreateNodeEntry = () => {
   )
 }
 
-export default CreateNodeEntry
+export default EditNodeEntry

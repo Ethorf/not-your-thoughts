@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import styles from './EntriesSortDropdown.module.scss'
 
 export const EntriesSortDropdown = ({ sortOptions, setSortedEntries, entries }) => {
+  const [selectedOption, setSelectedOption] = useState('date modified newest first')
+
   useEffect(() => {
-    setSortedEntries(sortBy(entries, 'date modified newest first'))
-  }, [entries, setSortedEntries])
+    setSortedEntries(sortBy(entries, selectedOption))
+  }, [entries, setSortedEntries, selectedOption])
 
   const sortBy = (arr, option) => {
     switch (option) {
@@ -26,8 +28,7 @@ export const EntriesSortDropdown = ({ sortOptions, setSortedEntries, entries }) 
   }
 
   const handleSortByChange = (event) => {
-    const selectedOption = event.target.value
-    setSortedEntries(sortBy(entries, selectedOption))
+    setSelectedOption(event.target.value)
   }
 
   return (
