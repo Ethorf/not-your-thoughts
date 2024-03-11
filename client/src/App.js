@@ -72,8 +72,7 @@ const App = () => {
                   <PrivateRoute path="/entry-type-switcher" exact component={EntryTypeSwitcher} />
                   <PrivateRoute path="/create-journal-entry" exact component={CreateJournalEntry} />
                   <PrivateRoute path="/profile">{({ match }) => <Profile show={match !== null} />}</PrivateRoute>
-
-                  <Route path="/create-node-entry" exact component={CreateNodeEntry} />
+                  <PrivateRoute path="/create-node-entry" exact component={CreateNodeEntry} />
                   <PrivateRoute path="/edit-node-entry" component={EditNodeEntry} />
                   <PrivateRoute path="/profile">{({ match }) => <Profile show={match !== null} />}</PrivateRoute>
                   <PrivateRoute path="/entries">{({ match }) => <Entries show={match !== null} />}</PrivateRoute>

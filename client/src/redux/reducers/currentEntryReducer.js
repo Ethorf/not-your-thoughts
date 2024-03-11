@@ -180,6 +180,7 @@ const currentEntrySlice = createSlice({
     setVersion: (state, action) => {
       state.currentVersion = action.payload
     },
+    resetState: () => initialState,
   },
   extraReducers: (builder) => {
     // TODO incorporate this into the general saving call etc. for
@@ -217,6 +218,7 @@ const currentEntrySlice = createSlice({
 })
 
 export const {
+  resetState,
   setEntryId,
   setWordCount,
   setCharCount,

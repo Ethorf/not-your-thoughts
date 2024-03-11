@@ -18,7 +18,14 @@ const CreateEntry = () => {
     dispatch(setCharCount(content.length))
   }
 
-  return <textarea className={styles.textArea} value={content} onChange={handleContentChange} />
+  return (
+    <textarea
+      placeholder="Start node here..."
+      className={styles.textArea}
+      value={content}
+      onChange={handleContentChange}
+    />
+  )
 }
 
 export default CreateEntry

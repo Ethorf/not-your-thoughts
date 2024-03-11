@@ -19,10 +19,13 @@ const CategoryInput = ({ className }) => {
     dispatch(setCategory(selectedCategory))
   }
 
+  // Initialize category with an empty string to prevent uncontrolled input error
+  const initialCategoryValue = category || ''
+
   return (
     <div className={className}>
       <DefaultAutoCompleteInput
-        inputValue={category}
+        inputValue={initialCategoryValue}
         onChange={handleCategoryChange}
         options={options}
         placeholder={'Category'}

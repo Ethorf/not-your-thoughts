@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo } from 'react'
 import classNames from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation, useHistory, Redirect } from 'react-router-dom'
-import { setTitle, createNodeEntry, updateNodeEntry, setEntryById } from '../../redux/reducers/currentEntryReducer'
+import { useLocation, useHistory } from 'react-router-dom'
+import { setTitle, updateNodeEntry, setEntryById } from '../../redux/reducers/currentEntryReducer'
 
 import CreateEntry from '../../components/Shared/CreateEntry/CreateEntry'
 import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
@@ -11,6 +11,7 @@ import DefaultInput from '../../components/Shared/DefaultInput/DefaultInput'
 import styles from './EditNodeEntry.module.scss'
 import CategoryInput from '../../components/CategoryInput/CategoryInput'
 import TagsInput from '../../components/TagsInput/TagsInput'
+import Spinner from '../../components//Shared/Spinner/Spinner'
 
 const EditNodeEntry = () => {
   const dispatch = useDispatch()
@@ -19,16 +20,6 @@ const EditNodeEntry = () => {
   const { wordCount, entryId, content, title, category, tags } = useSelector((state) => state.currentEntry)
 
   const params = useMemo(() => new URLSearchParams(location.search), [location.search])
-
-  // Effect to update entryId query param in URL
-  //   useEffect(() => {
-  //     if (entryId && !params.has('entryId')) {
-  //       params.append('entryId', entryId)
-  //       history.push(`/edit-node-entry?entryId=${entryId}`)
-  //     }
-  //   }, [entryId, history, params])
-
-  // Effect to dispatch setEntryById if entryId query param exists
 
   useEffect(() => {
     const entryIdParam = params.get('entryId')
@@ -42,16 +33,10 @@ const EditNodeEntry = () => {
   }
 
   const handleSaveNode = () => {
-    if (entryId === null) {
-      dispatch(createNodeEntry({ content, category, title, tags }))
-    } else {
-      dispatch(updateNodeEntry({ entryId, content, category, title, tags }))
-    }
+    dispatch(updateNodeEntry({ entryId, content, category, title, tags }))
   }
 
-  //   This shit don't work
   const handleNewNode = () => {
-    console.log('fudwich')
     history.push('/create-node-entry')
   }
 
@@ -60,14 +45,22 @@ const EditNodeEntry = () => {
       <div className={styles.editContainer}>
         <h2>Edit Node</h2>
         <div className={classNames(styles.topContainer, styles.grid3Columns)}>
-          <CategoryInput className={styles.flexStart} />
-          <DefaultInput
-            className={classNames(styles.titleInput, styles.flexCenter, { [styles.titleInputNoBorder]: title.length })}
-            placeholder={'Enter Title'}
-            value={title}
-            onChange={handleTitleChange}
-          />
-          <TagsInput className={styles.flexEnd} />
+          {content ? (
+            <>
+              <CategoryInput className={styles.flexStart} />
+              <DefaultInput
+                className={classNames(styles.titleInput, styles.flexCenter, {
+                  [styles.titleInputNoBorder]: title.length,
+                })}
+                placeholder={'Enter Title'}
+                value={title}
+                onChange={handleTitleChange}
+              />
+              <TagsInput className={styles.flexEnd} />
+            </>
+          ) : (
+            <Spinner />
+          )}
         </div>
         <CreateEntry />
         <div className={styles.grid3Columns}>
