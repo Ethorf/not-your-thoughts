@@ -2,7 +2,7 @@ import React, { Fragment, useRef, useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { TimelineMax } from 'gsap'
-import '../../pages/Main/Main.scss'
+import '../../pages/main/main.scss'
 import './introModal.scss'
 //Redux Actions
 import { openIntroModal, closeIntroModal } from '../../redux/actions/modalActions.js'

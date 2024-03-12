@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect, useSelector } from 'react-redux'
-import '../../pages/Main/Main.scss'
+import '../../pages/main/main.scss'
 import PillarLeftOutline from '../../assets/Pillars/NewPillarLeft-2.png'
 import PillarLeftOutlineInverted from '../../assets/Pillars/NewPillarLeft-2-inverted.png'
 

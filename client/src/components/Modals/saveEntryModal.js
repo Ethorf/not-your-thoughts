@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react'
 import { connect, useSelector } from 'react-redux'
 import { openSaveEntryModal, closeSaveEntryModal } from '../../redux/actions/modalActions.js'
 import { TimelineMax } from 'gsap'
-import '../../pages/Main/Main.scss'
+import '../../pages/main/main.scss'
 import './saveEntryModal.scss'
 
 const SaveEntryModal = ({ modals, openSaveEntryModal, closeSaveEntryModal }) => {

@@ -4,7 +4,7 @@ import moment from 'moment'
 import PropTypes from 'prop-types'
 
 //SCSS
-import './Main.scss'
+import './main.scss'
 
 //Redux Function Imports
 import { connect } from 'react-redux'

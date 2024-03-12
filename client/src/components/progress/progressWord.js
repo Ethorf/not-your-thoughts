@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { TimelineMax } from 'gsap'
-import '../../pages/Main/Main.scss'
+import '../../pages/main/main.scss'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import progressSound25File from '../../assets/Sounds/ProgressSounds/Not-Your-Thoughts-25-progressSound.mp3'

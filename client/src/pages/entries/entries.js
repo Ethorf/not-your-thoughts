@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import '../Profile/profile.scss'
+import '../profile/profile.scss'
 import '../../styles/rubberDucky.scss'
 import './entries.scss'
 import { connect } from 'react-redux'

@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { Button } from '@material-ui/core'
 import { toggleEditGoal, updateJournalGoal, setNewGoal } from '../../redux/actions/journalConfigActions'
 
-import '../../pages/Profile/profile.scss'
+import '../../pages/profile/profile.scss'
 
 function ProfileGoalEdit({
   newGoal,

@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import '../../pages/Main/Main.scss'
+import '../../pages/main/main.scss'
 import PillarRightOutline from '../../assets/Pillars/NewPillarLeft-2.png'
 import PillarLeftOutlineInverted from '../../assets/Pillars/NewPillarLeft-2-inverted.png'
 

@@ -1,7 +1,7 @@
 import React, { Fragment, useRef, useEffect, useState } from 'react'
 import { connect, useSelector } from 'react-redux'
 import { TimelineMax } from 'gsap'
-import '../../pages/Main/Main.scss'
+import '../../pages/main/main.scss'
 import bgOverlayTextureWhite from '../../assets/Background-Images/bgImg-donut1.png'
 import bgOverlayTextureWhiteInverted from '../../assets/Background-Images/bgImg-donut1-inverted.png'
 
