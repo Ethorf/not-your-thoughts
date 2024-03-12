@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import '../../pages/Main/Main.scss'
+import '../../styles/shared.scss'
 import './timerDisplay.scss'
 import { toggleTimerActive } from '../../redux/actions/journalConfigActions.js'
 import pause from '../../assets/Icons/Icon-pause.png'

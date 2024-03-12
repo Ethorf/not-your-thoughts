@@ -1,9 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react'
-import { Button } from '@material-ui/core'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { TimelineMax } from 'gsap'
-import '../../pages/Main/Main.scss'
+import '../../styles/shared.scss'
 import './successModal.scss'
 
 //Redux Actions
@@ -148,12 +147,12 @@ const SuccessModal = ({
               <>
                 <h4 className="modal__gratitude-prompt">Would you like to do a bonus gratitude practice?</h4>
                 <div className="modal__gratitude-buttons-container">
-                  <Button className="modal__gratitude-button" onClick={openGratitude}>
+                  <button className="modal__gratitude-button" onClick={openGratitude}>
                     Yes
-                  </Button>
-                  <Button onClick={closeGratitude} className="modal__gratitude-button">
+                  </button>
+                  <button onClick={closeGratitude} className="modal__gratitude-button">
                     No
-                  </Button>
+                  </button>
                 </div>
               </>
             )}

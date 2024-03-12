@@ -29,5 +29,7 @@ example_com.csr
 example_com.key
 *autoLogin.js
 
+/server/dbBackups*
+
 
 

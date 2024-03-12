@@ -10,7 +10,6 @@ import {
   SET_ENTRY,
   SET_TIME_ELAPSED,
 } from './actionTypes.js'
-import setAuthToken from '../../utils/setAuthToken.js'
 import moment from 'moment'
 
 // TODO put this in it's own config file for reuse
@@ -80,7 +79,7 @@ export const saveJournalEntry =
     const body = { content: entry, total_time_taken: timeElapsed, wpm: 60, num_of_words: wordCount }
 
     try {
-      const res = await axios.post('/api/entries/add_journal_entry', body, axiosConfig)
+      const res = await axios.post('/api/entries/create_journal_entry', body, axiosConfig)
 
       dispatch({
         type: SAVE_ENTRY,

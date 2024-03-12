@@ -1,0 +1,23 @@
+.wrapper {
+  font-family: 'Syncopate', sans-serif;
+  padding: 3% 4%;
+  font-size: 1.1rem;
+  outline: none;
+  color: silver;
+  display: flex;
+  justify-content: center;
+  background-color: black;
+  margin: 7% 0%;
+  border: 1px solid rgba(192, 192, 192, 0.2);
+  border-radius: 8px;
+  transition: all 2s;
+  text-align: center;
+}
+
+.optionsList {
+  width: 100;
+}
+
+.option {
+  font-family: 'Syncopate', sans-serif;
+}

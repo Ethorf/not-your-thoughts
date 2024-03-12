@@ -1,10 +1,16 @@
 import React, { useState } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
+import classNames from 'classnames'
 import PropTypes from 'prop-types'
 import { login, toggleGuestMode } from '../../redux/actions/authActions.js'
+
+import sharedStyles from '../../styles/shared.module.scss'
+import styles from './Login.module.scss'
 import './login-register.scss'
+
 import FadeInAnimationOnMount from '../../components/higherOrderComponents/fadeInAnimationOnMount.js'
+import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
 
 const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) => {
   const [formData, setFormData] = useState({
@@ -24,13 +30,13 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
   }
 
   if (isAuthenticated) {
-    return <Redirect to="/main" />
+    return <Redirect to="/entry-type-switcher" />
   }
 
   return (
     <div className="login-register">
       <FadeInAnimationOnMount wrapperElement="div" direction="down">
-        <h1 className="login-register__title">Login</h1>
+        <h1 className={classNames(sharedStyles.title, styles.loginHeader)}>Login</h1>
       </FadeInAnimationOnMount>
       <h2
         className={`login-register__alert  ${
@@ -67,12 +73,7 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
           </div>
         </FadeInAnimationOnMount>
         <FadeInAnimationOnMount wrapperElement="div" direction="up">
-          <input
-            type="submit"
-            className="login-register__submit-button login-register__login-button "
-            value="Login"
-            id="login-submit-button"
-          />
+          <DefaultButton>Login</DefaultButton>
         </FadeInAnimationOnMount>
       </form>
       <FadeInAnimationOnMount wrapperElement="div" direction="up">
