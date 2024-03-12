@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import '../../pages/Main/Main.scss'
+import '../../pages/main/main.scss'
 import './timerDisplay.scss'
 import '../../redux/actions'
 import pause from '../../assets/Icons/Icon-pause.png'

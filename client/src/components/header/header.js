@@ -1,6 +1,6 @@
 import React, { useState, useEffect, createRef } from 'react'
 import { connect } from 'react-redux'
-import '../../pages/Main/Main.scss'
+import '../../pages/Main/main.scss'
 import './header.scss'
 
 const Header = ({ mode, wordCount }) => {

@@ -1,6 +1,6 @@
-import { createMuiTheme } from '@material-ui/core';
+import { createTheme } from '@material-ui/core';
 
-export const muiTheme = createMuiTheme({
+export const muiTheme = createTheme({
 	typography: {
 		fontFamily: 'Poppins',
 		fontSize: 12

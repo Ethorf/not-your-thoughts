@@ -13,14 +13,14 @@ import Timer from './components/timer/timer.js'
 
 //Pages Imports
 import Landing from './pages/landing/landing'
-import Main from './pages/Main/Main.js'
-import Login from './pages/Login/Login.js'
-import Register from './pages/Register/Register.js'
+import Main from './pages/main/main.js'
+import Login from './pages/login/login.js'
+import Register from './pages/register/register.js'
 import Profile from './pages/profile/profile'
 import Resources from './pages/resources/resources'
 import Modes from './pages/modes/modes.js'
-import About from './pages/About/about.js'
-import Entries from './pages/Entries/entries.js'
+import About from './pages/about/about.js'
+import Entries from './pages/entries/entries.js'
 
 //redux Stuff
 import store from './redux/store/index'
