@@ -37,8 +37,6 @@ app.listen(PORT, () => {
   console.log(`It's an ${PORT} type of guy for NYT`)
 
   // Check if backupProcess should run based on process.env.GH_HANDLE
-  console.log('process.env.GH_HANDLE is:')
-  console.log(process.env.GH_HANDLE)
   if (process.env.GH_HANDLE === 'ethorf') {
     // Fork a child process to run the backup script
     console.log('Starting Db backup')

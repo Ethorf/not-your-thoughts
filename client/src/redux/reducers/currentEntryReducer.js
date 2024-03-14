@@ -81,7 +81,6 @@ export const updateNodeEntry = createAsyncThunk(
   }
 )
 
-// AHH no this we want to basically not set anything, just fetch!
 export const fetchEntryById = createAsyncThunk(
   'currentEntryReducer/fetchEntryById',
   async (entryId, { rejectWithValue }) => {
@@ -110,7 +109,8 @@ export const setEntryById = createAsyncThunk(
         tag_names: tags,
         title,
       } = response.data
-
+      console.log('response.data is:')
+      console.log(response.data)
       return { content: content[0], category, connections, date, entryId, wordCount, tags, title }
     } catch (error) {
       return rejectWithValue(error.response.data)

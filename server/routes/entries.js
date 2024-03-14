@@ -286,10 +286,10 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
 
     const jsContentArray = entryData.content
       .substring(1, entryData.content.length - 1)
-      .split(',')
       .map((item, index) =>
         index === 0 ? item.replace(/^"(.*)"$/, '$1').replace(/\\"/g, '"') : item.replace(/^"(.*)"$/, '$1')
       )
+      .split(',')
 
     // If the entry is found and the user ID matches, return it
     res.json({ ...entryData, content: jsContentArray })
