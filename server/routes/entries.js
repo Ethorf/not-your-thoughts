@@ -59,15 +59,26 @@ router.post('/create_node_entry', authorize, async (req, res) => {
 
     // Insert entry into entries table
     let newEntry = await pool.query(
-      'INSERT INTO entries (user_id, content, type, title, category_id, tags) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *, (SELECT name FROM categories WHERE id = $5) AS category_name',
-      [user_id, content, type, title, category_id, tag_ids]
+      'INSERT INTO entries (user_id, type, title, category_id, tags, content_ids) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+      [user_id, type, title, category_id, tag_ids, []]
     )
+    const entry_id = newEntry.rows[0].id
+
+    // Insert entry content into entry_contents table
+    let newContent = await pool.query('INSERT INTO entry_contents (content, entry_id) VALUES ($1, $2) RETURNING id', [
+      content,
+      entry_id,
+    ])
+    const content_id = newContent.rows[0].id
+
+    // Update the entries table with the content_ids array
+    await pool.query('UPDATE entries SET content_ids = $1 WHERE id = $2', [[content_id], entry_id])
 
     // Set the title to "Untitled" if not provided in the request
-    const finalTitle = title || `Untitled #${newEntry.rows[0].id}`
+    const finalTitle = title || `Untitled #${entry_id}`
 
     // Update the newly created entry with the final title
-    await pool.query('UPDATE entries SET title = $1 WHERE id = $2', [finalTitle, newEntry.rows[0].id])
+    await pool.query('UPDATE entries SET title = $1 WHERE id = $2', [finalTitle, entry_id])
 
     console.log('Node Entry created successfully!')
     return res.json({ newEntry })
@@ -286,10 +297,10 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
 
     const jsContentArray = entryData.content
       .substring(1, entryData.content.length - 1)
+      .split(',')
       .map((item, index) =>
         index === 0 ? item.replace(/^"(.*)"$/, '$1').replace(/\\"/g, '"') : item.replace(/^"(.*)"$/, '$1')
       )
-      .split(',')
 
     // If the entry is found and the user ID matches, return it
     res.json({ ...entryData, content: jsContentArray })
