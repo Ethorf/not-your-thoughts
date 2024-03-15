@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import { TimelineMax } from 'gsap';
 
-import './about.scss';
+import './About.scss';
 
 function About({ mode }) {
 	//Modal
