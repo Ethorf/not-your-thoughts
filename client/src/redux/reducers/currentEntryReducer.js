@@ -22,13 +22,10 @@ const initialState = {
 export const createNodeEntry = createAsyncThunk(
   'currentEntryReducer/createNodeEntry',
   async ({ user_id, content, category, title, tags }, { rejectWithValue, dispatch }) => {
-    // Convert content to an array if it's not already one
-    const contentArray = Array.isArray(content) ? content : [content]
-
     try {
       const response = await axios.post('api/entries/create_node_entry', {
         user_id,
-        content: contentArray,
+        content,
         category,
         title,
         tags,
