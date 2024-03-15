@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import './resources.scss';
+import './Resources.scss';
 
 class Resources extends React.Component {
 	render() {

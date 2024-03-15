@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { toggleEditGoal, updateJournalGoal, setNewGoal } from '../../redux/actions/journalConfigActions'
 
-import '../../pages/Profile/profile.scss'
+import '../../pages/Profile/Profile.scss'
 
 function ProfileGoalEdit({
   newGoal,

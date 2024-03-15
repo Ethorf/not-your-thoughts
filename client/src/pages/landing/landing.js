@@ -13,7 +13,7 @@ import { RachelDoodle2 } from '../../components/svgs/rachel-doodle-2.js';
 
 //Misc Imports
 import bgOverlayTextureWhite from '../../assets/Background-Images/background-texture-bigPan-white-blur.png';
-import './landing.scss';
+import './Landing.scss';
 gsap.registerPlugin(CSSPlugin);
 
 const Landing = ({ toggleGuestMode }) => {
