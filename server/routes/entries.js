@@ -90,7 +90,6 @@ router.post('/create_node_entry', authorize, async (req, res) => {
 
 // post /entries/update_node_entry
 // Update a node entry
-
 router.post('/update_node_entry', authorize, async (req, res) => {
   const { id: user_id } = req.user
   const { entryId, content, category, title, tags } = req.body
@@ -138,28 +137,30 @@ router.post('/update_node_entry', authorize, async (req, res) => {
       }
     }
 
-    // Get current content and date from the entry
-    let currentEntry = await pool.query('SELECT content, date FROM entries WHERE id = $1', [entryId])
-    let currentContent = currentEntry.rows[0].content.split(/",(?=")/).map((str) => str.replace(/[,"{}]/g, '')) || [] // Handle case where current content is null
-    let currentDate = currentEntry.rows[0].date || [] // Handle case where current date is null
+    // Get current content_ids from the entry
+    let currentEntry = await pool.query('SELECT content_ids FROM entries WHERE id = $1', [entryId])
+    let currentContentIds = currentEntry.rows[0].content_ids || [] // Handle case where current content_ids is null
 
-    let newContent, newDate
+    // Initialize newContentIds array with current content IDs
+    let newContentIds = [...currentContentIds]
 
-    if (content !== currentContent[0]) {
-      // Prepare the new content array with the new content added to the start
-      newContent = [content, ...currentContent]
+    // Check if content has changed
+    if (content !== currentContentIds[0]) {
+      // Insert new content into entry_contents table
+      let newContentInsert = await pool.query(
+        'INSERT INTO entry_contents (content, entry_id) VALUES ($1, $2) RETURNING id',
+        [content, entryId]
+      )
+      let newContentId = newContentInsert.rows[0].id
 
-      // Prepare the new date array with the current date and the current date added to the start
-      newDate = [new Date().toISOString(), ...currentDate]
-    } else {
-      newContent = [...currentContent]
-      newDate = [...currentDate]
+      // Add new content ID to the beginning of content IDs array
+      newContentIds.unshift(newContentId)
     }
 
     // Update entry in the entries table
     let updatedEntry = await pool.query(
-      'UPDATE entries SET content = $1, title = COALESCE($2, title), category_id = COALESCE($3, category_id), tags = COALESCE($4, tags), date = $5 WHERE id = $6 AND user_id = $7 RETURNING *',
-      [newContent, title, category_id, tag_ids, newDate, entryId, user_id]
+      'UPDATE entries SET content_ids = $1, title = COALESCE($2, title), category_id = COALESCE($3, category_id), tags = COALESCE($4, tags) WHERE id = $5 AND user_id = $6 RETURNING *',
+      [newContentIds, title, category_id, tag_ids, entryId, user_id]
     )
 
     // Fetch the category name
@@ -226,12 +227,32 @@ router.get('/node_entries', authorize, async (req, res) => {
   try {
     // Retrieve all node entries for the user with the provided user_id
     const allNodeEntries = await pool.query(
-      `SELECT entries.*, 
-      ARRAY(SELECT content FROM entry_contents WHERE entry_id = entries.id) AS content,
-      categories.name AS category_name
-       FROM entries 
-       LEFT JOIN categories ON entries.category_id = categories.id 
-       WHERE user_id = $1 AND type = $2`,
+      `SELECT 
+        entries.*, 
+        ARRAY(
+          SELECT content 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created DESC
+        ) AS content,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created ASC 
+          LIMIT 1) AS date_created,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created DESC 
+          LIMIT 1) AS date_last_modified,
+        categories.name AS category_name
+      FROM 
+        entries 
+      LEFT JOIN 
+        categories ON entries.category_id = categories.id 
+      WHERE 
+        user_id = $1 
+        AND type = $2`,
       [user_id, 'node']
     )
 
@@ -240,7 +261,7 @@ router.get('/node_entries', authorize, async (req, res) => {
       return res.status(404).json({ msg: 'No node entries found for this user' })
     }
 
-    // If journal entries are found, return them
+    // If node entries are found, return them
     res.json({ entries: allNodeEntries.rows })
   } catch (err) {
     console.error(err.message)
@@ -284,12 +305,36 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
   try {
     // Retrieve the entry with the provided entryId
     const entry = await pool.query(
-      `SELECT entries.*, categories.name AS category_name, 
-      ARRAY(SELECT content FROM entry_contents WHERE entry_id = $1) AS content,
-      ARRAY(SELECT name FROM tags WHERE id = ANY(entries.tags)) AS tag_names
-       FROM entries 
-       LEFT JOIN categories ON entries.category_id = categories.id
-       WHERE entries.id = $1`,
+      `SELECT 
+        entries.*, 
+        categories.name AS category_name, 
+        ARRAY(
+          SELECT content 
+          FROM entry_contents 
+          WHERE entry_id = $1 
+          ORDER BY date_created DESC
+        ) AS content,
+        ARRAY(
+          SELECT name 
+          FROM tags 
+          WHERE id = ANY(entries.tags)
+        ) AS tag_names,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = $1 
+          ORDER BY date_created ASC 
+          LIMIT 1) AS date_created,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = $1 
+          ORDER BY date_created DESC 
+          LIMIT 1) AS date_last_updated
+      FROM 
+        entries 
+      LEFT JOIN 
+        categories ON entries.category_id = categories.id
+      WHERE 
+        entries.id = $1`,
       [entryId]
     )
 
@@ -311,6 +356,7 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
     res.status(500).send('Server error')
   }
 })
+
 // Route to retrieve all categories
 router.get('/categories', authorize, async (req, res) => {
   try {

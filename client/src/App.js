@@ -13,7 +13,7 @@ import AudioPlayer from './components/audioPlayer/audioPlayer.js'
 import Timer from './components/timer/timer.js'
 
 //Pages Imports
-import Landing from './pages/landing/landing'
+import Landing from './pages/Landing/Landing'
 import EntryTypeSwitcher from './pages/EntryTypeSwitcher/EntryTypeSwitcher.js'
 import CreateJournalEntry from './pages/CreateJournalEntry/CreateJournalEntry.js'
 import CreateNodeEntry from './pages/CreateNodeEntry/CreateNodeEntry.js'

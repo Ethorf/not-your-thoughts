@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import './customPrompts.scss'
-import '../../pages/Profile/profile.scss'
+import '../../pages/Profile/Profile.scss'
 
 import { addCustomPrompt, deleteCustomPrompt, toggleCustomPromptsEnabled } from '../../redux/actions/authActions'
 

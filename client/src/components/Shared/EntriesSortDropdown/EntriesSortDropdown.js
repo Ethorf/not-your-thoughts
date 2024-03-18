@@ -15,13 +15,13 @@ export const EntriesSortDropdown = ({ sortOptions, setSortedEntries, entries }) 
       case 'title z-a':
         return arr.slice().sort((a, b) => b.title.localeCompare(a.title))
       case 'date modified newest first':
-        return arr.slice().sort((a, b) => new Date(b.date[0]) - new Date(a.date[0]))
+        return arr.slice().sort((a, b) => new Date(b.date_last_modified) - new Date(a.date_last_modified))
       case 'date modified oldest first':
-        return arr.slice().sort((a, b) => new Date(a.date[0]) - new Date(b.date[0]))
+        return arr.slice().sort((a, b) => new Date(a.date_last_modified) - new Date(b.date_last_modified))
       case 'date created newest first':
-        return arr.slice().sort((a, b) => new Date(b.date[b.date.length - 1]) - new Date(a.date[a.date.length - 1]))
+        return arr.slice().sort((a, b) => new Date(b.date_created) - new Date(a.date_created))
       case 'date created oldest first':
-        return arr.slice().sort((a, b) => new Date(a.date[a.date.length - 1]) - new Date(b.date[b.date.length - 1]))
+        return arr.slice().sort((a, b) => new Date(a.date_created) - new Date(b.date_created))
       default:
         return arr
     }

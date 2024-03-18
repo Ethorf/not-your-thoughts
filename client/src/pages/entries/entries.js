@@ -1,7 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import '../Profile/profile.scss'
-import '../../styles/rubberDucky.scss'
-import './entries.scss'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { logout, loadUser } from '../../redux/actions/authActions.js'
@@ -10,6 +7,10 @@ import { toggleJournalConfigSetting } from '../../redux/actions/journalConfigAct
 
 import Entry from '../../components/entry/entry.js'
 import NodeEntriesList from '../../components/NodeEntriesList/NodeEntriesList.js'
+
+import '../Profile/Profile.scss'
+import '../../styles/rubberDucky.scss'
+import './Entries.scss'
 
 import Spinner from '../../components/Shared/Spinner/Spinner.js'
 
