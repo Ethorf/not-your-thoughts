@@ -9,7 +9,7 @@ export const NodeEntry = ({ node: { id, date, title, content, category_name } })
   const history = useHistory()
 
   const handleEditNode = () => {
-    history.push(`/create-node-entry?entryId=${id}`)
+    history.push(`/edit-node-entry?entryId=${id}`)
   }
 
   return (

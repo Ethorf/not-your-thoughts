@@ -10,6 +10,7 @@ import styles from './NodeEntriesList.module.scss'
 
 const NodeEntriesList = () => {
   const dispatch = useDispatch()
+
   // TODO fix this pointless nesting
   const allNodeEntries = useSelector((state) => state.nodeEntries.allNodeEntries.entries)
   const [filteredEntries, setFilteredEntries] = useState([])

@@ -2,7 +2,6 @@ const express = require('express')
 const router = express.Router()
 const pool = require('../config/neonDb')
 const authorize = require('../middleware/authorize')
-const parseSqlArr = require('../utils/parseSqlArr')
 
 // TODO See if we can abstract some of these functions out and reuse them
 // TODO add check for lowercase categories
@@ -59,15 +58,27 @@ router.post('/create_node_entry', authorize, async (req, res) => {
 
     // Insert entry into entries table
     let newEntry = await pool.query(
-      'INSERT INTO entries (user_id, content, type, title, category_id, tags) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *, (SELECT name FROM categories WHERE id = $5) AS category_name',
-      [user_id, content, type, title, category_id, tag_ids]
+      'INSERT INTO entries (user_id, type, title, category_id, tags, content_ids) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+      [user_id, type, title, category_id || null, tag_ids.length > 0 ? tag_ids : null, []]
     )
 
+    const entry_id = newEntry.rows[0].id
+
+    // Insert entry content into entry_contents table
+    let newContent = await pool.query('INSERT INTO entry_contents (content, entry_id) VALUES ($1, $2) RETURNING id', [
+      content,
+      entry_id,
+    ])
+    const content_id = newContent.rows[0].id
+
+    // Update the entries table with the content_ids array
+    await pool.query('UPDATE entries SET content_ids = $1 WHERE id = $2', [[content_id], entry_id])
+
     // Set the title to "Untitled" if not provided in the request
-    const finalTitle = title || `Untitled #${newEntry.rows[0].id}`
+    const finalTitle = title || `Untitled #${entry_id}`
 
     // Update the newly created entry with the final title
-    await pool.query('UPDATE entries SET title = $1 WHERE id = $2', [finalTitle, newEntry.rows[0].id])
+    await pool.query('UPDATE entries SET title = $1 WHERE id = $2', [finalTitle, entry_id])
 
     console.log('Node Entry created successfully!')
     return res.json({ newEntry })
@@ -79,7 +90,6 @@ router.post('/create_node_entry', authorize, async (req, res) => {
 
 // post /entries/update_node_entry
 // Update a node entry
-
 router.post('/update_node_entry', authorize, async (req, res) => {
   const { id: user_id } = req.user
   const { entryId, content, category, title, tags } = req.body
@@ -127,28 +137,30 @@ router.post('/update_node_entry', authorize, async (req, res) => {
       }
     }
 
-    // Get current content and date from the entry
-    let currentEntry = await pool.query('SELECT content, date FROM entries WHERE id = $1', [entryId])
-    let currentContent = currentEntry.rows[0].content.split(/",(?=")/).map((str) => str.replace(/[,"{}]/g, '')) || [] // Handle case where current content is null
-    let currentDate = currentEntry.rows[0].date || [] // Handle case where current date is null
+    // Get current content_ids from the entry
+    let currentEntry = await pool.query('SELECT content_ids FROM entries WHERE id = $1', [entryId])
+    let currentContentIds = currentEntry.rows[0].content_ids || [] // Handle case where current content_ids is null
 
-    let newContent, newDate
+    // Initialize newContentIds array with current content IDs
+    let newContentIds = [...currentContentIds]
 
-    if (content !== currentContent[0]) {
-      // Prepare the new content array with the new content added to the start
-      newContent = [content, ...currentContent]
+    // Check if content has changed
+    if (content !== currentContentIds[0]) {
+      // Insert new content into entry_contents table
+      let newContentInsert = await pool.query(
+        'INSERT INTO entry_contents (content, entry_id) VALUES ($1, $2) RETURNING id',
+        [content, entryId]
+      )
+      let newContentId = newContentInsert.rows[0].id
 
-      // Prepare the new date array with the current date and the current date added to the start
-      newDate = [new Date().toISOString(), ...currentDate]
-    } else {
-      newContent = [...currentContent]
-      newDate = [...currentDate]
+      // Add new content ID to the beginning of content IDs array
+      newContentIds.unshift(newContentId)
     }
 
     // Update entry in the entries table
     let updatedEntry = await pool.query(
-      'UPDATE entries SET content = $1, title = COALESCE($2, title), category_id = COALESCE($3, category_id), tags = COALESCE($4, tags), date = $5 WHERE id = $6 AND user_id = $7 RETURNING *',
-      [newContent, title, category_id, tag_ids, newDate, entryId, user_id]
+      'UPDATE entries SET content_ids = $1, title = COALESCE($2, title), category_id = COALESCE($3, category_id), tags = COALESCE($4, tags) WHERE id = $5 AND user_id = $6 RETURNING *',
+      [newContentIds, title, category_id, tag_ids, entryId, user_id]
     )
 
     // Fetch the category name
@@ -190,18 +202,18 @@ router.get('/journal_entries', authorize, async (req, res) => {
 
   try {
     // Retrieve all journal entries for the user with the provided user_id
-    const allNodeEntries = await pool.query('SELECT * FROM entries WHERE user_id = $1 AND type = $2', [
+    const alLjournalEntries = await pool.query('SELECT * FROM entries WHERE user_id = $1 AND type = $2', [
       user_id,
       'journal',
     ])
 
     // Check if there are any entries found
-    if (allNodeEntries.rows.length === 0) {
+    if (alLjournalEntries.rows.length === 0) {
       return res.status(404).json({ msg: 'No journal entries found for this user' })
     }
 
     // If journal entries are found, return them
-    res.json({ entries: allNodeEntries.rows })
+    res.json({ entries: alLjournalEntries.rows })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -215,7 +227,32 @@ router.get('/node_entries', authorize, async (req, res) => {
   try {
     // Retrieve all node entries for the user with the provided user_id
     const allNodeEntries = await pool.query(
-      'SELECT entries.*, categories.name AS category_name FROM entries LEFT JOIN categories ON entries.category_id = categories.id WHERE user_id = $1 AND type = $2',
+      `SELECT 
+        entries.*, 
+        ARRAY(
+          SELECT content 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created DESC
+        ) AS content,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created ASC 
+          LIMIT 1) AS date_created,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created DESC 
+          LIMIT 1) AS date_last_modified,
+        categories.name AS category_name
+      FROM 
+        entries 
+      LEFT JOIN 
+        categories ON entries.category_id = categories.id 
+      WHERE 
+        user_id = $1 
+        AND type = $2`,
       [user_id, 'node']
     )
 
@@ -224,12 +261,8 @@ router.get('/node_entries', authorize, async (req, res) => {
       return res.status(404).json({ msg: 'No node entries found for this user' })
     }
 
-    const parsedEntries = allNodeEntries.rows.map((entry) => ({
-      ...entry,
-      content: parseSqlArr(entry.content),
-    }))
-
-    res.json({ entries: parsedEntries })
+    // If node entries are found, return them
+    res.json({ entries: allNodeEntries.rows })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -237,13 +270,19 @@ router.get('/node_entries', authorize, async (req, res) => {
 })
 
 // Route to retrieve all entrie regardless of type for a user
-
 router.get('/entries', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
   try {
     // Retrieve all journal entries for the user with the provided user_id
-    const allEntries = await pool.query('SELECT * FROM entries WHERE user_id = $1', [user_id])
+    const allEntries = await pool.query(
+      `SELECT entries.*, 
+      ARRAY(SELECT content FROM entry_contents WHERE entry_id = entries.id) AS content,
+      ARRAY(SELECT name FROM tags WHERE id = ANY(entries.tags)) AS tag_names
+       FROM entries 
+       WHERE user_id = $1`,
+      [user_id]
+    )
 
     // Check if there are any entries found
     if (allEntries.rows.length === 0) {
@@ -258,6 +297,7 @@ router.get('/entries', authorize, async (req, res) => {
   }
 })
 
+// Route to get entry by entryId query param
 router.get('/entry/:entryId', authorize, async (req, res) => {
   const { id: user_id } = req.user
   const { entryId } = req.params
@@ -265,11 +305,36 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
   try {
     // Retrieve the entry with the provided entryId
     const entry = await pool.query(
-      `SELECT entries.*, categories.name AS category_name, 
-      ARRAY(SELECT name FROM tags WHERE id = ANY(entries.tags)) AS tag_names
-       FROM entries 
-       LEFT JOIN categories ON entries.category_id = categories.id
-       WHERE entries.id = $1`,
+      `SELECT 
+        entries.*, 
+        categories.name AS category_name, 
+        ARRAY(
+          SELECT content 
+          FROM entry_contents 
+          WHERE entry_id = $1 
+          ORDER BY date_created DESC
+        ) AS content,
+        ARRAY(
+          SELECT name 
+          FROM tags 
+          WHERE id = ANY(entries.tags)
+        ) AS tag_names,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = $1 
+          ORDER BY date_created ASC 
+          LIMIT 1) AS date_created,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = $1 
+          ORDER BY date_created DESC 
+          LIMIT 1) AS date_last_updated
+      FROM 
+        entries 
+      LEFT JOIN 
+        categories ON entries.category_id = categories.id
+      WHERE 
+        entries.id = $1`,
       [entryId]
     )
 
@@ -284,15 +349,8 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
       return res.status(403).json({ msg: 'Unauthorized access to entry' })
     }
 
-    const jsContentArray = entryData.content
-      .substring(1, entryData.content.length - 1)
-      .split(',')
-      .map((item, index) =>
-        index === 0 ? item.replace(/^"(.*)"$/, '$1').replace(/\\"/g, '"') : item.replace(/^"(.*)"$/, '$1')
-      )
-
     // If the entry is found and the user ID matches, return it
-    res.json({ ...entryData, content: jsContentArray })
+    res.json(entryData)
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')

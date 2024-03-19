@@ -61,6 +61,9 @@ CREATE TABLE entries (
   wpm INT DEFAULT 1,
   num_of_words INT DEFAULT 1,
   pd_emotion_analysis TEXT;
+
+  content_ids ARRAY of 
+
   -- New fields
   -- TODO
   -- Make pd_emotion_analysis array
@@ -68,6 +71,13 @@ CREATE TABLE entries (
   -- and then 
   
 );
+
+CREATE TABLE entryContents (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    content TEXT NOT NULL,
+    UUID NOT NULL
+)
+
 
 
 CREATE TABLE tags (

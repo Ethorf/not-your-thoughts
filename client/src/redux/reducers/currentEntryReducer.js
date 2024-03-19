@@ -22,13 +22,10 @@ const initialState = {
 export const createNodeEntry = createAsyncThunk(
   'currentEntryReducer/createNodeEntry',
   async ({ user_id, content, category, title, tags }, { rejectWithValue, dispatch }) => {
-    // Convert content to an array if it's not already one
-    const contentArray = Array.isArray(content) ? content : [content]
-
     try {
       const response = await axios.post('api/entries/create_node_entry', {
         user_id,
-        content: contentArray,
+        content,
         category,
         title,
         tags,
@@ -81,7 +78,6 @@ export const updateNodeEntry = createAsyncThunk(
   }
 )
 
-// AHH no this we want to basically not set anything, just fetch!
 export const fetchEntryById = createAsyncThunk(
   'currentEntryReducer/fetchEntryById',
   async (entryId, { rejectWithValue }) => {
@@ -110,7 +106,8 @@ export const setEntryById = createAsyncThunk(
         tag_names: tags,
         title,
       } = response.data
-
+      console.log('response.data is:')
+      console.log(response.data)
       return { content: content[0], category, connections, date, entryId, wordCount, tags, title }
     } catch (error) {
       return rejectWithValue(error.response.data)
