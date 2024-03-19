@@ -2,12 +2,12 @@
 import React, { useState, useEffect, useRef } from 'react'
 import moment from 'moment'
 import PropTypes from 'prop-types'
+import { connect, useDispatch, useSelector } from 'react-redux'
 
 //SCSS
 import '../../styles/shared.scss'
 
 //Redux Function Imports
-import { connect } from 'react-redux'
 import {
   changeWordCount,
   changeCharCount,
@@ -18,11 +18,16 @@ import { getJournalConfig, toggleTimerActive } from '../../redux/actions/journal
 import { loadUser, increaseDays } from '../../redux/actions/authActions.js'
 import { openSuccessModal, openSaveEntryModal, toggleGuestModeModalSeen } from '../../redux/actions/modalActions.js'
 import { changeMode } from '../../redux/actions/modeActions.js'
+import { createNodeEntry } from '../../redux/reducers/currentEntryReducer'
 
 //Component Imports
 import Header from '../../components/header/header.js'
 import BgImage from '../../components/bgImage/bgImage.js'
 import Prompt from '../../components/prompt/prompt.js'
+import CreateEntry from '../../components/Shared/CreateEntry/CreateEntry'
+
+// Constants
+import { ENTRY_TYPES } from '../../constants/entryTypes'
 
 //Pillars
 import PillarTop from '../../components/pillars/pillarTop.js'
@@ -38,16 +43,13 @@ import IntroModal from '../../components/Modals/introModal.js'
 import SaveEntryModal from '../../components/Modals/saveEntryModal.js'
 import Spinner from '../../components/Shared/Spinner/Spinner.js'
 import TimerDisplay from '../../components/timerDisplay/timerDisplay.js'
+import { createJournalEntry } from '../../redux/reducers/currentEntryReducer.js'
 
 const CreateJournalEntry = ({
   openSaveEntryModal,
-  wordCount,
   charCount,
-  changeCharCount,
-  changeWordCount,
   getJournalConfig,
   saveJournalEntry,
-  setJournalEntry,
   journalConfig,
   mode,
   auth: { guestMode, user, loading },
@@ -56,10 +58,12 @@ const CreateJournalEntry = ({
   modals,
   toggleGuestModeModalSeen,
 }) => {
+  const dispatch = useDispatch()
+
   const [wpmCalc, setWpmCalc] = useState(Math.trunc((charCount / 5 / timeElapsed) * 60))
   const [wpmCounter, setWpmCounter] = useState(0)
   const [guestModeModalOpen, setGuestModeModalOpen] = useState(false)
-  const textAreaRef = useRef(null)
+  const { wordCount, content } = useSelector((state) => state.currentEntry)
 
   // TODO fix WPM this shit broken
   useEffect(() => {
@@ -72,7 +76,7 @@ const CreateJournalEntry = ({
 
     return () => clearInterval(wpmInterval)
   }, [charCount, timeElapsed, wpmCalc, wpmCounter])
-
+  // Guest Modal stuff
   useEffect(() => {
     if (guestMode && modals.guestModeModalSeen === false) {
       setTimeout(() => {
@@ -81,12 +85,6 @@ const CreateJournalEntry = ({
       }, 1500)
     }
   }, [])
-
-  const textNum = (e) => {
-    setJournalEntry(e.target.value)
-    changeWordCount(e.target.value.split(' ').filter((item) => item !== '').length)
-    changeCharCount(e.target.value.split('').length)
-  }
 
   const onSubmit = async (e) => {
     e.preventDefault()
@@ -98,6 +96,10 @@ const CreateJournalEntry = ({
       wpm: Math.trunc((charCount / 5 / timeElapsed) * 60),
       wordCount,
     })
+  }
+
+  const handleSaveNode = async () => {
+    const newNode = await dispatch(createJournalEntry({ content }))
   }
 
   useEffect(() => {
@@ -166,18 +168,7 @@ const CreateJournalEntry = ({
                   <span style={{ color: 'white', marginRight: '5px' }}>{wordCount}</span> Words
                 </h3>
               </div>
-              <div className={`main__textarea-border ${mode}`}>
-                <textarea
-                  onChange={textNum}
-                  name="textEntry"
-                  className={`main__textarea${mode} ${mode === ' blind' ? 'textblind' : null}`}
-                  placeholder="note those thoughts here"
-                  value={entry}
-                  ref={textAreaRef}
-                  spellCheck="false"
-                />
-              </div>
-
+              <CreateEntry type={ENTRY_TYPES.JOURNAL} />
               <div className={`main__save-entry-button-container  `}>
                 {guestMode ? null : (
                   <button onClick={onSubmit} type="submit" className={`main__save-entry-button${mode}`}>
@@ -188,7 +179,7 @@ const CreateJournalEntry = ({
             </form>
             <PillarRight />
           </div>
-          <PillarBottom />
+          <PillarBottom />˜
         </div>
       </div>
     )

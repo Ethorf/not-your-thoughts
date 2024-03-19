@@ -15,6 +15,7 @@ const initialState = {
   connections: [],
   tags: [],
   tagInput: '',
+  // TODO do we really need this? May be useful but not sure it is RN
   type: JOURNAL,
   content: '',
 }
@@ -34,6 +35,26 @@ export const createNodeEntry = createAsyncThunk(
       return response.data.newEntry.rows[0]
     } catch (error) {
       dispatch(showToast('Node creation error', 'error'))
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+export const createJournalEntry = createAsyncThunk(
+  'currentEntryReducer/createJournalEntry',
+  async ({ user_id, content, category, title, tags }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axios.post('api/entries/create_journal_entry', {
+        user_id,
+        content,
+        category,
+        title,
+        tags,
+      })
+      dispatch(showToast('Journal Entry Saved', 'success'))
+      return response.data.newEntry.rows[0]
+    } catch (error) {
+      dispatch(showToast('Journal Entry error', 'error'))
       return rejectWithValue(error.response.data)
     }
   }
