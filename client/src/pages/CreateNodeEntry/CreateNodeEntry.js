@@ -8,6 +8,8 @@ import CreateEntry from '../../components/Shared/CreateEntry/CreateEntry'
 import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
 import DefaultInput from '../../components/Shared/DefaultInput/DefaultInput'
 
+import { ENTRY_TYPES } from '../../constants/entryTypes'
+
 import styles from './CreateNodeEntry.module.scss'
 import CategoryInput from '../../components/CategoryInput/CategoryInput'
 import TagsInput from '../../components/TagsInput/TagsInput'
@@ -44,7 +46,7 @@ const CreateNodeEntry = () => {
           />
           <TagsInput className={styles.flexEnd} />
         </div>
-        <CreateEntry />
+        <CreateEntry type={ENTRY_TYPES.NODE} />
         <div className={styles.grid3Columns}>
           <span className={styles.flexStart}>Words: {wordCount}</span>
           <span className={styles.flexCenter}></span>

@@ -10,7 +10,7 @@ import styles from './Login.module.scss'
 import './login-register.scss'
 
 import FadeInAnimationOnMount from '../../components/higherOrderComponents/fadeInAnimationOnMount.js'
-import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
+import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton.js'
 
 const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) => {
   const [formData, setFormData] = useState({
