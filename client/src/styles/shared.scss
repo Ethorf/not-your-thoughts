@@ -157,6 +157,7 @@
     justify-content: center;
     font-size: 1.6rem;
   }
+
   //// Container-Verse \\\\
 
   &__pillars-date-goal-wordcount-textarea-container {
@@ -305,7 +306,6 @@
   &__pillar-top-container,
   &__pillar-bottom-container {
     align-items: center;
-    width: 80%;
     height: 14vh;
   }
   &__pillar-top-outline {
@@ -452,7 +452,6 @@
     &__pillar-top-container,
     &__pillar-bottom-container {
       height: 11vh;
-      width: 82vw;
     }
     &__pillar-left-container,
     &__pillar-right-container {
@@ -486,7 +485,6 @@
     &__pillar-top-container,
     &__pillar-bottom-container {
       height: 11vh;
-      width: 82vw;
     }
     &__pillar-left-container,
     &__pillar-right-container {

@@ -1,6 +1,5 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
+import { connect, useSelector } from 'react-redux'
 import '../../styles/shared.scss'
 import PillarRightOutline from '../../assets/Pillars/NewPillarLeft-2.png'
 import PillarLeftOutlineInverted from '../../assets/Pillars/NewPillarLeft-2-inverted.png'
@@ -8,8 +7,10 @@ import PillarLeftOutlineInverted from '../../assets/Pillars/NewPillarLeft-2-inve
 import crawBoxRight from '../../assets/Animations/SpikyCrawBox-Right-1.gif'
 import crawBoxRightInverted from '../../assets/Pillars/CrawBoxes/NewCrawBox-Inverted-Right.gif'
 
-const PillarRight = ({ wordCount, auth: { user }, mode, timeElapsed, guestMode, journalConfig }) => {
-  const pillarRightStyleHeight = () => {
+const PillarRight = ({ auth: { user }, mode, timeElapsed, guestMode, journalConfig }) => {
+  const { wordCount } = useSelector((state) => state.currentEntry)
+
+  const getPillarRightStyleHeight = () => {
     let userGoal
     let goalCount
 
@@ -39,33 +40,22 @@ const PillarRight = ({ wordCount, auth: { user }, mode, timeElapsed, guestMode, 
   }
   return (
     <div className="main__pillar-right-container">
-      {/* <div className={`main__pillar-right-container 
-                  ${this.props.rubberDucky ? 'rubberDucky__pillar-right-container' : ''}`}>
-                  <img alt="" src={WaterfallUp} className= {this.props.rubberDucky ? 'rubberDucky__waterFall-right' :
-                  'rubberDucky__hidden'}></img>
-                    <img className={`main__pillar-right-outline 
-                  ${this.props.rubberDucky ? 'rubberDucky__pillar-hidden' : ''}`} src={nuPillarLeft} alt='pillar Shadow thing'></img>
-                  < img ref={img=> this.pillarContainer = img} src={crawBoxRight} className={`main__pillar-right ${this.props.rubberDucky ? 'rubberDucky__hidden' : ''}`} style={this.pillarRightStyleHeight()} alt="right pillar"></img>                
-
-                </div>
-              </div> */}
-
       <img
         className="main__pillar-right-outline"
         src={mode === '-light' ? PillarLeftOutlineInverted : PillarRightOutline}
         alt="pillar Shadow thing"
-      ></img>
+      />
       <img
+        alt="right progress pillar"
         className="main__pillar-right"
         src={mode === '-light' ? crawBoxRightInverted : crawBoxRight}
-        style={pillarRightStyleHeight()}
-      ></img>
+        style={getPillarRightStyleHeight()}
+      />
     </div>
   )
 }
 
 const mapStateToProps = (state) => ({
-  wordCount: state.wordCount.wordCount,
   auth: state.auth,
   guestMode: state.auth.guestMode,
   mode: state.modes.mode,
