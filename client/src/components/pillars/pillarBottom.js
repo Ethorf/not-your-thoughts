@@ -1,12 +1,14 @@
 import React from 'react'
-import { connect } from 'react-redux'
+import { connect, useSelector } from 'react-redux'
 import '../../styles/shared.scss'
 import pillarTopOutline from '../../assets/Pillars/NewPillarTop-Round-4.png'
 import PillarTopOutlineInverted from '../../assets/Pillars/NewPillarTop-4-inverted.png'
 import crawBoxBottom from '../../assets/Animations/SpikyCrawBox-Bottom-1.gif'
 import crawBoxBottomInverted from '../../assets/Pillars/CrawBoxes/NewCrawBox-Inverted-Bottom.gif'
 
-const PillarBottom = ({ wordCount, auth: { user }, mode, timeElapsed, guestMode, journalConfig }) => {
+const PillarBottom = ({ auth: { user }, mode, timeElapsed, guestMode, journalConfig }) => {
+  const { wordCount } = useSelector((state) => state.currentEntry)
+
   const pillarBottomStyleWidth = () => {
     let userGoal
     let goalCount
@@ -79,7 +81,6 @@ const PillarBottom = ({ wordCount, auth: { user }, mode, timeElapsed, guestMode,
 }
 
 const mapStateToProps = (state) => ({
-  wordCount: state.wordCount.wordCount,
   auth: state.auth,
   guestMode: state.auth.guestMode,
   journalConfig: state.entries.journalConfig,

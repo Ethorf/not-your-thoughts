@@ -1,10 +1,12 @@
-import React, { useState, useEffect, createRef } from 'react'
-import { connect } from 'react-redux'
+import React, { useState, createRef } from 'react'
+import { connect, useSelector } from 'react-redux'
 import '../../styles/shared.scss'
-import './header.scss'
+import './Header.scss'
 
-const Header = ({ mode, wordCount }) => {
+const Header = ({ mode }) => {
   const [pathLength, setPathLength] = useState()
+  const { wordCount } = useSelector((state) => state.currentEntry)
+
   let testPathRef = createRef()
 
   const NytHeader = () => {
@@ -163,7 +165,6 @@ const Header = ({ mode, wordCount }) => {
 }
 const mapStateToProps = (state) => ({
   mode: state.modes.mode,
-  wordCount: state.wordCount.wordCount,
 })
 
 export default connect(mapStateToProps)(Header)

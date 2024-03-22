@@ -40,19 +40,19 @@ export const createNodeEntry = createAsyncThunk(
   }
 )
 
-export const createJournalEntry = createAsyncThunk(
-  'currentEntryReducer/createJournalEntry',
-  async ({ user_id, content, category, title, tags }, { rejectWithValue, dispatch }) => {
+export const saveJournalEntry = createAsyncThunk(
+  'currentEntryReducer/saveJournalEntry',
+  async ({ entryId, user_id, content, wordCount }, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axios.post('api/entries/create_journal_entry', {
+      const response = await axios.post('api/entries/save_journal_entry', {
         user_id,
         content,
-        category,
-        title,
-        tags,
+        num_of_words: wordCount,
+        entryId,
       })
       dispatch(showToast('Journal Entry Saved', 'success'))
-      return response.data.newEntry.rows[0]
+
+      return response.data.entry_id
     } catch (error) {
       dispatch(showToast('Journal Entry error', 'error'))
       return rejectWithValue(error.response.data)
@@ -127,8 +127,7 @@ export const setEntryById = createAsyncThunk(
         tag_names: tags,
         title,
       } = response.data
-      console.log('response.data is:')
-      console.log(response.data)
+
       return { content: content[0], category, connections, date, entryId, wordCount, tags, title }
     } catch (error) {
       return rejectWithValue(error.response.data)
@@ -212,6 +211,12 @@ const currentEntrySlice = createSlice({
         category: action.payload.category_name,
       }
     })
+    builder.addCase(saveJournalEntry.fulfilled, (state, action) => {
+      return {
+        ...state,
+        entryId: action.payload,
+      }
+    })
     builder.addCase(updateNodeEntry.fulfilled, (state, action) => {
       return {
         ...state,
@@ -226,7 +231,6 @@ const currentEntrySlice = createSlice({
       }
     })
     builder.addCase(setEntryById.fulfilled, (state, action) => {
-      // Assuming action.payload has the shape of the initialState
       return {
         ...state,
         ...action.payload,

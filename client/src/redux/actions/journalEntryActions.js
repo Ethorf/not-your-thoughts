@@ -69,29 +69,6 @@ export const goalReached = () => (dispatch) => {
   })
 }
 
-//Entry Actions
-export const saveJournalEntry =
-  ({ entry, timeElapsed, wpm, wordCount }) =>
-  async (dispatch) => {
-    let date = moment().format(`MMMM Do YYYY, h:mm:ss a`)
-
-    // TODO update with real values once we fix timer & wpm
-    const body = { content: entry, total_time_taken: timeElapsed, wpm: 60, num_of_words: wordCount }
-
-    try {
-      const res = await axios.post('/api/entries/create_journal_entry', body, axiosConfig)
-
-      dispatch({
-        type: SAVE_ENTRY,
-        payload: res.data,
-      })
-    } catch (err) {
-      dispatch({
-        type: ENTRIES_ERROR,
-      })
-    }
-  }
-
 export const addJournalEntryAnalysis = (id) => async (dispatch) => {
   try {
     await axios.post(`/api/updateUser/entryAnalysis/${id}`, axiosConfig)
