@@ -10,13 +10,14 @@ import styles from './Login.module.scss'
 import './login-register.scss'
 
 import FadeInAnimationOnMount from '../../components/higherOrderComponents/fadeInAnimationOnMount.js'
-import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
+import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton.js'
 
 const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   })
+  const [message, setMessage] = useState('')
 
   const { email, password } = formData
 
@@ -26,7 +27,14 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
     e.preventDefault()
 
     if (guestMode) toggleGuestMode()
-    login(email, password)
+
+    let loginResponse = await login(email, password)
+    console.dir(loginResponse)
+    loginResponse.message 
+      ? loginResponse.code == 'ERR_BAD_RESPONSE' 
+        ? setMessage('server error, connection failed')
+        : setMessage('invalid username or password') 
+      : setMessage('')
   }
 
   if (isAuthenticated) {
@@ -75,6 +83,7 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
         <FadeInAnimationOnMount wrapperElement="div" direction="up">
           <DefaultButton>Login</DefaultButton>
         </FadeInAnimationOnMount>
+        <div className="login-register__message">{message ? message : ''}</div>
       </form>
       <FadeInAnimationOnMount wrapperElement="div" direction="up">
         <div className="login-register__signup">

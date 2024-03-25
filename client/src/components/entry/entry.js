@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
-import './entry.scss'
+import './Entry.scss'
 import Arrow from '../../assets/Icons/single-arrow-3.png'
 import EntryAnalysisModal from '../Modals/entryAnalysisModal.js'
 
