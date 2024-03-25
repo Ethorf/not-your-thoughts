@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { logout, loadUser } from '../../redux/actions/authActions.js'
@@ -11,14 +12,22 @@ import Spinner from '../../components/Shared/Spinner/Spinner.js'
 import './Profile.scss'
 import '../../styles/rubberDucky.scss'
 
-const Profile = ({ auth: { user, loading }, mode, toggleJournalConfigSetting, getJournalConfig, journalConfig }) => {
+const Profile = ({ auth: { user, loading }, mode, toggleJournalConfigSetting, getJournalConfig, journalConfig, isAuthenticated }) => {
   useEffect(() => {
     getJournalConfig()
   }, [])
 
-  if (loading) {
+  // if (!isAuthenticated) {
+  //   console.log(isAuthenticated)
+  //   return <Redirect to="/login" />;
+  // }
+  // else if (loading) {
+  //   console.log(isAuthenticated)
+  //   return <Spinner />
+  // } 
+
+  if (loading)
     return <Spinner />
-  }
 
   const handleToggle = (settingName, isEnabled) => {
     toggleJournalConfigSetting(settingName, isEnabled)
