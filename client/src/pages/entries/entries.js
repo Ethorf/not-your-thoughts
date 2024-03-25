@@ -5,7 +5,7 @@ import { logout, loadUser } from '../../redux/actions/authActions.js'
 import { deleteJournalEntry, getJournalEntries } from '../../redux/actions/journalEntryActions.js'
 import { toggleJournalConfigSetting } from '../../redux/actions/journalConfigActions.js'
 
-import Entry from '../../components/entry/entry.js'
+import Entry from '../../components/Entry/Entry.js'
 import NodeEntriesList from '../../components/NodeEntriesList/NodeEntriesList.js'
 
 import '../Profile/Profile.scss'

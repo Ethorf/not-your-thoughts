@@ -68,6 +68,11 @@
     margin-top: 20px;
     margin-bottom: 2%;
   }
+  &__message {
+    margin-top: 1.5vh;
+    height: 0vh;
+    font-weight: bold;
+  }
   &__signup-link {
     text-decoration: none;
     color: white;
