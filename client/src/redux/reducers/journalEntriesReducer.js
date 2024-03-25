@@ -1,14 +1,4 @@
-import {
-  SAVE_ENTRY,
-  DELETE_ENTRY,
-  SET_ENTRY,
-  GET_JOURNAL_ENTRIES,
-  SET_JOURNAL_CONFIG,
-  UPDATE_JOURNAL_CONFIG,
-  ENTRIES_ERROR,
-  SET_TIME_ELAPSED,
-  TOGGLE_TIMER_ACTIVE,
-} from '../actions/actionTypes'
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 const initialState = {
   journalConfig: null,
@@ -19,54 +9,73 @@ const initialState = {
   timerActive: false,
 }
 
-export default function (state = initialState, action) {
-  const { type, payload } = action
-
-  switch (type) {
-    case GET_JOURNAL_ENTRIES:
-      return {
-        ...state,
-        entries: payload.entries,
-        loading: false,
-      }
-    case SET_JOURNAL_CONFIG:
-    case UPDATE_JOURNAL_CONFIG:
-      return {
-        ...state,
-        journalConfig: payload,
-        loading: false,
-      }
-    case SAVE_ENTRY:
-      return {
-        ...state,
-        entries: [payload, ...state.entries],
-      }
-    case DELETE_ENTRY:
-      return {
-        ...state,
-        loading: true,
-        entries: state.entries.filter((entry) => entry.id !== payload),
-      }
-    case SET_ENTRY:
-      return {
-        ...state,
-        entry: payload,
-      }
-    case SET_TIME_ELAPSED:
-      return {
-        ...state,
-        timeElapsed: payload,
-      }
-    case TOGGLE_TIMER_ACTIVE:
-      return {
-        ...state,
-        timerActive: payload,
-      }
-    case ENTRIES_ERROR:
-      return {
-        ...state,
-      }
-    default:
-      return state
+export const fetchJournalEntries = createAsyncThunk('journalEntriesReducer/fetchJournalEntries', async () => {
+  try {
+    const response = await fetch('/api/entries/journal_entries')
+    const data = await response.json()
+    return data.entries
+  } catch (error) {
+    throw Error('Failed to fetch journal entries')
   }
-}
+})
+
+const journalEntriesSlice = createSlice({
+  name: 'journalEntriesReducer',
+  initialState,
+  reducers: {
+    setJournalConfig(state, action) {
+      state.journalConfig = action.payload
+      state.loading = false
+    },
+    updateJournalConfig(state, action) {
+      state.journalConfig = action.payload
+      state.loading = false
+    },
+    saveEntry(state, action) {
+      state.entries.unshift(action.payload)
+    },
+    deleteEntry(state, action) {
+      state.loading = true
+      state.entries = state.entries.filter((entry) => entry.id !== action.payload)
+    },
+    setEntry(state, action) {
+      state.entry = action.payload
+    },
+    setTimeElapsed(state, action) {
+      state.timeElapsed = action.payload
+    },
+    toggleTimerActive(state, action) {
+      state.timerActive = action.payload
+    },
+    entriesError(state, action) {
+      // Handle error if needed
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchJournalEntries.pending, (state) => {
+        state.loading = true
+      })
+      .addCase(fetchJournalEntries.fulfilled, (state, action) => {
+        state.entries = action.payload
+        state.loading = false
+      })
+      .addCase(fetchJournalEntries.rejected, (state) => {
+        state.loading = false
+        // Handle error if needed
+      })
+  },
+})
+
+export const {
+  setJournalConfig,
+  updateJournalConfig,
+  saveEntry,
+  deleteEntry,
+  setEntry,
+  setTimeElapsed,
+  toggleTimerActive,
+  entriesError,
+} = journalEntriesSlice.actions
+
+export default journalEntriesSlice.reducer

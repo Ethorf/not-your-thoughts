@@ -244,18 +244,40 @@ router.get('/journal_entries', authorize, async (req, res) => {
 
   try {
     // Retrieve all journal entries for the user with the provided user_id
-    const alLjournalEntries = await pool.query('SELECT * FROM entries WHERE user_id = $1 AND type = $2', [
-      user_id,
-      'journal',
-    ])
+    const allJournalEntries = await pool.query(
+      `SELECT 
+        entries.*, 
+        ARRAY(
+          SELECT content 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created DESC
+        ) AS content,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created ASC 
+          LIMIT 1) AS date_created,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created DESC 
+          LIMIT 1) AS date_last_modified
+      FROM 
+        entries 
+      WHERE 
+        user_id = $1 
+        AND type = $2`,
+      [user_id, 'journal']
+    )
 
     // Check if there are any entries found
-    if (alLjournalEntries.rows.length === 0) {
+    if (allJournalEntries.rows.length === 0) {
       return res.status(404).json({ msg: 'No journal entries found for this user' })
     }
 
     // If journal entries are found, return them
-    res.json({ entries: alLjournalEntries.rows })
+    res.json({ entries: allJournalEntries.rows })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -312,7 +334,7 @@ router.get('/node_entries', authorize, async (req, res) => {
 })
 
 // Route to retrieve all entrie regardless of type for a user
-router.get('/entries', authorize, async (req, res) => {
+router.get('/all_entries', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
   try {

@@ -12,6 +12,8 @@
   transition: all 0.3s;
   z-index: 10;
 
+  width: fit-content;
+
   &:hover {
     transition: all 0.3s;
     color: black;
@@ -27,5 +29,19 @@
       color: rgba(192, 192, 192, 0.2);
       background-color: black;
     }
+  }
+}
+
+.selected {
+  transition: all 0.3s;
+  color: black;
+  background-color: white;
+  cursor: pointer;
+
+  &:hover {
+    transition: all 0.3s;
+    color: black;
+    background-color: rgba(192, 192, 192, 0.2);
+    cursor: pointer;
   }
 }

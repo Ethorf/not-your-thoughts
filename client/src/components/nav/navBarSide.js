@@ -46,7 +46,7 @@ class NavBarSide extends React.Component {
       duration: 1,
     })
   }
-  render(logout) {
+  render() {
     return (
       <div ref={(header) => (this.navBarContainer = header)} className="nav">
         <button
@@ -58,7 +58,7 @@ class NavBarSide extends React.Component {
             className={`nav__arrow  ${this.state.navOpen ? 'nav__arrow-rotate' : ''}`}
             src={arrow}
             alt="hamburger"
-          ></img>
+          />
         </button>
         <div className={`nav__links-container${this.props.mode} `} ref={(div) => (this.linksContainer = div)}>
           <NavLink
@@ -67,7 +67,15 @@ class NavBarSide extends React.Component {
             activeClassName="nav__active"
             className={`nav__link${this.props.mode}`}
           >
-            Journal
+            New Journal
+          </NavLink>
+          <NavLink
+            exact
+            to="/create-node-entry"
+            activeClassName="nav__active"
+            className={`nav__link${this.props.mode}`}
+          >
+            New Node
           </NavLink>
           {!this.props.guestMode ? (
             <>
