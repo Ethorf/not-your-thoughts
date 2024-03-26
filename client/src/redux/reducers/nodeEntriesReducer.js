@@ -10,7 +10,7 @@ export const fetchNodeEntries = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get('/api/entries/node_entries')
-      return response.data // Assuming the API response contains an array of node entries
+      return response.data
     } catch (error) {
       return rejectWithValue(error.response.data)
     }

@@ -243,7 +243,7 @@ router.get('/journal_entries', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
   try {
-    // Retrieve all journal entries for the user with the provided user_id
+    console.log('JOUNRAL TRY HIT')
     const allJournalEntries = await pool.query(
       `SELECT 
         entries.*, 
@@ -277,6 +277,7 @@ router.get('/journal_entries', authorize, async (req, res) => {
     }
 
     // If journal entries are found, return them
+
     res.json({ entries: allJournalEntries.rows })
   } catch (err) {
     console.error(err.message)

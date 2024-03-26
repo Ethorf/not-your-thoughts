@@ -19,6 +19,7 @@ function EntryAnalysisModal(props) {
     }
     return 0
   }
+
   const addEntryAnalysis = async (id) => {
     const config = {
       headers: {
@@ -38,11 +39,13 @@ function EntryAnalysisModal(props) {
       console.log('error with adding entry analysis')
     }
   }
+
   useEffect(() => {
     if (props.pdEmotionAnalysis) {
       setLocalEmotionData(props.pdEmotionAnalysis.emotion)
     }
   }, [])
+
   return (
     <div open={props.analysisModalOpen}>
       <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
