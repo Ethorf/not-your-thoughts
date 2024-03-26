@@ -1,72 +1,100 @@
-import {
-  SAVE_ENTRY,
-  DELETE_ENTRY,
-  SET_ENTRY,
-  GET_JOURNAL_ENTRIES,
-  SET_JOURNAL_CONFIG,
-  UPDATE_JOURNAL_CONFIG,
-  ENTRIES_ERROR,
-  SET_TIME_ELAPSED,
-  TOGGLE_TIMER_ACTIVE,
-} from '../actions/actionTypes'
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import axios from 'axios'
 
 const initialState = {
   journalConfig: null,
   entries: [],
   entry: '',
-  timeElapsed: '',
+  timeElapsed: 0,
   loading: true,
   timerActive: false,
 }
 
-export default function (state = initialState, action) {
-  const { type, payload } = action
-
-  switch (type) {
-    case GET_JOURNAL_ENTRIES:
-      return {
-        ...state,
-        entries: payload.entries,
-        loading: false,
-      }
-    case SET_JOURNAL_CONFIG:
-    case UPDATE_JOURNAL_CONFIG:
-      return {
-        ...state,
-        journalConfig: payload,
-        loading: false,
-      }
-    case SAVE_ENTRY:
-      return {
-        ...state,
-        entries: [payload, ...state.entries],
-      }
-    case DELETE_ENTRY:
-      return {
-        ...state,
-        loading: true,
-        entries: state.entries.filter((entry) => entry.id !== payload),
-      }
-    case SET_ENTRY:
-      return {
-        ...state,
-        entry: payload,
-      }
-    case SET_TIME_ELAPSED:
-      return {
-        ...state,
-        timeElapsed: payload,
-      }
-    case TOGGLE_TIMER_ACTIVE:
-      return {
-        ...state,
-        timerActive: payload,
-      }
-    case ENTRIES_ERROR:
-      return {
-        ...state,
-      }
-    default:
-      return state
+// Async thunk to fetch journal configuration
+export const fetchJournalConfig = createAsyncThunk('journal/fetchJournalConfig', async (_, { rejectWithValue }) => {
+  try {
+    const response = await axios.get('/api/journal_config')
+    return response.data.journalConfig
+  } catch (error) {
+    return rejectWithValue(error.response.data)
   }
-}
+})
+
+export const fetchJournalEntries = createAsyncThunk(
+  'journalEntriesReducer/fetchJournalEntries',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get('/api/entries/journal_entries')
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+const journalEntriesSlice = createSlice({
+  name: 'journalEntriesReducer',
+  initialState,
+  reducers: {
+    setJournalConfig(state, action) {
+      state.journalConfig = action.payload
+      state.loading = false
+    },
+    updateJournalConfig(state, action) {
+      state.journalConfig = action.payload
+      state.loading = false
+    },
+    saveEntry(state, action) {
+      state.entries.unshift(action.payload)
+    },
+    deleteJournalEntry(state, action) {
+      state.loading = true
+      state.entries = state.entries.filter((entry) => entry.id !== action.payload)
+    },
+    setEntry(state, action) {
+      state.entry = action.payload
+    },
+    setTimeElapsed(state, action) {
+      state.timeElapsed = action.payload
+    },
+    toggleTimerActive(state, action) {
+      state.timerActive = action.payload
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchJournalEntries.pending, (state) => {
+        state.loading = true
+      })
+      .addCase(fetchJournalEntries.fulfilled, (state, action) => {
+        state.entries = action.payload
+        state.loading = false
+      })
+      .addCase(fetchJournalEntries.rejected, (state) => {
+        state.loading = false
+      })
+      .addCase(fetchJournalConfig.pending, (state) => {
+        state.loading = true
+      })
+      .addCase(fetchJournalConfig.fulfilled, (state, action) => {
+        state.journalConfig = action.payload
+        state.loading = false
+      })
+      .addCase(fetchJournalConfig.rejected, (state) => {
+        state.loading = false
+      })
+  },
+})
+
+export const {
+  setJournalConfig,
+  updateJournalConfig,
+  saveEntry,
+  deleteJournalEntry,
+  setEntry,
+  setTimeElapsed,
+  toggleTimerActive,
+  entriesError,
+} = journalEntriesSlice.actions
+
+export default journalEntriesSlice.reducer

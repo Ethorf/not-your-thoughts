@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { logout, loadUser } from '../../redux/actions/authActions.js'
-import { deleteJournalEntry, getJournalEntries } from '../../redux/actions/journalEntryActions.js'
+import { deleteJournalEntry, fetchJournalEntries } from '../../redux/reducers/journalEntriesReducer.js'
 import { getJournalConfig, toggleJournalConfigSetting } from '../../redux/actions/journalConfigActions.js'
 import ProfileGoalEdit from '../../components/ProfileGoalEdit/ProfileGoalEdit.js'
 import TrackedPhrasesModal from '../../components/Modals/trackedPhrasesModal.js'
@@ -137,7 +137,6 @@ Profile.propTypes = {
   auth: PropTypes.object.isRequired,
   logout: PropTypes.func.isRequired,
   isAuthenticated: PropTypes.bool,
-  getJournalEntries: PropTypes.func.isRequired,
   entries: PropTypes.array.isRequired,
 }
 
@@ -156,7 +155,6 @@ const mapDispatchToProps = (dispatch) => ({
   getJournalConfig: () => dispatch(getJournalConfig()),
   deleteJournalEntry: (entryId) => dispatch(deleteJournalEntry(entryId)),
   loadUser: () => dispatch(loadUser()),
-  getJournalEntries: () => dispatch(getJournalEntries()),
   toggleJournalConfigSetting: (settingName, isEnabled) => dispatch(toggleJournalConfigSetting(settingName, isEnabled)),
 })
 

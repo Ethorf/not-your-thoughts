@@ -175,21 +175,63 @@ router.post('/update_node_entry', authorize, async (req, res) => {
   }
 })
 
-// post /entries/create_journal_entry
-// Add a new journal entry
-router.post('/create_journal_entry', authorize, async (req, res) => {
+// post /entries/save_journal_entry
+// Create / save a  journal entry
+
+router.post('/save_journal_entry', authorize, async (req, res) => {
   const { id: user_id } = req.user
-  const { content, total_time_taken, wpm, num_of_words } = req.body
+  const { content, total_time_taken = 0, wpm = 0, num_of_words = 0, entryId } = req.body
   const type = 'journal'
 
   try {
-    let newEntry = await pool.query(
-      'INSERT INTO entries (user_id, content,type, total_time_taken, wpm, num_of_words) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [user_id, content, type, total_time_taken, wpm, num_of_words]
-    )
+    // Check if content is provided
+    if (!content) {
+      return res.status(400).json({ message: 'Content is required' })
+    }
 
-    console.log('Entry created successfully!')
-    return res.json({ newEntry })
+    let content_id
+    let entry_id
+
+    // If entryId is provided, update existing entry
+    if (entryId) {
+      entry_id = entryId
+      await pool.query('UPDATE entries SET total_time_taken = $1, wpm = $2, num_of_words = $3 WHERE id = $4', [
+        total_time_taken,
+        wpm,
+        num_of_words,
+        entryId,
+      ])
+    } else {
+      // Insert new entry into entries table
+      const newEntry = await pool.query(
+        'INSERT INTO entries (user_id, type, total_time_taken, wpm, num_of_words, content_ids) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+        [user_id, type, total_time_taken, wpm, num_of_words, []]
+      )
+      entry_id = newEntry.rows[0].id
+    }
+
+    // Insert or update entry_contents row
+    if (entryId) {
+      // If entryId is provided, update existing entry_contents
+      await pool.query('UPDATE entry_contents SET content = $1 WHERE entry_id = $2', [content, entryId])
+      content_id = entryId
+    } else {
+      // Insert new entry_contents row
+      const newContent = await pool.query(
+        'INSERT INTO entry_contents (content, entry_id) VALUES ($1, $2) RETURNING id',
+        [content, entry_id]
+      )
+      content_id = newContent.rows[0].id
+
+      // Update the content_ids array on the entries table row
+      await pool.query('UPDATE entries SET content_ids = array_append(content_ids, $1) WHERE id = $2', [
+        content_id,
+        entry_id,
+      ])
+    }
+
+    console.log('Journal Entry created successfully!')
+    return res.json({ entry_id })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -201,19 +243,42 @@ router.get('/journal_entries', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
   try {
-    // Retrieve all journal entries for the user with the provided user_id
-    const alLjournalEntries = await pool.query('SELECT * FROM entries WHERE user_id = $1 AND type = $2', [
-      user_id,
-      'journal',
-    ])
+    console.log('JOUNRAL TRY HIT')
+    const allJournalEntries = await pool.query(
+      `SELECT 
+        entries.*, 
+        ARRAY(
+          SELECT content 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created DESC
+        ) AS content,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created ASC 
+          LIMIT 1) AS date_created,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created DESC 
+          LIMIT 1) AS date_last_modified
+      FROM 
+        entries 
+      WHERE 
+        user_id = $1 
+        AND type = $2`,
+      [user_id, 'journal']
+    )
 
     // Check if there are any entries found
-    if (alLjournalEntries.rows.length === 0) {
+    if (allJournalEntries.rows.length === 0) {
       return res.status(404).json({ msg: 'No journal entries found for this user' })
     }
 
     // If journal entries are found, return them
-    res.json({ entries: alLjournalEntries.rows })
+
+    res.json({ entries: allJournalEntries.rows })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -270,7 +335,7 @@ router.get('/node_entries', authorize, async (req, res) => {
 })
 
 // Route to retrieve all entrie regardless of type for a user
-router.get('/entries', authorize, async (req, res) => {
+router.get('/all_entries', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
   try {

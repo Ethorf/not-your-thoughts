@@ -1,65 +1,69 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchNodeEntries } from '../../redux/reducers/nodeEntriesReducer'
+import { fetchJournalEntries } from '../../redux/reducers/journalEntriesReducer'
 import Spinner from '../Shared/Spinner/Spinner'
-import { NodeEntry } from '../NodeEntry/NodeEntry'
+import { JournalEntry } from '../JournalEntry/JournalEntry'
 import { EntriesSortDropdown } from '../Shared/EntriesSortDropdown/EntriesSortDropdown'
 import { EntriesSearchBar } from '../Shared/EntriesSearchBar/EntriesSearchBar'
 
-import styles from './NodeEntriesList.module.scss'
+import styles from './JournalEntriesList.module.scss'
 
-const NodeEntriesList = () => {
+const JournalEntriesList = () => {
   const dispatch = useDispatch()
 
-  // TODO fix this pointless nesting
-  const allNodeEntries = useSelector((state) => state.nodeEntries.allNodeEntries.entries)
+  // TODO get rid of weird nesting here
+  const allJournalEntries = useSelector((state) => state.journalEntries.entries.entries)
   const [filteredEntries, setFilteredEntries] = useState([])
   const [sortedAndFilteredEntries, setSortedAndFilteredEntries] = useState([])
 
   // will probably need this to be an object so that it can have a label / icon thing too and also just abstract it into a constant so it's easily different for nodes / journels
   const sortOptions = [
-    'title a-z',
-    'title z-a',
-    'date modified newest first',
-    'date modifed oldest first',
-    'date created newest first',
-    'date created oldest first',
+    'Most Words',
+    'Least Words',
+    'Longest Time',
+    'Shortest Time',
+    'Fastest WPM',
+    'Slowest WPM',
+    'Oldest frist',
+    'Newest first',
   ]
 
   useEffect(() => {
-    dispatch(fetchNodeEntries())
+    dispatch(fetchJournalEntries())
   }, [dispatch])
 
-  console.log('allNodeEntries is:')
-  console.log(allNodeEntries)
+  console.log('allJournalEntries is:')
+  console.log(allJournalEntries)
+
+  // TODO think about if a search is really necessary for journals? (maybe when we have like sentiment analysis)
   return (
     <div className={styles.wrapper}>
-      <h2 className={styles.nodesTitle}>Nodes</h2>
-      {allNodeEntries.length ? (
+      <h2 className={styles.nodesTitle}>Journals:</h2>
+      {allJournalEntries.length ? (
         <>
           <div className={styles.searchSortContainer}>
-            <EntriesSearchBar data={allNodeEntries} setFilteredEntries={setFilteredEntries} />
-            <div>
+            {/* <EntriesSearchBar data={allJournalEntries} setFilteredEntries={setFilteredEntries} /> */}
+            {/* <div>
               Sort By:
               <EntriesSortDropdown
                 entries={filteredEntries}
                 sortOptions={sortOptions}
                 setSortedEntries={setSortedAndFilteredEntries}
               />
-            </div>
+            </div> */}
           </div>
           <div className={styles.divider} />
           <ul className={styles.listContainer}>
-            {sortedAndFilteredEntries.map((nodeEntry) => (
-              <NodeEntry key={nodeEntry.id} node={nodeEntry} />
+            {allJournalEntries.map((journalEntry) => (
+              <JournalEntry key={journalEntry.id} journal={journalEntry} />
             ))}
           </ul>
         </>
       ) : (
-        <h3>No Nodes created yet...</h3>
+        <Spinner />
       )}
     </div>
   )
 }
 
-export default NodeEntriesList
+export default JournalEntriesList

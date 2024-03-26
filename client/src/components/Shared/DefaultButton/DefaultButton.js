@@ -3,9 +3,9 @@ import classNames from 'classnames'
 import PropTypes from 'prop-types'
 import styles from './DefaultButton.module.scss'
 
-const DefaultButton = ({ className, children, ...props }) => {
+const DefaultButton = ({ className, children, isSelected, ...props }) => {
   return (
-    <button {...props} className={classNames(styles.wrapper, className)}>
+    <button {...props} className={classNames(styles.wrapper, className, { [styles.selected]: isSelected })}>
       {children}
     </button>
   )
@@ -15,6 +15,7 @@ DefaultButton.propTypes = {
   onClick: PropTypes.func,
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
+  isSelected: PropTypes.bool,
 }
 
 export default DefaultButton

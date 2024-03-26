@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import { setAlert } from '../../redux/actions/alert.js'
 import { register, toggleGuestMode } from '../../redux/actions/authActions.js'
 import PropTypes from 'prop-types'
@@ -28,6 +28,10 @@ const Register = ({ setAlert, register, isAuthenticated, alert, guestMode, toggl
       if (guestMode) toggleGuestMode()
       register({ name, email, password })
     }
+  }
+
+  if (isAuthenticated) {
+    return <Redirect to="/entry-type-switcher" />
   }
 
   return (

@@ -6,11 +6,13 @@
   padding: 8px 12px;
   border: 1px solid silver;
   text-transform: uppercase;
-  margin: 0 8px;
+  margin: 8px;
   border-radius: 15px;
   outline: none;
   transition: all 0.3s;
   z-index: 10;
+
+  width: fit-content;
 
   &:hover {
     transition: all 0.3s;
@@ -27,5 +29,19 @@
       color: rgba(192, 192, 192, 0.2);
       background-color: black;
     }
+  }
+}
+
+.selected {
+  transition: all 0.3s;
+  color: black;
+  background-color: white;
+  cursor: pointer;
+
+  &:hover {
+    transition: all 0.3s;
+    color: black;
+    background-color: rgba(192, 192, 192, 0.2);
+    cursor: pointer;
   }
 }
