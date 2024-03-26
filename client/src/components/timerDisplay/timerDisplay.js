@@ -6,10 +6,10 @@ import { toggleTimerActive } from '../../redux/actions/journalConfigActions.js'
 import pause from '../../assets/Icons/Icon-pause.png'
 import play from '../../assets/Icons/Icon-play.png'
 
-function TimerDisplay({ toggleTimerActive, timeElapsed, timerActive }) {
+function TimerDisplay({}) {
   return (
     <div className="timer">
-      <span className={'timer__left'}>{Math.trunc(timeElapsed / 60)}m:</span>
+      {/* <span className={'timer__left'}>{Math.trunc(timeElapsed / 60)}m:</span>
       <span className={'timer__middle'}>{timeElapsed % 60}s</span>
       <span className={'timer__right'}>
         <img
@@ -18,16 +18,9 @@ function TimerDisplay({ toggleTimerActive, timeElapsed, timerActive }) {
           src={timerActive ? pause : play}
         />
         Timer
-      </span>
+      </span> */}
     </div>
   )
 }
 
-const mapStateToProps = (state) => ({
-  timeElapsed: state.entries.timeElapsed,
-  timerActive: state.entries.timerActive,
-})
-
-export default connect(mapStateToProps, {
-  toggleTimerActive,
-})(TimerDisplay)
+export default TimerDisplay

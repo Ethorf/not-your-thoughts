@@ -6,9 +6,8 @@ import styles from './JournalInfoContainer.module.scss' // Import your CSS modul
 
 const JournalInfoContainer = () => {
   const guestMode = useSelector((state) => state.auth.guestMode)
-  const journalConfig = useSelector((state) => state.entries.journalConfig)
+  const { journalConfig, timeElapsed } = useSelector((state) => state.journalEntries)
   const charCount = useSelector((state) => state.wordCount.charCount)
-  const timeElapsed = useSelector((state) => state.entries.timeElapsed)
   const wordCount = useSelector((state) => state.currentEntry.wordCount)
 
   const [wpmCalc, setWpmCalc] = useState(Math.trunc((charCount / 5 / timeElapsed) * 60))

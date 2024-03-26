@@ -1,23 +1,36 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import axios from 'axios'
 
 const initialState = {
   journalConfig: null,
   entries: [],
   entry: '',
-  timeElapsed: '',
+  timeElapsed: 0,
   loading: true,
   timerActive: false,
 }
 
-export const fetchJournalEntries = createAsyncThunk('journalEntriesReducer/fetchJournalEntries', async () => {
+// Async thunk to fetch journal configuration
+export const fetchJournalConfig = createAsyncThunk('journal/fetchJournalConfig', async (_, { rejectWithValue }) => {
   try {
-    const response = await fetch('/api/entries/journal_entries')
-    const data = await response.json()
-    return data.entries
+    const response = await axios.get('/api/journal_config')
+    return response.data.journalConfig
   } catch (error) {
-    throw Error('Failed to fetch journal entries')
+    return rejectWithValue(error.response.data)
   }
 })
+
+export const fetchJournalEntries = createAsyncThunk(
+  'journalEntriesReducer/fetchJournalEntries',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get('/api/entries/journal_entries')
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
 
 const journalEntriesSlice = createSlice({
   name: 'journalEntriesReducer',
@@ -34,7 +47,7 @@ const journalEntriesSlice = createSlice({
     saveEntry(state, action) {
       state.entries.unshift(action.payload)
     },
-    deleteEntry(state, action) {
+    deleteJournalEntry(state, action) {
       state.loading = true
       state.entries = state.entries.filter((entry) => entry.id !== action.payload)
     },
@@ -46,9 +59,6 @@ const journalEntriesSlice = createSlice({
     },
     toggleTimerActive(state, action) {
       state.timerActive = action.payload
-    },
-    entriesError(state, action) {
-      // Handle error if needed
     },
   },
   extraReducers: (builder) => {
@@ -62,7 +72,16 @@ const journalEntriesSlice = createSlice({
       })
       .addCase(fetchJournalEntries.rejected, (state) => {
         state.loading = false
-        // Handle error if needed
+      })
+      .addCase(fetchJournalConfig.pending, (state) => {
+        state.loading = true
+      })
+      .addCase(fetchJournalConfig.fulfilled, (state, action) => {
+        state.journalConfig = action.payload
+        state.loading = false
+      })
+      .addCase(fetchJournalConfig.rejected, (state) => {
+        state.loading = false
       })
   },
 })
@@ -71,7 +90,7 @@ export const {
   setJournalConfig,
   updateJournalConfig,
   saveEntry,
-  deleteEntry,
+  deleteJournalEntry,
   setEntry,
   setTimeElapsed,
   toggleTimerActive,

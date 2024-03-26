@@ -1,8 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { TimelineMax } from 'gsap'
 import '../../styles/shared.scss'
-import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
+import { connect, useSelector } from 'react-redux'
 import progressSound25File from '../../assets/Sounds/ProgressSounds/Not-Your-Thoughts-25-progressSound.mp3'
 import progressSound50File from '../../assets/Sounds/ProgressSounds/Not-Your-Thoughts-50-progressSound.mp3'
 import progressSound75File from '../../assets/Sounds/ProgressSounds/Not-Your-Thoughts-75-progressSound.mp3'
@@ -13,9 +12,12 @@ const progressSound50 = new Audio(progressSound50File)
 const progressSound75 = new Audio(progressSound75File)
 const progressSound100 = new Audio(progressSound100File)
 
-const ProgressWord = ({ wordCount, user, timeElapsed, guestMode, journalConfig }) => {
+const ProgressWord = ({ user, guestMode }) => {
   let progressWordContainer = useRef(null)
   let progressNumberContainer = useRef(null)
+  const { journalConfig, timeElapsed } = useSelector((state) => state.journalEntries)
+  const { wordCount } = useSelector((state) => state.currentEntry)
+
   const [animationReady, setAnimationReady] = useState(true)
   const [progressNum, setProgressNum] = useState('25%')
   const [progressWordAnimation, setProgressAnimation] = useState(null)
@@ -88,17 +90,10 @@ const ProgressWord = ({ wordCount, user, timeElapsed, guestMode, journalConfig }
   )
 }
 
-ProgressWord.propTypes = {
-  wordCount: PropTypes.number,
-}
-
 const mapStateToProps = (state) => ({
-  wordCount: state.wordCount.wordCount,
   goal: state.wordCount.goal,
   user: state.auth.user,
-  timeElapsed: state.entries.timeElapsed,
   guestMode: state.auth.guestMode,
-  journalConfig: state.entries.journalConfig,
 })
 
 export default connect(mapStateToProps)(ProgressWord)

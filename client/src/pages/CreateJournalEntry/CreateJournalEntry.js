@@ -7,9 +7,8 @@ import { connect, useDispatch, useSelector } from 'react-redux'
 import '../../styles/shared.scss'
 import styles from './CreateJournalEntry.module.scss'
 
-//Redux Function Imports
-import { changeWordCount, changeCharCount, setJournalEntry } from '../../redux/actions/journalEntryActions.js'
-import { getJournalConfig, toggleTimerActive } from '../../redux/actions/journalConfigActions.js'
+//Redux Function Import
+import { fetchJournalConfig } from '../../redux/reducers/journalEntriesReducer.js'
 import { increaseDays } from '../../redux/actions/authActions.js'
 import { toggleGuestModeModalSeen } from '../../redux/actions/modalActions.js'
 import { changeMode } from '../../redux/actions/modeActions.js'
@@ -28,23 +27,24 @@ import Spinner from '../../components/Shared/Spinner/Spinner.js'
 import { ENTRY_TYPES } from '../../constants/entryTypes'
 
 //Pillars
-import PillarTop from '../../components/pillars/pillarTop.js'
-import PillarLeft from '../../components/pillars/pillarLeft.js'
-import PillarRight from '../../components/pillars/pillarRight.js'
-import PillarBottom from '../../components/pillars/pillarBottom.js'
+import PillarTop from '../../components/Pillars/PillarTop.js'
+import PillarLeft from '../../components/Pillars/PillarLeft.js'
+import PillarRight from '../../components/Pillars/PillarRight.js'
+import PillarBottom from '../../components/Pillars/PillarBottom.js'
 import ProgressWord from '../../components/progress/progressWord.js'
 
-const CreateJournalEntry = ({ getJournalConfig, journalConfig, auth: { guestMode, user, loading } }) => {
+const CreateJournalEntry = ({ auth: { guestMode, user, loading } }) => {
   const dispatch = useDispatch()
 
   const { wordCount, content, entryId } = useSelector((state) => state.currentEntry)
+  const { journalConfig } = useSelector((state) => state.journalEntries)
 
   const handleSaveJournal = async () => {
     await dispatch(saveJournalEntry({ content, wordCount, entryId }))
   }
 
   useEffect(() => {
-    getJournalConfig()
+    dispatch(fetchJournalConfig())
   }, [])
 
   // if (loading) {
@@ -96,30 +96,18 @@ const CreateJournalEntry = ({ getJournalConfig, journalConfig, auth: { guestMode
 
 CreateJournalEntry.propTypes = {
   auth: PropTypes.object.isRequired,
-  setJournalEntry: PropTypes.func.isRequired,
 }
 
 const mapStateToProps = (state) => ({
   auth: state.auth,
-  wordCount: state.wordCount.wordCount,
-  charCount: state.wordCount.charCount,
   goal: state.wordCount.goal,
   isAuthenticated: state.auth.isAuthenticated,
   modals: state.modals,
   mode: state.modes.mode,
-  entry: state.entries.entry,
-  timeElapsed: state.entries.timeElapsed,
-  journalConfig: state.entries.journalConfig,
-  timerActive: state.entries.timerActive,
 })
 
 export default connect(mapStateToProps, {
-  changeWordCount,
-  changeCharCount,
-  setJournalEntry,
   increaseDays,
   changeMode,
-  toggleTimerActive,
-  getJournalConfig,
   toggleGuestModeModalSeen,
 })(CreateJournalEntry)

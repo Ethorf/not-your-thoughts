@@ -7,8 +7,9 @@ import PillarLeftOutlineInverted from '../../assets/Pillars/NewPillarLeft-2-inve
 import crawBoxLeft from '../../assets/Animations/SpikyCrawBox-Left-1.gif'
 import crawBoxLeftInverted from '../../assets/Pillars/CrawBoxes/NewCrawBox-Inverted-Left.gif'
 
-const PillarLeft = ({ mode, auth: { user }, timeElapsed, guestMode, journalConfig }) => {
+const PillarLeft = ({ mode, auth: { user }, guestMode }) => {
   const { wordCount } = useSelector((state) => state.currentEntry)
+  const { journalConfig, timeElapsed } = useSelector((state) => state.journalEntries)
 
   const pillarLeftStyleHeight = () => {
     let testStyle
@@ -61,8 +62,6 @@ const mapStateToProps = (state) => ({
   auth: state.auth,
   guestMode: state.auth.guestMode,
   mode: state.modes.mode,
-  timeElapsed: state.entries.timeElapsed,
-  journalConfig: state.entries.journalConfig,
 })
 
 export default connect(mapStateToProps, null)(PillarLeft)

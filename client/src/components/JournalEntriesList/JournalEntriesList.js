@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchJournalEntries } from '../../redux/reducers/journalEntriesReducer'
 import Spinner from '../Shared/Spinner/Spinner'
-import { NodeEntry } from '../NodeEntry/NodeEntry'
+import { JournalEntry } from '../JournalEntry/JournalEntry'
 import { EntriesSortDropdown } from '../Shared/EntriesSortDropdown/EntriesSortDropdown'
 import { EntriesSearchBar } from '../Shared/EntriesSearchBar/EntriesSearchBar'
 
@@ -11,7 +11,8 @@ import styles from './JournalEntriesList.module.scss'
 const JournalEntriesList = () => {
   const dispatch = useDispatch()
 
-  const allJournalEntries = useSelector((state) => state.journalEntries.allJournalEntries.entries)
+  // TODO get rid of weird nesting here
+  const allJournalEntries = useSelector((state) => state.journalEntries.entries.entries)
   const [filteredEntries, setFilteredEntries] = useState([])
   const [sortedAndFilteredEntries, setSortedAndFilteredEntries] = useState([])
 
@@ -38,29 +39,29 @@ const JournalEntriesList = () => {
   return (
     <div className={styles.wrapper}>
       <h2 className={styles.nodesTitle}>Journals:</h2>
-      {/* {allJournalEntries.length ? (
+      {allJournalEntries.length ? (
         <>
           <div className={styles.searchSortContainer}>
-            <EntriesSearchBar data={allJournalEntries} setFilteredEntries={setFilteredEntries} />
-            <div>
+            {/* <EntriesSearchBar data={allJournalEntries} setFilteredEntries={setFilteredEntries} /> */}
+            {/* <div>
               Sort By:
               <EntriesSortDropdown
                 entries={filteredEntries}
                 sortOptions={sortOptions}
                 setSortedEntries={setSortedAndFilteredEntries}
               />
-            </div>
+            </div> */}
           </div>
           <div className={styles.divider} />
           <ul className={styles.listContainer}>
-            {sortedAndFilteredEntries.map((nodeEntry) => (
-              <NodeEntry key={nodeEntry.id} node={nodeEntry} />
+            {allJournalEntries.map((journalEntry) => (
+              <JournalEntry key={journalEntry.id} journal={journalEntry} />
             ))}
           </ul>
         </>
       ) : (
         <Spinner />
-      )} */}
+      )}
     </div>
   )
 }
