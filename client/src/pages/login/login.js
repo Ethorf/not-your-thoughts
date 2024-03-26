@@ -28,10 +28,9 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
 
     if (guestMode) toggleGuestMode()
 
-    let loginResponse = await login(email, password)
-    console.dir(loginResponse)
-    loginResponse.message 
-      ? loginResponse.code == 'ERR_BAD_RESPONSE' 
+    let loginRes = await login(email, password)
+    loginRes.message 
+      ? loginRes.code == 'ERR_BAD_RESPONSE' 
         ? setMessage('server error, connection failed')
         : setMessage('invalid username or password') 
       : setMessage('')

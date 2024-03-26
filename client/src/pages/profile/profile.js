@@ -17,17 +17,17 @@ const Profile = ({ auth: { user, loading }, mode, toggleJournalConfigSetting, ge
     getJournalConfig()
   }, [])
 
-  // if (!isAuthenticated) {
-  //   console.log(isAuthenticated)
-  //   return <Redirect to="/login" />;
-  // }
-  // else if (loading) {
-  //   console.log(isAuthenticated)
-  //   return <Spinner />
-  // } 
-
-  if (loading)
+  if (!isAuthenticated) {
+    console.log(isAuthenticated)
+    return <Redirect to="/login" />;
+  }
+  else if (loading) {
+    console.log(isAuthenticated)
     return <Spinner />
+  } 
+
+  // if (loading)
+  //   return <Spinner />
 
   const handleToggle = (settingName, isEnabled) => {
     toggleJournalConfigSetting(settingName, isEnabled)
