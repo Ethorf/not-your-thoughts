@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import moment from 'moment'
 import Timer from '../Timer/Timer.js'
 import WPMDisplay from '../WPMDisplay/WPMDisplay.js'
@@ -9,7 +9,7 @@ import styles from './JournalInfoContainer.module.scss' // Import your CSS modul
 const JournalInfoContainer = () => {
   const guestMode = useSelector((state) => state.auth.guestMode)
   const { journalConfig } = useSelector((state) => state.journalEntries)
-  const wordCount = useSelector((state) => state.currentEntry.wordCount)
+  const { wordCount } = useSelector((state) => state.currentEntry)
 
   //   TODO probably can add journalConfig check or fetch here
   //   But will just wanna make it into toolkit pattern since this shit is annoying right now

@@ -18,6 +18,12 @@
   position: relative;
   z-index: 4;
   height: 48vh;
+  width: 80vw;
+}
+
+.innerContainer {
+  width: 100%;
+  @include flex-center-column;
 }
 
 .headerPromptContainer {

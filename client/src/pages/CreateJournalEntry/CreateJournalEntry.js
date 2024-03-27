@@ -36,11 +36,11 @@ import ProgressWord from '../../components/progress/progressWord.js'
 const CreateJournalEntry = ({ auth: { guestMode, user, loading } }) => {
   const dispatch = useDispatch()
 
-  const { wordCount, content, entryId } = useSelector((state) => state.currentEntry)
+  const { wordCount, content, entryId, wpm, timeElapsed } = useSelector((state) => state.currentEntry)
   const { journalConfig } = useSelector((state) => state.journalEntries)
 
   const handleSaveJournal = async () => {
-    await dispatch(saveJournalEntry({ content, wordCount, entryId }))
+    await dispatch(saveJournalEntry({ content, wordCount, entryId, wpm, timeElapsed }))
   }
 
   useEffect(() => {
@@ -70,21 +70,15 @@ const CreateJournalEntry = ({ auth: { guestMode, user, loading } }) => {
           <PillarTop />
           <div className={styles.mainContainer}>
             <PillarLeft />
-            <form
-              className={`main__date-goal-wordcount-textarea-container`}
-              onSubmit={(e) => {
-                e.preventDefault()
-              }}
-            >
+            <div className={styles.innerContainer}>
               <JournalInfoContainer />
-              {/* TODO gotta fix this weird width thing but that shoul dbe an easy grunt for will or omog */}
               <CreateEntry type={ENTRY_TYPES.JOURNAL} />
               {guestMode ? null : (
                 <DefaultButton disabled={!content.length} onClick={handleSaveJournal}>
                   Save Journal
                 </DefaultButton>
               )}
-            </form>
+            </div>
             <PillarRight />
           </div>
           <PillarBottom />

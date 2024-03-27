@@ -13,8 +13,7 @@ const JournalEntriesList = () => {
 
   // TODO get rid of weird nesting here
   const allJournalEntries = useSelector((state) => state.journalEntries.entries.entries)
-  const [filteredEntries, setFilteredEntries] = useState([])
-  const [sortedAndFilteredEntries, setSortedAndFilteredEntries] = useState([])
+  const [sortedEntries, setSortedEntries] = useState([])
 
   // will probably need this to be an object so that it can have a label / icon thing too and also just abstract it into a constant so it's easily different for nodes / journels
   const sortOptions = [
@@ -24,34 +23,32 @@ const JournalEntriesList = () => {
     'Shortest Time',
     'Fastest WPM',
     'Slowest WPM',
-    'Oldest frist',
-    'Newest first',
+    'Oldest First',
+    'Newest First',
   ]
 
   useEffect(() => {
     dispatch(fetchJournalEntries())
   }, [dispatch])
 
-  // TODO think about if a search is really necessary for journals? (maybe when we have like sentiment analysis)
   return (
     <div className={styles.wrapper}>
       <h2 className={styles.nodesTitle}>Journals:</h2>
       {allJournalEntries.length ? (
         <>
           <div className={styles.searchSortContainer}>
-            {/* <EntriesSearchBar data={allJournalEntries} setFilteredEntries={setFilteredEntries} /> */}
-            {/* <div>
+            <div>
               Sort By:
               <EntriesSortDropdown
-                entries={filteredEntries}
+                entries={allJournalEntries}
                 sortOptions={sortOptions}
-                setSortedEntries={setSortedAndFilteredEntries}
+                setSortedEntries={setSortedEntries}
               />
-            </div> */}
+            </div>
           </div>
           <div className={styles.divider} />
           <ul className={styles.listContainer}>
-            {allJournalEntries.map((journalEntry) => (
+            {sortedEntries.map((journalEntry) => (
               <JournalEntry key={journalEntry.id} journal={journalEntry} />
             ))}
           </ul>
