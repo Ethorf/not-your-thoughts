@@ -1,12 +1,17 @@
 .wrapper {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 20% 10% 40% 10% 20%; /* Updated widths for each column */
   width: 100%;
+  align-items: center;
 }
+
 .date {
+}
+.timer {
 }
 .goal {
   display: flex;
+  justify-content: center;
 }
 
 .wordCount {
