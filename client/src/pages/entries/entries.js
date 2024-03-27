@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import { ENTRY_TYPES } from '../../constants/entryTypes'
+import { ENTRY_TYPES } from '../../constants/entryTypes.js'
 
 import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton.js'
 import NodeEntriesList from '../../components/NodeEntriesList/NodeEntriesList.js'

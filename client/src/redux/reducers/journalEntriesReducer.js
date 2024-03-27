@@ -5,7 +5,6 @@ const initialState = {
   journalConfig: null,
   entries: [],
   entry: '',
-  timeElapsed: 0,
   loading: true,
   timerActive: false,
 }
@@ -54,9 +53,6 @@ const journalEntriesSlice = createSlice({
     setEntry(state, action) {
       state.entry = action.payload
     },
-    setTimeElapsed(state, action) {
-      state.timeElapsed = action.payload
-    },
     toggleTimerActive(state, action) {
       state.timerActive = action.payload
     },
@@ -92,7 +88,6 @@ export const {
   saveEntry,
   deleteJournalEntry,
   setEntry,
-  setTimeElapsed,
   toggleTimerActive,
   entriesError,
 } = journalEntriesSlice.actions

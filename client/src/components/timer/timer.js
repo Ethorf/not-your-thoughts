@@ -1,27 +1,30 @@
-import { useState, useEffect } from 'react'
-import { setTimeElapsed } from '../../redux/reducers/journalEntriesReducer.js'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { setTimeElapsed } from '../../redux/reducers/currentEntryReducer.js'
 
-function Timer({ setTimeElapsed, timerActive }) {
-  const [seconds, setSeconds] = useState(0)
+import { formatTime } from '../../utils/formatTime.js'
 
-  return null
-  //   useEffect(() => {
-  //     let secondsInterval = null
+import styles from './Timer.module.scss'
 
-  //     if (timerActive) {
-  //       secondsInterval = setInterval(() => {
-  //         setSeconds((seconds) => seconds + 1)
-  //         setTimeElapsed(seconds)
-  //       }, 1000)
-  //     }
-  //     return () => clearInterval(secondsInterval)
-  //   }, [timerActive, seconds])
+const Timer = () => {
+  const dispatch = useDispatch()
+  const { timeElapsed: reduxTimeElapsed } = useSelector((state) => state.currentEntry)
+  const { wordCount } = useSelector((state) => state.currentEntry)
+  const timerActive = wordCount > 0
 
-  //   return null
+  useEffect(() => {
+    let timer
+
+    if (timerActive) {
+      timer = setInterval(() => {
+        dispatch(setTimeElapsed(reduxTimeElapsed + 1))
+      }, 1000)
+    }
+
+    return () => clearInterval(timer)
+  }, [timerActive, dispatch, reduxTimeElapsed])
+
+  return <div className={styles.wrapper}>{formatTime(reduxTimeElapsed)}</div>
 }
-
-// const mapStateToProps = (state) => ({
-//   timerActive: state.entries.timerActive,
-// })
 
 export default Timer

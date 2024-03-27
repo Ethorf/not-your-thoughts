@@ -22,6 +22,22 @@ export const EntriesSortDropdown = ({ sortOptions, setSortedEntries, entries }) 
         return arr.slice().sort((a, b) => new Date(b.date_created) - new Date(a.date_created))
       case 'date created oldest first':
         return arr.slice().sort((a, b) => new Date(a.date_created) - new Date(b.date_created))
+      case 'Newest First':
+        return arr.slice().sort((a, b) => new Date(b.date_created) - new Date(a.date_created))
+      case 'Oldest First':
+        return arr.slice().sort((a, b) => new Date(a.date_created) - new Date(b.date_created))
+      case 'Most Words':
+        return arr.slice().sort((a, b) => b.num_of_words - a.num_of_words)
+      case 'Least Words':
+        return arr.slice().sort((a, b) => a.num_of_words - b.num_of_words)
+      case 'Longest Time':
+        return arr.slice().sort((a, b) => b.total_time_taken - a.total_time_taken)
+      case 'Shortest Time':
+        return arr.slice().sort((a, b) => a.total_time_taken - b.total_time_taken)
+      case 'Fastest WPM':
+        return arr.slice().sort((a, b) => b.wpm - a.wpm)
+      case 'Slowest WPM':
+        return arr.slice().sort((a, b) => a.wpm - b.wpm)
       default:
         return arr
     }
