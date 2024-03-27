@@ -32,9 +32,6 @@ const JournalEntriesList = () => {
     dispatch(fetchJournalEntries())
   }, [dispatch])
 
-  console.log('allJournalEntries is:')
-  console.log(allJournalEntries)
-
   // TODO think about if a search is really necessary for journals? (maybe when we have like sentiment analysis)
   return (
     <div className={styles.wrapper}>
