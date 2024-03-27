@@ -8,7 +8,8 @@ const { NODE, JOURNAL } = ENTRY_TYPES
 const initialState = {
   entryId: null,
   wordCount: 0,
-  charCount: 0,
+  timeElapsed: 0,
+  wpm: 0,
   title: '',
   category: '',
   allCategories: [],
@@ -42,13 +43,15 @@ export const createNodeEntry = createAsyncThunk(
 
 export const saveJournalEntry = createAsyncThunk(
   'currentEntryReducer/saveJournalEntry',
-  async ({ entryId, user_id, content, wordCount }, { rejectWithValue, dispatch }) => {
+  async ({ entryId, user_id, content, timeElapsed, wpm, wordCount }, { rejectWithValue, dispatch }) => {
     try {
       const response = await axios.post('api/entries/save_journal_entry', {
         user_id,
         content,
         num_of_words: wordCount,
         entryId,
+        total_time_taken: timeElapsed,
+        wpm,
       })
       dispatch(showToast('Journal Entry Saved', 'success'))
 
@@ -173,6 +176,9 @@ const currentEntrySlice = createSlice({
     setTitle: (state, action) => {
       state.title = action.payload
     },
+    setTimeElapsed(state, action) {
+      state.timeElapsed = action.payload
+    },
     setCategory: (state, action) => {
       state.category = action.payload
     },
@@ -196,6 +202,9 @@ const currentEntrySlice = createSlice({
     },
     setVersion: (state, action) => {
       state.currentVersion = action.payload
+    },
+    setWPM(state, action) {
+      state.wpm = action.payload
     },
     resetState: () => initialState,
   },
@@ -245,6 +254,7 @@ export const {
   setWordCount,
   setCharCount,
   setTitle,
+  setTimeElapsed,
   setCategory,
   setConnections,
   setTags,
@@ -253,6 +263,7 @@ export const {
   setTypeJournal,
   setContent,
   setVersion,
+  setWPM,
 } = currentEntrySlice.actions
 
 export default currentEntrySlice.reducer
