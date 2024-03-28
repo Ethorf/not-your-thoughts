@@ -28,17 +28,13 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
     e.preventDefault()
 
     if (guestMode) toggleGuestMode()
-    
+
     let errorInfo = await login(email, password)
     errorInfo.message 
       ? errorInfo.code == 'ERR_BAD_RESPONSE' 
-        ? (function serverError(){
-          showToast('server error, connection failed', 'error')
-        })()
-        : (function credsError(){ 
-          showToast('invalid username or password', 'error')
-        })()
-      : setMessage('nada')
+        ? showToast('server error, connection failed', 'error')
+        : showToast('invalid username or password', 'warn')
+      : (function(){})()
   }
 
   if (isAuthenticated) {
