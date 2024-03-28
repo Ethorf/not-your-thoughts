@@ -1,127 +1,56 @@
-import React, { useState, useEffect } from 'react'
-import { connect } from 'react-redux'
-import PropTypes from 'prop-types'
-import './customPrompts.scss'
-import '../../pages/Profile/Profile.scss'
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchCustomPrompts, createCustomPrompt, deleteCustomPrompt } from '../../redux/reducers/customPromptsReducer'
+import DefaultButton from '../Shared/DefaultButton/DefaultButton'
+import DefaultInput from '../Shared/DefaultInput/DefaultInput'
 
-import { addCustomPrompt, deleteCustomPrompt, toggleCustomPromptsEnabled } from '../../redux/actions/authActions'
+import styles from './CustomPrompts.module.scss'
 
-const CustomPrompts = ({
-  addCustomPrompt,
-  deleteCustomPrompt,
-  prompts,
-  toggleCustomPromptsEnabled,
-  customPromptsEnabled,
-}) => {
-  const [promptData, setPromptData] = useState({
-    prompt: '',
-  })
-  const [localCustomPromptsEnabled, setLocalCustomPromptsEnabled] = useState(customPromptsEnabled)
-  const [localPromptAddOpen, setLocalPromptAddOpen] = useState(false)
+const CustomPrompts = () => {
+  const dispatch = useDispatch()
+  const [customPromptInput, setCustomPromptInput] = useState('')
+  const { customPrompts } = useSelector((state) => state.customPrompts)
 
-  const togglePrompts = () => {
-    setLocalCustomPromptsEnabled(!localCustomPromptsEnabled)
-    toggleCustomPromptsEnabled()
-  }
-  const promptInput = (e) => {
-    e.preventDefault()
-    setPromptData(e.target.value)
-  }
-  const toggleAddPromptOpen = (e) => {
-    e.preventDefault()
-    setLocalPromptAddOpen(!localPromptAddOpen)
-  }
-  const onSubmit = async (e) => {
-    e.preventDefault()
-    await addCustomPrompt({ prompt: promptData })
-    setPromptData({ prompt: '' })
-  }
   useEffect(() => {
-    setLocalCustomPromptsEnabled(customPromptsEnabled)
-  }, [])
-  return (
-    <div className={`custom-prompts`}>
-      <div className={`profile__stats-text profile__toggle-container`}>
-        Custom Prompts:
-        <div className={`profile__toggle-switch`} onClick={togglePrompts}>
-          <span
-            className={`profile__on-button profile__toggle-button ${
-              localCustomPromptsEnabled ? 'profile__active' : 'profile__inactive'
-            }`}
-          >
-            On
-          </span>
-          <span
-            className={`profile__toggle-button profile__off-button ${
-              localCustomPromptsEnabled ? 'profile__inactive' : 'profile__active'
-            }`}
-          >
-            Off
-          </span>
-        </div>
-      </div>
-      <div className={localCustomPromptsEnabled ? 'visible' : 'invisible'}>
-        <h2
-          className={`custom-prompts__title`}
-          style={localCustomPromptsEnabled ? { color: 'white' } : { color: 'silver' }}
-        >
-          Your Prompts
-          <span onClick={toggleAddPromptOpen} className={`custom-prompts__add-new`}>
-            {' '}
-            add +
-          </span>
-        </h2>
-        <form className={`${localPromptAddOpen === true ? 'custom-prompts__add-prompt-input' : 'invisible'}`}>
-          <input
-            className={`custom-prompts__input`}
-            onChange={promptInput}
-            placeholder="your prompt here"
-            value={promptData.prompt}
-          ></input>
-          <div className={`custom-prompts__button-container`}>
-            <button className={`custom-prompts__button`} onClick={onSubmit} type="submit">
-              Add Prompt
-            </button>
-            <button className={`custom-prompts__button custom-prompts__cancel-button`} onClick={toggleAddPromptOpen}>
-              Cancel
-            </button>
-          </div>
-        </form>
+    dispatch(fetchCustomPrompts())
+  }, [dispatch])
 
-        <ul className={`custom-prompts__prompts-container`}>
-          {prompts.map((prompt) => {
-            return (
-              <li className={`custom-prompts__prompt`} key={prompt.id} id={prompt.id}>
-                <div className={`custom-prompts__content`}>{prompt.content}</div>
-                <span
-                  className={`custom-prompts__delete-button`}
-                  onClick={() => {
-                    deleteCustomPrompt(prompt.id)
-                  }}
-                >
-                  X
-                </span>
-              </li>
-            )
-          })}
-        </ul>
+  const handleCreatePrompt = () => {
+    if (customPromptInput.trim() !== '') {
+      dispatch(createCustomPrompt(customPromptInput))
+      setCustomPromptInput('')
+    }
+  }
+
+  const handleDeletePrompt = (promptId) => {
+    dispatch(deleteCustomPrompt(promptId))
+  }
+
+  return (
+    <div>
+      <h2>Custom Prompts</h2>
+      <div className={styles.promptInput}>
+        <DefaultInput
+          value={customPromptInput}
+          onChange={(e) => setCustomPromptInput(e.target.value)}
+          placeholder="input custom prompt..."
+        />
+        <DefaultButton onClick={handleCreatePrompt}>Create New Prompt</DefaultButton>
       </div>
+      {customPrompts.length ? (
+        <ul>
+          {customPrompts.map((prompt) => (
+            <li className={styles.listedPrompt} key={prompt.id}>
+              <h4>{prompt.content}</h4>
+              <DefaultButton onClick={() => handleDeletePrompt(prompt.id)}>X</DefaultButton>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <h3>No prompts created yet...</h3>
+      )}
     </div>
   )
 }
 
-CustomPrompts.propTypes = {
-  prompts: PropTypes.array.isRequired,
-  customPromptsEnabled: PropTypes.bool.isRequired,
-}
-
-const mapStateToProps = (state) => ({
-  prompts: state.auth.user.customPrompts,
-  customPromptsEnabled: state.auth.user.customPromptsEnabled,
-})
-
-export default connect(mapStateToProps, {
-  addCustomPrompt,
-  deleteCustomPrompt,
-  toggleCustomPromptsEnabled,
-})(CustomPrompts)
+export default CustomPrompts

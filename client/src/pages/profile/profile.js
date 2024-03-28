@@ -1,20 +1,24 @@
 import React, { useEffect } from 'react'
-import { connect } from 'react-redux'
+import { connect, useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 import { logout, loadUser } from '../../redux/actions/authActions.js'
-import { deleteJournalEntry, fetchJournalEntries } from '../../redux/reducers/journalEntriesReducer.js'
-import { getJournalConfig, toggleJournalConfigSetting } from '../../redux/actions/journalConfigActions.js'
+import { fetchJournalConfig } from '../../redux/reducers/journalEntriesReducer.js'
+import { toggleJournalConfigSetting } from '../../redux/actions/journalConfigActions.js'
 import ProfileGoalEdit from '../../components/ProfileGoalEdit/ProfileGoalEdit.js'
 import TrackedPhrasesModal from '../../components/Modals/trackedPhrasesModal.js'
-import CustomPrompts from '../../components/customPrompts/customPrompts.js'
+import CustomPrompts from '../../components/CustomPrompts/CustomPrompts.js'
 import Spinner from '../../components/Shared/Spinner/Spinner.js'
 import './Profile.scss'
 import '../../styles/rubberDucky.scss'
 
-const Profile = ({ auth: { user, loading }, mode, toggleJournalConfigSetting, getJournalConfig, journalConfig }) => {
+const Profile = ({ auth: { user, loading }, mode, toggleJournalConfigSetting }) => {
+  const dispatch = useDispatch()
+
+  const { journalConfig } = useSelector((state) => state.journalEntries)
+
   useEffect(() => {
-    getJournalConfig()
-  }, [])
+    dispatch(fetchJournalConfig())
+  }, [dispatch])
 
   if (loading) {
     return <Spinner />
@@ -25,31 +29,31 @@ const Profile = ({ auth: { user, loading }, mode, toggleJournalConfigSetting, ge
   }
 
   return (
-    user &&
     journalConfig && (
       <div className={`profile ${mode}`}>
         <div className="profile__content">
           <header className={`profile__header ${mode}`}>User Profile</header>
-          <h2 className={`profile__user ${mode}`}>{user && user.name}</h2>
-          <h2 className={`profile__sub-header ${mode}`}>Stats</h2>
+          <h2 className={`profile__user ${mode}`}>{user.name}</h2>
+
+          {/* <h2 className={`profile__sub-header ${mode}`}>Stats</h2> */}
           {user.last_day_completed !== null ? (
             <>
               <div className={`profile__stats-container ${mode}`}>
-                <h2 className="profile__stats-text">
+                {/* <h2 className="profile__stats-text">
                   Consecutive Days Completed:
-                  <span className={`profile__day-number ${mode}`}> {user && journalConfig.consecutive_days}</span>
-                </h2>
-                <h2 className="profile__total-days profile__stats-text">
+                  <span className={`profile__day-number ${mode}`}> {journalConfig.consecutive_days}</span>
+                </h2> */}
+                {/* <h2 className="profile__total-days profile__stats-text">
                   Total Days Completed:
                   <span className={`profile__day-number ${mode}`}> {journalConfig.total_days_completed}</span>
-                </h2>
+                </h2> */}
               </div>
               <div className={`profile__stats-container ${mode}`}>
-                <h2 className="profile__stats-text">
+                {/* <h2 className="profile__stats-text">
                   Last Day Completed:
                   <span className={`profile__day-number ${mode}`}> {journalConfig.last_day_completed}</span>
-                </h2>
-                <h2 className={`profile__sub-header ${mode}`}>Settings</h2>
+                </h2> */}
+                <h2 className={`profile__sub-header ${mode}`}>Journal Settings</h2>
                 <ProfileGoalEdit />
               </div>
               {/* <div className={` profile__stats-text profile__edit-container`}>
@@ -60,7 +64,7 @@ const Profile = ({ auth: { user, loading }, mode, toggleJournalConfigSetting, ge
           ) : (
             <h2 className={`profile__day-number profile__no-days  ${mode}`}>No days complete yet</h2>
           )}
-
+          <CustomPrompts />
           <div className={`profile__stats-text profile__toggle-container`}>
             Progress Audio:
             <div className={`profile__toggle-switch`}>
@@ -137,23 +141,17 @@ Profile.propTypes = {
   auth: PropTypes.object.isRequired,
   logout: PropTypes.func.isRequired,
   isAuthenticated: PropTypes.bool,
-  entries: PropTypes.array.isRequired,
 }
 
 const mapStateToProps = (state) => ({
   auth: state.auth,
   isAuthenticated: state.auth.isAuthenticated,
   goal: state.wordCount.goal,
-  entries: state.entries.entries,
-  journalConfig: state.entries.journalConfig,
-  loading: state.entries.loading,
   mode: state.modes.mode,
 })
 
 const mapDispatchToProps = (dispatch) => ({
   logout: () => dispatch(logout()),
-  getJournalConfig: () => dispatch(getJournalConfig()),
-  deleteJournalEntry: (entryId) => dispatch(deleteJournalEntry(entryId)),
   loadUser: () => dispatch(loadUser()),
   toggleJournalConfigSetting: (settingName, isEnabled) => dispatch(toggleJournalConfigSetting(settingName, isEnabled)),
 })

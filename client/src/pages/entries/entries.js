@@ -10,8 +10,6 @@ import '../Profile/Profile.scss'
 import '../../styles/rubberDucky.scss'
 import './Entries.scss'
 
-import Spinner from '../../components/Shared/Spinner/Spinner.js'
-
 const { NODE, JOURNAL } = ENTRY_TYPES
 
 const Entries = () => {

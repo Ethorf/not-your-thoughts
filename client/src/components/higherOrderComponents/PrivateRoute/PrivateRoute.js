@@ -11,10 +11,10 @@ const PrivateRoute = ({ component: Component, auth: { isAuthenticated, user }, l
       loadUser()
     }
   }, [user, loadUser])
-  // Issues
-  //  Looks like this user / null is preventing us from getting redirected to login but somehow loadUser isn't making isAuthenticated happen?
-  // also looks like we have an issue with if we turn off the spinner below loading an edit entry is fucked
-  // also turning off the spinner makes us like go through a whole other login chain again
+
+  if (!isAuthenticated) {
+    return <Redirect to="/login" />
+  }
   if (user === null) {
     return <Spinner />
   }

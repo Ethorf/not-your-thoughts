@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useSelector } from 'react-redux'
 import { toggleEditGoal, updateJournalGoal, setNewGoal } from '../../redux/actions/journalConfigActions'
 
 import '../../pages/Profile/Profile.scss'
 
-function ProfileGoalEdit({
-  newGoal,
-  toggleEditGoal,
-  goalIsEditable,
-  updateJournalGoal,
-  setNewGoal,
-  mode,
-  journalConfig,
-}) {
+function ProfileGoalEdit({ newGoal, toggleEditGoal, goalIsEditable, updateJournalGoal, setNewGoal, mode }) {
+  const { journalConfig } = useSelector((state) => state.journalEntries)
+
   const [localGoalPreference, setLocalGoalPreference] = useState(journalConfig.goal_preference)
 
   const goalNum = (e) => {
@@ -121,7 +115,6 @@ const mapStateToProps = (state) => ({
   newGoal: state.wordCount.newGoal,
   goalIsEditable: state.wordCount.goalIsEditable,
   mode: state.modes.mode,
-  journalConfig: state.entries.journalConfig,
 })
 
 export default connect(mapStateToProps, { toggleEditGoal, updateJournalGoal, setNewGoal })(ProfileGoalEdit)
