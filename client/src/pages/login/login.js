@@ -18,7 +18,6 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
     email: '',
     password: '',
   })
-  const [message, setMessage] = useState('')
 
   const { email, password } = formData
 
@@ -83,7 +82,6 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
         <FadeInAnimationOnMount wrapperElement="div" direction="up">
           <DefaultButton>Login</DefaultButton>
         </FadeInAnimationOnMount>
-        <div className="login-message">{message ? message : ''}</div>
       </form>
       <FadeInAnimationOnMount wrapperElement="div" direction="up">
         <div className="login-register__signup">

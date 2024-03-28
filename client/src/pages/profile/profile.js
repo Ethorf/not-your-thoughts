@@ -15,19 +15,10 @@ import '../../styles/rubberDucky.scss'
 const Profile = ({ auth: { user, loading }, mode, toggleJournalConfigSetting, getJournalConfig, journalConfig, isAuthenticated }) => {
   useEffect(() => {
     getJournalConfig()
-  }, [])
+  }, []) 
 
-  if (!isAuthenticated) {
-    console.log(isAuthenticated)
-    return <Redirect to="/login" />;
-  }
-  else if (loading) {
-    console.log(isAuthenticated)
+  if (loading)
     return <Spinner />
-  } 
-
-  // if (loading)
-  //   return <Spinner />
 
   const handleToggle = (settingName, isEnabled) => {
     toggleJournalConfigSetting(settingName, isEnabled)
