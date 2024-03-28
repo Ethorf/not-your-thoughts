@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import classNames from 'classnames'
 import PropTypes from 'prop-types'
 import { login, toggleGuestMode } from '../../redux/actions/authActions.js'
+import { showToast } from '../../utils/toast.js'
 
 import sharedStyles from '../../styles/shared.module.scss'
 import styles from './Login.module.scss'
@@ -27,13 +28,17 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
     e.preventDefault()
 
     if (guestMode) toggleGuestMode()
-
-    let loginRes = await login(email, password)
-    loginRes.message 
-      ? loginRes.code == 'ERR_BAD_RESPONSE' 
-        ? setMessage('server error, connection failed')
-        : setMessage('invalid username or password') 
-      : setMessage('')
+    
+    let errorInfo = await login(email, password)
+    errorInfo.message 
+      ? errorInfo.code == 'ERR_BAD_RESPONSE' 
+        ? (function serverError(){
+          showToast('server error, connection failed', 'error')
+        })()
+        : (function credsError(){ 
+          showToast('invalid username or password', 'error')
+        })()
+      : setMessage('nada')
   }
 
   if (isAuthenticated) {
@@ -82,7 +87,7 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
         <FadeInAnimationOnMount wrapperElement="div" direction="up">
           <DefaultButton>Login</DefaultButton>
         </FadeInAnimationOnMount>
-        <div className="login-register__message">{message ? message : ''}</div>
+        <div className="login-message">{message ? message : ''}</div>
       </form>
       <FadeInAnimationOnMount wrapperElement="div" direction="up">
         <div className="login-register__signup">
