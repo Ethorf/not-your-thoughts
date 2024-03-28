@@ -1,3 +1,6 @@
+html {
+  overflow: hidden;
+}
 .page {
   position: absolute;
   height: 100%;
@@ -77,6 +80,7 @@
   height: 100%;
   padding-bottom: 1%;
   font-family: 'Syncopate', sans-serif;
+  overflow: hidden;
 }
 .-light {
   color: black;

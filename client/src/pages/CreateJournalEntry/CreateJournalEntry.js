@@ -18,7 +18,7 @@ import { saveJournalEntry } from '../../redux/reducers/currentEntryReducer'
 import Header from '../../components/Header/Header.js'
 import JournalInfoContainer from '../../components/JournalInfoContainer/JournalInfoContainer.js'
 import BgImage from '../../components/bgImage/bgImage.js'
-import Prompt from '../../components/prompt/prompt.js'
+import PromptsDisplay from '../../components/PromptsDisplay/PromptsDisplay.js'
 import CreateEntry from '../../components/Shared/CreateEntry/CreateEntry'
 import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
 import Spinner from '../../components/Shared/Spinner/Spinner.js'
@@ -45,26 +45,22 @@ const CreateJournalEntry = ({ auth: { guestMode, user, loading } }) => {
 
   useEffect(() => {
     dispatch(fetchJournalConfig())
-  }, [])
+  }, [dispatch])
 
-  // if (loading) {
-  //   return <Spinner />
-  // }
-
-  // We need this User check here because of all the user accessing in the JSX
-  // On initial render this won't even run even if loading === false because it'll be trying
-  //  to access a bunch of values in the JSX (which renders before useEffect)
-  // TODO remove these checks eventually once private route is improved
+  console.log('journalConfig is:')
+  console.log(journalConfig)
+  if (loading) {
+    return <Spinner />
+  }
 
   return (
-    user &&
     journalConfig && (
       <div className={styles.wrapper}>
         <ProgressWord />
         <BgImage />
         <div className={styles.headerPromptContainer}>
           <Header />
-          {/* <Prompt /> */}
+          <PromptsDisplay />
         </div>
         <div className={styles.pillarsAllContainer}>
           <PillarTop />

@@ -6,6 +6,7 @@ import modesReducer from './modesReducer'
 import currentEntryReducer from './currentEntryReducer'
 import nodeEntriesReducer from './nodeEntriesReducer'
 import journalEntriesReducer from './journalEntriesReducer'
+import customPromptsReducer from './customPromptsReducer'
 
 import alert from './alert'
 
@@ -18,4 +19,5 @@ export default combineReducers({
   currentEntry: currentEntryReducer,
   nodeEntries: nodeEntriesReducer,
   journalEntries: journalEntriesReducer,
+  customPrompts: customPromptsReducer,
 })

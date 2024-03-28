@@ -30,6 +30,8 @@ const NodeEntriesList = () => {
     dispatch(fetchNodeEntries())
   }, [dispatch])
 
+  console.log('allNodeEntries is:')
+  console.log(allNodeEntries)
   return (
     <div className={styles.wrapper}>
       <h2 className={styles.nodesTitle}>Nodes</h2>

@@ -1,18 +1,15 @@
-import React, { useState, createRef } from 'react'
-import { connect, useSelector } from 'react-redux'
+import React from 'react'
+import { useSelector } from 'react-redux'
 import '../../styles/shared.scss'
 import './Header.scss'
 
-const Header = ({ mode }) => {
-  const [pathLength, setPathLength] = useState()
+const Header = () => {
   const { wordCount } = useSelector((state) => state.currentEntry)
-
-  let testPathRef = createRef()
 
   const NytHeader = () => {
     return (
       <svg
-        className={`main__header${mode}`}
+        className={`main__header`}
         id="header"
         width="669"
         height="36"
@@ -132,30 +129,6 @@ const Header = ({ mode }) => {
       </svg>
     )
   }
-  // const TestHeader = () => {
-  //   return (
-  //     <svg
-  //       id="test-header"
-  //       width="348"
-  //       height="356"
-  //       viewBox="0 0 348 356"
-  //       fill="none"
-  //       xmlns="http://www.w3.org/2000/svg"
-  //     >
-  //       <path
-  //         ref={testPathRef}
-  //         d="M7.99998 1.5C-20.8 194.7 126.333 315 203.5 351L342 85L94.5 14L45 175.5H210.5L151 72.5L79 141.5L144 150.5V119H111L127.5 135.5L135.5 130"
-  //         stroke="white"
-  //         strokeWidth="7"
-  //       />
-  //     </svg>
-  //   )
-  // }
-  // useEffect(() => {
-  //   if (testPathRef.current) {
-  //     setPathLength(testPathRef.current.getTotalLength())
-  //   }
-  // }, [testPathRef])
 
   return (
     <div id="header-container">
@@ -163,8 +136,5 @@ const Header = ({ mode }) => {
     </div>
   )
 }
-const mapStateToProps = (state) => ({
-  mode: state.modes.mode,
-})
 
-export default connect(mapStateToProps)(Header)
+export default Header

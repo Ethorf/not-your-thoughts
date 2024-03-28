@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import moment from 'moment'
 import Timer from '../Timer/Timer.js'
 import WPMDisplay from '../WPMDisplay/WPMDisplay.js'
