@@ -10,7 +10,7 @@ export const showToast = (message, type) => {
     hideProgressBar: true,
   }
   const toastTypes = {
-    success: toast.success(message, {...options}),
+    success: toast.success(message, {...options }),
     warn: toast.warn(message, { ...options }),
     error: toast.error(message, { ...options })
   }
