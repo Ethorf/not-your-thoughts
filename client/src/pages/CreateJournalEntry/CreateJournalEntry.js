@@ -47,8 +47,6 @@ const CreateJournalEntry = ({ auth: { guestMode, user, loading } }) => {
     dispatch(fetchJournalConfig())
   }, [dispatch])
 
-  console.log('journalConfig is:')
-  console.log(journalConfig)
   if (loading) {
     return <Spinner />
   }
