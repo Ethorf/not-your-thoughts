@@ -1,5 +1,11 @@
 .wrapper {
-  background: black;
-  color: red;
-  border: 1px solid white;
+}
+
+.promptInput {
+  display: flex;
+}
+
+.listedPrompt {
+  display: flex;
+  align-items: center;
 }
