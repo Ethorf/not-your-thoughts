@@ -22,6 +22,7 @@ export const SuccessModal = () => {
 
   const handleSaveJournal = async () => {
     await dispatch(saveJournalEntry({ content, wordCount, entryId, wpm, timeElapsed }))
+    // TODO add close modal function here
   }
 
   return (
