@@ -5,6 +5,8 @@ import { fetchCustomPrompts } from '../../redux/reducers/customPromptsReducer'
 import DefaultButton from '../Shared/DefaultButton/DefaultButton'
 import { useHotkeys } from 'react-hotkeys-hook'
 
+import { randomNum } from '../../utils/randomNum.js'
+
 import { MODAL_NAMES } from '../../constants/modalNames'
 
 import { openModal } from '../../redux/reducers/modalsReducer.js'
@@ -32,10 +34,19 @@ const PromptsDisplay = () => {
     dispatch(openModal(MODAL_NAMES.CUSTOM_PROMPTS))
   }
 
+  const handleShuffle = () => {
+    setActivePromptIndex(randomNum(customPrompts.length - 1))
+  }
+
   return (
     customPrompts.length && (
       <div className={styles.wrapper}>
-        <h3 className={styles.prompt}>{customPrompts[activePromptIndex].content}</h3>
+        <div className={styles.topContainer}>
+          <h3 className={styles.prompt}>{customPrompts[activePromptIndex].content}</h3>
+          <DefaultButton className={classNames(styles.noBorder, styles.plusButton)} onClick={handleOpenModal}>
+            +
+          </DefaultButton>
+        </div>
         <div className={styles.controlsContainer}>
           <DefaultButton
             className={styles.noBorder}
@@ -43,7 +54,7 @@ const PromptsDisplay = () => {
             onClick={() => setActivePromptIndex(0)}
           >
             <img
-              className={classNames(styles.firstButton, styles.tooltip)}
+              className={classNames(styles.controlsButton, styles.firstButton, styles.tooltip)}
               src={firstIcon}
               alt="go to first prompt"
               title="Go to first prompt, Ctrl + f"
@@ -55,14 +66,20 @@ const PromptsDisplay = () => {
             onClick={() => setActivePromptIndex(activePromptIndex - 1)}
           >
             <img
-              className={classNames(styles.prevButton, styles.tooltip)}
+              className={classNames(styles.controlsButton, styles.prevButton, styles.tooltip)}
               src={previousIcon}
               alt="go to previous prompt"
               title="Go to previous prompt, Ctrl + p"
             />
           </DefaultButton>
-          <DefaultButton className={classNames(styles.noBorder, styles.plusButton)} onClick={handleOpenModal}>
-            +
+
+          <DefaultButton className={styles.noBorder} onClick={handleShuffle}>
+            <img
+              className={classNames(styles.controlsButton, styles.shuffleButton, styles.tooltip)}
+              src={shuffleIcon}
+              alt="shuffle Prompts"
+              title="Go to next prompt, Ctrl + n"
+            />
           </DefaultButton>
           <DefaultButton
             className={styles.noBorder}
@@ -70,7 +87,7 @@ const PromptsDisplay = () => {
             onClick={() => setActivePromptIndex(activePromptIndex + 1)}
           >
             <img
-              className={classNames(styles.nextButton, styles.tooltip)}
+              className={classNames(styles.controlsButton, styles.nextButton, styles.tooltip)}
               src={nextIcon}
               alt="go to next prompt"
               title="Go to next prompt, Ctrl + n"
@@ -82,7 +99,7 @@ const PromptsDisplay = () => {
             onClick={() => setActivePromptIndex(customPrompts.length - 1)}
           >
             <img
-              className={classNames(styles.lastButton, styles.tooltip)}
+              className={classNames(styles.controlsButton, styles.lastButton, styles.tooltip)}
               src={lastIcon}
               alt="go to last prompt"
               title="Go to last prompt, Ctrl + l"
