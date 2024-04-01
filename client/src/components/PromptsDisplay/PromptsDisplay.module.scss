@@ -5,15 +5,30 @@
 
   @include flex-center-column;
 }
+
 .controlsContainer {
   display: flex;
   justify-content: space-between;
+  width: 50%;
+}
+.topContainer {
+  display: flex;
+  align-items: center;
 }
 .noBorder {
   border: none;
+
+  &:disabled {
+    border: none;
+  }
+
   &:hover {
     background-color: black;
   }
+}
+
+.controlsButton {
+  width: 20px;
 }
 
 .firstButton {
@@ -30,10 +45,13 @@
 
 .plusButton {
   font-size: 2rem;
+  color: grey;
+
   &:hover {
-    color: grey;
+    color: white;
   }
 }
+
 .shuffleButton {
   &:hover {
     content: url('../../assets/Icons/prompt-icons/shuffle-light-gray.png');

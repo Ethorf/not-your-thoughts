@@ -13,6 +13,7 @@ import { increaseDays } from '../../redux/actions/authActions.js'
 import { toggleGuestModeModalSeen } from '../../redux/actions/modalActions.js'
 import { changeMode } from '../../redux/actions/modeActions.js'
 import { saveJournalEntry } from '../../redux/reducers/currentEntryReducer'
+import { openModal } from '../../redux/reducers/modalsReducer.js'
 
 //Component Imports
 import Header from '../../components/Header/Header.js'
@@ -25,6 +26,7 @@ import Spinner from '../../components/Shared/Spinner/Spinner.js'
 
 // Constants
 import { ENTRY_TYPES } from '../../constants/entryTypes'
+import { MODAL_NAMES } from '../../constants/modalNames'
 
 //Pillars
 import PillarTop from '../../components/Pillars/PillarTop.js'
@@ -46,6 +48,12 @@ const CreateJournalEntry = ({ auth: { guestMode, user, loading } }) => {
   useEffect(() => {
     dispatch(fetchJournalConfig())
   }, [dispatch])
+
+  useEffect(() => {
+    if (journalConfig && wordCount >= journalConfig.daily_words_goal) {
+      dispatch(openModal(MODAL_NAMES.SUCCESS))
+    }
+  }, [dispatch, journalConfig, wordCount])
 
   if (loading) {
     return <Spinner />
