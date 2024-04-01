@@ -42,7 +42,6 @@ const App = () => {
   }, [])
   const mode = useSelector((state) => state.modes.mode)
 
-  // TODO make a Modals container higher order component and put here?
   return (
     <div className={`App ${mode}`}>
       <ToastContainer />

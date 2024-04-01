@@ -1,5 +1,75 @@
+@import '../../styles/mixins.scss';
+
 .wrapper {
   width: 100%;
+
+  @include flex-center-column;
+}
+.controlsContainer {
   display: flex;
   justify-content: space-between;
 }
+.noBorder {
+  border: none;
+  &:hover {
+    background-color: black;
+  }
+}
+
+.firstButton {
+  &:hover {
+    content: url('../../assets/Icons/prompt-icons/first-light-gray.png');
+  }
+}
+
+.prevButton {
+  &:hover {
+    content: url('../../assets/Icons/prompt-icons/previous-light-gray.png');
+  }
+}
+
+.plusButton {
+  font-size: 2rem;
+  &:hover {
+    color: grey;
+  }
+}
+.shuffleButton {
+  &:hover {
+    content: url('../../assets/Icons/prompt-icons/shuffle-light-gray.png');
+  }
+}
+
+.nextButton {
+  &:hover {
+    content: url('../../assets/Icons/prompt-icons/next-light-gray.png');
+  }
+}
+
+.lastButton {
+  &:hover {
+    content: url('../../assets/Icons/prompt-icons/last-light-gray.png');
+  }
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  background-color: black;
+  border: 1px solid grey;
+  color: silver;
+  text-align: center;
+  border-radius: 6px;
+  padding: 3px;
+  position: absolute;
+  z-index: 15;
+  bottom: 120%;
+}
+
+// .tooltip:hover .tooltiptext {
+// 	visibility: visible;
+// }
