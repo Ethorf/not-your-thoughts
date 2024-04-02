@@ -12,6 +12,7 @@ import DefaultButton from '../../Shared/DefaultButton/DefaultButton'
 
 // Redux
 import { saveJournalEntry } from '../../../redux/reducers/currentEntryReducer'
+import { closeModal } from '../../../redux/reducers/modalsReducer.js'
 
 import styles from './SuccessModal.module.scss'
 
@@ -22,15 +23,20 @@ export const SuccessModal = () => {
 
   const handleSaveJournal = async () => {
     await dispatch(saveJournalEntry({ content, wordCount, entryId, wpm, timeElapsed }))
-    // TODO add close modal function here
+    dispatch(closeModal())
   }
-
+  const handleCloseModal = () => {
+    dispatch(closeModal())
+  }
   return (
     <BaseModalWrapper modalName={MODAL_NAMES.SUCCESS}>
       <div className={styles.wrapper}>
         <h2>Great jarb!</h2>
         <DefaultButton disabled={!content.length} onClick={handleSaveJournal}>
-          Save Journal
+          Save Journal {'&'} Close
+        </DefaultButton>
+        <DefaultButton disabled={!content.length} onClick={handleCloseModal}>
+          Just Close
         </DefaultButton>
       </div>
     </BaseModalWrapper>

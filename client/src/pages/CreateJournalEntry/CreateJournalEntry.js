@@ -35,7 +35,7 @@ import PillarRight from '../../components/Pillars/PillarRight.js'
 import PillarBottom from '../../components/Pillars/PillarBottom.js'
 import ProgressWord from '../../components/progress/progressWord.js'
 
-const CreateJournalEntry = ({ auth: { guestMode, user, loading } }) => {
+const CreateJournalEntry = ({ auth: { guestMode, loading } }) => {
   const dispatch = useDispatch()
 
   const { wordCount, content, entryId, wpm, timeElapsed } = useSelector((state) => state.currentEntry)
