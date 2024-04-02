@@ -7,20 +7,17 @@
 }
 
 .controlsContainer {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   width: 50%;
 }
 .topContainer {
   display: flex;
   align-items: center;
 }
+
 .noBorder {
   border: none;
-
-  &:disabled {
-    border: none;
-  }
 
   &:hover {
     background-color: black;
@@ -32,6 +29,10 @@
 }
 
 .firstButton {
+  &:disabled {
+    background: red;
+  }
+
   &:hover {
     content: url('../../assets/Icons/prompt-icons/first-light-gray.png');
   }
@@ -88,6 +89,6 @@
   bottom: 120%;
 }
 
-// .tooltip:hover .tooltiptext {
-// 	visibility: visible;
-// }
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
