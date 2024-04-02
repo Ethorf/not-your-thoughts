@@ -66,13 +66,6 @@ export const login = (email, password) => async (dispatch) => {
     })
     return res.data
   } catch (err) {
-    // I wonder if this error handling is an artifact of our pre-postgres DB, as `errors` is null even if we have errors
-
-    // const errors = err.response.data.errors
-
-    // if (errors) {
-    //   errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')))
-    // }
     dispatch({
       type: LOGIN_FAIL,
     })
