@@ -29,6 +29,7 @@ import Entries from './pages/Entries/Entries.js'
 import store from './redux/store/index'
 import { loadUser } from './redux/actions/authActions'
 import setAuthToken from './utils/setAuthToken'
+import { ModalsContainer } from './components/Modals/ModalsContainer/ModalsContainer.js'
 
 if (localStorage.token) {
   setAuthToken(localStorage.token)
@@ -41,17 +42,10 @@ const App = () => {
   }, [])
   const mode = useSelector((state) => state.modes.mode)
 
-  // TODO make a Modals container higher order component and put here?
   return (
     <div className={`App ${mode}`}>
       <ToastContainer />
-      {/* <SaveEntryModal />
-          <SuccessModal />
-          <IntroModal />
-          <GuestModeModal
-            toggleGuestModeModalOpen={() => setGuestModeModalOpen(!guestModeModalOpen)}
-            guestModeModalOpen={guestModeModalOpen}
-          /> */}
+      <ModalsContainer />
       <BrowserRouter>
         <NavBarTop />
         <NavBarSide />

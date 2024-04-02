@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux'
 import authReducer from './authReducer'
 import wordCountReducer from './wordCountReducer'
-import modalReducer from './modalReducer'
+import modalsReducer from './modalsReducer'
 import modesReducer from './modesReducer'
 import currentEntryReducer from './currentEntryReducer'
 import nodeEntriesReducer from './nodeEntriesReducer'
@@ -14,7 +14,7 @@ export default combineReducers({
   auth: authReducer,
   wordCount: wordCountReducer,
   alert,
-  modals: modalReducer,
+  modals: modalsReducer,
   modes: modesReducer,
   currentEntry: currentEntryReducer,
   nodeEntries: nodeEntriesReducer,

@@ -22,6 +22,16 @@
     transition: all 0.2s ease-in-out;
   }
 }
+
+.contentButton {
+  cursor: pointer;
+
+  &:hover {
+    color: white;
+    transition: all 0.2s ease-in-out;
+  }
+}
+
 .editContainer {
   display: flex;
   justify-content: flex-end;
