@@ -30,6 +30,7 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
     if (guestMode) toggleGuestMode()
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     let errorInfo = await login(email, password)
     errorInfo.message 
       ? errorInfo.code == 'ERR_BAD_RESPONSE' 
@@ -41,6 +42,11 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
     console.dir(loginResponse)
     loginResponse.message 
       ? loginResponse.code == 'ERR_BAD_RESPONSE' 
+=======
+    let loginRes = await login(email, password)
+    loginRes.message 
+      ? loginRes.code == 'ERR_BAD_RESPONSE' 
+>>>>>>> 22e01c8 (pushing up changes to branch off of rework-dev again)
         ? setMessage('server error, connection failed')
         : setMessage('invalid username or password') 
       : setMessage('')
