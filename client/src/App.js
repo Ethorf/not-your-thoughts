@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import { CSSTransition, TransitionGroup } from 'react-transition-group'
 import { ToastContainer } from 'react-toastify'
+import { Tooltip } from 'react-tooltip'
 import 'react-toastify/dist/ReactToastify.css'
 
 import PrivateRoute from './components/higherOrderComponents/PrivateRoute/PrivateRoute.js'
@@ -46,6 +47,7 @@ const App = () => {
     <div className={`App ${mode}`}>
       <ToastContainer />
       <ModalsContainer />
+      <Tooltip id="main-tooltip" style={{ zIndex: 99 }} place="bottom" />
       <BrowserRouter>
         <NavBarTop />
         <NavBarSide />
