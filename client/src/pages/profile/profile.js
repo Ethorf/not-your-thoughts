@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { connect, useSelector, useDispatch } from 'react-redux'
+>>>>>>> 203d0b8 (I think I got all of your feedback from the PR in here correctly, let me know if I missed somethin)
 import PropTypes from 'prop-types'
 import { logout, loadUser } from '../../redux/actions/authActions.js'
 import { fetchJournalConfig } from '../../redux/reducers/journalEntriesReducer.js'
