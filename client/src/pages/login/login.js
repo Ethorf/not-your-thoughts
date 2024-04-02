@@ -18,6 +18,7 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
     email: '',
     password: '',
   })
+  const [message, setMessage] = useState('')
 
   const { email, password } = formData
 
@@ -28,12 +29,22 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
 
     if (guestMode) toggleGuestMode()
 
+<<<<<<< HEAD
     let errorInfo = await login(email, password)
     errorInfo.message 
       ? errorInfo.code == 'ERR_BAD_RESPONSE' 
         ? showToast('server error, connection failed', 'error')
         : showToast('invalid username or password', 'warn')
       : (function(){})()
+=======
+    let loginResponse = await login(email, password)
+    console.dir(loginResponse)
+    loginResponse.message 
+      ? loginResponse.code == 'ERR_BAD_RESPONSE' 
+        ? setMessage('server error, connection failed')
+        : setMessage('invalid username or password') 
+      : setMessage('')
+>>>>>>> 7da57bc (updated Toast support in Login page with error message)
   }
 
   if (isAuthenticated) {
@@ -82,6 +93,7 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
         <FadeInAnimationOnMount wrapperElement="div" direction="up">
           <DefaultButton>Login</DefaultButton>
         </FadeInAnimationOnMount>
+        <div className="login-register__message">{message ? message : ''}</div>
       </form>
       <FadeInAnimationOnMount wrapperElement="div" direction="up">
         <div className="login-register__signup">
