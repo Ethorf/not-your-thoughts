@@ -2,9 +2,9 @@ import React from 'react'
 import { useDispatch } from 'react-redux'
 import { openModal } from '../../redux/reducers/modalsReducer.js'
 
-import { MODAL_NAMES } from '../../constants/modalNames'
+import { MODAL_NAMES } from '../../constants/modalNames.js'
 
-import DefaultButton from '../Shared/DefaultButton/DefaultButton'
+import DefaultButton from '../Shared/DefaultButton/DefaultButton.js'
 
 import styles from './CustomPrompts.module.scss'
 

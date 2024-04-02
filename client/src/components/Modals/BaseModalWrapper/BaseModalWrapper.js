@@ -30,6 +30,7 @@ export const BaseModalWrapper = ({ children, modalName }) => {
   )
 }
 
+// Styling props
 // { root?: React.CSSProperties; overlay?: React.CSSProperties; overlay?: React.CSSProperties; modalContainer?: React.CSSProperties; modal?: React.CSSProperties; closeButton?: React.CSSProperties; closeIcon?: React.CSSProperties; }
 
 // All other props at https://react-responsive-modal.leopradel.com/#props

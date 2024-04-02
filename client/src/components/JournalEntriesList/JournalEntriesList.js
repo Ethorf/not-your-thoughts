@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+
+// Redux
 import { fetchJournalEntries } from '../../redux/reducers/journalEntriesReducer'
+
+// Components
 import Spinner from '../Shared/Spinner/Spinner'
 import { JournalEntry } from '../JournalEntry/JournalEntry'
 import { EntriesSortDropdown } from '../Shared/EntriesSortDropdown/EntriesSortDropdown'
@@ -15,7 +19,7 @@ const JournalEntriesList = () => {
   const allJournalEntries = useSelector((state) => state.journalEntries.entries.entries)
   const [sortedEntries, setSortedEntries] = useState([])
 
-  // will probably need this to be an object so that it can have a label / icon thing too and also just abstract it into a constant so it's easily different for nodes / journels
+  // TODO extract into constant
   const sortOptions = [
     'Most Words',
     'Least Words',
@@ -26,7 +30,7 @@ const JournalEntriesList = () => {
     'Oldest First',
     'Newest First',
   ]
-
+  // TODO insert custom hook here
   useEffect(() => {
     dispatch(fetchJournalEntries())
   }, [dispatch])

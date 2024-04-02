@@ -9,6 +9,15 @@
   margin-right: 8px;
 }
 
+.contentButton {
+  cursor: pointer;
+
+  &:hover {
+    color: white;
+    transition: all 0.2s ease-in-out;
+  }
+}
+
 .editButton {
   height: 32px;
   width: 32px;
@@ -22,6 +31,7 @@
     transition: all 0.2s ease-in-out;
   }
 }
+
 .editContainer {
   display: flex;
   justify-content: flex-end;
