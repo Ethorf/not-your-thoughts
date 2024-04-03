@@ -25,7 +25,8 @@
 
 .contentButton {
   cursor: pointer;
-
+  display: flex;
+  align-items: center;
   &:hover {
     color: white;
     transition: all 0.2s ease-in-out;

@@ -6,10 +6,17 @@
   border: 1px solid rgba(192, 192, 192, 0.5);
   border-radius: 12px;
   transition: all 500ms;
+  position: relative;
 
   &:hover,
   &:focus {
     border: 1px solid rgba(192, 192, 192, 1);
     transition: all 500ms;
   }
+}
+
+.toolbarToggleButton {
+  position: absolute;
+  top: 0;
+  right: 0;
 }

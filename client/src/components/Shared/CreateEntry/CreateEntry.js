@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 
+import TextButton from '../../Shared/TextButton/TextButton'
+
 import { setContent, setWordCount, setCharCount } from '../../../redux/reducers/currentEntryReducer' // Replace with the correct path
 import { ENTRY_TYPES } from '../../../constants/entryTypes'
 
@@ -41,18 +43,22 @@ const CreateEntry = ({ type }) => {
   }
 
   return (
-    <>
-      <button onClick={() => setToolbarVisible(!toolbarVisible)}>Toggle Toolbar</button>
-      <div className={styles.wrapper}>
-        <ReactQuill
-          className={`textArea ${toolbarVisible ? 'toolbar-visible' : 'toolbar-hidden'}`}
-          modules={toolBarModules}
-          placeholder={PLACEHOLDER_COPY[type]}
-          value={content}
-          onChange={(e) => handleContentChange(e)}
-        />
-      </div>
-    </>
+    <div className={styles.wrapper}>
+      <ReactQuill
+        className={`textArea ${toolbarVisible ? 'toolbar-visible' : 'toolbar-hidden'}`}
+        modules={toolBarModules}
+        placeholder={PLACEHOLDER_COPY[type]}
+        value={content}
+        onChange={(e) => handleContentChange(e)}
+      />
+      <TextButton
+        className={styles.toolbarToggleButton}
+        tooltip={'Toggle formatting toolbar'}
+        onClick={() => setToolbarVisible(!toolbarVisible)}
+      >
+        {toolbarVisible ? 'X' : '+'}
+      </TextButton>
+    </div>
   )
 }
 

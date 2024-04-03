@@ -21,6 +21,12 @@
   fill: silver;
 }
 
+.ql-snow.ql-toolbar button.ql-active .ql-stroke,
+.ql-snow.ql-toolbar button.ql-active {
+  stroke: silver;
+  fill: silver;
+}
+
 .ql-editor.ql-blank::before {
   color: rgba(192, 192, 192, 0.5);
 }

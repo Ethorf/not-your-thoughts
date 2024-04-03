@@ -36,7 +36,12 @@ export const NodeEntry = ({ node: { id, date_last_modified, date_created, title,
       <div className={styles.nodeValue}>Created: {parseDate(date_created)}</div>
       <div className={styles.nodeValue}>Category: {category_name ?? 'n/a'}</div>
       <div onClick={handleOpenContentModal} className={classNames(styles.nodeValue, styles.contentButton)}>
-        Content: {content[0].slice(0, 15)}...
+        <span>
+          Content:
+          <span />{' '}
+        </span>{' '}
+        <div dangerouslySetInnerHTML={{ __html: content[0].slice(0, 8) }} />
+        <span>...</span>
       </div>
       <div className={styles.editContainer}>
         <EditPencil onClick={handleEditNode} className={styles.editButton} />

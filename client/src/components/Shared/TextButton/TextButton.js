@@ -1,9 +1,9 @@
 import React from 'react'
 import classNames from 'classnames'
 import PropTypes from 'prop-types'
-import styles from './DefaultButton.module.scss'
+import styles from './TextButton.module.scss'
 
-const DefaultButton = ({ tooltip, className, children, isSelected, ...props }) => {
+const TextButton = ({ tooltip, className, children, isSelected, ...props }) => {
   return (
     <button
       {...props}
@@ -16,7 +16,7 @@ const DefaultButton = ({ tooltip, className, children, isSelected, ...props }) =
   )
 }
 
-DefaultButton.propTypes = {
+TextButton.propTypes = {
   onClick: PropTypes.func,
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
@@ -24,4 +24,4 @@ DefaultButton.propTypes = {
   isSelected: PropTypes.bool,
 }
 
-export default DefaultButton
+export default TextButton
