@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import { fetchCustomPrompts } from '../../redux/reducers/customPromptsReducer'
+import TextButton from '../Shared/TextButton/TextButton'
 import DefaultButton from '../Shared/DefaultButton/DefaultButton'
 
 import { randomNum } from '../../utils/randomNum.js'
@@ -48,14 +49,13 @@ const PromptsDisplay = () => {
           <h3 data-tooltip-id="main-tooltip" data-tooltip-content="Custom prompt" className={styles.prompt}>
             {customPrompts[activePromptIndex].content}
           </h3>
-          <DefaultButton
-            data-tooltip-id="main-tooltip"
-            data-tooltip-content="Add / Customize prompts"
+          <TextButton
+            tooltip="Add / Customize prompts"
             className={classNames(styles.noBorder, styles.plusButton)}
             onClick={handleOpenModal}
           >
             +
-          </DefaultButton>
+          </TextButton>
         </div>
         <div className={styles.controlsContainer}>
           {activePromptIndex !== 0 ? (
@@ -63,8 +63,7 @@ const PromptsDisplay = () => {
               <DefaultButton
                 className={styles.noBorder}
                 onClick={() => setActivePromptIndex(0)}
-                data-tooltip-id="main-tooltip"
-                data-tooltip-content="First Prompt ctrl + f"
+                tooltip="First Prompt ctrl + f"
               >
                 <img
                   className={classNames(styles.controlsButton, styles.firstButton, styles.tooltip)}
@@ -75,8 +74,7 @@ const PromptsDisplay = () => {
               <DefaultButton
                 className={styles.noBorder}
                 onClick={() => setActivePromptIndex(activePromptIndex - 1)}
-                data-tooltip-id="main-tooltip"
-                data-tooltip-content="Previous Prompt ctrl + p"
+                tooltip="Previous Prompt ctrl + p"
               >
                 <img
                   className={classNames(styles.controlsButton, styles.prevButton, styles.tooltip)}
@@ -91,12 +89,7 @@ const PromptsDisplay = () => {
               <div />
             </>
           )}
-          <DefaultButton
-            className={styles.noBorder}
-            onClick={handleShuffle}
-            data-tooltip-id="main-tooltip"
-            data-tooltip-content="Shuffle Prompts ctrl + ?"
-          >
+          <DefaultButton className={styles.noBorder} onClick={handleShuffle} tooltip="Shuffle Prompts ctrl + ?">
             <img
               className={classNames(styles.controlsButton, styles.shuffleButton, styles.tooltip)}
               src={shuffleIcon}
@@ -108,8 +101,7 @@ const PromptsDisplay = () => {
               <DefaultButton
                 className={styles.noBorder}
                 onClick={() => setActivePromptIndex(activePromptIndex + 1)}
-                data-tooltip-id="main-tooltip"
-                data-tooltip-content="Next Prompt ctrl + n"
+                tooltip="Next Prompt ctrl + n"
               >
                 <img
                   className={classNames(styles.controlsButton, styles.nextButton, styles.tooltip)}
@@ -120,8 +112,7 @@ const PromptsDisplay = () => {
               <DefaultButton
                 className={styles.noBorder}
                 onClick={() => setActivePromptIndex(customPrompts.length - 1)}
-                data-tooltip-id="main-tooltip"
-                data-tooltip-content="Last Prompt ctrl + l"
+                tooltip="Last Prompt ctrl + l"
               >
                 <img
                   className={classNames(styles.controlsButton, styles.lastButton, styles.tooltip)}

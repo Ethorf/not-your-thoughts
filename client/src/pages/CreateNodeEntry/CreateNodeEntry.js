@@ -7,6 +7,7 @@ import { setTitle, createNodeEntry, resetState } from '../../redux/reducers/curr
 import CreateEntry from '../../components/Shared/CreateEntry/CreateEntry'
 import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
 import DefaultInput from '../../components/Shared/DefaultInput/DefaultInput'
+import PromptsDisplay from '../../components/PromptsDisplay/PromptsDisplay.js'
 
 import { ENTRY_TYPES } from '../../constants/entryTypes'
 
@@ -36,6 +37,7 @@ const CreateNodeEntry = () => {
     <div className={styles.wrapper}>
       <div className={styles.editContainer}>
         <h2>create node</h2>
+        <PromptsDisplay />
         <div className={classNames(styles.topContainer, styles.grid3Columns)}>
           <CategoryInput className={styles.flexStart} />
           <DefaultInput
