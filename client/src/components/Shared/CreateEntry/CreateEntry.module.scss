@@ -1,24 +1,15 @@
-.textArea {
+.wrapper {
   font-family: 'Poppins', sans-serif;
   font-size: 1.2rem;
   min-width: 100%;
   height: 90%;
-  border-radius: 12px;
   border: 1px solid rgba(192, 192, 192, 0.5);
-  background: black;
-  color: silver;
-  outline: none;
-  padding: 16px;
-  text-align: center;
-  transition: all 2s;
-  z-index: 0;
-  resize: none;
-  overflow: hidden;
+  border-radius: 12px;
+  transition: all 500ms;
 
   &:hover,
   &:focus {
     border: 1px solid rgba(192, 192, 192, 1);
-    transition: all 2s;
-    border-radius: 3px;
+    transition: all 500ms;
   }
 }
