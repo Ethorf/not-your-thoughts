@@ -37,7 +37,7 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
         : showToast('invalid username or password', 'warn')
       : (function(){})()
     } else {
-      showToast('please enter an email and password', 'warn')
+      showToast('please enter an email and a password', 'warn')
     }
   }
 
