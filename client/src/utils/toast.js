@@ -9,9 +9,10 @@ export const showToast = (message, type) => {
     autoClose: 2000,
     hideProgressBar: true,
   }
-  return () => {
-    type === 'success' && toast.success(message, { ...options })
-    type === 'warn' && toast.warn(message, { ...options })
-    type === 'error' && toast.error(message, { ...options })
+  const toastTypes = {
+    success: toast.success(message, {...options}),
+    warn: toast.warn(message, { ...options }),
+    error: toast.error(message, { ...options })
   }
+  return toastTypes[type] 
 }

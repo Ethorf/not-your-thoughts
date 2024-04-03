@@ -21,10 +21,10 @@ import EditNodeEntry from './pages/EditNodeEntry/EditNodeEntry.js'
 import Login from './pages/Login/Login.js'
 import Register from './pages/Register/Register.js'
 import Profile from './pages/Profile/Profile.js'
-import Resources from './pages/resources/resources'
-import Modes from './pages/modes/modes.js'
+import Resources from './pages/Resources/Resources.js'
+import Modes from './pages/Modes/Modes.js'
 import About from './pages/About/About.js'
-import Entries from './pages/Entries/Entries.js'
+import Entries from './pages/entries/Entries.js'
 
 //redux Stuff
 import store from './redux/store/index'
