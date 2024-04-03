@@ -30,12 +30,12 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
       toggleGuestMode()
     
     if (email && password) {
-      let info = await login(email, password)
-      info.message 
-      ? info.code == 'ERR_BAD_RESPONSE'
+      let loginResponse = await login(email, password)
+      if (loginResponse.code) {
+        loginResponse.code == 'ERR_BAD_RESPONSE'
         ? showToast('server error, connection failed', 'error')
         : showToast('invalid username or password', 'warn')
-      : (function(){})()
+      }
     } else {
       showToast('please enter an email and a password', 'warn')
     }

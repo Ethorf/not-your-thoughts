@@ -55,6 +55,7 @@ export const register =
 // Login User
 export const login = (email, password) => async (dispatch) => {
   const body = JSON.stringify({ email, password })
+  
   try {
     const res = await axios.post('/api/auth/login', body, axiosConfig)
     // This is the reducer where the localStorage token is set
