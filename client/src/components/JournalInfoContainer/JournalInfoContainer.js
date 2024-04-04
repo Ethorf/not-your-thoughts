@@ -11,8 +11,7 @@ const JournalInfoContainer = () => {
   const { journalConfig } = useSelector((state) => state.journalEntries)
   const { wordCount } = useSelector((state) => state.currentEntry)
 
-  //   TODO probably can add journalConfig check or fetch here
-  //   But will just wanna make it into toolkit pattern since this shit is annoying right now
+  //   TODO add useJournalConfig hook here etc
 
   return (
     <div className={styles.wrapper}>

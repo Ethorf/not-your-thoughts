@@ -4,7 +4,7 @@ import { openModal } from '../../redux/reducers/modalsReducer.js'
 
 import { MODAL_NAMES } from '../../constants/modalNames.js'
 
-import DefaultButton from '../Shared/DefaultButton/DefaultButton.js'
+import TextButton from '../Shared/TextButton/TextButton.js'
 
 import styles from './CustomPrompts.module.scss'
 
@@ -18,9 +18,10 @@ const CustomPrompts = () => {
   return (
     <div className={styles.wrapper}>
       <h2>Custom Prompts</h2>
-      {/* Toggle here */}
-      {/* TODO maybe just change everything to an "entry_config" instead of journal config? */}
-      <DefaultButton onClick={handleOpenModal}>Add</DefaultButton>
+      {/* Toggle here once we turn things into user_config */}
+      <TextButton tooltip="add prompts" onClick={handleOpenModal}>
+        +
+      </TextButton>
     </div>
   )
 }

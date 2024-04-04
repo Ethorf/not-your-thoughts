@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { connect, useSelector } from 'react-redux'
 import { toggleEditGoal, updateJournalGoal, setNewGoal } from '../../redux/actions/journalConfigActions'
 
+import DefaultButton from '../Shared/DefaultButton/DefaultButton.js'
+
 import '../../pages/Profile/Profile.scss'
 
 function ProfileGoalEdit({ newGoal, toggleEditGoal, goalIsEditable, updateJournalGoal, setNewGoal, mode }) {
@@ -29,9 +31,8 @@ function ProfileGoalEdit({ newGoal, toggleEditGoal, goalIsEditable, updateJourna
 
   useEffect(() => {
     updateJournalGoal({ goal_preference: localGoalPreference })
-  }, [localGoalPreference])
+  }, [localGoalPreference, updateJournalGoal])
 
-  // TODO still may need to do some updating here so that we can see the new values as soon as they happen
   return (
     <>
       <h2 className="profile__stats-text profile__toggle-container">
@@ -70,12 +71,8 @@ function ProfileGoalEdit({ newGoal, toggleEditGoal, goalIsEditable, updateJourna
                 type="number"
                 defaultValue={journalConfig.daily_words_goal}
               />
-              <button onClick={updateGoal} className="profile__goal-editable-button">
-                Save
-              </button>
-              <button onClick={cancelEditGoal} className="profile__goal-editable-button profile__goal-cancel-button">
-                Cancel
-              </button>
+              <DefaultButton onClick={updateGoal}>Save</DefaultButton>
+              <DefaultButton onClick={cancelEditGoal}>Cancel</DefaultButton>
             </div>
           ) : (
             <div className={`profile__goal-edit-buttons-container`}>
@@ -86,12 +83,8 @@ function ProfileGoalEdit({ newGoal, toggleEditGoal, goalIsEditable, updateJourna
                 defaultValue={journalConfig.daily_time_goal}
               />
               Minute{journalConfig.daily_time_goal >= 2 ? 's' : ''}
-              <button onClick={updateGoal} className="profile__goal-editable-button">
-                Save
-              </button>
-              <button onClick={cancelEditGoal} className="profile__goal-editable-button profile__goal-cancel-button">
-                Cancel
-              </button>
+              <DefaultButton onClick={updateGoal}>Save</DefaultButton>
+              <DefaultButton onClick={cancelEditGoal}>Cancel</DefaultButton>
             </div>
           )
         ) : (
@@ -100,7 +93,7 @@ function ProfileGoalEdit({ newGoal, toggleEditGoal, goalIsEditable, updateJourna
               {localGoalPreference === 'words'
                 ? journalConfig.daily_words_goal
                 : `${journalConfig.daily_time_goal} minute${journalConfig.daily_time_goal >= 2 ? 's' : ''}`}
-              <button onClick={toggleEditGoal}>Edit</button>
+              <DefaultButton onClick={toggleEditGoal}>Edit</DefaultButton>
             </div>
           </>
         )}

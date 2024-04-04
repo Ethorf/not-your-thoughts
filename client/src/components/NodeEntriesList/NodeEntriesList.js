@@ -11,12 +11,11 @@ import styles from './NodeEntriesList.module.scss'
 const NodeEntriesList = () => {
   const dispatch = useDispatch()
 
-  // TODO fix this pointless nesting
   const allNodeEntries = useSelector((state) => state.nodeEntries.allNodeEntries.entries)
   const [filteredEntries, setFilteredEntries] = useState([])
   const [sortedAndFilteredEntries, setSortedAndFilteredEntries] = useState([])
 
-  // will probably need this to be an object so that it can have a label / icon thing too and also just abstract it into a constant so it's easily different for nodes / journels
+  // TODO will probably need this to be an object so that it can have a label / icon thing too and also just abstract it into a constant so it's easily different for nodes / journels
   const sortOptions = [
     'title a-z',
     'title z-a',
@@ -30,8 +29,6 @@ const NodeEntriesList = () => {
     dispatch(fetchNodeEntries())
   }, [dispatch])
 
-  console.log('allNodeEntries is:')
-  console.log(allNodeEntries)
   return (
     <div className={styles.wrapper}>
       <h2 className={styles.nodesTitle}>Nodes</h2>

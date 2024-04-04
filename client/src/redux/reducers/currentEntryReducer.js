@@ -209,7 +209,6 @@ const currentEntrySlice = createSlice({
     resetState: () => initialState,
   },
   extraReducers: (builder) => {
-    // TODO incorporate this into the general saving call etc. for
     builder.addCase(fetchCategories.fulfilled, (state, action) => {
       state.allCategories = action.payload
     })

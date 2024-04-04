@@ -3,7 +3,6 @@ const router = express.Router()
 const pool = require('../config/neonDb')
 const authorize = require('../middleware/authorize')
 
-// TODO See if we can abstract some of these functions out and reuse them
 // TODO add check for lowercase categories
 // post /entries/add_node_entry
 // Add a new node entry

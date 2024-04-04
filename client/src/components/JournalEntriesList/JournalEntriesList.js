@@ -15,12 +15,10 @@ import styles from './JournalEntriesList.module.scss'
 const JournalEntriesList = () => {
   const dispatch = useDispatch()
 
-  // TODO get rid of weird nesting here
   const allJournalEntries = useSelector((state) => state.journalEntries.entries.entries)
   const [sortedEntries, setSortedEntries] = useState([])
 
-  // TODO extract into constant
-  const sortOptions = [
+  const JOURNAL_SORT_OPTIONS = [
     'Most Words',
     'Least Words',
     'Longest Time',
@@ -30,7 +28,7 @@ const JournalEntriesList = () => {
     'Oldest First',
     'Newest First',
   ]
-  // TODO insert custom hook here
+
   useEffect(() => {
     dispatch(fetchJournalEntries())
   }, [dispatch])
@@ -45,7 +43,7 @@ const JournalEntriesList = () => {
               Sort By:
               <EntriesSortDropdown
                 entries={allJournalEntries}
-                sortOptions={sortOptions}
+                sortOptions={JOURNAL_SORT_OPTIONS}
                 setSortedEntries={setSortedEntries}
               />
             </div>
