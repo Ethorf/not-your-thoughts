@@ -23,7 +23,7 @@ export const NodeContentModal = () => {
   return (
     <BaseModalWrapper modalName={MODAL_NAMES.NODE_CONTENT}>
       <div className={styles.wrapper}>
-        I'm THE REALEST NODE
+        <h2>Node Content:</h2>
         <div className={styles.contentDiv} dangerouslySetInnerHTML={{ __html: content }} />
       </div>
     </BaseModalWrapper>

@@ -9,6 +9,7 @@ import { MODAL_NAMES } from '../../../constants/modalNames'
 // Components
 import { BaseModalWrapper } from '../BaseModalWrapper/BaseModalWrapper'
 import DefaultButton from '../../Shared/DefaultButton/DefaultButton'
+import TextButton from '../../Shared/TextButton/TextButton'
 import DefaultInput from '../../Shared/DefaultInput/DefaultInput'
 
 // Redux
@@ -53,11 +54,13 @@ export const CustomPromptsModal = () => {
           <DefaultButton onClick={handleCreatePrompt}>Create</DefaultButton>
         </div>
         {customPrompts.length ? (
-          <ul>
+          <ul className={styles.promptsList}>
             {customPrompts.map((prompt) => (
               <li className={styles.listedPrompt} key={prompt.id}>
                 <h4>{prompt.content}</h4>
-                <DefaultButton onClick={() => handleDeletePrompt(prompt.id)}>X</DefaultButton>
+                <TextButton tooltip="delete prompt" onClick={() => handleDeletePrompt(prompt.id)}>
+                  X
+                </TextButton>
               </li>
             ))}
           </ul>

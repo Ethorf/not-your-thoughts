@@ -41,6 +41,7 @@ const App = () => {
   useEffect(() => {
     store.dispatch(loadUser())
   }, [])
+
   const mode = useSelector((state) => state.modes.mode)
 
   return (

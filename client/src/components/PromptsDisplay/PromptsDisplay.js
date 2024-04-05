@@ -40,8 +40,6 @@ const PromptsDisplay = () => {
     setActivePromptIndex(randomNum(customPrompts.length - 1))
   }
 
-  // TODO This shoehorning disabled functionality feels a little hacky tbh
-
   return (
     customPrompts.length && (
       <div className={styles.wrapper}>

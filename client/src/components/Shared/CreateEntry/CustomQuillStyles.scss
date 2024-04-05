@@ -1,5 +1,7 @@
-.ql-blank > [data-placeholder] {
-  color: red;
+.ql-editor {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.2rem;
+  padding: 26px;
 }
 
 .ql-container.ql-snow {
@@ -33,7 +35,6 @@
 
 .textArea {
   font-family: 'Poppins', sans-serif;
-  font-size: 1.2rem;
   min-width: 100%;
   height: 100%;
   border-radius: 12px;

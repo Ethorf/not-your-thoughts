@@ -10,7 +10,9 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   width: 50%;
+  max-width: 320px;
 }
+
 .topContainer {
   display: flex;
   align-items: center;
@@ -64,26 +66,4 @@
   &:hover {
     content: url('../../assets/Icons/prompt-icons/last-light-gray.png');
   }
-}
-
-.tooltip {
-  position: relative;
-  display: inline-block;
-}
-
-.tooltip .tooltiptext {
-  visibility: hidden;
-  background-color: black;
-  border: 1px solid grey;
-  color: silver;
-  text-align: center;
-  border-radius: 6px;
-  padding: 3px;
-  position: absolute;
-  z-index: 15;
-  bottom: 120%;
-}
-
-.tooltip:hover .tooltiptext {
-  visibility: visible;
 }
