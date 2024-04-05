@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import './modes.scss';
+import './Modes.scss';
 import { changeMode } from '../../redux/actions/modeActions';
 
 const Modes = ({ auth: { user }, changeMode, mode, isAuthenticated }) => {

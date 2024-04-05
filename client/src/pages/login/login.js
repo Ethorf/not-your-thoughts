@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import classNames from 'classnames'
 import PropTypes from 'prop-types'
 import { login, toggleGuestMode } from '../../redux/actions/authActions.js'
+import { showToast } from '../../utils/toast.js'
 
 import sharedStyles from '../../styles/shared.module.scss'
 import styles from './Login.module.scss'
@@ -25,8 +26,19 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
   const onSubmit = async (e) => {
     e.preventDefault()
 
-    if (guestMode) toggleGuestMode()
-    login(email, password)
+    if (guestMode) 
+      toggleGuestMode()
+    
+    if (email && password) {
+      let loginResponse = await login(email, password)
+      if (loginResponse.code) {
+        loginResponse.code == 'ERR_BAD_RESPONSE'
+        ? showToast('server error, connection failed', 'error')
+        : showToast('invalid username or password', 'warn')
+      }
+    } else {
+      showToast('please enter an email and a password', 'warn')
+    }
   }
 
   if (isAuthenticated) {
