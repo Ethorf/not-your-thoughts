@@ -26,12 +26,15 @@ app.use('/api/journal_config', require('./routes/journal_config'))
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static('client/build'))
+  // Set the static assets directory to 'client/build'
+  app.use(express.static(path.join(__dirname, '..', 'client', 'build')))
+
+  // All remaining requests return the React app, so it can handle routing
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
+    res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'))
   })
 }
-
+s
 const PORT = process.env.PORT || 8082
 
 app.listen(PORT, () => {
