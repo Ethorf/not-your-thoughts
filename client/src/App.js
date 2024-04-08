@@ -13,7 +13,7 @@ import NavBarTop from './components/nav/navBarTop.js'
 import AudioPlayer from './components/audioPlayer/audioPlayer.js'
 
 //Pages Imports
-import Landing from './pages/Landing/Landing.js'
+import Landing from './pages/Start/Start.js'
 import EntryTypeSwitcher from './pages/EntryTypeSwitcher/EntryTypeSwitcher.js'
 import CreateJournalEntry from './pages/CreateJournalEntry/CreateJournalEntry.js'
 import CreateNodeEntry from './pages/CreateNodeEntry/CreateNodeEntry.js'
