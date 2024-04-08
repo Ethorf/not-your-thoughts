@@ -1,7 +1,7 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
 import '../../styles/shared.scss'
-import './Header.scss'
+import './HeaderComponent.scss'
 
 const Header = () => {
   const { wordCount } = useSelector((state) => state.currentEntry)

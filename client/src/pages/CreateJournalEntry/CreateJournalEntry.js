@@ -16,7 +16,7 @@ import { saveJournalEntry } from '../../redux/reducers/currentEntryReducer'
 import { openModal } from '../../redux/reducers/modalsReducer.js'
 
 //Component Imports
-import Header from '../../components/Header/Header.js'
+import Header from '../../components/HeaderComponent/HeaderComponent.js'
 import JournalInfoContainer from '../../components/JournalInfoContainer/JournalInfoContainer.js'
 import BgImage from '../../components/bgImage/bgImage.js'
 import PromptsDisplay from '../../components/PromptsDisplay/PromptsDisplay.js'
