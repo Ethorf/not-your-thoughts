@@ -4,8 +4,8 @@ import { Link, Redirect } from 'react-router-dom'
 import { setAlert } from '../../redux/actions/alert.js'
 import { register, toggleGuestMode } from '../../redux/actions/authActions.js'
 import PropTypes from 'prop-types'
-import './Register.scss'
-import '../Login/login-register.scss'
+import './RegisterPage.scss'
+import '../LoginPage/LoginPage-RegisterPage.scss'
 import FadeInAnimationOnMount from '../../components/higherOrderComponents/fadeInAnimationOnMount.js'
 
 const Register = ({ setAlert, register, isAuthenticated, alert, guestMode, toggleGuestMode }) => {

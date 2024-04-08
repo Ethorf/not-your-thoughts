@@ -7,8 +7,8 @@ import { login, toggleGuestMode } from '../../redux/actions/authActions.js'
 import { showToast } from '../../utils/toast.js'
 
 import sharedStyles from '../../styles/shared.module.scss'
-import styles from './Login.module.scss'
-import './login-register.scss'
+import styles from './LoginPage.module.scss'
+import './LoginPage-RegisterPage.scss'
 
 import FadeInAnimationOnMount from '../../components/higherOrderComponents/fadeInAnimationOnMount.js'
 import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton.js'
@@ -26,15 +26,14 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
   const onSubmit = async (e) => {
     e.preventDefault()
 
-    if (guestMode) 
-      toggleGuestMode()
-    
+    if (guestMode) toggleGuestMode()
+
     if (email && password) {
       let loginResponse = await login(email, password)
       if (loginResponse.code) {
         loginResponse.code == 'ERR_BAD_RESPONSE'
-        ? showToast('server error, connection failed', 'error')
-        : showToast('invalid username or password', 'warn')
+          ? showToast('server error, connection failed', 'error')
+          : showToast('invalid username or password', 'warn')
       }
     } else {
       showToast('please enter an email and a password', 'warn')
