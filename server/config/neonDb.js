@@ -7,8 +7,7 @@ const envPath = path.join(__dirname, '../.env')
 
 // Load environment variables from the specified .env file
 dotenv.config({ path: envPath })
-console.log('process.env.DATABASE_URL is:')
-console.log(process.env.DATABASE_URL)
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.DATABASE_URL ? true : false,
