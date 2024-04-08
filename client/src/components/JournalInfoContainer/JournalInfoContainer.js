@@ -1,6 +1,6 @@
 import React from 'react'
 import moment from 'moment'
-import Timer from '../Timer/Timer.js'
+import TimerComponent from '../TimerComponent/TimerComponent.js'
 import WPMDisplay from '../WPMDisplay/WPMDisplay.js'
 
 import { useSelector } from 'react-redux' // Import useSelector if needed
@@ -16,7 +16,7 @@ const JournalInfoContainer = () => {
   return (
     <div className={styles.wrapper}>
       <h3 className={styles.date}>{moment().format('MM/DD/YYYY')}</h3>
-      <Timer />
+      <TimerComponent />
       {guestMode ? (
         <h2 className={styles.goal}>Goal: 200 words</h2>
       ) : (

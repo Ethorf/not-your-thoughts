@@ -4,7 +4,7 @@ import { setTimeElapsed } from '../../redux/reducers/currentEntryReducer.js'
 
 import { formatTime } from '../../utils/formatTime.js'
 
-import styles from './Timer.module.scss'
+import styles from './TimerComponent.module.scss'
 
 const Timer = () => {
   const dispatch = useDispatch()
