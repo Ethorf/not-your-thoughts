@@ -29,10 +29,10 @@ import { ENTRY_TYPES } from '../../constants/entryTypes'
 import { MODAL_NAMES } from '../../constants/modalNames'
 
 //Pillars
-import PillarTop from '../../components/Pillars/PillarTop.js'
-import PillarLeft from '../../components/Pillars/PillarLeft.js'
-import PillarRight from '../../components/Pillars/PillarRight.js'
-import PillarBottom from '../../components/Pillars/PillarBottom.js'
+import PillarTop from '../../components/PillarsComponents/PillarTopComponent.js'
+import PillarLeft from '../../components/PillarsComponents/PillarLeftComponent.js'
+import PillarRight from '../../components/PillarsComponents/PillarRightComponent.js'
+import PillarBottom from '../../components/PillarsComponents/PillarBottomComponent.js'
 import ProgressWord from '../../components/progress/progressWord.js'
 
 const CreateJournalEntry = ({ auth: { guestMode, loading } }) => {
