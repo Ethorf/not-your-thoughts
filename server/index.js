@@ -4,7 +4,11 @@ const path = require('path')
 const cors = require('cors')
 const compression = require('compression')
 const { fork } = require('child_process')
-require('dotenv').config()
+const dotenv = require('dotenv')
+
+const envPath = path.join(__dirname, '../.env')
+
+dotenv.config({ path: envPath })
 
 const app = express()
 const pool = require('./config/neonDb.js')

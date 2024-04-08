@@ -1,5 +1,10 @@
 const jwt = require('jsonwebtoken')
-require('dotenv').config()
+const path = require('path')
+const dotenv = require('dotenv')
+
+const envPath = path.join(__dirname, '../.env')
+
+dotenv.config({ path: envPath })
 
 // it's being used to authenticate our private / protected routes
 //and check that there is a token and to verify it
