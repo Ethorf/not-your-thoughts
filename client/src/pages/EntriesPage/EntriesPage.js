@@ -8,7 +8,7 @@ import JournalEntriesList from '../../components/JournalEntriesList/JournalEntri
 
 import '../ProfilePage/ProfilePage.scss'
 import '../../styles/rubberDucky.scss'
-import './Entries.scss'
+import './EntriesPage.scss'
 
 const { NODE, JOURNAL } = ENTRY_TYPES
 

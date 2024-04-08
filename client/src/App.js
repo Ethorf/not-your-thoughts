@@ -24,7 +24,7 @@ import Profile from './pages/ProfilePage/ProfilePage.js'
 import Resources from './pages/ResourcesPage/ResourcesPage.js'
 import Modes from './pages/ModesPage/ModesPage.js'
 import About from './pages/AboutPage/About.js'
-import Entries from './pages/Entries/Entries.js'
+import Entries from './pages/EntriesPage/EntriesPage.js'
 
 //redux Stuff
 import store from './redux/store/index'
