@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { connect, useSelector } from 'react-redux'
-import { toggleEditGoal, updateJournalGoal, setNewGoal } from '../../redux/actions/journalConfigActions'
+import { toggleEditGoal, updateJournalGoal, setNewGoal } from '../../redux/actions/journalConfigActions.js'
 
 import DefaultButton from '../Shared/DefaultButton/DefaultButton.js'
 
