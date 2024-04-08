@@ -6,7 +6,7 @@ import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton.j
 import NodeEntriesList from '../../components/NodeEntriesList/NodeEntriesList.js'
 import JournalEntriesList from '../../components/JournalEntriesList/JournalEntriesList.js'
 
-import '../Profile/Profile.scss'
+import '../ProfilePage/ProfilePage.scss'
 import '../../styles/rubberDucky.scss'
 import './Entries.scss'
 

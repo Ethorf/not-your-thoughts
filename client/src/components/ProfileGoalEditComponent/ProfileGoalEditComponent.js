@@ -4,7 +4,7 @@ import { toggleEditGoal, updateJournalGoal, setNewGoal } from '../../redux/actio
 
 import DefaultButton from '../Shared/DefaultButton/DefaultButton.js'
 
-import '../../pages/Profile/Profile.scss'
+import '../../pages/ProfilePage/ProfilePage.scss'
 
 function ProfileGoalEdit({ newGoal, toggleEditGoal, goalIsEditable, updateJournalGoal, setNewGoal, mode }) {
   const { journalConfig } = useSelector((state) => state.journalEntries)

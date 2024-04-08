@@ -4,11 +4,12 @@ import PropTypes from 'prop-types'
 import { logout, loadUser } from '../../redux/actions/authActions.js'
 import { fetchJournalConfig } from '../../redux/reducers/journalEntriesReducer.js'
 import { toggleJournalConfigSetting } from '../../redux/actions/journalConfigActions.js'
-import ProfileGoalEdit from '../../components/ProfileGoalEdit/ProfileGoalEdit.js'
+import ProfileGoalEdit from '../../components/ProfileGoalEditComponent/ProfileGoalEditComponent.js'
 import TrackedPhrasesModal from '../../components/Modals/trackedPhrasesModal.js'
 import CustomPrompts from '../../components/CustomPrompts/CustomPrompts.js'
 import Spinner from '../../components/Shared/Spinner/Spinner.js'
-import './Profile.scss'
+
+import './ProfilePage.scss'
 import '../../styles/rubberDucky.scss'
 
 const Profile = ({ auth: { user, loading }, mode, toggleJournalConfigSetting }) => {
