@@ -10,6 +10,7 @@
 
 # production
 /build
+/client/build
 ../server/config/default.json
 
 # misc
@@ -31,5 +32,5 @@ example_com.key
 
 /server/dbBackups*
 
-
+oldEntriesData.json
 
