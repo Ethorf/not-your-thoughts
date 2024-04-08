@@ -6,7 +6,7 @@ import { fetchJournalConfig } from '../../redux/reducers/journalEntriesReducer.j
 import { toggleJournalConfigSetting } from '../../redux/actions/journalConfigActions.js'
 import ProfileGoalEdit from '../../components/ProfileGoalEditComponent/ProfileGoalEditComponent.js'
 import TrackedPhrasesModal from '../../components/Modals/trackedPhrasesModal.js'
-import CustomPrompts from '../../components/CustomPrompts/CustomPrompts.js'
+import CustomPrompts from '../../components/CustomPromptsSection/CustomPromptsSection.js'
 import Spinner from '../../components/Shared/Spinner/Spinner.js'
 
 import './ProfilePage.scss'

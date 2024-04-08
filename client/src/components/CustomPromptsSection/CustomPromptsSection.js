@@ -6,7 +6,7 @@ import { MODAL_NAMES } from '../../constants/modalNames.js'
 
 import TextButton from '../Shared/TextButton/TextButton.js'
 
-import styles from './CustomPrompts.module.scss'
+import styles from './CustomPromptsSection.module.scss'
 
 const CustomPrompts = () => {
   const dispatch = useDispatch()
