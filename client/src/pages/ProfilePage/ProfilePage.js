@@ -12,7 +12,7 @@ import Spinner from '../../components/Shared/Spinner/Spinner.js'
 import './ProfilePage.scss'
 import '../../styles/rubberDucky.scss'
 
-const Profile = ({ auth: { user, loading }, mode, toggleJournalConfigSetting }) => {
+const Profile = ({ auth: { user }, mode, toggleJournalConfigSetting }) => {
   const dispatch = useDispatch()
 
   const { journalConfig } = useSelector((state) => state.journalEntries)
@@ -20,10 +20,6 @@ const Profile = ({ auth: { user, loading }, mode, toggleJournalConfigSetting }) 
   useEffect(() => {
     dispatch(fetchJournalConfig())
   }, [dispatch])
-
-  if (loading) {
-    return <Spinner />
-  }
 
   const handleToggle = (settingName, isEnabled) => {
     toggleJournalConfigSetting(settingName, isEnabled)
@@ -131,7 +127,6 @@ const Profile = ({ auth: { user, loading }, mode, toggleJournalConfigSetting }) 
               </span>
             </div>
           </div>
-          {/* <CustomPrompts /> */}
         </div>
       </div>
     )

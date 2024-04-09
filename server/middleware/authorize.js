@@ -24,6 +24,10 @@ module.exports = async function (req, res, next) {
     const decoded = await jwt.verify(token, process.env.JWT_SECRET)
     // So this basically passes the user id to the next in the chain which is the /verify route
     req.user = decoded.user
+
+    console.log('in authorize decoded.user is')
+    console.log(decoded.user)
+
     console.log('Middleware token verified')
     next()
   } catch (err) {

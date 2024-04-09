@@ -20,7 +20,7 @@ import CreateNodeEntry from './pages/CreateNodeEntry/CreateNodeEntry.js'
 import EditNodeEntry from './pages/EditNodeEntry/EditNodeEntry.js'
 import Login from './pages/LoginPage/LoginPage.js'
 import Register from './pages/RegisterPage/RegisterPage.js'
-import Profile from './pages/ProfilePage/ProfilePage.js'
+import ProfilePage from './pages/ProfilePage/ProfilePage.js'
 import Resources from './pages/ResourcesPage/ResourcesPage.js'
 import Modes from './pages/ModesPage/ModesPage.js'
 import About from './pages/AboutPage/About.js'
@@ -74,11 +74,10 @@ const App = () => {
                   </Route>
                   <PrivateRoute path="/entry-type-switcher" exact component={EntryTypeSwitcher} />
                   <PrivateRoute path="/create-journal-entry" exact component={CreateJournalEntry} />
-                  <PrivateRoute path="/profile">{({ match }) => <Profile show={match !== null} />}</PrivateRoute>
+                  <PrivateRoute path="/profile" exact component={ProfilePage} />
                   <PrivateRoute path="/create-node-entry" exact component={CreateNodeEntry} />
                   <PrivateRoute path="/edit-node-entry" component={EditNodeEntry} />
-                  <PrivateRoute path="/profile">{({ match }) => <Profile show={match !== null} />}</PrivateRoute>
-                  <PrivateRoute path="/entries">{({ match }) => <Entries show={match !== null} />}</PrivateRoute>
+                  <PrivateRoute path="/entries" exact component={Entries} />
                   <Route path="/resources" exact>
                     {({ match }) => <Resources show={match !== null} />}
                   </Route>

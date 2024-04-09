@@ -25,7 +25,6 @@ const Register = ({ setAlert, register, isAuthenticated, alert, guestMode, toggl
     if (password !== password2) {
       setAlert('Passwords do not match', 'danger')
     } else {
-      if (guestMode) toggleGuestMode()
       register({ name, email, password })
     }
   }

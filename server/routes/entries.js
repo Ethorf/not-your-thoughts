@@ -242,7 +242,6 @@ router.get('/journal_entries', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
   try {
-    console.log('JOUNRAL TRY HIT')
     const allJournalEntries = await pool.query(
       `SELECT 
         entries.*, 

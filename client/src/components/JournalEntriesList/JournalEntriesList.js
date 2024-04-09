@@ -56,7 +56,7 @@ const JournalEntriesList = () => {
           </ul>
         </>
       ) : (
-        <Spinner />
+        <h2>No Journal Entries Created Yet...</h2>
       )}
     </div>
   )

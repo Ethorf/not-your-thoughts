@@ -30,6 +30,11 @@ router.post('/update_goals', authorize, async (req, res) => {
   const { goal_preference, daily_time_goal, daily_words_goal } = req.body
 
   try {
+    console.log('req.body is:')
+    console.log(req.body)
+    console.log('user_id is:')
+    console.log(user_id)
+
     // Validate the goal_preference input if provided
     if (goal_preference && !['words', 'time'].includes(goal_preference)) {
       return res.status(400).json({ error: 'Invalid goal preference. Must be "words" or "time".' })

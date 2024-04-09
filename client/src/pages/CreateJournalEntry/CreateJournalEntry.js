@@ -35,7 +35,7 @@ import PillarRight from '../../components/PillarsComponents/PillarRightComponent
 import PillarBottom from '../../components/PillarsComponents/PillarBottomComponent.js'
 import ProgressWord from '../../components/progress/progressWord.js'
 
-const CreateJournalEntry = ({ auth: { guestMode, loading } }) => {
+const CreateJournalEntry = ({ auth: { guestMode } }) => {
   const dispatch = useDispatch()
 
   const { wordCount, content, entryId, wpm, timeElapsed } = useSelector((state) => state.currentEntry)
@@ -54,10 +54,6 @@ const CreateJournalEntry = ({ auth: { guestMode, loading } }) => {
       dispatch(openModal(MODAL_NAMES.SUCCESS))
     }
   }, [dispatch, journalConfig, wordCount])
-
-  if (loading) {
-    return <Spinner />
-  }
 
   return (
     journalConfig && (

@@ -13,11 +13,12 @@ router.post('/register', validInfo, async (req, res) => {
   const { email, name, password } = req.body
 
   try {
+    // TODO this is broken!
     // Check if user already exists
-    const user = await pool.query('SELECT * FROM users WHERE email = $1', [email])
-    if (user.rows.length > 0) {
-      return res.status(401).json('User already exists!')
-    }
+    // const user = await pool.query('SELECT * FROM users WHERE email = $1', [email])
+    // if (user.rows.length > 0) {
+    //   return res.status(401).json('User already exists!')
+    // }
 
     // Hash Password
     const salt = await bcrypt.genSalt(10)
@@ -29,6 +30,7 @@ router.post('/register', validInfo, async (req, res) => {
       email,
       bcryptPassword,
     ])
+
     console.log(`User with email ${newUser.rows[0].email} created successfully`)
     const userId = newUser.rows[0].id
 
@@ -56,8 +58,10 @@ router.post('/register', validInfo, async (req, res) => {
 // Login a user
 router.post('/login', validInfo, async (req, res) => {
   const { email, password } = req.body
+
+  const lowerCaseEmail = email.toLowerCase()
   try {
-    const user = await pool.query('SELECT * FROM users WHERE email = $1', [email])
+    const user = await pool.query('SELECT * FROM users WHERE email = $1', [lowerCaseEmail])
 
     if (user.rows.length === 0) {
       return res.status(401).json('Invalid Credential')
@@ -71,6 +75,31 @@ router.post('/login', validInfo, async (req, res) => {
     const jwtToken = jwtGenerator(user.rows[0].id)
 
     return res.json({ jwtToken })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+router.post('/reset-password', async (req, res) => {
+  const { email, newPassword, resetToken } = req.body
+
+  try {
+    // Check if reset token is valid (e.g., check against stored reset token in database)
+    const user = await pool.query('SELECT * FROM users WHERE email = $1 AND reset_token = $2', [email, resetToken])
+
+    if (user.rows.length === 0) {
+      return res.status(401).json('Invalid or expired reset token')
+    }
+
+    // Generate salt and hash the new password
+    const salt = await bcrypt.genSalt(10)
+    const hashedPassword = await bcrypt.hash(newPassword, salt)
+
+    // Update user's password in the database
+    await pool.query('UPDATE users SET password = $1, reset_token = NULL WHERE email = $2', [hashedPassword, email])
+
+    return res.status(200).json('Password reset successful')
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')

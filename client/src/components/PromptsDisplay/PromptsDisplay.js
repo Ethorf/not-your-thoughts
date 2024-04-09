@@ -40,95 +40,93 @@ const PromptsDisplay = () => {
     setActivePromptIndex(randomNum(customPrompts.length - 1))
   }
 
-  return (
-    customPrompts.length && (
-      <div className={styles.wrapper}>
-        <div className={styles.topContainer}>
-          <h3 data-tooltip-id="main-tooltip" data-tooltip-content="Custom prompt" className={styles.prompt}>
-            {customPrompts[activePromptIndex].content}
-          </h3>
-          <TextButton
-            tooltip="Add / Customize prompts"
-            className={classNames(styles.noBorder, styles.plusButton)}
-            onClick={handleOpenModal}
-          >
-            +
-          </TextButton>
-        </div>
-        <div className={styles.controlsContainer}>
-          {activePromptIndex !== 0 ? (
-            <>
-              <DefaultButton
-                className={styles.noBorder}
-                onClick={() => setActivePromptIndex(0)}
-                tooltip="First Prompt ctrl + f"
-              >
-                <img
-                  className={classNames(styles.controlsButton, styles.firstButton, styles.tooltip)}
-                  src={firstIcon}
-                  alt="go to first prompt"
-                />
-              </DefaultButton>
-              <DefaultButton
-                className={styles.noBorder}
-                onClick={() => setActivePromptIndex(activePromptIndex - 1)}
-                tooltip="Previous Prompt ctrl + p"
-              >
-                <img
-                  className={classNames(styles.controlsButton, styles.prevButton, styles.tooltip)}
-                  src={previousIcon}
-                  alt="go to previous prompt"
-                />
-              </DefaultButton>
-            </>
-          ) : (
-            <>
-              <div />
-              <div />
-            </>
-          )}
-          <DefaultButton className={styles.noBorder} onClick={handleShuffle} tooltip="Shuffle Prompts ctrl + ?">
-            <img
-              className={classNames(styles.controlsButton, styles.shuffleButton, styles.tooltip)}
-              src={shuffleIcon}
-              alt="shuffle Prompts"
-            />
-          </DefaultButton>
-          {activePromptIndex !== customPrompts.length - 1 ? (
-            <>
-              <DefaultButton
-                className={styles.noBorder}
-                onClick={() => setActivePromptIndex(activePromptIndex + 1)}
-                tooltip="Next Prompt ctrl + n"
-              >
-                <img
-                  className={classNames(styles.controlsButton, styles.nextButton, styles.tooltip)}
-                  src={nextIcon}
-                  alt="go to next prompt"
-                />
-              </DefaultButton>
-              <DefaultButton
-                className={styles.noBorder}
-                onClick={() => setActivePromptIndex(customPrompts.length - 1)}
-                tooltip="Last Prompt ctrl + l"
-              >
-                <img
-                  className={classNames(styles.controlsButton, styles.lastButton, styles.tooltip)}
-                  src={lastIcon}
-                  alt="go to last prompt"
-                />
-              </DefaultButton>
-            </>
-          ) : (
-            <>
-              <div />
-              <div />
-            </>
-          )}
-        </div>
+  return customPrompts.length ? (
+    <div className={styles.wrapper}>
+      <div className={styles.topContainer}>
+        <h3 data-tooltip-id="main-tooltip" data-tooltip-content="Custom prompt" className={styles.prompt}>
+          {customPrompts[activePromptIndex].content}
+        </h3>
+        <TextButton
+          tooltip="Add / Customize prompts"
+          className={classNames(styles.noBorder, styles.plusButton)}
+          onClick={handleOpenModal}
+        >
+          +
+        </TextButton>
       </div>
-    )
-  )
+      <div className={styles.controlsContainer}>
+        {activePromptIndex !== 0 ? (
+          <>
+            <DefaultButton
+              className={styles.noBorder}
+              onClick={() => setActivePromptIndex(0)}
+              tooltip="First Prompt ctrl + f"
+            >
+              <img
+                className={classNames(styles.controlsButton, styles.firstButton, styles.tooltip)}
+                src={firstIcon}
+                alt="go to first prompt"
+              />
+            </DefaultButton>
+            <DefaultButton
+              className={styles.noBorder}
+              onClick={() => setActivePromptIndex(activePromptIndex - 1)}
+              tooltip="Previous Prompt ctrl + p"
+            >
+              <img
+                className={classNames(styles.controlsButton, styles.prevButton, styles.tooltip)}
+                src={previousIcon}
+                alt="go to previous prompt"
+              />
+            </DefaultButton>
+          </>
+        ) : (
+          <>
+            <div />
+            <div />
+          </>
+        )}
+        <DefaultButton className={styles.noBorder} onClick={handleShuffle} tooltip="Shuffle Prompts ctrl + ?">
+          <img
+            className={classNames(styles.controlsButton, styles.shuffleButton, styles.tooltip)}
+            src={shuffleIcon}
+            alt="shuffle Prompts"
+          />
+        </DefaultButton>
+        {activePromptIndex !== customPrompts.length - 1 ? (
+          <>
+            <DefaultButton
+              className={styles.noBorder}
+              onClick={() => setActivePromptIndex(activePromptIndex + 1)}
+              tooltip="Next Prompt ctrl + n"
+            >
+              <img
+                className={classNames(styles.controlsButton, styles.nextButton, styles.tooltip)}
+                src={nextIcon}
+                alt="go to next prompt"
+              />
+            </DefaultButton>
+            <DefaultButton
+              className={styles.noBorder}
+              onClick={() => setActivePromptIndex(customPrompts.length - 1)}
+              tooltip="Last Prompt ctrl + l"
+            >
+              <img
+                className={classNames(styles.controlsButton, styles.lastButton, styles.tooltip)}
+                src={lastIcon}
+                alt="go to last prompt"
+              />
+            </DefaultButton>
+          </>
+        ) : (
+          <>
+            <div />
+            <div />
+          </>
+        )}
+      </div>
+    </div>
+  ) : null
 }
 
 export default PromptsDisplay
