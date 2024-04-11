@@ -1,4 +1,5 @@
 const express = require('express')
+const { parse, isValid } = require('date-fns')
 const router = express.Router()
 const pool = require('../config/neonDb')
 const authorize = require('../middleware/authorize')
@@ -457,5 +458,100 @@ router.get('/tags', authorize, async (req, res) => {
     res.status(500).send('Server error')
   }
 })
+
+// POST /entries/batch_create
+// Batch create user journal entriesconst { Pool } = require('pg');
+
+router.post('/batch_create', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+  const { entries } = req.body
+
+  try {
+    if (!entries || !Array.isArray(entries) || entries.length === 0) {
+      return res.status(400).json({ message: 'Invalid or empty entries array' })
+    }
+
+    const batchSize = 10 // Set your preferred batch size
+    const entryChunks = []
+
+    // Split entries into batches of size `batchSize`
+    for (let i = 0; i < entries.length; i += batchSize) {
+      const chunk = entries.slice(i, i + batchSize)
+      entryChunks.push(chunk)
+    }
+
+    // Process each entry chunk sequentially
+    for (const chunk of entryChunks) {
+      await processEntryChunk(chunk, user_id) // Process the current chunk
+    }
+
+    console.log('Batch entries created successfully!')
+    return res.json({ message: 'Batch entries created successfully' })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// Function to process a chunk of entries
+async function processEntryChunk(chunk, user_id) {
+  const type = 'journal' // Assuming these are journal entries
+
+  const insertPromises = chunk.map(async (entry) => {
+    const { content, date, numOfWords, wpm, timeElapsed } = entry
+
+    // Preprocess date string to remove ordinal suffix and time information
+    const preprocessedDate = preprocessDate(date)
+
+    // Parse preprocessed date string using date-fns parse function
+    const parsedDate = parse(preprocessedDate, 'MMMM dd yyyy', new Date())
+
+    if (!parsedDate || isNaN(parsedDate.getTime())) {
+      throw new Error(`Invalid date format: ${date}`)
+    }
+
+    // Format parsed date to ISO string for database insertion
+    const formattedDate = parsedDate.toISOString()
+
+    // Extract numOfWords, wpm, and timeElapsed values if they exist
+    const numWords = parseInt(numOfWords?.['$numberInt'] || 0)
+    const wordsPerMinute = parseInt(wpm?.['$numberInt'] || 0)
+    const totalTimeTaken = parseInt(timeElapsed?.['$numberInt'] || 0)
+
+    // Insert new entry into entries table
+    const newEntry = await pool.query(
+      'INSERT INTO entries (user_id, type, num_of_words, wpm, total_time_taken) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+      [user_id, type, numWords, wordsPerMinute, totalTimeTaken]
+    )
+    const entry_id = newEntry.rows[0].id
+
+    // Insert new entry_contents row
+    const newContent = await pool.query(
+      'INSERT INTO entry_contents (content, date_created, entry_id) VALUES ($1, $2, $3) RETURNING id',
+      [content, formattedDate, entry_id]
+    )
+    const content_id = newContent.rows[0].id
+
+    // Update content_ids array on the entries table row
+    await pool.query('UPDATE entries SET content_ids = array_append(content_ids, $1) WHERE id = $2', [
+      content_id,
+      entry_id,
+    ])
+  })
+
+  // Wait for all insert promises to complete
+  await Promise.all(insertPromises)
+}
+
+// Remove ordinal suffix and time information from date string
+function preprocessDate(dateString) {
+  // Remove ordinal suffix (e.g., "22nd" -> "22")
+  const withoutOrdinal = dateString.replace(/(\d+)(st|nd|rd|th)/, '$1')
+
+  // Remove time information (e.g., "April 14th 2020, 2:09:42 pm" -> "April 14 2020")
+  const withoutTime = withoutOrdinal.replace(/,.*$/, '')
+
+  return withoutTime.trim()
+}
 
 module.exports = router

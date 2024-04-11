@@ -1,6 +1,6 @@
 import React from 'react'
 import classNames from 'classnames'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 // Utils
 import { parseDate } from '../../utils/parseDate'
@@ -26,7 +26,7 @@ export const JournalEntry = ({ journal: { id, date_created, num_of_words, conten
     <li className={styles.wrapper} key={id}>
       <div className={styles.nodeValue}>Date: {parseDate(date_created)}</div>
       <div onClick={handleOpenContentModal} className={classNames(styles.nodeValue, styles.contentButton)}>
-        Content: {content[0].slice(0, 15)}...
+        Content: {content.length ? content[0].slice(0, 15) : 'Invalid Content'}...
       </div>
       <div className={styles.nodeValue}># of Words: {num_of_words}</div>
       <div className={styles.nodeValue}>Time taken: {formatTime(total_time_taken)}</div>

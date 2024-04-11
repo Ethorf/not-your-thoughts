@@ -30,7 +30,8 @@ const CreateNodeEntry = () => {
 
   const handleSaveNode = async () => {
     const newNode = await dispatch(createNodeEntry({ content, category, title, tags }))
-    history.push(`/edit-node-entry?entryId=${newNode.payload.id}`)
+    // TODO fix this
+    // history.push(`/edit-node-entry?entryId=${newNode.payload.id}`)
   }
 
   return (

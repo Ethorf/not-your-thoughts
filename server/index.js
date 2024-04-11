@@ -1,4 +1,5 @@
 const express = require('express')
+const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const path = require('path')
 const cors = require('cors')
@@ -15,6 +16,8 @@ const pool = require('./config/neonDb.js')
 
 pool.connect()
 
+// Parse JSON bodies with a larger limit (e.g., 10MB)
+app.use(bodyParser.json({ limit: '10mb' }))
 app.use(compression())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
