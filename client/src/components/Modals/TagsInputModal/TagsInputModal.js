@@ -9,76 +9,47 @@ import { MODAL_NAMES } from '../../../constants/modalNames'
 // Components
 import { BaseModalWrapper } from '../BaseModalWrapper/BaseModalWrapper'
 import DefaultButton from '../../Shared/DefaultButton/DefaultButton'
-import TextButton from '../../Shared/TextButton/TextButton'
+import Tag from '../../Shared/Tag/Tag'
 import DefaultInput from '../../Shared/DefaultInput/DefaultInput'
+import DefaultAutoCompleteInput from '../../Shared/DefaultAutoCompleteInput/DefaultAutoCompleteInput.js'
 
 // Redux
-import {
-  fetchCustomPrompts,
-  createCustomPrompt,
-  deleteCustomPrompt,
-} from '../../../redux/reducers/customPromptsReducer'
+import { setTags, setTagInput, fetchTags } from '../../../redux/reducers/currentEntryReducer.js'
 
 import styles from './TagsInputModal.module.scss'
 
 export const TagsInputModal = () => {
   const dispatch = useDispatch()
-  const [customPromptInput, setCustomPromptInput] = useState('')
-  const { customPrompts } = useSelector((state) => state.customPrompts)
+  const [options, setOptions] = useState([])
+
+  const { tagInput, tags } = useSelector((state) => state.currentEntry)
 
   useEffect(() => {
-    dispatch(fetchCustomPrompts())
+    dispatch(fetchTags()).then((response) => {
+      const tags = response.payload.map((category) => category.name)
+      setOptions(tags)
+    })
   }, [dispatch])
 
-  const handleCreatePrompt = () => {
-    if (customPromptInput.trim() !== '') {
-      dispatch(createCustomPrompt(customPromptInput))
-      setCustomPromptInput('')
-    }
+  const handleAddTags = () => {
+    dispatch(setTags(tagInput))
+    dispatch(setTagInput(''))
   }
-
-  const handleDeletePrompt = (promptId) => {
-    dispatch(deleteCustomPrompt(promptId))
+  const handleTagChange = (tag) => {
+    dispatch(setTagInput(tag))
   }
 
   return (
     <BaseModalWrapper modalName={MODAL_NAMES.TAGS_INPUT}>
       <div className={styles.wrapper}>
         <h2>Tags</h2>
-        {/* <div className={styles.promptInput}>
-          <DefaultInput
-            value={customPromptInput}
-            onChange={(e) => setCustomPromptInput(e.target.value)}
-            placeholder="input custom prompt..."
-          />
-          <DefaultButton onClick={handleCreatePrompt}>Create</DefaultButton>
+        <div className={styles.currentTagsContainer}>
+          <p className={styles.tagsLabel}>Tags:</p>
+          {tags.map((tag) => (
+            <Tag name={tag} />
+          ))}
+          {tags.length > 3 && <span className={styles.tagsElipsis}>...</span>}
         </div>
-        {customPrompts.length ? (
-          <ul className={styles.promptsList}>
-            {customPrompts.map((prompt) => (
-              <li className={styles.listedPrompt} key={prompt.id}>
-                <h4>{prompt.content}</h4>
-                <TextButton tooltip="delete prompt" onClick={() => handleDeletePrompt(prompt.id)}>
-                  X
-                </TextButton>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <h3>No prompts created yet...</h3>
-        )} */}
-
-        {/* <div className={styles.tagsContainer}>
-        <DefaultButton className={styles.tagsInputSectionButton} onClick={() => setTagsInputVisible(!tagsInputVisible)}>
-          {!tagsInputVisible ? '+' : 'x'}
-        </DefaultButton>
-        <p className={styles.tagsLabel}>Tags:</p>
-        {tags.slice(0, 3).map((tag) => (
-          <Tag name={tag} />
-        ))}
-        {tags.length > 3 && <span className={styles.tagsElipsis}>...</span>}
-      </div>
-      {tagsInputVisible && (
         <div className={styles.tagsInputContainer}>
           <DefaultAutoCompleteInput
             inputValue={tagInput}
@@ -89,7 +60,6 @@ export const TagsInputModal = () => {
           />
           <DefaultButton onClick={handleAddTags}>ADD</DefaultButton>
         </div>
-      )} */}
       </div>
     </BaseModalWrapper>
   )

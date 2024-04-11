@@ -8,18 +8,26 @@ const CategoryInput = ({ className }) => {
   const { category } = useSelector((state) => state.currentEntry)
   const [options, setOptions] = useState([])
 
+  // Extra
   useEffect(() => {
-    dispatch(fetchCategories()).then((response) => {
-      const categoryNames = response.payload.map((category) => category.name)
-      setOptions(categoryNames)
-    })
+    dispatch(fetchCategories())
+      .then((response) => {
+        if (Array.isArray(response.payload)) {
+          const categoryNames = response.payload.map((category) => category.name)
+          setOptions(categoryNames)
+        } else {
+          console.error('Response payload is not an array:', response.payload)
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching categories:', error)
+      })
   }, [dispatch])
 
   const handleCategoryChange = (selectedCategory) => {
     dispatch(setCategory(selectedCategory))
   }
 
-  // Initialize category with an empty string to prevent uncontrolled input error
   const initialCategoryValue = category || ''
 
   return (

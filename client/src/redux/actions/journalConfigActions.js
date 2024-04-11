@@ -61,7 +61,6 @@ export const updateJournalGoal = (payload) => async (dispatch) => {
   const body = payload
 
   try {
-    console.log('update journal goal hit')
     const res = await axios.post(`/api/journal_config/update_goals`, body, axiosConfig)
 
     dispatch({
