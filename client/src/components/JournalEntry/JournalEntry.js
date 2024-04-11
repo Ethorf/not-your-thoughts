@@ -25,8 +25,22 @@ export const JournalEntry = ({ journal: { id, date_created, num_of_words, conten
   return (
     <li className={styles.wrapper} key={id}>
       <div className={styles.nodeValue}>Date: {parseDate(date_created)}</div>
-      <div onClick={handleOpenContentModal} className={classNames(styles.nodeValue, styles.contentButton)}>
-        Content: {content.length ? content[0].slice(0, 15) : 'Invalid Content'}...
+      <div
+        data-tooltip-id="main-tooltip"
+        data-tooltip-content="Expand Journal content"
+        onClick={handleOpenContentModal}
+        className={classNames(styles.nodeValue, styles.contentButton)}
+      >
+        <span>
+          Content:
+          <span />
+        </span>
+        {content.length ? (
+          <div dangerouslySetInnerHTML={{ __html: content[0].slice(0, 5) }} />
+        ) : (
+          <span>Invalid Content</span>
+        )}
+        <span>...</span>
       </div>
       <div className={styles.nodeValue}># of Words: {num_of_words}</div>
       <div className={styles.nodeValue}>Time taken: {formatTime(total_time_taken)}</div>

@@ -10,6 +10,7 @@ import DefaultInput from '../../components/Shared/DefaultInput/DefaultInput'
 import PromptsDisplay from '../../components/PromptsDisplay/PromptsDisplay.js'
 
 import { ENTRY_TYPES } from '../../constants/entryTypes'
+import { MODAL_NAMES } from '../../constants/modalNames'
 
 import styles from './CreateNodeEntry.module.scss'
 import CategoryInput from '../../components/CategoryInput/CategoryInput'
@@ -30,8 +31,7 @@ const CreateNodeEntry = () => {
 
   const handleSaveNode = async () => {
     const newNode = await dispatch(createNodeEntry({ content, category, title, tags }))
-    // TODO fix this
-    // history.push(`/edit-node-entry?entryId=${newNode.payload.id}`)
+    history.push(`/edit-node-entry?entryId=${newNode.payload.id}`)
   }
 
   return (

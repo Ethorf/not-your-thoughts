@@ -6,6 +6,8 @@
 
 .listContainer {
   padding: 0;
+  overflow: auto;
+  max-height: 60vh;
 }
 
 .nodesTitle {

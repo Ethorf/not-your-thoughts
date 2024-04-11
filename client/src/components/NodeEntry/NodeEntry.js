@@ -35,11 +35,16 @@ export const NodeEntry = ({ node: { id, date_last_modified, date_created, title,
       <div className={styles.nodeValue}>Modified: {parseDate(date_last_modified)}</div>
       <div className={styles.nodeValue}>Created: {parseDate(date_created)}</div>
       <div className={styles.nodeValue}>Category: {category_name ?? 'n/a'}</div>
-      <div onClick={handleOpenContentModal} className={classNames(styles.nodeValue, styles.contentButton)}>
+      <div
+        data-tooltip-id="main-tooltip"
+        data-tooltip-content="Expand node content"
+        onClick={handleOpenContentModal}
+        className={classNames(styles.nodeValue, styles.contentButton)}
+      >
         <span>
           Content:
-          <span />{' '}
-        </span>{' '}
+          <span />
+        </span>
         <div dangerouslySetInnerHTML={{ __html: content[0].slice(0, 8) }} />
         <span>...</span>
       </div>

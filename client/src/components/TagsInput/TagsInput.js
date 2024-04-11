@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import classNames from 'classnames'
+
+import { openModal } from '../../redux/reducers/modalsReducer.js'
+
 import DefaultAutoCompleteInput from '../Shared/DefaultAutoCompleteInput/DefaultAutoCompleteInput.js'
 import DefaultButton from '../Shared/DefaultButton/DefaultButton.js'
+import TextButton from '../../components/Shared/TextButton/TextButton'
+
+import { MODAL_NAMES } from '../../constants/modalNames'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { setTags, setTagInput, fetchTags } from '../../redux/reducers/currentEntryReducer.js'
@@ -33,12 +39,16 @@ const TagsInput = ({ className }) => {
     return <div className={styles.tag}>{name}</div>
   }
 
+  const handleOpenTagsModal = () => {
+    dispatch(openModal(MODAL_NAMES.TAGS_INPUT))
+  }
+
   return (
     <div className={classNames(className, styles.wrapper)}>
       <div className={styles.tagsContainer}>
-        <DefaultButton className={styles.tagsInputSectionButton} onClick={() => setTagsInputVisible(!tagsInputVisible)}>
-          {!tagsInputVisible ? '+' : 'x'}
-        </DefaultButton>
+        <TextButton className={styles.tagsInputSectionButton} onClick={handleOpenTagsModal}>
+          +
+        </TextButton>
         <p className={styles.tagsLabel}>Tags:</p>
         {tags.slice(0, 3).map((tag) => (
           <Tag name={tag} />

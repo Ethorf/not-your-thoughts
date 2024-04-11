@@ -53,8 +53,7 @@ export const saveJournalEntry = createAsyncThunk(
         total_time_taken: timeElapsed,
         wpm,
       })
-      console.log('response.data.entry_id is:')
-      console.log(response.data.entry_id)
+
       dispatch(showToast('Journal Entry Saved', 'success'))
 
       return response.data.entry_id

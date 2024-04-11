@@ -1,6 +1,7 @@
 .wrapper {
   flex-direction: column;
   position: relative;
+  z-index: 9999;
 }
 
 .tag {
@@ -17,7 +18,6 @@
   width: 100%;
   align-items: center;
   justify-content: flex-end;
-  z-index: 2;
 }
 
 .tagsLabel {

@@ -1,7 +1,10 @@
 .wrapper {
-  min-width: 100%;
+  width: 100%;
+  max-width: 100%;
   height: 90%;
+  max-height: 75%;
   border: 1px solid rgba(192, 192, 192, 0.5);
+  z-index: 9999;
   border-radius: 12px;
   transition: all 500ms;
   position: relative;
@@ -16,5 +19,5 @@
 .toolbarToggleButton {
   position: absolute;
   top: 0;
-  right: 0;
+  right: 6px;
 }

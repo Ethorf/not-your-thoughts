@@ -23,7 +23,7 @@ export const JournalContentModal = () => {
   return (
     <BaseModalWrapper modalName={MODAL_NAMES.JOURNAL_CONTENT}>
       <div className={styles.wrapper}>
-        <div className={styles.contentDiv}>{content}</div>
+        <div className={styles.contentDiv} dangerouslySetInnerHTML={{ __html: content }} />
       </div>
     </BaseModalWrapper>
   )

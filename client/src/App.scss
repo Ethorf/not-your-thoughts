@@ -117,3 +117,22 @@ html {
   opacity: 0;
   transition: opacity 300ms;
 }
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: black;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(192, 192, 192, 0.5);
+  transition: all 500ms ease-in-out;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(192, 192, 192, 0.8);
+  transition: all 500ms ease-in-out;
+}
