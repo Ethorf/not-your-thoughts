@@ -41,7 +41,7 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
   }
 
   if (isAuthenticated) {
-    return <Redirect to="/entry-type-switcher" />
+    return <Redirect to="/dashboard" />
   }
 
   return (

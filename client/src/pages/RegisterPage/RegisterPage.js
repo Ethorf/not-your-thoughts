@@ -30,7 +30,7 @@ const Register = ({ setAlert, register, isAuthenticated, alert, guestMode, toggl
   }
 
   if (isAuthenticated) {
-    return <Redirect to="/entry-type-switcher" />
+    return <Redirect to="/dashboard" />
   }
 
   return (
