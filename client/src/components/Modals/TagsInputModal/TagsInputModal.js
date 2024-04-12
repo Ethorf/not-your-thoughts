@@ -45,8 +45,8 @@ export const TagsInputModal = () => {
         <h2>Tags</h2>
         <div className={styles.currentTagsContainer}>
           <p className={styles.tagsLabel}>Tags:</p>
-          {tags.map((tag) => (
-            <Tag name={tag} />
+          {tags.map((tag, idx) => (
+            <Tag key={idx} name={tag} />
           ))}
           {tags.length > 3 && <span className={styles.tagsElipsis}>...</span>}
         </div>

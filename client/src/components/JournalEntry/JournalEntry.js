@@ -27,7 +27,7 @@ export const JournalEntry = ({ journal: { id, date_created, num_of_words, conten
       <div className={styles.nodeValue}>Date: {parseDate(date_created)}</div>
       <div
         data-tooltip-id="main-tooltip"
-        data-tooltip-content="Expand Journal content"
+        data-tooltip-content="expand"
         onClick={handleOpenContentModal}
         className={classNames(styles.nodeValue, styles.contentButton)}
       >

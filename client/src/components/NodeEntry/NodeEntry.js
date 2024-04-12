@@ -37,7 +37,7 @@ export const NodeEntry = ({ node: { id, date_last_modified, date_created, title,
       <div className={styles.nodeValue}>Category: {category_name ?? 'n/a'}</div>
       <div
         data-tooltip-id="main-tooltip"
-        data-tooltip-content="Expand node content"
+        data-tooltip-content="expand"
         onClick={handleOpenContentModal}
         className={classNames(styles.nodeValue, styles.contentButton)}
       >

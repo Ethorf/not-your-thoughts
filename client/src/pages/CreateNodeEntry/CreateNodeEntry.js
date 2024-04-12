@@ -4,13 +4,16 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { setTitle, createNodeEntry, resetState } from '../../redux/reducers/currentEntryReducer'
 
+import { showToast } from '../../utils/toast.js'
+
+// Components
 import CreateEntry from '../../components/Shared/CreateEntry/CreateEntry'
 import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
 import DefaultInput from '../../components/Shared/DefaultInput/DefaultInput'
 import PromptsDisplay from '../../components/PromptsDisplay/PromptsDisplay.js'
 
+// Constants
 import { ENTRY_TYPES } from '../../constants/entryTypes'
-import { MODAL_NAMES } from '../../constants/modalNames'
 
 import styles from './CreateNodeEntry.module.scss'
 import CategoryInput from '../../components/CategoryInput/CategoryInput'
@@ -30,8 +33,22 @@ const CreateNodeEntry = () => {
   }, [dispatch])
 
   const handleSaveNode = async () => {
-    const newNode = await dispatch(createNodeEntry({ content, category, title, tags }))
-    history.push(`/edit-node-entry?entryId=${newNode.payload.id}`)
+    try {
+      const newNode = await dispatch(createNodeEntry({ content, category, title, tags }))
+      console.log('newNode is:')
+      console.log(newNode)
+      const entryId = newNode?.payload?.id ?? null
+
+      if (entryId) {
+        history.push(`/edit-node-entry?entryId=${entryId}`)
+      } else {
+        showToast('Failed to retrieve node ID', 'error')
+        console.error('Failed to retrieve node ID from response:', newNode)
+      }
+    } catch (error) {
+      showToast('Error creating node entry', 'error')
+      console.error('Error creating node entry:', error)
+    }
   }
 
   return (

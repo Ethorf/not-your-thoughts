@@ -27,8 +27,8 @@ const TagsInput = ({ className }) => {
           +
         </TextButton>
         <p className={styles.tagsLabel}>Tags:</p>
-        {tags.slice(0, 3).map((tag) => (
-          <Tag name={tag} />
+        {tags.slice(0, 3).map((tag, idx) => (
+          <Tag key={idx} name={tag} />
         ))}
         {tags.length > 3 && <span className={styles.tagsElipsis}>...</span>}
       </div>
