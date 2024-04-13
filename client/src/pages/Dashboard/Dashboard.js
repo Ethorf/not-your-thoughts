@@ -6,6 +6,7 @@ import sharedStyles from '../../styles/shared.module.scss'
 import classNames from 'classnames'
 
 import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
+import { CustomPromptsList } from '../../components/Shared/CustomPromptsList/CustomPromptsList'
 
 const Dashboard = () => {
   const history = useHistory()
@@ -27,6 +28,7 @@ const Dashboard = () => {
         <DefaultButton onClick={handleNewJournalEntryClick}>Journal</DefaultButton>
       </div>
       <h3>Prompts</h3>
+      <CustomPromptsList />
     </div>
   )
 }

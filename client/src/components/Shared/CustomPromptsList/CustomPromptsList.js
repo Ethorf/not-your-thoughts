@@ -13,16 +13,19 @@ export const CustomPromptsList = () => {
   const handleDeletePrompt = (promptId) => {
     dispatch(deleteCustomPrompt(promptId))
   }
-  console.log('customPrompts is:')
-  console.log(customPrompts)
+
   return (
     <>
       {customPrompts.length ? (
         <ul className={styles.promptsList}>
           {customPrompts.map((prompt) => (
-            <li className={styles.listedPrompt} key={prompt.id}>
-              <h4>{prompt.content}</h4>
-              <TextButton tooltip="delete prompt" onClick={() => handleDeletePrompt(prompt.id)}>
+            <li className={styles.promptWrapper} key={prompt.id}>
+              <h4 className={styles.promptContent}>{prompt.content}</h4>
+              <TextButton
+                className={styles.deleteButton}
+                tooltip="delete prompt"
+                onClick={() => handleDeletePrompt(prompt.id)}
+              >
                 X
               </TextButton>
             </li>
