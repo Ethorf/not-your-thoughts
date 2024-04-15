@@ -84,4 +84,28 @@ router.put('/toggle_prompt_starred/:promptId', authorize, async (req, res) => {
   }
 })
 
+// Route to update a custom prompt's status by ID
+router.put('/update_prompt_status/:promptId', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+  const { promptId } = req.params
+  const { status } = req.body
+
+  try {
+    // Retrieve the custom prompt by ID
+    const prompt = await pool.query('SELECT * FROM custom_prompts WHERE id = $1 AND user_id = $2', [promptId, user_id])
+
+    if (prompt.rows.length === 0) {
+      return res.status(404).json({ msg: 'Custom prompt not found for this user' })
+    }
+
+    // Update the custom prompt's status
+    await pool.query('UPDATE custom_prompts SET status = $1 WHERE id = $2', [status, promptId])
+
+    res.json({ msg: 'Custom prompt status updated successfully' })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server Error')
+  }
+})
+
 module.exports = router

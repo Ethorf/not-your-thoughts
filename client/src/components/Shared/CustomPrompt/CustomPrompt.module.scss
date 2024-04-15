@@ -1,0 +1,31 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-height: 36px;
+}
+
+.promptContent {
+  color: rgba(192, 192, 192, 0.7);
+  transition: all 200ms ease-in-out;
+
+  &:hover {
+    transition: all 200ms ease-in-out;
+    color: rgba(192, 192, 192, 1);
+    cursor: pointer;
+  }
+}
+
+.promptsList {
+  padding: 0;
+}
+
+.deleteButton {
+  font-size: 0.8rem;
+
+  &:hover {
+    transition: all 200ms ease-in-out;
+    color: rgba(192, 192, 192, 1);
+    cursor: pointer;
+  }
+}
