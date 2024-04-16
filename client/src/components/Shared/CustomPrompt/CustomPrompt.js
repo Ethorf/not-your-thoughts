@@ -1,15 +1,19 @@
 import React, { useState } from 'react'
-import TextButton from '../TextButton/TextButton'
+import classNames from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import { PROMPT_STATUSES } from '../../../constants/promptStatuses'
 
-import styles from './CustomPrompt.module.scss'
 import {
   deleteCustomPrompt,
   updatePromptStatus,
   togglePromptStarred,
 } from '../../../redux/reducers/customPromptsReducer'
+
+import TextButton from '../TextButton/TextButton'
+import { FavStarIcon } from '../FavStarIcon/FavStarIcon'
+
+import styles from './CustomPrompt.module.scss'
 
 export const CustomPrompt = ({ prompt: { id, content, status, starred } }) => {
   const dispatch = useDispatch()
@@ -27,11 +31,14 @@ export const CustomPrompt = ({ prompt: { id, content, status, starred } }) => {
     dispatch(togglePromptStarred(id))
   }
 
-  console.log('status is:')
-  console.log(status)
-
   return (
     <li className={styles.wrapper} key={id}>
+      <FavStarIcon
+        onClick={handleTogglePromptStarred}
+        starred={starred}
+        className={classNames(styles.favStarIcon, { [styles.starred]: starred })}
+      />
+      <h4 className={styles.content}>{content}</h4>
       <select id="promptStatus" value={selectedStatus} onChange={handleUpdatePromptStatus}>
         <option value="">Select Status</option>
         {Object.values(PROMPT_STATUSES).map((status) => (
@@ -40,10 +47,6 @@ export const CustomPrompt = ({ prompt: { id, content, status, starred } }) => {
           </option>
         ))}
       </select>
-      <TextButton className={styles.deleteButton} tooltip="toggle starred" onClick={handleTogglePromptStarred}>
-        Fav
-      </TextButton>
-      <h4 className={styles.content}>{content}</h4>
       <TextButton className={styles.deleteButton} tooltip="delete prompt" onClick={() => handleDeletePrompt(id)}>
         X
       </TextButton>

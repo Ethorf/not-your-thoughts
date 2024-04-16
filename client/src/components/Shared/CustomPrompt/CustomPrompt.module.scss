@@ -1,8 +1,9 @@
 .wrapper {
-  display: flex;
+  display: grid;
+  grid-template-columns: 7% 60% 28% 5%; /* Updated widths for each column */
+  width: 100%;
   align-items: center;
-  justify-content: space-between;
-  max-height: 36px;
+  max-height: 50px;
 }
 
 .promptContent {
@@ -28,4 +29,21 @@
     color: rgba(192, 192, 192, 1);
     cursor: pointer;
   }
+}
+
+.favStarIcon {
+  width: 25px;
+  height: 25px;
+  stroke: silver;
+  stroke-width: 2px;
+  outline: none;
+  cursor: pointer;
+
+  &:hover {
+    fill: rgba(192, 192, 192, 0.5);
+  }
+}
+
+.starred {
+  fill: silver;
 }
