@@ -2,6 +2,8 @@
 
 Not Your Thoughts
 
+current deploy at https://not-your-thoughts.onrender.com/
+
 ## Installation
 
 Run npm install in the client, server, and root directory
