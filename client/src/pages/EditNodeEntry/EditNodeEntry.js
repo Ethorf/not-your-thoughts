@@ -7,7 +7,6 @@ import { setTitle, updateNodeEntry, setEntryById } from '../../redux/reducers/cu
 import CreateEntry from '../../components/Shared/CreateEntry/CreateEntry'
 import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
 import DefaultInput from '../../components/Shared/DefaultInput/DefaultInput'
-import PromptsDisplay from '../../components/PromptsDisplay/PromptsDisplay.js'
 
 import styles from './EditNodeEntry.module.scss'
 import CategoryInput from '../../components/CategoryInput/CategoryInput'
@@ -45,7 +44,6 @@ const EditNodeEntry = () => {
     <div className={styles.wrapper}>
       <div className={styles.editContainer}>
         <h2>Edit Node</h2>
-        <PromptsDisplay />
         <div className={classNames(styles.topContainer, styles.grid3Columns)}>
           {content ? (
             <>

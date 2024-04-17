@@ -1,0 +1,17 @@
+.wrapper {
+  cursor: pointer;
+  background-color: black;
+  color: rgba(192, 192, 192, 0.8);
+  border: 1px solid rgba(192, 192, 192, 0.8);
+  border-radius: 8px;
+  transition: all 250ms ease-in-out;
+  padding: 0.3em 0.5em;
+  font-family: 'Poppins', sans-serif;
+  outline: none;
+
+  &:hover {
+    transition: all 250ms ease-in-out;
+    color: rgba(192, 192, 192, 1);
+    border: 1px solid rgba(192, 192, 192, 1);
+  }
+}

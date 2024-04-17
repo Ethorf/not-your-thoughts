@@ -6,19 +6,16 @@
   max-height: 50px;
 }
 
-.promptContent {
-  color: rgba(192, 192, 192, 0.7);
+.content {
+  color: rgba(192, 192, 192, 0.8);
   transition: all 200ms ease-in-out;
+  margin-right: 4px;
 
   &:hover {
     transition: all 200ms ease-in-out;
     color: rgba(192, 192, 192, 1);
     cursor: pointer;
   }
-}
-
-.promptsList {
-  padding: 0;
 }
 
 .deleteButton {
@@ -38,12 +35,15 @@
   stroke-width: 2px;
   outline: none;
   cursor: pointer;
+  transition: all 200ms ease-in-out;
 
   &:hover {
     fill: rgba(192, 192, 192, 0.5);
+    transition: all 200ms ease-in-out;
   }
 }
 
 .starred {
   fill: silver;
+  transition: all 200ms ease-in-out;
 }

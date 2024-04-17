@@ -7,6 +7,7 @@ import classNames from 'classnames'
 
 import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
 import { CustomPromptsList } from '../../components/Shared/CustomPromptsList/CustomPromptsList'
+import CustomPromptsSection from '../../components/CustomPromptsSection/CustomPromptsSection.js'
 
 const Dashboard = () => {
   const history = useHistory()
@@ -22,13 +23,15 @@ const Dashboard = () => {
   return (
     <div className={classNames(styles.wrapper, sharedStyles.flexColumnCenter)}>
       <h1>Dashboard</h1>
-      <h3 className={classNames(sharedStyles.title)}>New Entry:</h3>
-      <div>
+      <div className={classNames(styles.newEntry)}>
+        <h2>New Entry:</h2>
         <DefaultButton onClick={handleNewNodeEntryClick}>Node</DefaultButton>
         <DefaultButton onClick={handleNewJournalEntryClick}>Journal</DefaultButton>
       </div>
-      <h3>Prompts</h3>
-      <CustomPromptsList />
+      <CustomPromptsSection />
+      <div className={styles.customPromptsList}>
+        <CustomPromptsList />
+      </div>
     </div>
   )
 }

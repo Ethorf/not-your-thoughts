@@ -8,7 +8,7 @@ import TextButton from '../Shared/TextButton/TextButton.js'
 
 import styles from './CustomPromptsSection.module.scss'
 
-const CustomPrompts = () => {
+const CustomPromptsSection = () => {
   const dispatch = useDispatch()
 
   const handleOpenModal = () => {
@@ -17,7 +17,7 @@ const CustomPrompts = () => {
 
   return (
     <div className={styles.wrapper}>
-      <h2>Custom Prompts</h2>
+      <h2 className={styles.header}>Custom Prompts</h2>
       {/* Toggle here once we turn things into user_config */}
       <TextButton tooltip="add prompts" onClick={handleOpenModal}>
         +
@@ -26,4 +26,4 @@ const CustomPrompts = () => {
   )
 }
 
-export default CustomPrompts
+export default CustomPromptsSection

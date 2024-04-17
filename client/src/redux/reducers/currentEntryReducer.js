@@ -19,6 +19,9 @@ const initialState = {
   // TODO do we really need this? May be useful but not sure it is RN
   type: JOURNAL,
   content: '',
+  // Note this will hold only title and ID of node entries, I'm currently doing this to not overburden the backend
+  //  and compromise performance but think this may be able to be improved
+  nodeEntriesInfo: [],
 }
 
 export const createNodeEntry = createAsyncThunk(
@@ -111,6 +114,20 @@ export const fetchEntryById = createAsyncThunk(
 
       return response.data
     } catch (error) {
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+// Define async thunk to fetch node entries' information
+export const fetchNodeEntriesInfo = createAsyncThunk(
+  'currentEntryReducer/fetchNodeEntriesInfo',
+  async (_, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axios.get('api/entries/node_entries_info')
+      return response.data.nodeEntries
+    } catch (error) {
+      dispatch(showToast('Error fetching node entries', 'error'))
       return rejectWithValue(error.response.data)
     }
   }
@@ -244,6 +261,9 @@ const currentEntrySlice = createSlice({
         ...state,
         ...action.payload,
       }
+    })
+    builder.addCase(fetchNodeEntriesInfo.fulfilled, (state, action) => {
+      state.nodeEntriesInfo = action.payload
     })
   },
 })

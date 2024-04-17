@@ -61,6 +61,9 @@ class NavBarSide extends React.Component {
           />
         </button>
         <div className={`nav__links-container${this.props.mode} `} ref={(div) => (this.linksContainer = div)}>
+          <NavLink exact to="/dashboard" activeClassName="nav__active" className={`nav__link${this.props.mode}`}>
+            Dashboard
+          </NavLink>
           <NavLink
             exact
             to="/create-journal-entry"
