@@ -333,6 +333,29 @@ router.get('/node_entries', authorize, async (req, res) => {
   }
 })
 
+// Route to retrieve all node type entries with title and id
+router.get('/node_entries_info', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+
+  try {
+    // Retrieve node entries' title and id for the user with the provided user_id
+    const nodeEntries = await pool.query(`SELECT id, title FROM entries WHERE user_id = $1 AND type = 'node'`, [
+      user_id,
+    ])
+
+    // Check if there are any entries found
+    if (nodeEntries.rows.length === 0) {
+      return res.status(404).json({ msg: 'No node entries found for this user' })
+    }
+
+    // If node entries are found, return them
+    res.json({ nodeEntries: nodeEntries.rows })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
 // Route to retrieve all entrie regardless of type for a user
 router.get('/all_entries', authorize, async (req, res) => {
   const { id: user_id } = req.user

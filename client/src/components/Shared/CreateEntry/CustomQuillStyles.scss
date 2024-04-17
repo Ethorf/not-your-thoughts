@@ -1,8 +1,9 @@
 .ql-editor {
   font-family: 'Poppins', sans-serif;
+  font-weight: 200;
   font-size: 1.2rem;
   padding: 26px;
-  // overflow: hidden;
+  color: silver;
 }
 
 .ql-container.ql-snow {
@@ -36,11 +37,9 @@
 }
 
 .textArea {
-  font-family: 'Poppins', sans-serif;
   min-width: 100%;
   height: 100%;
   border-radius: 12px;
-  color: silver;
 }
 
 .toolbar-hidden {

@@ -1,6 +1,6 @@
 // Packages
 import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import 'react-responsive-modal/styles.css'
 
 // Constants
@@ -9,22 +9,17 @@ import { MODAL_NAMES } from '../../../constants/modalNames'
 // Components
 import { BaseModalWrapper } from '../BaseModalWrapper/BaseModalWrapper'
 import DefaultButton from '../../Shared/DefaultButton/DefaultButton'
-import TextButton from '../../Shared/TextButton/TextButton'
 import DefaultInput from '../../Shared/DefaultInput/DefaultInput'
+import { CustomPromptsList } from '../../Shared/CustomPromptsList/CustomPromptsList'
 
 // Redux
-import {
-  fetchCustomPrompts,
-  createCustomPrompt,
-  deleteCustomPrompt,
-} from '../../../redux/reducers/customPromptsReducer'
+import { fetchCustomPrompts, createCustomPrompt } from '../../../redux/reducers/customPromptsReducer'
 
 import styles from './CustomPromptsModal.module.scss'
 
 export const CustomPromptsModal = () => {
   const dispatch = useDispatch()
   const [customPromptInput, setCustomPromptInput] = useState('')
-  const { customPrompts } = useSelector((state) => state.customPrompts)
 
   useEffect(() => {
     dispatch(fetchCustomPrompts())
@@ -35,10 +30,6 @@ export const CustomPromptsModal = () => {
       dispatch(createCustomPrompt(customPromptInput))
       setCustomPromptInput('')
     }
-  }
-
-  const handleDeletePrompt = (promptId) => {
-    dispatch(deleteCustomPrompt(promptId))
   }
 
   return (
@@ -53,20 +44,7 @@ export const CustomPromptsModal = () => {
           />
           <DefaultButton onClick={handleCreatePrompt}>Create</DefaultButton>
         </div>
-        {customPrompts.length ? (
-          <ul className={styles.promptsList}>
-            {customPrompts.map((prompt) => (
-              <li className={styles.listedPrompt} key={prompt.id}>
-                <h4>{prompt.content}</h4>
-                <TextButton tooltip="delete prompt" onClick={() => handleDeletePrompt(prompt.id)}>
-                  X
-                </TextButton>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <h3>No prompts created yet...</h3>
-        )}
+        <CustomPromptsList />
       </div>
     </BaseModalWrapper>
   )

@@ -4,11 +4,14 @@ import PropTypes from 'prop-types'
 import { logout, loadUser } from '../../redux/actions/authActions.js'
 import { fetchJournalConfig } from '../../redux/reducers/journalEntriesReducer.js'
 import { toggleJournalConfigSetting } from '../../redux/actions/journalConfigActions.js'
+
+// Components
 import ProfileGoalEdit from '../../components/ProfileGoalEditComponent/ProfileGoalEditComponent.js'
 import TrackedPhrasesModal from '../../components/Modals/trackedPhrasesModal.js'
-import CustomPrompts from '../../components/CustomPromptsSection/CustomPromptsSection.js'
+import CustomPromptsSection from '../../components/CustomPromptsSection/CustomPromptsSection.js'
 import Spinner from '../../components/Shared/Spinner/Spinner.js'
 
+// Styles
 import './ProfilePage.scss'
 import '../../styles/rubberDucky.scss'
 
@@ -61,7 +64,7 @@ const Profile = ({ auth: { user }, mode, toggleJournalConfigSetting }) => {
           ) : (
             <h2 className={`profile__day-number profile__no-days  ${mode}`}>No days complete yet</h2>
           )}
-          <CustomPrompts />
+          <CustomPromptsSection />
           <div className={`profile__stats-text profile__toggle-container`}>
             Progress Audio:
             <div className={`profile__toggle-switch`}>

@@ -31,7 +31,7 @@ export const SuccessModal = () => {
   return (
     <BaseModalWrapper modalName={MODAL_NAMES.SUCCESS}>
       <div className={styles.wrapper}>
-        <h2>Great jarb!</h2>
+        <h2>Daily Goal Achieved</h2>
         <DefaultButton disabled={!content.length} onClick={handleSaveJournal}>
           Save Journal {'&'} Close
         </DefaultButton>

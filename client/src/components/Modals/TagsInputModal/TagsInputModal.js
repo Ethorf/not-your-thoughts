@@ -10,7 +10,6 @@ import { MODAL_NAMES } from '../../../constants/modalNames'
 import { BaseModalWrapper } from '../BaseModalWrapper/BaseModalWrapper'
 import DefaultButton from '../../Shared/DefaultButton/DefaultButton'
 import Tag from '../../Shared/Tag/Tag'
-import DefaultInput from '../../Shared/DefaultInput/DefaultInput'
 import DefaultAutoCompleteInput from '../../Shared/DefaultAutoCompleteInput/DefaultAutoCompleteInput.js'
 
 // Redux
@@ -24,11 +23,24 @@ export const TagsInputModal = () => {
 
   const { tagInput, tags } = useSelector((state) => state.currentEntry)
 
+  // TODO this seems a little verbose, could try to either abstract into a custom hook or do a better job of using the thunk statuses to deal with this
   useEffect(() => {
-    dispatch(fetchTags()).then((response) => {
-      const tags = response.payload.map((category) => category.name)
-      setOptions(tags)
-    })
+    const fetchData = async () => {
+      try {
+        const response = await dispatch(fetchTags())
+
+        if (Array.isArray(response.payload)) {
+          const tags = response.payload.map((category) => category.name)
+          setOptions(tags)
+        } else {
+          console.error('fetchTags did not return an array:', response.payload)
+        }
+      } catch (error) {
+        console.error('Error fetching tags:', error)
+      }
+    }
+
+    fetchData()
   }, [dispatch])
 
   const handleAddTags = () => {

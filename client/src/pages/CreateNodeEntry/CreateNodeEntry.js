@@ -10,7 +10,7 @@ import { showToast } from '../../utils/toast.js'
 import CreateEntry from '../../components/Shared/CreateEntry/CreateEntry'
 import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
 import DefaultInput from '../../components/Shared/DefaultInput/DefaultInput'
-import PromptsDisplay from '../../components/PromptsDisplay/PromptsDisplay.js'
+import CustomPromptsSection from '../../components/CustomPromptsSection/CustomPromptsSection.js'
 
 // Constants
 import { ENTRY_TYPES } from '../../constants/entryTypes'
@@ -28,15 +28,17 @@ const CreateNodeEntry = () => {
     dispatch(setTitle(e.target.value))
   }
 
+  // TODO look into if there's a better way to handle this as this feels like it could stack up with requirements
+  // I.e. we're "creating" a fresh node but maybe we need to add like a "initialTitle" or like "linked title" & other initial properties thing
   useEffect(() => {
-    dispatch(resetState())
-  }, [dispatch])
+    if (!title) {
+      dispatch(resetState())
+    }
+  }, [dispatch, title])
 
   const handleSaveNode = async () => {
     try {
       const newNode = await dispatch(createNodeEntry({ content, category, title, tags }))
-      console.log('newNode is:')
-      console.log(newNode)
       const entryId = newNode?.payload?.id ?? null
 
       if (entryId) {
@@ -55,7 +57,7 @@ const CreateNodeEntry = () => {
     <div className={styles.wrapper}>
       <div className={styles.editContainer}>
         <h2>create node</h2>
-        <PromptsDisplay />
+        <CustomPromptsSection />
         <div className={classNames(styles.topContainer, styles.grid3Columns)}>
           <CategoryInput className={styles.flexStart} />
           <DefaultInput

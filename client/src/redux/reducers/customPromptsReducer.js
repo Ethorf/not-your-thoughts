@@ -38,6 +38,26 @@ export const deleteCustomPrompt = createAsyncThunk('customPrompts/deleteCustomPr
   }
 })
 
+// Async thunk to update a custom prompt's status
+export const updatePromptStatus = createAsyncThunk('customPrompts/updatePromptStatus', async ({ promptId, status }) => {
+  try {
+    const response = await axios.put(`/api/prompts/update_prompt_status/${promptId}`, { status })
+    return response.data
+  } catch (error) {
+    throw Error(error.response.data.message)
+  }
+})
+
+// Async thunk to toggle a custom prompt's starred value
+export const togglePromptStarred = createAsyncThunk('customPrompts/togglePromptStarred', async (promptId) => {
+  try {
+    const response = await axios.put(`/api/prompts/toggle_prompt_starred/${promptId}`)
+    return response.data
+  } catch (error) {
+    throw Error(error.response.data.message)
+  }
+})
+
 // Custom prompts slice
 const customPromptsSlice = createSlice({
   name: 'customPrompts',
@@ -45,7 +65,6 @@ const customPromptsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch custom prompts reducers
       .addCase(fetchCustomPrompts.pending, (state) => {
         state.loading = true
       })
@@ -57,7 +76,6 @@ const customPromptsSlice = createSlice({
         state.loading = false
         state.error = action.error.message
       })
-      // Create custom prompt reducers
       .addCase(createCustomPrompt.pending, (state) => {
         state.loading = true
       })
@@ -69,7 +87,6 @@ const customPromptsSlice = createSlice({
         state.loading = false
         state.error = action.error.message
       })
-      // Delete custom prompt reducers
       .addCase(deleteCustomPrompt.pending, (state) => {
         state.loading = true
       })
@@ -78,6 +95,26 @@ const customPromptsSlice = createSlice({
         state.customPrompts = state.customPrompts.filter((prompt) => prompt.id !== action.payload)
       })
       .addCase(deleteCustomPrompt.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message
+      })
+      .addCase(updatePromptStatus.pending, (state) => {
+        state.loading = true
+      })
+      .addCase(updatePromptStatus.fulfilled, (state, action) => {
+        state.loading = false
+      })
+      .addCase(updatePromptStatus.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message
+      })
+      .addCase(togglePromptStarred.pending, (state) => {
+        state.loading = true
+      })
+      .addCase(togglePromptStarred.fulfilled, (state, action) => {
+        state.loading = false
+      })
+      .addCase(togglePromptStarred.rejected, (state, action) => {
         state.loading = false
         state.error = action.error.message
       })
