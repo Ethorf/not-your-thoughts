@@ -42,7 +42,7 @@ export const CustomPrompt = ({ prompt: { id, content, status, starred } }) => {
     dispatch(togglePromptStarred(id))
   }
 
-  const CONTENT_ELLIPSIS_CUTTOFF_LENGTH = 20
+  const CONTENT_ELLIPSIS_CUTTOFF_LENGTH = 30
 
   function hasTitle(arrayOfObjects, targetTitle) {
     for (let obj of arrayOfObjects) {
