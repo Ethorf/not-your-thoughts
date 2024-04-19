@@ -4,6 +4,10 @@ $white-text-color: #ffffff;
 $silver-active: rgba(192, 192, 192, 0.9);
 $silver-default: rgba(192, 192, 192, 0.7);
 
+// Borders
+$silver-border-default: 1px solid rgba(192, 192, 192, 0.5);
+$silver-border-active: 1px solid rgba(192, 192, 192, 0.5);
+
 // Transition Time
 $default-transition: all 250ms ease-in-out;
 

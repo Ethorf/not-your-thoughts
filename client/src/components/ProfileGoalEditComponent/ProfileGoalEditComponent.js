@@ -5,14 +5,25 @@ import { toggleEditGoal, updateJournalGoal, setNewGoal } from '../../redux/actio
 import DefaultButton from '../Shared/DefaultButton/DefaultButton.js'
 
 import '../../pages/ProfilePage/ProfilePage.scss'
+import styles from './ProfileGoalEditComponent.module.scss'
 
 function ProfileGoalEdit({ newGoal, toggleEditGoal, goalIsEditable, updateJournalGoal, setNewGoal, mode }) {
-  const { journalConfig } = useSelector((state) => state.journalEntries)
+  const {
+    journalConfig: { goal_preference, daily_words_goal, daily_time_goal },
+  } = useSelector((state) => state.journalEntries)
+  const [localGoalPreference, setLocalGoalPreference] = useState(goal_preference)
+  const [localWordsGoal, setLocalWordsGoal] = useState(daily_words_goal)
+  const [localTimeGoal, setLocalTimeGoal] = useState(daily_time_goal)
 
-  const [localGoalPreference, setLocalGoalPreference] = useState(journalConfig.goal_preference)
-
-  const goalNum = (e) => {
+  const handleWordsGoalNum = (e) => {
     e.preventDefault()
+    setLocalWordsGoal(e.target.value)
+    setNewGoal(Number(e.target.value))
+  }
+
+  const handleTimeGoalNum = (e) => {
+    e.preventDefault()
+    setLocalTimeGoal(e.target.value)
     setNewGoal(Number(e.target.value))
   }
 
@@ -25,13 +36,12 @@ function ProfileGoalEdit({ newGoal, toggleEditGoal, goalIsEditable, updateJourna
     toggleEditGoal()
   }
 
-  const cancelEditGoal = () => {
-    toggleEditGoal()
-  }
-
   useEffect(() => {
     updateJournalGoal({ goal_preference: localGoalPreference })
   }, [localGoalPreference, updateJournalGoal])
+
+  // TODO it would be really nice to update this file with a better pattern as it is clearly a cluttered mess
+  // But it's extremely lo-pri for now since it works
 
   return (
     <>
@@ -65,34 +75,24 @@ function ProfileGoalEdit({ newGoal, toggleEditGoal, goalIsEditable, updateJourna
         {goalIsEditable ? (
           localGoalPreference === 'words' ? (
             <div className={`profile__goal-edit-buttons-container`}>
-              <input
-                className={`profile__goal-input ${mode}`}
-                onChange={goalNum}
-                type="number"
-                defaultValue={journalConfig.daily_words_goal}
-              />
+              <input className={styles.timeInput} onChange={handleWordsGoalNum} type="number" value={localWordsGoal} />
               <DefaultButton onClick={updateGoal}>Save</DefaultButton>
-              <DefaultButton onClick={cancelEditGoal}>Cancel</DefaultButton>
+              <DefaultButton onClick={toggleEditGoal}>Cancel</DefaultButton>
             </div>
           ) : (
             <div className={`profile__goal-edit-buttons-container`}>
-              <input
-                className={`profile__goal-input ${mode}`}
-                onChange={goalNum}
-                type="number"
-                defaultValue={journalConfig.daily_time_goal}
-              />
-              Minute{journalConfig.daily_time_goal >= 2 ? 's' : ''}
+              <input className={styles.timeInput} onChange={handleTimeGoalNum} value={localTimeGoal} type="number" />
+              Minute{localTimeGoal >= 2 ? 's' : ''}
               <DefaultButton onClick={updateGoal}>Save</DefaultButton>
-              <DefaultButton onClick={cancelEditGoal}>Cancel</DefaultButton>
+              <DefaultButton onClick={toggleEditGoal}>Cancel</DefaultButton>
             </div>
           )
         ) : (
           <>
             <div className={`profile__day-number ${mode}`}>
               {localGoalPreference === 'words'
-                ? journalConfig.daily_words_goal
-                : `${journalConfig.daily_time_goal} minute${journalConfig.daily_time_goal >= 2 ? 's' : ''}`}
+                ? localWordsGoal
+                : `${localTimeGoal} minute${localTimeGoal >= 2 ? 's' : ''}`}
               <DefaultButton onClick={toggleEditGoal}>Edit</DefaultButton>
             </div>
           </>

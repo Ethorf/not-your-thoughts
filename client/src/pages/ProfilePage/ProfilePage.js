@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect, useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 import { logout, loadUser } from '../../redux/actions/authActions.js'
@@ -17,16 +17,33 @@ import '../../styles/rubberDucky.scss'
 
 const Profile = ({ auth: { user }, mode, toggleJournalConfigSetting }) => {
   const dispatch = useDispatch()
-
   const { journalConfig } = useSelector((state) => state.journalEntries)
+
+  const [localProgressAudioEnabled, setLocalProgressAudioEnabled] = useState(journalConfig?.progress_audio_enabled)
+  const [localTimerEnabled, setLocalTimerEnabled] = useState(journalConfig?.timer_enabled)
+  const [localWPMEnabled, setLocalWPMEnabled] = useState(journalConfig?.wpm_enabled)
 
   useEffect(() => {
     dispatch(fetchJournalConfig())
   }, [dispatch])
 
-  const handleToggle = (settingName, isEnabled) => {
-    toggleJournalConfigSetting(settingName, isEnabled)
+  const handleProgressAudioToggle = (isEnabled) => {
+    setLocalProgressAudioEnabled(isEnabled)
+    toggleJournalConfigSetting('progress_audio_enabled', isEnabled)
   }
+
+  const handleTimerToggle = (isEnabled) => {
+    setLocalTimerEnabled(isEnabled)
+    toggleJournalConfigSetting('timer', isEnabled)
+  }
+
+  const handleWPMToggle = (isEnabled) => {
+    setLocalWPMEnabled(isEnabled)
+    toggleJournalConfigSetting('wpm_enabled', isEnabled)
+  }
+
+  // TODO would love to update this one to more modern patterns too but is lo-pri
+  // Also would maybe nice to find a way to make these toggles more reusable functions, but also feel like I could fall down the over-general hole there
 
   return (
     journalConfig && (
@@ -69,17 +86,17 @@ const Profile = ({ auth: { user }, mode, toggleJournalConfigSetting }) => {
             Progress Audio:
             <div className={`profile__toggle-switch`}>
               <span
-                onClick={() => handleToggle('progress_audio_enabled', true)}
+                onClick={() => handleProgressAudioToggle(true)}
                 className={` profile__toggle-button profile__on-button ${
-                  journalConfig.progress_audio_enabled ? 'profile__active' : 'profile__inactive'
+                  localProgressAudioEnabled ? 'profile__active' : 'profile__inactive'
                 }`}
               >
                 On
               </span>
               <span
-                onClick={() => handleToggle('progress_audio_enabled', false)}
+                onClick={() => handleProgressAudioToggle(false)}
                 className={` profile__toggle-button profile__off-button ${
-                  journalConfig.progress_audio_enabled ? 'profile__inactive' : 'profile__active'
+                  localProgressAudioEnabled ? 'profile__inactive' : 'profile__active'
                 }`}
               >
                 Off
@@ -91,17 +108,17 @@ const Profile = ({ auth: { user }, mode, toggleJournalConfigSetting }) => {
             Timer:
             <div className={`profile__toggle-switch`}>
               <span
-                onClick={() => handleToggle('timer_enabled', true)}
+                onClick={() => handleTimerToggle(true)}
                 className={` profile__toggle-button profile__on-button ${
-                  journalConfig.timer_enabled ? 'profile__active' : 'profile__inactive'
+                  localTimerEnabled ? 'profile__active' : 'profile__inactive'
                 }`}
               >
                 On
               </span>
               <span
-                onClick={() => handleToggle('timer_enabled', false)}
+                onClick={() => handleTimerToggle(false)}
                 className={` profile__toggle-button profile__off-button ${
-                  journalConfig.timer_enabled ? 'profile__inactive' : 'profile__active'
+                  localTimerEnabled ? 'profile__inactive' : 'profile__active'
                 }`}
               >
                 Off
@@ -113,17 +130,17 @@ const Profile = ({ auth: { user }, mode, toggleJournalConfigSetting }) => {
             WPM readout:
             <div className={`profile__toggle-switch`}>
               <span
-                onClick={() => handleToggle('wpm_enabled', true)}
+                onClick={() => handleWPMToggle(true)}
                 className={` profile__toggle-button profile__on-button ${
-                  journalConfig.wpm_enabled ? 'profile__active' : 'profile__inactive'
+                  localWPMEnabled ? 'profile__active' : 'profile__inactive'
                 }`}
               >
                 On
               </span>
               <span
-                onClick={() => handleToggle('wpm_enabled', false)}
+                onClick={() => handleWPMToggle(false)}
                 className={` profile__toggle-button profile__off-button ${
-                  journalConfig.wpm_enabled ? 'profile__inactive' : 'profile__active'
+                  localWPMEnabled ? 'profile__inactive' : 'profile__active'
                 }`}
               >
                 Off

@@ -1,5 +1,15 @@
 @import './variables.scss';
 
+@mixin default-hover-border {
+  border: $silver-border-default;
+  transition: $default-transition;
+  border-radius: 8px;
+
+  &:hover {
+    transition: $default-transition;
+    border: $silver-border-active;
+  }
+}
 //Screen Sizes
 @mixin mobile-small-only() {
   @media #{$mobile-small-only} {
