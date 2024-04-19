@@ -1,13 +1,15 @@
 import React from 'react'
 import { useHistory } from 'react-router-dom'
-
-import styles from './Dashboard.module.scss'
-import sharedStyles from '../../styles/shared.module.scss'
 import classNames from 'classnames'
 
-import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
-import { CustomPromptsList } from '../../components/Shared/CustomPromptsList/CustomPromptsList'
-import CustomPromptsSection from '../../components/CustomPromptsSection/CustomPromptsSection.js'
+// Styles
+import styles from './Dashboard.module.scss'
+import sharedStyles from '@styles/shared.module.scss'
+
+// Components
+import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
+import { CustomPromptsList } from '@components/Shared/CustomPromptsList/CustomPromptsList'
+import CustomPromptsSection from '@components/CustomPromptsSection/CustomPromptsSection.js'
 
 const Dashboard = () => {
   const history = useHistory()
