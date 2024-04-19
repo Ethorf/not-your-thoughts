@@ -1,5 +1,5 @@
 //Package Imports
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { connect, useDispatch, useSelector } from 'react-redux'
 
@@ -37,6 +37,7 @@ import ProgressWord from '../../components/progress/progressWord.js'
 
 const CreateJournalEntry = ({ auth: { guestMode } }) => {
   const dispatch = useDispatch()
+  const [successModalSeen, setSuccessModalSeen] = useState(false)
 
   const { wordCount, content, entryId, wpm, timeElapsed } = useSelector((state) => state.currentEntry)
   const { journalConfig } = useSelector((state) => state.journalEntries)
@@ -50,8 +51,9 @@ const CreateJournalEntry = ({ auth: { guestMode } }) => {
   }, [dispatch])
 
   useEffect(() => {
-    if (journalConfig && wordCount >= journalConfig.daily_words_goal) {
+    if (journalConfig && wordCount >= journalConfig.daily_words_goal && !successModalSeen) {
       dispatch(openModal(MODAL_NAMES.SUCCESS))
+      setSuccessModalSeen(true)
     }
   }, [dispatch, journalConfig, wordCount])
 
