@@ -35,8 +35,7 @@ const JournalEntriesList = () => {
   useEffect(() => {
     dispatch(fetchJournalEntries())
   }, [dispatch])
-  console.log('journalEntriesLoading is:')
-  console.log(journalEntriesLoading)
+
   return (
     <div className={styles.wrapper}>
       <h2 className={styles.nodesTitle}>Journals:</h2>

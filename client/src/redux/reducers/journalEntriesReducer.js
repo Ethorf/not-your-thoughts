@@ -5,7 +5,7 @@ const initialState = {
   journalConfig: null,
   entries: [],
   entry: '',
-  journalEntriesLoading: true,
+  journalEntriesLoading: false,
   timerActive: false,
 }
 

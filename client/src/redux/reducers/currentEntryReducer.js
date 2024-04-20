@@ -236,8 +236,12 @@ const currentEntrySlice = createSlice({
         return {
           ...state,
           entryId: action.payload.id,
+          entriesLoading: false,
           category: action.payload.category_name,
         }
+      })
+      .addCase(createNodeEntry.pending, (state) => {
+        state.entriesLoading = true
       })
       .addCase(saveJournalEntry.pending, (state) => {
         state.entriesLoading = true
@@ -252,8 +256,12 @@ const currentEntrySlice = createSlice({
       .addCase(updateNodeEntry.fulfilled, (state, action) => {
         return {
           ...state,
+          entriesLoading: false,
           category: action.payload.category_name,
         }
+      })
+      .addCase(updateNodeEntry.pending, (state) => {
+        state.entriesLoading = true
       })
       .addCase(fetchEntryById.fulfilled, (state, action) => {
         return {
