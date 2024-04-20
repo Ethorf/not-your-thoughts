@@ -42,6 +42,8 @@ module.exports = {
       '@components': path.resolve(__dirname, 'src/components'),
       '@styles': path.resolve(__dirname, 'src/styles'),
       '@pages': path.resolve(__dirname, 'src/pages'),
+      '@redux': path.resolve(__dirname, 'src/redux'),
+      '@constants': path.resolve(__dirname, 'src/constants'),
     },
   },
 }

@@ -5,7 +5,7 @@ const initialState = {
   journalConfig: null,
   entries: [],
   entry: '',
-  loading: true,
+  journalEntriesLoading: true,
   timerActive: false,
 }
 
@@ -37,17 +37,17 @@ const journalEntriesSlice = createSlice({
   reducers: {
     setJournalConfig(state, action) {
       state.journalConfig = action.payload
-      state.loading = false
+      state.journalEntriesLoading = false
     },
     updateJournalConfig(state, action) {
       state.journalConfig = action.payload
-      state.loading = false
+      state.journalEntriesLoading = false
     },
     saveEntry(state, action) {
       state.entries.unshift(action.payload)
     },
     deleteJournalEntry(state, action) {
-      state.loading = true
+      state.journalEntriesLoading = true
       state.entries = state.entries.filter((entry) => entry.id !== action.payload)
     },
     setEntry(state, action) {
@@ -60,24 +60,24 @@ const journalEntriesSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchJournalEntries.pending, (state) => {
-        state.loading = true
+        state.journalEntriesLoading = true
       })
       .addCase(fetchJournalEntries.fulfilled, (state, action) => {
         state.entries = action.payload
-        state.loading = false
+        state.journalEntriesLoading = false
       })
       .addCase(fetchJournalEntries.rejected, (state) => {
-        state.loading = false
+        state.journalEntriesLoading = false
       })
       .addCase(fetchJournalConfig.pending, (state) => {
-        state.loading = true
+        state.journalEntriesLoading = true
       })
       .addCase(fetchJournalConfig.fulfilled, (state, action) => {
         state.journalConfig = action.payload
-        state.loading = false
+        state.journalEntriesLoading = false
       })
       .addCase(fetchJournalConfig.rejected, (state) => {
-        state.loading = false
+        state.journalEntriesLoading = false
       })
   },
 })

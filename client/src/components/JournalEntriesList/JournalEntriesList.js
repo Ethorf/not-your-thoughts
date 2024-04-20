@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchJournalEntries } from '../../redux/reducers/journalEntriesReducer'
 
 // Components
-import Spinner from '../Shared/Spinner/Spinner'
+import SmallSpinner from '../Shared/SmallSpinner/SmallSpinner'
 import { JournalEntry } from '../JournalEntry/JournalEntry'
 import { EntriesSortDropdown } from '../Shared/EntriesSortDropdown/EntriesSortDropdown'
 import { EntriesSearchBar } from '../Shared/EntriesSearchBar/EntriesSearchBar'
@@ -15,7 +15,10 @@ import styles from './JournalEntriesList.module.scss'
 const JournalEntriesList = () => {
   const dispatch = useDispatch()
 
-  const allJournalEntries = useSelector((state) => state.journalEntries.entries.entries)
+  const {
+    journalEntriesLoading,
+    entries: { entries: allJournalEntries },
+  } = useSelector((state) => state.journalEntries)
   const [sortedEntries, setSortedEntries] = useState([])
 
   const JOURNAL_SORT_OPTIONS = [
@@ -32,11 +35,14 @@ const JournalEntriesList = () => {
   useEffect(() => {
     dispatch(fetchJournalEntries())
   }, [dispatch])
-
+  console.log('journalEntriesLoading is:')
+  console.log(journalEntriesLoading)
   return (
     <div className={styles.wrapper}>
       <h2 className={styles.nodesTitle}>Journals:</h2>
-      {allJournalEntries.length ? (
+      {journalEntriesLoading ? (
+        <SmallSpinner />
+      ) : allJournalEntries.length ? (
         <>
           <div className={styles.searchSortContainer}>
             <div>

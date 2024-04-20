@@ -7,6 +7,7 @@ const { NODE, JOURNAL } = ENTRY_TYPES
 
 const initialState = {
   entryId: null,
+  entriesLoading: false,
   wordCount: 0,
   timeElapsed: 0,
   wpm: 0,
@@ -227,44 +228,49 @@ const currentEntrySlice = createSlice({
     resetState: () => initialState,
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchCategories.fulfilled, (state, action) => {
-      state.allCategories = action.payload
-    })
-    builder.addCase(createNodeEntry.fulfilled, (state, action) => {
-      return {
-        ...state,
-        entryId: action.payload.id,
-        category: action.payload.category_name,
-      }
-    })
-    builder.addCase(saveJournalEntry.fulfilled, (state, action) => {
-      return {
-        ...state,
-        entryId: action.payload,
-      }
-    })
-    builder.addCase(updateNodeEntry.fulfilled, (state, action) => {
-      return {
-        ...state,
-        category: action.payload.category_name,
-      }
-    })
-    builder.addCase(fetchEntryById.fulfilled, (state, action) => {
-      return {
-        ...state,
-        entryId: action.payload.id,
-        tags: action.payload.tag_names,
-      }
-    })
-    builder.addCase(setEntryById.fulfilled, (state, action) => {
-      return {
-        ...state,
-        ...action.payload,
-      }
-    })
-    builder.addCase(fetchNodeEntriesInfo.fulfilled, (state, action) => {
-      state.nodeEntriesInfo = action.payload
-    })
+    builder
+      .addCase(fetchCategories.fulfilled, (state, action) => {
+        state.allCategories = action.payload
+      })
+      .addCase(createNodeEntry.fulfilled, (state, action) => {
+        return {
+          ...state,
+          entryId: action.payload.id,
+          category: action.payload.category_name,
+        }
+      })
+      .addCase(saveJournalEntry.pending, (state) => {
+        state.entriesLoading = true
+      })
+      .addCase(saveJournalEntry.fulfilled, (state, action) => {
+        return {
+          ...state,
+          entriesLoading: false,
+          entryId: action.payload,
+        }
+      })
+      .addCase(updateNodeEntry.fulfilled, (state, action) => {
+        return {
+          ...state,
+          category: action.payload.category_name,
+        }
+      })
+      .addCase(fetchEntryById.fulfilled, (state, action) => {
+        return {
+          ...state,
+          entryId: action.payload.id,
+          tags: action.payload.tag_names,
+        }
+      })
+      .addCase(setEntryById.fulfilled, (state, action) => {
+        return {
+          ...state,
+          ...action.payload,
+        }
+      })
+      .addCase(fetchNodeEntriesInfo.fulfilled, (state, action) => {
+        state.nodeEntriesInfo = action.payload
+      })
   },
 })
 

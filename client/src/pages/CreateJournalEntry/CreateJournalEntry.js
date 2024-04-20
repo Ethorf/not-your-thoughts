@@ -1,45 +1,41 @@
 //Package Imports
 import React, { useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
-import { connect, useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 //SCSS
-import '../../styles/shared.scss'
+import '@styles/shared.scss'
 import styles from './CreateJournalEntry.module.scss'
 
 //Redux Function Import
-import { fetchJournalConfig } from '../../redux/reducers/journalEntriesReducer.js'
-import { increaseDays } from '../../redux/actions/authActions.js'
-import { toggleGuestModeModalSeen } from '../../redux/actions/modalActions.js'
-import { changeMode } from '../../redux/actions/modeActions.js'
-import { saveJournalEntry } from '../../redux/reducers/currentEntryReducer'
-import { openModal } from '../../redux/reducers/modalsReducer.js'
+import { fetchJournalConfig } from '@redux/reducers/journalEntriesReducer.js'
+import { saveJournalEntry } from '@redux/reducers/currentEntryReducer'
+import { openModal } from '@redux/reducers/modalsReducer.js'
 
 //Component Imports
-import Header from '../../components/HeaderComponent/HeaderComponent.js'
-import JournalInfoContainer from '../../components/JournalInfoContainer/JournalInfoContainer.js'
-import BgImage from '../../components/bgImage/bgImage.js'
-import PromptsDisplay from '../../components/PromptsDisplay/PromptsDisplay.js'
-import CreateEntry from '../../components/Shared/CreateEntry/CreateEntry'
-import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
-import Spinner from '../../components/Shared/Spinner/Spinner.js'
+import Header from '@components/HeaderComponent/HeaderComponent.js'
+import JournalInfoContainer from '@components/JournalInfoContainer/JournalInfoContainer.js'
+import BgImage from '@components/bgImage/bgImage.js'
+import PromptsDisplay from '@components/PromptsDisplay/PromptsDisplay.js'
+import CreateEntry from '@components/Shared/CreateEntry/CreateEntry'
+import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
+import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner.js'
 
 // Constants
-import { ENTRY_TYPES } from '../../constants/entryTypes'
-import { MODAL_NAMES } from '../../constants/modalNames'
+import { ENTRY_TYPES } from '@constants/entryTypes'
+import { MODAL_NAMES } from '@constants/modalNames'
 
 //Pillars
-import PillarTop from '../../components/PillarsComponents/PillarTopComponent.js'
-import PillarLeft from '../../components/PillarsComponents/PillarLeftComponent.js'
-import PillarRight from '../../components/PillarsComponents/PillarRightComponent.js'
-import PillarBottom from '../../components/PillarsComponents/PillarBottomComponent.js'
-import ProgressWord from '../../components/progress/progressWord.js'
+import PillarTop from '@components/PillarsComponents/PillarTopComponent.js'
+import PillarLeft from '@components/PillarsComponents/PillarLeftComponent.js'
+import PillarRight from '@components/PillarsComponents/PillarRightComponent.js'
+import PillarBottom from '@components/PillarsComponents/PillarBottomComponent.js'
+import ProgressWord from '@components/progress/progressWord.js'
 
-const CreateJournalEntry = ({ auth: { guestMode } }) => {
+const CreateJournalEntry = () => {
   const dispatch = useDispatch()
   const [successModalSeen, setSuccessModalSeen] = useState(false)
 
-  const { wordCount, content, entryId, wpm, timeElapsed } = useSelector((state) => state.currentEntry)
+  const { wordCount, content, entryId, wpm, timeElapsed, entriesLoading } = useSelector((state) => state.currentEntry)
   const { journalConfig } = useSelector((state) => state.journalEntries)
 
   const handleSaveJournal = async () => {
@@ -73,7 +69,9 @@ const CreateJournalEntry = ({ auth: { guestMode } }) => {
             <div className={styles.innerContainer}>
               <JournalInfoContainer />
               <CreateEntry type={ENTRY_TYPES.JOURNAL} />
-              {guestMode ? null : (
+              {entriesLoading ? (
+                <SmallSpinner />
+              ) : (
                 <DefaultButton disabled={!content.length} onClick={handleSaveJournal}>
                   Save Journal
                 </DefaultButton>
@@ -88,20 +86,4 @@ const CreateJournalEntry = ({ auth: { guestMode } }) => {
   )
 }
 
-CreateJournalEntry.propTypes = {
-  auth: PropTypes.object.isRequired,
-}
-
-const mapStateToProps = (state) => ({
-  auth: state.auth,
-  goal: state.wordCount.goal,
-  isAuthenticated: state.auth.isAuthenticated,
-  modals: state.modals,
-  mode: state.modes.mode,
-})
-
-export default connect(mapStateToProps, {
-  increaseDays,
-  changeMode,
-  toggleGuestModeModalSeen,
-})(CreateJournalEntry)
+export default CreateJournalEntry

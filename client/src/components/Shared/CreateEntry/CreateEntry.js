@@ -4,10 +4,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 
-import TextButton from '../../Shared/TextButton/TextButton'
+import TextButton from '@components/Shared/TextButton/TextButton'
 
-import { setContent, setWordCount, setCharCount } from '../../../redux/reducers/currentEntryReducer' // Replace with the correct path
-import { ENTRY_TYPES } from '../../../constants/entryTypes'
+import { setContent, setWordCount, setCharCount } from '@redux/reducers/currentEntryReducer' // Replace with the correct path
+import { ENTRY_TYPES } from '@constants/entryTypes'
 
 import styles from './CreateEntry.module.scss'
 import './CustomQuillStyles.scss'
