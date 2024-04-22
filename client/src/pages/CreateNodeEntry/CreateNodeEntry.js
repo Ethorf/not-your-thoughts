@@ -7,22 +7,23 @@ import { setTitle, createNodeEntry, resetState } from '../../redux/reducers/curr
 import { showToast } from '../../utils/toast.js'
 
 // Components
-import CreateEntry from '../../components/Shared/CreateEntry/CreateEntry'
-import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
-import DefaultInput from '../../components/Shared/DefaultInput/DefaultInput'
-import CustomPromptsSection from '../../components/CustomPromptsSection/CustomPromptsSection.js'
+import CreateEntry from '@components/Shared/CreateEntry/CreateEntry'
+import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
+import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
+import DefaultInput from '@components/Shared/DefaultInput/DefaultInput'
+import CustomPromptsSection from '@components/CustomPromptsSection/CustomPromptsSection.js'
+import CategoryInput from '@components/CategoryInput/CategoryInput'
+import TagsInput from '@components/TagsInput/TagsInput'
 
 // Constants
-import { ENTRY_TYPES } from '../../constants/entryTypes'
+import { ENTRY_TYPES } from '@constants/entryTypes'
 
 import styles from './CreateNodeEntry.module.scss'
-import CategoryInput from '../../components/CategoryInput/CategoryInput'
-import TagsInput from '../../components/TagsInput/TagsInput'
 
 const CreateNodeEntry = () => {
   const dispatch = useDispatch()
   const history = useHistory()
-  const { wordCount, content, title, category, tags } = useSelector((state) => state.currentEntry)
+  const { wordCount, content, title, category, tags, entriesLoading } = useSelector((state) => state.currentEntry)
 
   const handleTitleChange = (e) => {
     dispatch(setTitle(e.target.value))
@@ -73,9 +74,13 @@ const CreateNodeEntry = () => {
           <span className={styles.flexStart}>Words: {wordCount}</span>
           <span className={styles.flexCenter}></span>
           <span className={styles.flexEnd}>
-            <DefaultButton disabled={!content.length} onClick={handleSaveNode} className={styles.saveButton}>
-              Save Node
-            </DefaultButton>
+            {entriesLoading ? (
+              <SmallSpinner />
+            ) : (
+              <DefaultButton disabled={!content.length} onClick={handleSaveNode} className={styles.saveButton}>
+                Save Node
+              </DefaultButton>
+            )}
           </span>
         </div>
       </div>

@@ -3,6 +3,7 @@ import axios from 'axios'
 
 const initialState = {
   allNodeEntries: [],
+  nodeEntriesLoading: false,
 }
 
 export const fetchNodeEntries = createAsyncThunk(
@@ -22,9 +23,17 @@ const nodeEntriesSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(fetchNodeEntries.fulfilled, (state, action) => {
-      state.allNodeEntries = action.payload
-    })
+    builder
+      .addCase(fetchNodeEntries.fulfilled, (state, action) => {
+        state.allNodeEntries = action.payload.entries
+        state.nodeEntriesLoading = false
+      })
+      .addCase(fetchNodeEntries.pending, (state) => {
+        state.nodeEntriesLoading = true
+      })
+      .addCase(fetchNodeEntries.rejected, (state) => {
+        state.nodeEntriesLoading = false
+      })
   },
 })
 

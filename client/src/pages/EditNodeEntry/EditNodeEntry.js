@@ -4,20 +4,23 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useHistory } from 'react-router-dom'
 import { setTitle, updateNodeEntry, setEntryById } from '../../redux/reducers/currentEntryReducer'
 
-import CreateEntry from '../../components/Shared/CreateEntry/CreateEntry'
-import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton'
-import DefaultInput from '../../components/Shared/DefaultInput/DefaultInput'
+import CreateEntry from '@/components/Shared/CreateEntry/CreateEntry'
+import DefaultButton from '@/components/Shared/DefaultButton/DefaultButton'
+import DefaultInput from '@/components/Shared/DefaultInput/DefaultInput'
+import CategoryInput from '@/components/CategoryInput/CategoryInput'
+import TagsInput from '@/components/TagsInput/TagsInput'
+import Spinner from '@/components//Shared/Spinner/Spinner'
+import SmallSpinner from '@/components//Shared/SmallSpinner/SmallSpinner'
 
 import styles from './EditNodeEntry.module.scss'
-import CategoryInput from '../../components/CategoryInput/CategoryInput'
-import TagsInput from '../../components/TagsInput/TagsInput'
-import Spinner from '../../components//Shared/Spinner/Spinner'
 
 const EditNodeEntry = () => {
   const dispatch = useDispatch()
   const location = useLocation()
   const history = useHistory()
-  const { wordCount, entryId, content, title, category, tags } = useSelector((state) => state.currentEntry)
+  const { wordCount, entryId, content, title, category, tags, entriesLoading } = useSelector(
+    (state) => state.currentEntry
+  )
 
   const params = useMemo(() => new URLSearchParams(location.search), [location.search])
 
@@ -71,9 +74,13 @@ const EditNodeEntry = () => {
             </DefaultButton>
           </span>
           <span className={styles.flexEnd}>
-            <DefaultButton disabled={!content.length} onClick={handleSaveNode} className={styles.saveButton}>
-              Save Node
-            </DefaultButton>
+            {entriesLoading ? (
+              <SmallSpinner />
+            ) : (
+              <DefaultButton disabled={!content.length} onClick={handleSaveNode} className={styles.saveButton}>
+                Save Node
+              </DefaultButton>
+            )}
           </span>
         </div>
       </div>

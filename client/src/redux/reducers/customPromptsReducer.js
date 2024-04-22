@@ -4,7 +4,7 @@ import axios from 'axios'
 // Initial state
 const initialState = {
   customPrompts: [],
-  loading: false,
+  promptsLoading: false,
   error: null,
 }
 
@@ -66,56 +66,56 @@ const customPromptsSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchCustomPrompts.pending, (state) => {
-        state.loading = true
+        state.promptsLoading = true
       })
       .addCase(fetchCustomPrompts.fulfilled, (state, action) => {
-        state.loading = false
+        state.promptsLoading = false
         state.customPrompts = action.payload
       })
       .addCase(fetchCustomPrompts.rejected, (state, action) => {
-        state.loading = false
+        state.promptsLoading = false
         state.error = action.error.message
       })
       .addCase(createCustomPrompt.pending, (state) => {
-        state.loading = true
+        state.promptsLoading = true
       })
       .addCase(createCustomPrompt.fulfilled, (state, action) => {
-        state.loading = false
+        state.promptsLoading = false
         state.customPrompts.unshift(action.payload)
       })
       .addCase(createCustomPrompt.rejected, (state, action) => {
-        state.loading = false
+        state.promptsLoading = false
         state.error = action.error.message
       })
       .addCase(deleteCustomPrompt.pending, (state) => {
-        state.loading = true
+        state.promptsLoading = true
       })
       .addCase(deleteCustomPrompt.fulfilled, (state, action) => {
-        state.loading = false
+        state.promptsLoading = false
         state.customPrompts = state.customPrompts.filter((prompt) => prompt.id !== action.payload)
       })
       .addCase(deleteCustomPrompt.rejected, (state, action) => {
-        state.loading = false
+        state.promptsLoading = false
         state.error = action.error.message
       })
       .addCase(updatePromptStatus.pending, (state) => {
-        state.loading = true
+        state.promptsLoading = true
       })
       .addCase(updatePromptStatus.fulfilled, (state, action) => {
-        state.loading = false
+        state.promptsLoading = false
       })
       .addCase(updatePromptStatus.rejected, (state, action) => {
-        state.loading = false
+        state.promptsLoading = false
         state.error = action.error.message
       })
       .addCase(togglePromptStarred.pending, (state) => {
-        state.loading = true
+        state.promptsLoading = true
       })
       .addCase(togglePromptStarred.fulfilled, (state, action) => {
-        state.loading = false
+        state.promptsLoading = false
       })
       .addCase(togglePromptStarred.rejected, (state, action) => {
-        state.loading = false
+        state.promptsLoading = false
         state.error = action.error.message
       })
   },

@@ -20,10 +20,10 @@ const Entries = () => {
       <h2 className={`profile__header`}>SAVED ENtRIES</h2>
       <div>
         <DefaultButton isSelected={activeEntriesType === NODE} onClick={() => setActiveEntriesType(NODE)}>
-          Node
+          Nodes
         </DefaultButton>
         <DefaultButton isSelected={activeEntriesType === JOURNAL} onClick={() => setActiveEntriesType(JOURNAL)}>
-          Journal
+          Journals
         </DefaultButton>
       </div>
       {activeEntriesType === JOURNAL && <JournalEntriesList />}

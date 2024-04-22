@@ -1,22 +1,26 @@
-import React from 'react'
+import React, { useState } from 'react'
 import classNames from 'classnames'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 
-import { EditPencil } from '../Shared/EditPencil/EditPencil'
+// Components
+import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner.js'
+import { EditPencil } from '@components/Shared/EditPencil/EditPencil'
 
-import { parseDate } from '../../utils/parseDate'
+import { parseDate } from '@utils/parseDate'
 
 // Redux
-import { setEntryById } from '../../redux/reducers/currentEntryReducer'
-import { openModal } from '../../redux/reducers/modalsReducer.js'
+import { setEntryById } from '@redux/reducers/currentEntryReducer'
+import { openModal } from '@redux/reducers/modalsReducer.js'
 
 // Constants
-import { MODAL_NAMES } from '../../constants/modalNames.js'
+import { MODAL_NAMES } from '@constants/modalNames.js'
 
 import styles from './NodeEntry.module.scss'
 
 export const NodeEntry = ({ node: { id, date_last_modified, date_created, title, content, category_name } }) => {
+  const [localLoading, setLocalLoading] = useState(false)
+
   const history = useHistory()
   const dispatch = useDispatch()
 
@@ -25,8 +29,10 @@ export const NodeEntry = ({ node: { id, date_last_modified, date_created, title,
   }
 
   const handleOpenContentModal = async () => {
+    setLocalLoading(true)
     await dispatch(setEntryById(id))
     await dispatch(openModal(MODAL_NAMES.NODE_CONTENT))
+    setLocalLoading(false)
   }
 
   return (
@@ -41,12 +47,21 @@ export const NodeEntry = ({ node: { id, date_last_modified, date_created, title,
         onClick={handleOpenContentModal}
         className={classNames(styles.nodeValue, styles.contentButton)}
       >
-        <span>
-          Content:
-          <span />
-        </span>
-        <div dangerouslySetInnerHTML={{ __html: content[0].slice(0, 8) }} />
-        <span>...</span>
+        {localLoading ? (
+          <>
+            <SmallSpinner />
+            <span>Loading...</span>
+          </>
+        ) : (
+          <>
+            <span>
+              Content:
+              <span />
+            </span>
+            <div dangerouslySetInnerHTML={{ __html: content[0].slice(0, 8) }} />
+            <span>...</span>
+          </>
+        )}
       </div>
       <div className={styles.editContainer}>
         <EditPencil onClick={handleEditNode} className={styles.editButton} />

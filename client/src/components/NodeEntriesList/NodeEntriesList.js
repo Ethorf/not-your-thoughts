@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchNodeEntries } from '../../redux/reducers/nodeEntriesReducer'
-import Spinner from '../Shared/Spinner/Spinner'
+import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import { NodeEntry } from '../NodeEntry/NodeEntry'
-import { EntriesSortDropdown } from '../Shared/EntriesSortDropdown/EntriesSortDropdown'
-import { EntriesSearchBar } from '../Shared/EntriesSearchBar/EntriesSearchBar'
+import { EntriesSortDropdown } from '@components/Shared/EntriesSortDropdown/EntriesSortDropdown'
+import { EntriesSearchBar } from '@components/Shared/EntriesSearchBar/EntriesSearchBar'
 
 import styles from './NodeEntriesList.module.scss'
 
 const NodeEntriesList = () => {
   const dispatch = useDispatch()
 
-  const allNodeEntries = useSelector((state) => state.nodeEntries.allNodeEntries.entries)
+  const { nodeEntriesLoading, allNodeEntries } = useSelector((state) => state.nodeEntries)
+
   const [filteredEntries, setFilteredEntries] = useState([])
   const [sortedAndFilteredEntries, setSortedAndFilteredEntries] = useState([])
 
@@ -32,7 +33,12 @@ const NodeEntriesList = () => {
   return (
     <div className={styles.wrapper}>
       <h2 className={styles.nodesTitle}>Nodes</h2>
-      {allNodeEntries.length ? (
+      {nodeEntriesLoading ? (
+        <div className={styles.loader}>
+          <SmallSpinner />
+          Loading Nodes...
+        </div>
+      ) : allNodeEntries?.length ? (
         <>
           <div className={styles.searchSortContainer}>
             <EntriesSearchBar data={allNodeEntries} setFilteredEntries={setFilteredEntries} />
