@@ -34,7 +34,10 @@ const NodeEntriesList = () => {
     <div className={styles.wrapper}>
       <h2 className={styles.nodesTitle}>Nodes</h2>
       {nodeEntriesLoading ? (
-        <SmallSpinner />
+        <div className={styles.loader}>
+          <SmallSpinner />
+          Loading Nodes...
+        </div>
       ) : allNodeEntries?.length ? (
         <>
           <div className={styles.searchSortContainer}>

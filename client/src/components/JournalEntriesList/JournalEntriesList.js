@@ -40,7 +40,10 @@ const JournalEntriesList = () => {
     <div className={styles.wrapper}>
       <h2 className={styles.nodesTitle}>Journals:</h2>
       {journalEntriesLoading ? (
-        <SmallSpinner />
+        <div className={styles.loader}>
+          <SmallSpinner />
+          Loading Journals...
+        </div>
       ) : allJournalEntries.length ? (
         <>
           <div className={styles.searchSortContainer}>
