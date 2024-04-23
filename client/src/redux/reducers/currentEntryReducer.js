@@ -178,7 +178,6 @@ export const fetchTags = createAsyncThunk('currentEntryReducer/fetchTags', async
   }
 })
 
-// Define a slice
 const currentEntrySlice = createSlice({
   name: 'currentEntryReducer', // Name of your reducer slice
   initialState,
@@ -194,6 +193,9 @@ const currentEntrySlice = createSlice({
     },
     setTitle: (state, action) => {
       state.title = action.payload
+    },
+    setTitleAndResetAll: (state, action) => {
+      Object.assign(state, { ...initialState, title: action.payload })
     },
     setTimeElapsed(state, action) {
       state.timeElapsed = action.payload
@@ -225,7 +227,7 @@ const currentEntrySlice = createSlice({
     setWPM(state, action) {
       state.wpm = action.payload
     },
-    resetState: () => initialState,
+    resetCurrentEntryState: () => initialState,
   },
   extraReducers: (builder) => {
     builder
@@ -283,11 +285,12 @@ const currentEntrySlice = createSlice({
 })
 
 export const {
-  resetState,
+  resetCurrentEntryState,
   setEntryId,
   setWordCount,
   setCharCount,
   setTitle,
+  setTitleAndResetAll,
   setTimeElapsed,
   setCategory,
   setConnections,

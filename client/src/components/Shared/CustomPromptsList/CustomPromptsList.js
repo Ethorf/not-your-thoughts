@@ -1,10 +1,15 @@
 import React from 'react'
-import useCustomPrompts from '../../../hooks/useCustomPrompts'
 import { CustomPrompt } from '../CustomPrompt/CustomPrompt'
+
+// Hooks
+import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
+import useCustomPrompts from '@hooks/useCustomPrompts'
+
 import styles from './CustomPromptsList.module.scss'
 
 export const CustomPromptsList = () => {
   const { customPrompts } = useCustomPrompts()
+  const nodeEntriesInfo = useNodeEntriesInfo()
 
   // Sort custom prompts with starred prompts first
   const sortedPrompts = [...customPrompts].sort((a, b) => {
@@ -18,7 +23,7 @@ export const CustomPromptsList = () => {
       {sortedPrompts.length ? (
         <ul className={styles.promptsList}>
           {sortedPrompts.map((prompt) => (
-            <CustomPrompt key={prompt.id} prompt={prompt} />
+            <CustomPrompt nodeEntriesInfo={nodeEntriesInfo} key={prompt.id} prompt={prompt} />
           ))}
         </ul>
       ) : (

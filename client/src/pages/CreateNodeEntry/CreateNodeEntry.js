@@ -2,9 +2,9 @@ import React, { useEffect } from 'react'
 import classNames from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { setTitle, createNodeEntry, resetState } from '../../redux/reducers/currentEntryReducer'
+import { setTitle, createNodeEntry, resetCurrentEntryState } from '@redux/reducers/currentEntryReducer'
 
-import { showToast } from '../../utils/toast.js'
+import { showToast } from '@utils/toast.js'
 
 // Components
 import CreateEntry from '@components/Shared/CreateEntry/CreateEntry'
@@ -33,7 +33,7 @@ const CreateNodeEntry = () => {
   // I.e. we're "creating" a fresh node but maybe we need to add like a "initialTitle" or like "linked title" & other initial properties thing
   useEffect(() => {
     if (!title) {
-      dispatch(resetState())
+      dispatch(resetCurrentEntryState())
     }
   }, [dispatch, title])
 
