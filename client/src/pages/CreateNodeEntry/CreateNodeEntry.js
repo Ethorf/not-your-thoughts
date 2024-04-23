@@ -1,12 +1,13 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import classNames from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { setTitle, createNodeEntry, resetState } from '../../redux/reducers/currentEntryReducer'
+import { setTitle, createNodeEntry } from '@redux/reducers/currentEntryReducer'
 
-import { showToast } from '../../utils/toast.js'
+import { showToast } from '@utils/toast.js'
 
 // Components
+import AutosaveTimer from '@/components/Shared/AutosaveTimer/AutosaveTimer'
 import CreateEntry from '@components/Shared/CreateEntry/CreateEntry'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
@@ -17,6 +18,7 @@ import TagsInput from '@components/TagsInput/TagsInput'
 
 // Constants
 import { ENTRY_TYPES } from '@constants/entryTypes'
+import { SAVE_TYPES } from '@constants/saveTypes'
 
 import styles from './CreateNodeEntry.module.scss'
 
@@ -29,17 +31,9 @@ const CreateNodeEntry = () => {
     dispatch(setTitle(e.target.value))
   }
 
-  // TODO look into if there's a better way to handle this as this feels like it could stack up with requirements
-  // I.e. we're "creating" a fresh node but maybe we need to add like a "initialTitle" or like "linked title" & other initial properties thing
-  useEffect(() => {
-    if (!title) {
-      dispatch(resetState())
-    }
-  }, [dispatch, title])
-
-  const handleSaveNode = async () => {
+  const handleCreateNode = async (saveType) => {
     try {
-      const newNode = await dispatch(createNodeEntry({ content, category, title, tags }))
+      const newNode = await dispatch(createNodeEntry({ content, category, title, tags, saveType }))
       const entryId = newNode?.payload?.id ?? null
 
       if (entryId) {
@@ -56,6 +50,7 @@ const CreateNodeEntry = () => {
 
   return (
     <div className={styles.wrapper}>
+      <AutosaveTimer handleAutosave={() => handleCreateNode(SAVE_TYPES.AUTO)} />
       <div className={styles.editContainer}>
         <h2>create node</h2>
         <CustomPromptsSection />
@@ -77,8 +72,12 @@ const CreateNodeEntry = () => {
             {entriesLoading ? (
               <SmallSpinner />
             ) : (
-              <DefaultButton disabled={!content.length} onClick={handleSaveNode} className={styles.saveButton}>
-                Save Node
+              <DefaultButton
+                disabled={!content.length}
+                onClick={() => handleCreateNode(SAVE_TYPES.MANUAL)}
+                className={styles.saveButton}
+              >
+                Create Node
               </DefaultButton>
             )}
           </span>

@@ -1,6 +1,9 @@
 import React from 'react'
+import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import classNames from 'classnames'
+
+import { resetCurrentEntryState } from '@redux/reducers/currentEntryReducer'
 
 // Styles
 import styles from './Dashboard.module.scss'
@@ -13,12 +16,15 @@ import CustomPromptsSection from '@components/CustomPromptsSection/CustomPrompts
 
 const Dashboard = () => {
   const history = useHistory()
+  const dispatch = useDispatch()
 
   const handleNewNodeEntryClick = () => {
+    dispatch(resetCurrentEntryState())
     return history.push('/create-node-entry')
   }
 
   const handleNewJournalEntryClick = () => {
+    dispatch(resetCurrentEntryState())
     return history.push('/create-journal-entry')
   }
 

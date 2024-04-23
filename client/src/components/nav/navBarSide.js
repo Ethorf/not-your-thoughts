@@ -1,11 +1,13 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { logout } from '../../redux/actions/authActions'
 import { TimelineLite } from 'gsap/all'
 import '../../styles/rubberDucky.scss'
 import './navBarSide.scss'
 import arrow from '../../assets/Icons/down-arrow-black-2.png'
+
+import { resetCurrentEntryState } from '@redux/reducers/currentEntryReducer'
+import { logout } from '@redux/actions/authActions'
 
 class NavBarSide extends React.Component {
   state = {
@@ -66,6 +68,7 @@ class NavBarSide extends React.Component {
           </NavLink>
           <NavLink
             exact
+            onClick={this.props.resetCurrentEntryState}
             to="/create-journal-entry"
             activeClassName="nav__active"
             className={`nav__link${this.props.mode}`}
@@ -74,6 +77,7 @@ class NavBarSide extends React.Component {
           </NavLink>
           <NavLink
             exact
+            onClick={this.props.resetCurrentEntryState}
             to="/create-node-entry"
             activeClassName="nav__active"
             className={`nav__link${this.props.mode}`}
@@ -121,4 +125,4 @@ const mapStateToProps = (state) => ({
   guestMode: state.auth.guestMode,
   isAuthenticated: state.auth.isAuthenticated,
 })
-export default connect(mapStateToProps, { logout })(NavBarSide)
+export default connect(mapStateToProps, { logout, resetCurrentEntryState })(NavBarSide)

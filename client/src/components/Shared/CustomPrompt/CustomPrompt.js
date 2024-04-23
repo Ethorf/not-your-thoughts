@@ -3,17 +3,11 @@ import classNames from 'classnames'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 
-import { PROMPT_STATUSES } from '../../../constants/promptStatuses'
+import { PROMPT_STATUSES } from '@constants/promptStatuses'
 
 // Redux
-import {
-  deleteCustomPrompt,
-  updatePromptStatus,
-  togglePromptStarred,
-} from '../../../redux/reducers/customPromptsReducer'
-import { setTitle } from '../../../redux/reducers/currentEntryReducer'
-
-import useNodeEntriesInfo from '../../../hooks/useNodeEntriesInfo'
+import { deleteCustomPrompt, updatePromptStatus, togglePromptStarred } from '@redux/reducers/customPromptsReducer'
+import { setTitleAndResetAll } from '@redux/reducers/currentEntryReducer'
 
 // Components
 import TextButton from '../TextButton/TextButton'
@@ -22,10 +16,9 @@ import { FavStarIcon } from '../FavStarIcon/FavStarIcon'
 
 import styles from './CustomPrompt.module.scss'
 
-export const CustomPrompt = ({ prompt: { id, content, status, starred } }) => {
+export const CustomPrompt = ({ nodeEntriesInfo, prompt: { id, content, status, starred } }) => {
   const dispatch = useDispatch()
   const history = useHistory()
-  const nodeEntriesInfo = useNodeEntriesInfo()
   const [selectedStatus, setSelectedStatus] = useState(status)
   const [isStarred, setIsStarred] = useState(starred)
 
@@ -52,6 +45,7 @@ export const CustomPrompt = ({ prompt: { id, content, status, starred } }) => {
     }
     return null
   }
+
   const handlePromptClick = async () => {
     const nodeId = hasTitle(nodeEntriesInfo, content)
 
@@ -59,7 +53,7 @@ export const CustomPrompt = ({ prompt: { id, content, status, starred } }) => {
       console.log('title found')
       history.push(`/edit-node-entry?entryId=${nodeId}`)
     } else {
-      await dispatch(setTitle(content))
+      await dispatch(setTitleAndResetAll(content))
       history.push(`/create-node-entry`)
       console.log('no title found')
     }
