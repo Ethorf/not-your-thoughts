@@ -1,0 +1,47 @@
+.wrapper {
+  font-family: 'Syncopate', sans-serif;
+  font-size: 1.2rem;
+  color: silver;
+  background-color: black;
+  padding: 8px 12px;
+  border: 1px solid silver;
+  text-transform: uppercase;
+  margin: 8px;
+  border-radius: 15px;
+  outline: none;
+  transition: all 0.3s;
+  z-index: 10;
+
+  width: fit-content;
+
+  &:hover {
+    transition: all 0.3s;
+    color: black;
+    background-color: white;
+    cursor: pointer;
+  }
+
+  &:disabled {
+    color: rgba(192, 192, 192, 0.2);
+    border: 1px solid rgba(192, 192, 192, 0.2);
+
+    &:hover {
+      color: rgba(192, 192, 192, 0.2);
+      background-color: black;
+    }
+  }
+}
+
+.selected {
+  transition: all 0.3s;
+  color: black;
+  background-color: white;
+  cursor: pointer;
+
+  &:hover {
+    transition: all 0.3s;
+    color: black;
+    background-color: rgba(192, 192, 192, 0.2);
+    cursor: pointer;
+  }
+}

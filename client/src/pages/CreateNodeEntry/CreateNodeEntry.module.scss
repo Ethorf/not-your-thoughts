@@ -1,0 +1,61 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.editContainer {
+  width: 70vw;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.topContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.titleInput {
+  min-width: 200px;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+}
+
+.titleInputNoBorder {
+  border: 1px solid rgba(192, 192, 192, 0);
+  transition: all 2s;
+
+  &:hover {
+    border: 1px solid rgba(192, 192, 192, 1);
+    transition: all 2s;
+  }
+}
+
+.grid3Columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 100%;
+}
+
+.flexCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flexStart {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.flexEnd {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}

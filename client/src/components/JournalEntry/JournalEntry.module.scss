@@ -1,0 +1,41 @@
+.wrapper {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.nodeValue {
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+  max-height: 24px;
+}
+
+.contentButton {
+  cursor: pointer;
+
+  &:hover {
+    color: white;
+    transition: all 0.2s ease-in-out;
+  }
+}
+
+.editButton {
+  height: 32px;
+  width: 32px;
+  fill: rgba(192, 192, 192, 0.5);
+  transition: all 0.2s ease-in-out;
+
+  cursor: pointer;
+
+  &:hover {
+    fill: rgba(192, 192, 192, 1);
+    transition: all 0.2s ease-in-out;
+  }
+}
+
+.editContainer {
+  display: flex;
+  justify-content: flex-end;
+}

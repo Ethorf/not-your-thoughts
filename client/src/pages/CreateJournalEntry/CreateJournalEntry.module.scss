@@ -1,0 +1,30 @@
+@import '../../styles/mixins.scss';
+
+.wrapper {
+  @include flex-center-column;
+
+  height: 100vh;
+}
+
+.pillarsAllContainer {
+  @include flex-center-column;
+
+  width: 80%;
+}
+
+.mainContainer {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  z-index: 4;
+  height: 48vh;
+  width: 80vw;
+}
+
+.innerContainer {
+  width: 100%;
+  @include flex-center-column;
+}
+
+.headerPromptContainer {
+}

@@ -1,0 +1,17 @@
+@import '@styles/variables';
+
+.wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.header {
+  color: $silver-default;
+  transition: $default-transition;
+
+  &:hover {
+    transition: $default-transition;
+    color: $silver-active;
+    cursor: pointer;
+  }
+}

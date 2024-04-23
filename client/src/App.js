@@ -1,100 +1,104 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import PrivateRoute from './components/private-route/privateRoute';
-import { useSelector, connect } from 'react-redux';
-import { MuiThemeProvider } from '@material-ui/core';
-import { muiTheme } from './styles/muiTheme.js';
-import './App.scss';
-import NavBarSide from './components/nav/navBarSide.js';
-import NavBarTop from './components/nav/navBarTop.js';
-import AudioPlayer from './components/audioPlayer/audioPlayer.js';
-import Timer from './components/timer/timer.js';
-//Pages Imports
-import Landing from './pages/landing/landing';
-import Main from './pages/main/main.js';
+import React, { useEffect } from 'react'
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import { CSSTransition, TransitionGroup } from 'react-transition-group'
+import { ToastContainer } from 'react-toastify'
+import { Tooltip } from 'react-tooltip'
+import 'react-toastify/dist/ReactToastify.css'
 
-import Login from './pages/login/login.js';
-import Register from './pages/register/register.js';
-import Profile from './pages/profile/profile';
-import Resources from './pages/resources/resources';
-import Modes from './pages/modes/modes.js';
-import About from './pages/about/about';
-import Entries from './pages/entries/entries.js';
+import PrivateRoute from './components/higherOrderComponents/PrivateRoute/PrivateRoute.js'
+import { useSelector, connect } from 'react-redux'
+import './App.scss'
+import NavBarSide from './components/nav/navBarSide.js'
+import NavBarTop from './components/nav/navBarTop.js'
+import AudioPlayer from './components/audioPlayer/audioPlayer.js'
+
+//Pages Imports
+import Landing from '@pages/Start/Start.js'
+import Dashboard from '@pages/Dashboard/Dashboard.js'
+import CreateJournalEntry from '@pages/CreateJournalEntry/CreateJournalEntry.js'
+import CreateNodeEntry from '@pages/CreateNodeEntry/CreateNodeEntry.js'
+import EditNodeEntry from '@pages/EditNodeEntry/EditNodeEntry.js'
+import Login from '@pages/LoginPage/LoginPage.js'
+import Register from '@pages/RegisterPage/RegisterPage.js'
+import ProfilePage from '@pages/ProfilePage/ProfilePage.js'
+import Resources from '@pages/ResourcesPage/ResourcesPage.js'
+import Modes from '@pages/ModesPage/ModesPage.js'
+import About from '@pages/AboutPage/About.js'
+import Entries from '@pages/EntriesPage/EntriesPage.js'
 
 //redux Stuff
-import store from './redux/store/index';
-import { loadUser } from './redux/actions/authActions';
-import setAuthToken from './utils/setAuthToken';
+import store from './redux/store/index'
+import { loadUser } from './redux/actions/authActions'
+import setAuthToken from './utils/setAuthToken'
+import { ModalsContainer } from './components/Modals/ModalsContainer/ModalsContainer.js'
 
 if (localStorage.token) {
-	setAuthToken(localStorage.token);
+  setAuthToken(localStorage.token)
 }
 
 const App = () => {
-	useEffect(() => {
-		store.dispatch(loadUser());
-	}, []);
-	const mode = useSelector((state) => state.modes.mode);
+  // This one is basically just checking if you're already logged in
+  useEffect(() => {
+    store.dispatch(loadUser())
+  }, [])
 
-	return (
-		<MuiThemeProvider theme={muiTheme}>
-			<div className={`App ${mode}`}>
-				<BrowserRouter>
-					<NavBarTop />
-					<NavBarSide />
-					<AudioPlayer />
-					<Timer />
-					<Route
-						render={({ location }) => (
-							<TransitionGroup>
-								<CSSTransition
-									key={location.key}
-									timeout={1100}
-									classNames={mode === '-light' ? 'fade' : 'fad'}
-									unmountOnExit
-								>
-									<Switch location={location}>
-										<Route path="/" exact>
-											{({ match }) => <Landing show={match !== null} />}
-										</Route>
-										<Route path="/login" exact>
-											{({ match }) => <Login show={match !== null} />}
-										</Route>
-										<Route path="/register" exact>
-											{({ match }) => <Register show={match !== null} />}
-										</Route>
-										<PrivateRoute path="/main" exact>
-											{({ match }) => <Main show={match !== null} />}
-										</PrivateRoute>
-										<PrivateRoute path="/profile">
-											{({ match }) => <Profile show={match !== null} />}
-										</PrivateRoute>
-										<PrivateRoute path="/entries">
-											{({ match }) => <Entries show={match !== null} />}
-										</PrivateRoute>
-										<PrivateRoute path="/resources" exact>
-											{({ match }) => <Resources show={match !== null} />}
-										</PrivateRoute>
-										<PrivateRoute path="/modes" exact>
-											{({ match }) => <Modes show={match !== null} />}
-										</PrivateRoute>
-										<PrivateRoute path="/about" exact>
-											{({ match }) => <About show={match !== null} />}
-										</PrivateRoute>
-									</Switch>
-								</CSSTransition>
-							</TransitionGroup>
-						)}
-					></Route>
-				</BrowserRouter>
-			</div>
-		</MuiThemeProvider>
-	);
-};
+  const mode = useSelector((state) => state.modes.mode)
+
+  return (
+    <div className={`App ${mode}`}>
+      <ToastContainer />
+      <ModalsContainer />
+      <Tooltip id="main-tooltip" style={{ zIndex: 99 }} place="bottom" />
+      <BrowserRouter>
+        <NavBarTop />
+        <NavBarSide />
+        <AudioPlayer />
+        <Route
+          render={({ location }) => (
+            <TransitionGroup>
+              <CSSTransition
+                key={location.key}
+                timeout={1100}
+                classNames={mode === '-light' ? 'fade' : 'fad'}
+                unmountOnExit
+              >
+                <Switch location={location}>
+                  <Route path="/" exact>
+                    {({ match }) => <Landing show={match !== null} />}
+                  </Route>
+                  <Route path="/login" exact>
+                    {({ match }) => <Login show={match !== null} />}
+                  </Route>
+                  <Route path="/register" exact>
+                    {({ match }) => <Register show={match !== null} />}
+                  </Route>
+                  <PrivateRoute path="/dashboard" exact component={Dashboard} />
+                  <PrivateRoute path="/create-journal-entry" exact component={CreateJournalEntry} />
+                  <PrivateRoute path="/profile" exact component={ProfilePage} />
+                  <PrivateRoute path="/create-node-entry" exact component={CreateNodeEntry} />
+                  <PrivateRoute path="/edit-node-entry" component={EditNodeEntry} />
+                  <PrivateRoute path="/entries" exact component={Entries} />
+                  <Route path="/resources" exact>
+                    {({ match }) => <Resources show={match !== null} />}
+                  </Route>
+                  <Route path="/modes" exact>
+                    {({ match }) => <Modes show={match !== null} />}
+                  </Route>
+                  <Route path="/about" exact>
+                    {({ match }) => <About show={match !== null} />}
+                  </Route>
+                </Switch>
+              </CSSTransition>
+            </TransitionGroup>
+          )}
+        />
+      </BrowserRouter>
+    </div>
+  )
+}
 
 const mapStateToProps = (state) => ({
-	mode: state.modes.mode
-});
+  mode: state.modes.mode,
+})
 
-export default connect(mapStateToProps)(App);
+export default connect(mapStateToProps, { loadUser })(App)

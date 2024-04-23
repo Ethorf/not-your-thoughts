@@ -1,0 +1,22 @@
+.wrapper {
+  background: black;
+  border: 1px solid white;
+  border-radius: 6px;
+  color: rgba(192, 192, 192, 1);
+  padding: 24px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.overlay {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.closeButton {
+  fill: rgba(192, 192, 192, 1);
+  transition: all 250ms ease-in-out;
+
+  &:hover {
+    fill: white;
+    transition: all 250ms ease-in-out;
+  }
+}

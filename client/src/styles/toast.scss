@@ -1,0 +1,23 @@
+/** Classes for the displayed toast **/
+.Toastify__toast {
+  font-family: 'Poppins', sans-serif;
+  background-color: black;
+  border: 1px solid rgba(192, 192, 192, 0.5);
+  position: absolute;
+  bottom: 20px;
+  right: 6px;
+}
+
+.Toastify__toast-theme--colored.Toastify__toast--default {
+  background-color: black;
+}
+
+.Toastify__toast-theme--colored.Toastify__toast--success {
+  background-color: black;
+}
+.Toastify__toast-theme--colored.Toastify__toast--warning {
+  background-color: black;
+}
+.Toastify__toast-theme--colored.Toastify__toast--error {
+  background-color: black;
+}

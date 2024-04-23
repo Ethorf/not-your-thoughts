@@ -1,0 +1,8 @@
+.wrapper {
+  transition: all 1s;
+
+  &:hover {
+    color: white;
+    transition: all 1s;
+  }
+}

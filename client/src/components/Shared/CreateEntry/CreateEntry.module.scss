@@ -1,0 +1,25 @@
+@import '@styles/variables';
+
+.wrapper {
+  width: 100%;
+  max-width: 100%;
+  height: 90%;
+  max-height: 75%;
+  border: $silver-border-default;
+  z-index: 9999;
+  border-radius: 12px;
+  transition: $default-transition;
+  position: relative;
+
+  &:hover,
+  &:focus {
+    border: $silver-border-active;
+    transition: $default-transition;
+  }
+}
+
+.toolbarToggleButton {
+  position: absolute;
+  top: 0;
+  right: 6px;
+}

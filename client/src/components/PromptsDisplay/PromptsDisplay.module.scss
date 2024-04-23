@@ -1,0 +1,69 @@
+@import '../../styles/mixins.scss';
+
+.wrapper {
+  width: 100%;
+
+  @include flex-center-column;
+}
+
+.controlsContainer {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  width: 50%;
+  max-width: 320px;
+}
+
+.topContainer {
+  display: flex;
+  align-items: center;
+}
+
+.noBorder {
+  border: none;
+
+  &:hover {
+    background-color: black;
+  }
+}
+
+.controlsButton {
+  width: 20px;
+}
+
+.firstButton {
+  &:disabled {
+    background: red;
+  }
+
+  &:hover {
+    content: url('../../assets/Icons/prompt-icons/first-light-gray.png');
+  }
+}
+
+.prevButton {
+  &:hover {
+    content: url('../../assets/Icons/prompt-icons/previous-light-gray.png');
+  }
+}
+
+.plusButton {
+  font-size: 2rem;
+}
+
+.shuffleButton {
+  &:hover {
+    content: url('../../assets/Icons/prompt-icons/shuffle-light-gray.png');
+  }
+}
+
+.nextButton {
+  &:hover {
+    content: url('../../assets/Icons/prompt-icons/next-light-gray.png');
+  }
+}
+
+.lastButton {
+  &:hover {
+    content: url('../../assets/Icons/prompt-icons/last-light-gray.png');
+  }
+}

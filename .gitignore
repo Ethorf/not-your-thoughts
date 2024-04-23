@@ -10,6 +10,7 @@
 
 # production
 /build
+/client/build
 ../server/config/default.json
 
 # misc
@@ -29,5 +30,7 @@ example_com.csr
 example_com.key
 *autoLogin.js
 
+/server/dbBackups*
 
+oldEntriesData.json
 

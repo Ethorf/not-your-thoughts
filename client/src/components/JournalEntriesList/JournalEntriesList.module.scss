@@ -1,0 +1,31 @@
+// TODO extract this as it is overlap for Journals
+
+.wrapper {
+  width: 70%;
+}
+
+.loader {
+  display: flex;
+  align-items: center;
+}
+
+.listContainer {
+  padding: 0;
+  overflow: auto;
+  max-height: 60vh;
+}
+
+.nodesTitle {
+  font-family: 'Syncopate', sans-serif;
+}
+
+.divider {
+  margin: 24px 0;
+  border-top: 2px solid rgba(192, 192, 192, 0.8);
+}
+
+.searchSortContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

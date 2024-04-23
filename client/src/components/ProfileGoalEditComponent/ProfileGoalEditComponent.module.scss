@@ -1,0 +1,15 @@
+@import '@styles/variables';
+@import '@styles/mixins';
+
+.timeInput {
+  color: $silver-default;
+  background: black;
+  outline: none;
+  padding: 8px;
+  min-width: 52px;
+  width: auto;
+  font-size: 1.2rem;
+  margin-right: 8px;
+
+  @include default-hover-border();
+}

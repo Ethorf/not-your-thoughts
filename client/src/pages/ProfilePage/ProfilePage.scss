@@ -1,0 +1,288 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/variables.scss';
+@import '../../styles/base.scss';
+
+.profile {
+  background-color: black;
+  color: silver;
+  flex-direction: column;
+  margin-right: 5vw;
+  padding-bottom: 10vh;
+  margin-left: $not-main-margin-left;
+  height: 100%;
+  width: 100%;
+  transition: all 1s;
+
+  @include main-page-global-styles();
+
+  &__header {
+    font-family: 'Syncopate', sans-serif;
+    font-size: $header-text-size;
+    margin-top: $top-margin-not-main;
+    margin-bottom: 30px;
+    color: white;
+  }
+  &__sub-header {
+    font-family: 'Syncopate', sans-serif;
+    font-size: 1.9em;
+    margin-bottom: 30px;
+    color: white;
+  }
+  &__user {
+    font-size: 1.9rem;
+    margin-bottom: 27px;
+    margin-top: 7px;
+    color: white;
+  }
+  &__stats-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 1rem;
+  }
+  &__stats-text {
+    display: flex;
+    align-items: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+    margin-right: 5%;
+    font-size: 1.5rem;
+  }
+  &__day-number {
+    margin: 0;
+    margin-left: 10px;
+    font-size: 1.6rem;
+    color: white;
+  }
+  &__no-days {
+    margin-bottom: 3%;
+    margin-left: 0%;
+  }
+  //Goal stuff
+  &__goal-edit-button,
+  &__goal-editable-button {
+    width: 4vw;
+    height: 100%;
+    padding: 0.3%;
+    margin-left: 1%;
+    border-radius: 7px;
+    font-size: 0.8rem;
+    outline: none;
+    transition: all 0.5s;
+    &:hover {
+      transition: all 0.5s;
+      background-color: black;
+      color: white;
+      cursor: pointer;
+    }
+  }
+  &__goal-input {
+    border: 1px solid red;
+    margin-left: 3%;
+    width: 17%;
+    height: 100%;
+    border: 1px solid silver;
+    border-radius: 3px;
+    font-size: 1.1rem;
+    padding: 5px;
+    outline: none;
+    text-align: center;
+  }
+  &__entries-header {
+    margin-top: 3vh;
+    color: white;
+    font-size: 2.2rem;
+    font-family: 'Syncopate', sans-serif;
+  }
+  &__toggle-container {
+    display: flex;
+    width: 39%;
+    justify-content: space-between;
+    margin-bottom: 2%;
+    // border: 1px solid red;
+  }
+  &__edit-container {
+    display: flex;
+    margin-bottom: 2%;
+    width: 40%;
+    justify-content: space-between;
+  }
+  &__goal-edit-buttons-container {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  &__toggle-switch {
+    display: flex;
+    align-items: center;
+    margin-left: 2%;
+    font-size: 1.4rem;
+    color: white;
+  }
+  &__active {
+    border: 1px solid white;
+    border-radius: 10px;
+    background-color: white;
+    color: black;
+    transition: all 0.2s;
+  }
+  &__toggle-button {
+    padding: 4%;
+    font-family: 'Syncopate', sans-serif;
+    transition: all 0.2s;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  &__off-button {
+    margin-left: 5px;
+    padding-right: 5px;
+    cursor: pointer;
+  }
+  &__on-button {
+    padding-right: 5px;
+    cursor: pointer;
+  }
+  &__inactive {
+    border: 1px solid black;
+    border-radius: 10px;
+  }
+
+  @include mobile-small-only() {
+    // padding-left: 10vw;
+
+    &__stats-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      height: 10%;
+      width: 95%;
+      margin-right: 0;
+      font-size: 1rem;
+    }
+    &__header {
+      margin-top: 22%;
+      margin-bottom: 5%;
+    }
+    &__header,
+    &__entries-header {
+      font-size: 1.6rem;
+    }
+    &__toggle-container {
+      font-size: 1rem;
+      width: 50%;
+    }
+    &__user {
+      font-size: 1.5rem;
+    }
+    &__stats-text {
+      margin-bottom: 5%;
+      margin-right: 0;
+      align-items: flex-end;
+    }
+    &__daily-words-goal-container {
+      align-items: flex-start;
+      margin-bottom: 0;
+    }
+    &__goal-edit-container {
+      align-items: flex-start;
+    }
+    &__goal-edit-buttons-container {
+      display: flex;
+      justify-content: flex-start;
+    }
+    &__goal-input {
+      width: 27%;
+      font-size: 1.9rem;
+      border-radius: 5px;
+    }
+    &__day-number,
+    &__stats-text {
+      font-size: 0.9rem;
+    }
+    &__toggle-container {
+      width: 60%;
+    }
+    &__toggle-button {
+      font-size: 0.7rem;
+      cursor: pointer;
+    }
+    &__edit-container {
+      width: auto;
+      align-items: flex-end;
+    }
+  }
+  @include mobile-only() {
+    width: 100%;
+    margin-left: 0;
+    display: flex;
+    align-items: center;
+    &__header {
+      margin-top: 18%;
+      margin-top: 11vh;
+    }
+    &__header,
+    &__entries-header {
+      font-size: 1.6rem;
+    }
+
+    &__day-number,
+    &__stats-text {
+      font-size: 1rem;
+    }
+    &__goal-input {
+      width: 7%;
+    }
+    &__goal-edit-button {
+      font-size: 0.7rem;
+      width: 10%;
+    }
+  }
+  @include tablet-only() {
+    width: 90%;
+    &__header,
+    &__entries-header {
+      font-size: 1.9rem;
+    }
+    &__user {
+      font-size: 1.6rem;
+    }
+    &__stats-container {
+      width: 90%;
+    }
+    &__stats-text {
+      font-size: 1.3rem;
+      width: 75%;
+      margin-right: 3%;
+    }
+    &__day-number,
+    &__stats-text {
+      font-size: 1.1rem;
+    }
+    &__toggle-container {
+      font-size: 1.2rem;
+      width: 100%;
+    }
+    &__toggle-switch {
+      font-size: 1.2rem;
+    }
+  }
+  @include laptop-small() {
+    &__stats-text {
+      font-size: 1.3rem;
+      width: 75%;
+      margin-right: 3%;
+    }
+    &__day-number {
+      font-size: 1.3rem;
+    }
+    &__toggle-container {
+      font-size: 1.3rem;
+    }
+  }
+}
+
+.-light {
+  color: black;
+  background-color: white;
+}
