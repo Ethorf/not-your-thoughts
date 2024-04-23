@@ -1,7 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
-import { ENTRY_TYPES } from '../../constants/entryTypes'
-import { showToast } from '../../utils/toast'
+import { ENTRY_TYPES } from '@constants/entryTypes'
+import { SAVE_TYPES } from '@constants/saveTypes'
+
+import { showToast } from '@utils/toast'
 
 const { NODE, JOURNAL } = ENTRY_TYPES
 
@@ -18,6 +20,7 @@ const initialState = {
   tags: [],
   tagInput: '',
   // TODO do we really need this? May be useful but not sure it is RN
+  // HMMM maybe we integrate this with the autosave timer?
   type: JOURNAL,
   content: '',
   // Note this will hold only title and ID of node entries, I'm currently doing this to not overburden the backend
@@ -70,7 +73,9 @@ export const saveJournalEntry = createAsyncThunk(
 
 export const updateNodeEntry = createAsyncThunk(
   'currentEntryReducer/updateNodeEntry',
-  async ({ user_id, entryId, content, category, title, tags }, { getState, rejectWithValue, dispatch }) => {
+  async ({ user_id, entryId, content, category, title, tags, saveType }, { getState, rejectWithValue, dispatch }) => {
+    const { AUTO, MANUAL } = SAVE_TYPES
+
     try {
       const fetchResponse = await dispatch(fetchEntryById(entryId))
       const fetchedEntry = fetchResponse.payload
@@ -84,7 +89,8 @@ export const updateNodeEntry = createAsyncThunk(
 
       // If no change in content, category, and tags, return the current state
       if (!titleChanged && !contentChanged && !categoryChanged && !tagsChanged) {
-        dispatch(showToast('Nothing to update', 'warn'))
+        if (saveType === MANUAL) dispatch(showToast('Nothing to update', 'warn'))
+
         console.log('No change to content, category, and tags. No update required.')
         return currentState
       }
@@ -97,8 +103,12 @@ export const updateNodeEntry = createAsyncThunk(
         title,
         tags,
       })
-      dispatch(showToast('Node updated', 'success'))
 
+      if (saveType === AUTO) {
+        dispatch(showToast('Node autosaved', 'warn'))
+      } else {
+        dispatch(showToast('Node updated', 'success'))
+      }
       console.log('Updated with new content, category, or tags')
       return response.data
     } catch (error) {

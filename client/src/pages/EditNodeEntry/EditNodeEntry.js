@@ -2,11 +2,16 @@ import React, { useEffect, useMemo } from 'react'
 import classNames from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useHistory } from 'react-router-dom'
-import { setTitle, updateNodeEntry, setEntryById } from '../../redux/reducers/currentEntryReducer'
+import { setTitle, updateNodeEntry, setEntryById, resetCurrentEntryState } from '@redux/reducers/currentEntryReducer'
 
+// Constants
+import { SAVE_TYPES } from '@constants/saveTypes'
+
+// Components
 import CreateEntry from '@/components/Shared/CreateEntry/CreateEntry'
 import DefaultButton from '@/components/Shared/DefaultButton/DefaultButton'
 import DefaultInput from '@/components/Shared/DefaultInput/DefaultInput'
+import AutosaveTimer from '@/components/Shared/AutosaveTimer/AutosaveTimer'
 import CategoryInput from '@/components/CategoryInput/CategoryInput'
 import TagsInput from '@/components/TagsInput/TagsInput'
 import Spinner from '@/components//Shared/Spinner/Spinner'
@@ -35,16 +40,18 @@ const EditNodeEntry = () => {
     dispatch(setTitle(e.target.value))
   }
 
-  const handleSaveNode = () => {
-    dispatch(updateNodeEntry({ entryId, content, category, title, tags }))
+  const handleSaveNode = (saveType) => {
+    dispatch(updateNodeEntry({ entryId, content, category, title, tags, saveType }))
   }
 
   const handleNewNode = () => {
+    dispatch(resetCurrentEntryState())
     history.push('/create-node-entry')
   }
 
   return (
     <div className={styles.wrapper}>
+      <AutosaveTimer handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
       <div className={styles.editContainer}>
         <h2>Edit Node</h2>
         <div className={classNames(styles.topContainer, styles.grid3Columns)}>
@@ -77,7 +84,11 @@ const EditNodeEntry = () => {
             {entriesLoading ? (
               <SmallSpinner />
             ) : (
-              <DefaultButton disabled={!content.length} onClick={handleSaveNode} className={styles.saveButton}>
+              <DefaultButton
+                disabled={!content.length}
+                onClick={() => handleSaveNode(SAVE_TYPES.MANUAL)}
+                className={styles.saveButton}
+              >
                 Save Node
               </DefaultButton>
             )}
