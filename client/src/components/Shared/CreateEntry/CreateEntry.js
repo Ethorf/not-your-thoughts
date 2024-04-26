@@ -45,7 +45,9 @@ const CreateEntry = ({ type }) => {
   return (
     <div className={styles.wrapper}>
       <ReactQuill
-        className={`textArea ${toolbarVisible ? 'toolbar-visible' : 'toolbar-hidden'}`}
+        className={`textArea ${toolbarVisible ? 'toolbar-visible' : 'toolbar-hidden'} ${
+          type === ENTRY_TYPES.JOURNAL ? 'noScroll' : null
+        }`}
         modules={toolBarModules}
         placeholder={PLACEHOLDER_COPY[type]}
         value={content}

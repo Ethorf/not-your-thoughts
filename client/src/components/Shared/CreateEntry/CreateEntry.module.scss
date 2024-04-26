@@ -16,9 +16,11 @@
     border: $silver-border-active;
     transition: $default-transition;
   }
+  &.ql-editor {
+    background: red;
+  }
 }
-
-.toolbarToggleButton {
+.wrapper > .toolbarToggleButton {
   position: absolute;
   top: 0;
   right: 6px;

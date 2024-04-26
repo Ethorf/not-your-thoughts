@@ -1,7 +1,8 @@
-@import '../../styles/mixins.scss';
+@import '@styles/mixins.scss';
 
 .wrapper {
   width: 100%;
+  margin-top: 12px;
 
   @include flex-center-column;
 }

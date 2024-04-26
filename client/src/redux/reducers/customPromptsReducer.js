@@ -11,6 +11,7 @@ const initialState = {
 // Async thunk to fetch custom prompts
 export const fetchCustomPrompts = createAsyncThunk('customPrompts/fetchCustomPrompts', async () => {
   try {
+    console.log('fetching custom prompts')
     const response = await axios.get('/api/prompts/custom_prompts')
     return response.data
   } catch (error) {

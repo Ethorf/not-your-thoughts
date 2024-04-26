@@ -3,15 +3,15 @@ import classNames from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 import { useHotkeys } from 'react-hotkeys-hook'
 
-import { fetchCustomPrompts } from '../../redux/reducers/customPromptsReducer'
+import { fetchCustomPrompts } from '@redux/reducers/customPromptsReducer'
+import { openModal } from '@redux/reducers/modalsReducer.js'
+
 import TextButton from '../Shared/TextButton/TextButton'
 import DefaultButton from '../Shared/DefaultButton/DefaultButton'
 
-import { randomNum } from '../../utils/randomNum.js'
+import { randomNum } from '@utils/randomNum.js'
 
-import { MODAL_NAMES } from '../../constants/modalNames'
-
-import { openModal } from '../../redux/reducers/modalsReducer.js'
+import { MODAL_NAMES } from '@constants/modalNames'
 
 // Assets
 import firstIcon from '../../assets/Icons/prompt-icons/first-gray.png'

@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { connect, useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
-import { logout, loadUser } from '../../redux/actions/authActions.js'
-import { fetchJournalConfig } from '../../redux/reducers/journalEntriesReducer.js'
-import { toggleJournalConfigSetting } from '../../redux/actions/journalConfigActions.js'
+import { logout, loadUser } from '@redux/actions/authActions.js'
+import { fetchJournalConfig } from '@redux/reducers/journalEntriesReducer.js'
+import { toggleJournalConfigSetting } from '@redux/actions/journalConfigActions.js'
 
 // Components
-import ProfileGoalEdit from '../../components/ProfileGoalEditComponent/ProfileGoalEditComponent.js'
-import TrackedPhrasesModal from '../../components/Modals/trackedPhrasesModal.js'
-import CustomPromptsSection from '../../components/CustomPromptsSection/CustomPromptsSection.js'
-import Spinner from '../../components/Shared/Spinner/Spinner.js'
+import ProfileGoalEdit from '@components/ProfileGoalEditComponent/ProfileGoalEditComponent.js'
+import TrackedPhrasesModal from '@components/Modals/trackedPhrasesModal.js'
+import CustomPromptsSection from '@components/CustomPromptsSection/CustomPromptsSection.js'
+import Spinner from '@components/Shared/Spinner/Spinner.js'
 
 // Styles
 import './ProfilePage.scss'

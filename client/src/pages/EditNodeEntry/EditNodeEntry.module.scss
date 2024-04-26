@@ -43,6 +43,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   width: 100%;
+  min-height: 72px;
 }
 
 .flexCenter {

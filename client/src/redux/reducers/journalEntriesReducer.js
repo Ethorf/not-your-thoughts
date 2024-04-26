@@ -12,6 +12,7 @@ const initialState = {
 // Async thunk to fetch journal configuration
 export const fetchJournalConfig = createAsyncThunk('journal/fetchJournalConfig', async (_, { rejectWithValue }) => {
   try {
+    console.log('fetching journal config')
     const response = await axios.get('/api/journal_config')
     return response.data.journalConfig
   } catch (error) {

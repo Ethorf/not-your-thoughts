@@ -1,19 +1,27 @@
 import React, { useState } from 'react'
-import { Link, Redirect } from 'react-router-dom'
-import { connect } from 'react-redux'
+import { Link, Redirect, useHistory } from 'react-router-dom'
+import { connect, useDispatch } from 'react-redux'
 import classNames from 'classnames'
 import PropTypes from 'prop-types'
-import { login, toggleGuestMode } from '../../redux/actions/authActions.js'
-import { showToast } from '../../utils/toast.js'
 
-import sharedStyles from '../../styles/shared.module.scss'
+// Redux
+import { fetchJournalConfig } from '@redux/reducers/journalEntriesReducer.js'
+import { fetchCustomPrompts } from '@redux/reducers/customPromptsReducer'
+
+import { login, toggleGuestMode } from '@redux/actions/authActions.js'
+
+import { showToast } from '@utils/toast.js'
+
+import sharedStyles from '@styles/shared.module.scss'
 import styles from './LoginPage.module.scss'
 import './LoginPage-RegisterPage.scss'
 
-import FadeInAnimationOnMount from '../../components/higherOrderComponents/fadeInAnimationOnMount.js'
-import DefaultButton from '../../components/Shared/DefaultButton/DefaultButton.js'
+import FadeInAnimationOnMount from '@components/higherOrderComponents/fadeInAnimationOnMount.js'
+import DefaultButton from '@components/Shared/DefaultButton/DefaultButton.js'
 
 const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) => {
+  const dispatch = useDispatch()
+  const history = useHistory()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -30,6 +38,14 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
 
     if (email && password) {
       let loginResponse = await login(email, password)
+
+      if (loginResponse.jwtToken) {
+        console.log('yes there is a token')
+        await dispatch(fetchJournalConfig())
+        await dispatch(fetchCustomPrompts())
+        history.push('/dashboard')
+      }
+
       if (loginResponse.code) {
         loginResponse.code == 'ERR_BAD_RESPONSE'
           ? showToast('server error, connection failed', 'error')

@@ -1,16 +1,8 @@
 .wrapper {
+  max-height: 85vh;
+  overflow: hidden;
 }
 
 .promptInput {
   display: flex;
-}
-
-.promptsList {
-  padding: 0;
-}
-
-.listedPrompt {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }

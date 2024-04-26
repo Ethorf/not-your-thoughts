@@ -3,17 +3,17 @@ import classNames from 'classnames'
 import { useDispatch } from 'react-redux'
 
 // Utils
-import { parseDate } from '../../utils/parseDate'
-import { formatTime } from '../../utils/formatTime.js'
+import { parseDate } from '@utils/parseDate'
+import { formatTime } from '@utils/formatTime.js'
 
-import { setEntryById } from '../../redux/reducers/currentEntryReducer'
-import { openModal } from '../../redux/reducers/modalsReducer.js'
+import { setEntryById } from '@redux/reducers/currentEntryReducer'
+import { openModal } from '@redux/reducers/modalsReducer.js'
 
 // Components
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner.js'
 
 // Constants
-import { MODAL_NAMES } from '../../constants/modalNames.js'
+import { MODAL_NAMES } from '@constants/modalNames.js'
 
 import styles from './JournalEntry.module.scss'
 

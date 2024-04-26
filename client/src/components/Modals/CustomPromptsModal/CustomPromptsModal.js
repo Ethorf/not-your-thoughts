@@ -4,16 +4,16 @@ import { useDispatch } from 'react-redux'
 import 'react-responsive-modal/styles.css'
 
 // Constants
-import { MODAL_NAMES } from '../../../constants/modalNames'
+import { MODAL_NAMES } from '@constants/modalNames'
 
 // Components
 import { BaseModalWrapper } from '../BaseModalWrapper/BaseModalWrapper'
-import DefaultButton from '../../Shared/DefaultButton/DefaultButton'
-import DefaultInput from '../../Shared/DefaultInput/DefaultInput'
-import { CustomPromptsList } from '../../Shared/CustomPromptsList/CustomPromptsList'
+import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
+import DefaultInput from '@components/Shared/DefaultInput/DefaultInput'
+import { CustomPromptsList } from '@components/Shared/CustomPromptsList/CustomPromptsList'
 
 // Redux
-import { fetchCustomPrompts, createCustomPrompt } from '../../../redux/reducers/customPromptsReducer'
+import { fetchCustomPrompts, createCustomPrompt } from '@redux/reducers/customPromptsReducer'
 
 import styles from './CustomPromptsModal.module.scss'
 
