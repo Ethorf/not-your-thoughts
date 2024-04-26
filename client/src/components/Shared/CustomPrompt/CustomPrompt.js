@@ -8,6 +8,7 @@ import { PROMPT_STATUSES } from '@constants/promptStatuses'
 // Redux
 import { deleteCustomPrompt, updatePromptStatus, togglePromptStarred } from '@redux/reducers/customPromptsReducer'
 import { setTitleAndResetAll } from '@redux/reducers/currentEntryReducer'
+import { closeModal } from '@redux/reducers/modalsReducer.js'
 
 // Components
 import TextButton from '../TextButton/TextButton'
@@ -52,9 +53,11 @@ export const CustomPrompt = ({ nodeEntriesInfo, prompt: { id, content, status, s
     if (nodeId) {
       console.log('title found')
       history.push(`/edit-node-entry?entryId=${nodeId}`)
+      dispatch(closeModal())
     } else {
       await dispatch(setTitleAndResetAll(content))
       history.push(`/create-node-entry`)
+      dispatch(closeModal())
       console.log('no title found')
     }
   }

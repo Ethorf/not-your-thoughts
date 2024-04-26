@@ -21,7 +21,7 @@ export const CustomPromptsList = () => {
   return (
     <>
       {sortedPrompts.length ? (
-        <ul className={styles.promptsList}>
+        <ul className={styles.wrapper}>
           {sortedPrompts.map((prompt) => (
             <CustomPrompt nodeEntriesInfo={nodeEntriesInfo} key={prompt.id} prompt={prompt} />
           ))}
