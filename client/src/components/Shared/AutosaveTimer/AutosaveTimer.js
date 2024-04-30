@@ -5,35 +5,29 @@ const AutosaveTimer = ({ handleAutosave }) => {
   const { wordCount } = useSelector((state) => state.currentEntry)
 
   const [shouldAutosave, setShouldAutosave] = useState(false)
+  const [lastWordCount, setLastWordCount] = useState(wordCount)
 
-  // Check word count on load
   useEffect(() => {
-    // Perform initialization check here
     checkWordCount()
-  }, []) // Only run once on component mount
-
-  // Watch for changes in word count
-  useEffect(() => {
-    if (wordCount >= 5) {
-      setShouldAutosave(true)
-    }
   }, [wordCount])
 
-  // Function to check word count on load
   const checkWordCount = () => {
-    // Perform initial checks and actions here
-    if (wordCount >= 5) {
+    console.log('checking word count')
+    // Check if the absolute difference between the current word count and the last word count is greater than 5
+    if (Math.abs(wordCount - lastWordCount) > 5) {
+      console.log('word count has changed by 5 or more, will autosave')
       setShouldAutosave(true)
+      setLastWordCount(wordCount)
     }
   }
 
-  // Set up autosave timer
   useEffect(() => {
     let timer
     if (shouldAutosave) {
       timer = setInterval(() => {
         handleAutosave()
-      }, 30000) // Autosave every 30 seconds
+        setShouldAutosave(false)
+      }, 30000) // Autosave every 10 seconds
     }
 
     // Clean up timer on component unmount or state change

@@ -19,6 +19,8 @@ const initialState = {
   connections: [],
   tags: [],
   tagInput: '',
+  akas: [],
+  akaInput: '',
   // TODO do we really need this? May be useful but not sure it is RN
   // HMMM maybe we integrate this with the autosave timer?
   type: JOURNAL,
