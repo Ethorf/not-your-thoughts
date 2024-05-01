@@ -57,7 +57,8 @@ router.get('/:entryId/akas', authorize, async (req, res) => {
   try {
     const result = await pool.query('SELECT aka_value FROM title_akas WHERE entry_id = $1', [entryId])
     const akas = result.rows.map((row) => row.aka_value)
-
+    console.log('akas is:')
+    console.log(akas)
     res.json({ akas })
   } catch (error) {
     console.error(error.message)

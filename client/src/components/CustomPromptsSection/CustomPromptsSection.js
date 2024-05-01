@@ -1,10 +1,10 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
-import { openModal } from '../../redux/reducers/modalsReducer.js'
+import { openModal } from '@redux/reducers/modalsReducer.js'
 
-import { MODAL_NAMES } from '../../constants/modalNames.js'
+import { MODAL_NAMES } from '@constants/modalNames.js'
 
-import TextButton from '../Shared/TextButton/TextButton.js'
+import TextButton from '@components/Shared/TextButton/TextButton.js'
 
 import styles from './CustomPromptsSection.module.scss'
 

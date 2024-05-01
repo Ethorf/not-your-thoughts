@@ -46,6 +46,13 @@
   min-height: 72px;
 }
 
+.grid4ColumnsCustom {
+  display: grid;
+  grid-template-columns: 25% 35% 3% 25%;
+  width: 100%;
+  min-height: 72px;
+}
+
 .flexCenter {
   display: flex;
   justify-content: center;

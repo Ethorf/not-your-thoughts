@@ -169,12 +169,23 @@ export const setEntryById = createAsyncThunk(
   }
 )
 
+export const fetchAkas = createAsyncThunk('akas/fetchAkas', async (entryId, { rejectWithValue }) => {
+  try {
+    console.log('fetch akas hit')
+    const response = await axios.get(`api/akas/${entryId}/akas`)
+    console.log(response)
+    return response.data.akas
+  } catch (error) {
+    return rejectWithValue(error.response.data)
+  }
+})
+
 export const fetchCategories = createAsyncThunk(
   'currentEntryReducer/fetchCategories',
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get('api/entries/categories')
-      return response.data.categories // Assuming the API response contains an array of category names
+      return response.data.categories
     } catch (error) {
       return rejectWithValue(error.response.data)
     }
@@ -194,6 +205,13 @@ const currentEntrySlice = createSlice({
   name: 'currentEntryReducer', // Name of your reducer slice
   initialState,
   reducers: {
+    setAkas: (state, action) => {
+      state.akas = action.payload
+    },
+    setAkaInput: (state, action) => {
+      // New reducer function to set aka input
+      state.akaInput = action.payload
+    },
     setWordCount: (state, action) => {
       state.wordCount = action.payload
     },
@@ -245,6 +263,9 @@ const currentEntrySlice = createSlice({
     builder
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.allCategories = action.payload
+      })
+      .addCase(fetchAkas.fulfilled, (state, action) => {
+        state.akas = action.payload
       })
       .addCase(createNodeEntry.fulfilled, (state, action) => {
         return {
@@ -298,6 +319,8 @@ const currentEntrySlice = createSlice({
 
 export const {
   resetCurrentEntryState,
+  setAkas,
+  setAkaInput,
   setEntryId,
   setWordCount,
   setCharCount,

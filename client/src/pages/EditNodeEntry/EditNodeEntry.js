@@ -8,14 +8,15 @@ import { setTitle, updateNodeEntry, setEntryById, resetCurrentEntryState } from 
 import { SAVE_TYPES } from '@constants/saveTypes'
 
 // Components
-import CreateEntry from '@/components/Shared/CreateEntry/CreateEntry'
-import DefaultButton from '@/components/Shared/DefaultButton/DefaultButton'
-import DefaultInput from '@/components/Shared/DefaultInput/DefaultInput'
-import AutosaveTimer from '@/components/Shared/AutosaveTimer/AutosaveTimer'
-import CategoryInput from '@/components/CategoryInput/CategoryInput'
-import TagsInput from '@/components/TagsInput/TagsInput'
-import Spinner from '@/components//Shared/Spinner/Spinner'
-import SmallSpinner from '@/components//Shared/SmallSpinner/SmallSpinner'
+import CreateEntry from '@components/Shared/CreateEntry/CreateEntry'
+import AkasDisplay from '@components/Shared/AkasDisplay/AkasDisplay'
+import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
+import DefaultInput from '@components/Shared/DefaultInput/DefaultInput'
+import AutosaveTimer from '@components/Shared/AutosaveTimer/AutosaveTimer'
+import CategoryInput from '@components/CategoryInput/CategoryInput'
+import TagsInput from '@components/TagsInput/TagsInput'
+import Spinner from '@components/Shared/Spinner/Spinner'
+import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 
 import styles from './EditNodeEntry.module.scss'
 
@@ -54,7 +55,7 @@ const EditNodeEntry = () => {
       <AutosaveTimer handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
       <div className={styles.editContainer}>
         <h2>Edit Node</h2>
-        <div className={classNames(styles.topContainer, styles.grid3Columns)}>
+        <div className={classNames(styles.topContainer, styles.grid4ColumnsCustom)}>
           {content ? (
             <>
               <CategoryInput className={styles.flexStart} />
@@ -66,6 +67,7 @@ const EditNodeEntry = () => {
                 value={title}
                 onChange={handleTitleChange}
               />
+              <AkasDisplay />
               <TagsInput className={styles.flexEnd} />
             </>
           ) : (
