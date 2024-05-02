@@ -20,7 +20,6 @@ const initialState = {
   tags: [],
   tagInput: '',
   akas: [],
-  akaInput: '',
   // TODO do we really need this? May be useful but not sure it is RN
   // HMMM maybe we integrate this with the autosave timer?
   type: JOURNAL,
@@ -29,6 +28,15 @@ const initialState = {
   //  and compromise performance but think this may be able to be improved
   nodeEntriesInfo: [],
 }
+
+export const addAka = createAsyncThunk('akas/addAka', async ({ entryId, aka }, { rejectWithValue }) => {
+  try {
+    const response = await axios.post(`api/akas/${entryId}/add_aka`, { aka })
+    return response.data // Assuming the API response contains the newly added aka
+  } catch (error) {
+    return rejectWithValue(error.response.data)
+  }
+})
 
 export const createNodeEntry = createAsyncThunk(
   'currentEntryReducer/createNodeEntry',
@@ -171,9 +179,7 @@ export const setEntryById = createAsyncThunk(
 
 export const fetchAkas = createAsyncThunk('akas/fetchAkas', async (entryId, { rejectWithValue }) => {
   try {
-    console.log('fetch akas hit')
     const response = await axios.get(`api/akas/${entryId}/akas`)
-    console.log(response)
     return response.data.akas
   } catch (error) {
     return rejectWithValue(error.response.data)
@@ -207,10 +213,6 @@ const currentEntrySlice = createSlice({
   reducers: {
     setAkas: (state, action) => {
       state.akas = action.payload
-    },
-    setAkaInput: (state, action) => {
-      // New reducer function to set aka input
-      state.akaInput = action.payload
     },
     setWordCount: (state, action) => {
       state.wordCount = action.payload
@@ -267,6 +269,9 @@ const currentEntrySlice = createSlice({
       .addCase(fetchAkas.fulfilled, (state, action) => {
         state.akas = action.payload
       })
+      .addCase(addAka.fulfilled, (state, action) => {
+        state.akas = [...state.akas, action.payload.aka]
+      })
       .addCase(createNodeEntry.fulfilled, (state, action) => {
         return {
           ...state,
@@ -320,7 +325,6 @@ const currentEntrySlice = createSlice({
 export const {
   resetCurrentEntryState,
   setAkas,
-  setAkaInput,
   setEntryId,
   setWordCount,
   setCharCount,

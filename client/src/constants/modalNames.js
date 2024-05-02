@@ -1,3 +1,10 @@
 import { enumify } from '../utils/enumify'
 
-export const MODAL_NAMES = enumify(['custom_prompts', 'success', 'journal_content', 'node_content', 'tags_input'])
+export const MODAL_NAMES = enumify([
+  'custom_prompts',
+  'success',
+  'journal_content',
+  'node_content',
+  'tags_input',
+  'akas_input',
+])

@@ -4,16 +4,16 @@ import { useDispatch, useSelector } from 'react-redux'
 import 'react-responsive-modal/styles.css'
 
 // Constants
-import { MODAL_NAMES } from '../../../constants/modalNames'
+import { MODAL_NAMES } from '@constants/modalNames'
 
 // Components
 import { BaseModalWrapper } from '../BaseModalWrapper/BaseModalWrapper'
-import DefaultButton from '../../Shared/DefaultButton/DefaultButton'
-import Tag from '../../Shared/Tag/Tag'
-import DefaultAutoCompleteInput from '../../Shared/DefaultAutoCompleteInput/DefaultAutoCompleteInput.js'
+import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
+import Tag from '@components/Shared/Tag/Tag'
+import DefaultAutoCompleteInput from '@components/Shared/DefaultAutoCompleteInput/DefaultAutoCompleteInput.js'
 
 // Redux
-import { setTags, setTagInput, fetchTags } from '../../../redux/reducers/currentEntryReducer.js'
+import { setTags, setTagInput, fetchTags } from '@redux/reducers/currentEntryReducer.js'
 
 import styles from './TagsInputModal.module.scss'
 

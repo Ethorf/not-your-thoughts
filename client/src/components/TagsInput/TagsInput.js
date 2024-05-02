@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import classNames from 'classnames'
 
-import { openModal } from '../../redux/reducers/modalsReducer.js'
+import { openModal } from '@redux/reducers/modalsReducer.js'
 
-import TextButton from '../../components/Shared/TextButton/TextButton'
-import Tag from '../../components/Shared/Tag/Tag'
+import TextButton from '@components/Shared/TextButton/TextButton'
+import Tag from '@components/Shared/Tag/Tag'
 
-import { MODAL_NAMES } from '../../constants/modalNames'
+import { MODAL_NAMES } from '@constants/modalNames'
 
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchTags } from '../../redux/reducers/currentEntryReducer.js'
 
 import styles from './TagsInput.module.scss'
 const TagsInput = ({ className }) => {
