@@ -1,4 +1,26 @@
+@import '@styles/variables';
+@import '@styles/mixins';
+
+.wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
 .button {
-  font-size: 0.9rem;
-  margin: 0;
+  font-size: 1.2rem;
+}
+
+.akasList {
+  @include flex-center-column();
+  border: 1px solid $silver-default;
+  position: absolute;
+  top: 36px;
+  background-color: black;
+  border-radius: 8px;
+}
+
+.aka {
+  color: $silver-active;
+  margin: 8px;
 }
