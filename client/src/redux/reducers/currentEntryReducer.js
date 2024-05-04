@@ -29,14 +29,44 @@ const initialState = {
   nodeEntriesInfo: [],
 }
 
-export const addAka = createAsyncThunk('akas/addAka', async ({ entryId, aka }, { rejectWithValue }) => {
-  try {
-    const response = await axios.post(`api/akas/${entryId}/add_aka`, { aka })
-    return response.data // Assuming the API response contains the newly added aka
-  } catch (error) {
-    return rejectWithValue(error.response.data)
+export const addAka = createAsyncThunk(
+  'akas/addAka',
+  async ({ entryId, aka }, { rejectWithValue, dispatch, getState }) => {
+    try {
+      const { akas } = getState().currentEntry
+      const akaValues = akas.map((aka) => aka.aka_value)
+
+      const akaExists = akaValues.some((existingAka) => existingAka.toLowerCase() === aka.toLowerCase())
+
+      if (akaExists) {
+        dispatch(showToast('Duplicate, AKA not added', 'error'))
+
+        return rejectWithValue({ message: 'Aka already exists' })
+      }
+
+      const response = await axios.post(`api/akas/${entryId}/add_aka`, { aka })
+      dispatch(showToast('AKA added', 'success'))
+
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response.data)
+    }
   }
-})
+)
+
+export const deleteAka = createAsyncThunk(
+  'akas/deleteAka',
+  async ({ entryId, akaId }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axios.delete(`api/akas/${entryId}/akas/${akaId}`)
+      dispatch(showToast('AKA Deleted', 'success'))
+
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
 
 export const createNodeEntry = createAsyncThunk(
   'currentEntryReducer/createNodeEntry',
@@ -271,6 +301,9 @@ const currentEntrySlice = createSlice({
       })
       .addCase(addAka.fulfilled, (state, action) => {
         state.akas = [...state.akas, action.payload.aka]
+      })
+      .addCase(deleteAka.fulfilled, (state, action) => {
+        state.akas = action.payload.akas
       })
       .addCase(createNodeEntry.fulfilled, (state, action) => {
         return {

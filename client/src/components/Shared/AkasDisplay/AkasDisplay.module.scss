@@ -9,18 +9,31 @@
 
 .button {
   font-size: 1.2rem;
+  display: flex;
+  flex-direction: row;
 }
 
 .akasList {
   @include flex-center-column();
+
   border: 1px solid $silver-default;
   position: absolute;
-  top: 36px;
+  top: 46px;
   background-color: black;
   border-radius: 8px;
+  padding: 12px;
+  min-width: 120px;
+  text-align: center;
+  display: flex;
 }
 
 .aka {
-  color: $silver-active;
+  color: $silver-faded;
   margin: 8px;
+}
+
+.noAkas {
+  display: flex;
+  width: 100px;
+  margin: 12px 0;
 }

@@ -28,7 +28,7 @@ function AkasDisplay() {
     if (akasListVisible && !cursorInsideList) {
       setTimeout(() => {
         if (!cursorInsideList) setAkasListVisible(false)
-      }, 2000)
+      }, 1000)
     }
   }, [cursorInsideList, akasListVisible])
 
@@ -43,15 +43,17 @@ function AkasDisplay() {
           onMouseEnter={() => setCursorInsideList(true)}
           onMouseLeave={() => setCursorInsideList(false)}
         >
-          {akas.length
-            ? akas.map((aka, idx) => (
-                <span className={styles.aka} key={idx}>
-                  {aka.aka_value}
-                </span>
-              ))
-            : 'No akas yet'}
+          {akas.length ? (
+            akas.map((aka, idx) => (
+              <span className={styles.aka} key={idx}>
+                {aka.aka_value}
+              </span>
+            ))
+          ) : (
+            <span className={styles.noAkas}>No akas yet</span>
+          )}
           <TextButton onClick={handleOpenAkasModal} className={styles.button}>
-            ADD +
+            EDIT
           </TextButton>
         </div>
       ) : null}

@@ -10,9 +10,10 @@ import { MODAL_NAMES } from '@constants/modalNames'
 import { BaseModalWrapper } from '../BaseModalWrapper/BaseModalWrapper'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import DefaultAutoCompleteInput from '@components/Shared/DefaultAutoCompleteInput/DefaultAutoCompleteInput.js'
+import TextButton from '@components/Shared/TextButton/TextButton'
 
 // Redux
-import { addAka } from '@redux/reducers/currentEntryReducer.js'
+import { addAka, deleteAka } from '@redux/reducers/currentEntryReducer.js'
 
 import styles from './AkasInputModal.module.scss'
 
@@ -26,17 +27,24 @@ export const AkasInputModal = () => {
     dispatch(addAka({ aka: akaInput, entryId }))
     setAkaInput('')
   }
-  console.log('akas is:')
-  console.log(akas)
+  const handleDeleteAka = (id) => {
+    dispatch(deleteAka({ akaId: id, entryId }))
+  }
+
   return (
     <BaseModalWrapper modalName={MODAL_NAMES.AKAS_INPUT}>
       <div className={styles.wrapper}>
         <h2>AKA:</h2>
         <div className={styles.currentAkasContainer}>
           {akas.map((aka, idx) => (
-            <span className={styles.aka} key={idx}>
-              {aka.aka_value}
-            </span>
+            <div>
+              <span className={styles.aka} key={idx}>
+                {aka.aka_value}
+              </span>
+              <TextButton onClick={() => handleDeleteAka(aka.id)} toolTip="Delete AKA">
+                X
+              </TextButton>
+            </div>
           ))}
         </div>
         <div className={styles.akasInputContainer}>

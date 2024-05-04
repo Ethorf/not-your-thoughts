@@ -14,8 +14,7 @@ router.post('/:entryId/add_aka', authorize, async (req, res) => {
       entryId,
       aka,
     ])
-    console.log('newAka is:')
-    console.log(newAka.rows[0])
+
     res.json({ aka: newAka.rows[0] })
   } catch (error) {
     console.error(error.message)
@@ -28,9 +27,14 @@ router.delete('/:entryId/akas/:akaId', authorize, async (req, res) => {
   const { entryId, akaId } = req.params
 
   try {
+    // Delete the aka value
     await pool.query('DELETE FROM title_akas WHERE entry_id = $1 AND id = $2', [entryId, akaId])
 
-    res.json({ message: 'Aka value deleted successfully' })
+    // Fetch the remaining aka values after deletion
+    const remainingAkas = await pool.query('SELECT aka_value FROM title_akas WHERE entry_id = $1', [entryId])
+
+    // Return the remaining aka values in the response
+    res.json({ message: 'Aka value deleted successfully', akas: remainingAkas.rows })
   } catch (error) {
     console.error(error.message)
     res.status(500).send('Server error')
