@@ -1,5 +1,5 @@
 const express = require('express')
-const { parse, isValid } = require('date-fns')
+const { parse } = require('date-fns')
 const router = express.Router()
 const pool = require('../config/neonDb')
 const authorize = require('../middleware/authorize')

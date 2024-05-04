@@ -47,7 +47,7 @@ const App = () => {
   return (
     <div className={`App ${mode}`}>
       <ToastContainer />
-      <Tooltip id="main-tooltip" style={{ zIndex: 99 }} place="bottom" />
+      <Tooltip id="main-tooltip" style={{ zIndex: 99 }} place="right" />
       <BrowserRouter>
         <ModalsContainer />
         <NavBarTop />

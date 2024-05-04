@@ -19,6 +19,7 @@ const initialState = {
   connections: [],
   tags: [],
   tagInput: '',
+  akas: [],
   // TODO do we really need this? May be useful but not sure it is RN
   // HMMM maybe we integrate this with the autosave timer?
   type: JOURNAL,
@@ -27,6 +28,45 @@ const initialState = {
   //  and compromise performance but think this may be able to be improved
   nodeEntriesInfo: [],
 }
+
+export const addAka = createAsyncThunk(
+  'akas/addAka',
+  async ({ entryId, aka }, { rejectWithValue, dispatch, getState }) => {
+    try {
+      const { akas } = getState().currentEntry
+      const akaValues = akas.map((aka) => aka.aka_value)
+
+      const akaExists = akaValues.some((existingAka) => existingAka.toLowerCase() === aka.toLowerCase())
+
+      if (akaExists) {
+        dispatch(showToast('Duplicate, AKA not added', 'error'))
+
+        return rejectWithValue({ message: 'Aka already exists' })
+      }
+
+      const response = await axios.post(`api/akas/${entryId}/add_aka`, { aka })
+      dispatch(showToast('AKA added', 'success'))
+
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+export const deleteAka = createAsyncThunk(
+  'akas/deleteAka',
+  async ({ entryId, akaId }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axios.delete(`api/akas/${entryId}/akas/${akaId}`)
+      dispatch(showToast('AKA Deleted', 'success'))
+
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
 
 export const createNodeEntry = createAsyncThunk(
   'currentEntryReducer/createNodeEntry',
@@ -167,12 +207,21 @@ export const setEntryById = createAsyncThunk(
   }
 )
 
+export const fetchAkas = createAsyncThunk('akas/fetchAkas', async (entryId, { rejectWithValue }) => {
+  try {
+    const response = await axios.get(`api/akas/${entryId}/akas`)
+    return response.data.akas
+  } catch (error) {
+    return rejectWithValue(error.response.data)
+  }
+})
+
 export const fetchCategories = createAsyncThunk(
   'currentEntryReducer/fetchCategories',
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get('api/entries/categories')
-      return response.data.categories // Assuming the API response contains an array of category names
+      return response.data.categories
     } catch (error) {
       return rejectWithValue(error.response.data)
     }
@@ -192,6 +241,9 @@ const currentEntrySlice = createSlice({
   name: 'currentEntryReducer', // Name of your reducer slice
   initialState,
   reducers: {
+    setAkas: (state, action) => {
+      state.akas = action.payload
+    },
     setWordCount: (state, action) => {
       state.wordCount = action.payload
     },
@@ -243,6 +295,15 @@ const currentEntrySlice = createSlice({
     builder
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.allCategories = action.payload
+      })
+      .addCase(fetchAkas.fulfilled, (state, action) => {
+        state.akas = action.payload
+      })
+      .addCase(addAka.fulfilled, (state, action) => {
+        state.akas = [...state.akas, action.payload.aka]
+      })
+      .addCase(deleteAka.fulfilled, (state, action) => {
+        state.akas = action.payload.akas
       })
       .addCase(createNodeEntry.fulfilled, (state, action) => {
         return {
@@ -296,6 +357,7 @@ const currentEntrySlice = createSlice({
 
 export const {
   resetCurrentEntryState,
+  setAkas,
   setEntryId,
   setWordCount,
   setCharCount,

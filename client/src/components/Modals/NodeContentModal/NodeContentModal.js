@@ -7,7 +7,7 @@ import { MODAL_NAMES } from '../../../constants/modalNames'
 
 // Components
 import { BaseModalWrapper } from '../BaseModalWrapper/BaseModalWrapper'
-import DefaultButton from '../../Shared/DefaultButton/DefaultButton'
+import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 
 // Redux
 import { saveJournalEntry } from '../../../redux/reducers/currentEntryReducer'
