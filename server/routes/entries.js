@@ -1,10 +1,9 @@
 const express = require('express')
-const { parse } = require('date-fns')
+const { parse, isValid } = require('date-fns')
 const router = express.Router()
 const pool = require('../config/neonDb')
 const authorize = require('../middleware/authorize')
 
-// TODO add check for lowercase categories
 // post /entries/add_node_entry
 // Add a new node entry
 
