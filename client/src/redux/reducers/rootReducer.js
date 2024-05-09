@@ -4,6 +4,7 @@ import wordCountReducer from './wordCountReducer'
 import modalsReducer from './modalsReducer'
 import modesReducer from './modesReducer'
 import currentEntryReducer from './currentEntryReducer'
+import categoriesReducer from './categoriesReducer'
 import nodeEntriesReducer from './nodeEntriesReducer'
 import journalEntriesReducer from './journalEntriesReducer'
 import customPromptsReducer from './customPromptsReducer'
@@ -17,6 +18,7 @@ export default combineReducers({
   modals: modalsReducer,
   modes: modesReducer,
   currentEntry: currentEntryReducer,
+  categories: categoriesReducer,
   nodeEntries: nodeEntriesReducer,
   journalEntries: journalEntriesReducer,
   customPrompts: customPromptsReducer,

@@ -84,6 +84,15 @@ class NavBarSide extends React.Component {
           >
             New Node
           </NavLink>
+          <NavLink
+            exact
+            onClick={this.props.resetCurrentEntryState}
+            to="/categories"
+            activeClassName="nav__active"
+            className={`nav__link${this.props.mode}`}
+          >
+            Categories
+          </NavLink>
           {!this.props.guestMode ? (
             <>
               <NavLink exact to="/profile" activeClassName="nav__active" className={`nav__link${this.props.mode}`}>

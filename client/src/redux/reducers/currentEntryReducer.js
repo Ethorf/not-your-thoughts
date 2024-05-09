@@ -216,18 +216,6 @@ export const fetchAkas = createAsyncThunk('akas/fetchAkas', async (entryId, { re
   }
 })
 
-export const fetchCategories = createAsyncThunk(
-  'currentEntryReducer/fetchCategories',
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await axios.get('api/entries/categories')
-      return response.data.categories
-    } catch (error) {
-      return rejectWithValue(error.response.data)
-    }
-  }
-)
-
 export const fetchTags = createAsyncThunk('currentEntryReducer/fetchTags', async (_, { rejectWithValue }) => {
   try {
     const response = await axios.get('api/entries/tags')
@@ -293,9 +281,6 @@ const currentEntrySlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchCategories.fulfilled, (state, action) => {
-        state.allCategories = action.payload
-      })
       .addCase(fetchAkas.fulfilled, (state, action) => {
         state.akas = action.payload
       })

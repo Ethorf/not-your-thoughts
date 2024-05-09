@@ -1,0 +1,9 @@
+@import '@styles/mixins';
+
+.wrapper {
+  @include flex-center-column();
+}
+
+.header {
+  @include page-header();
+}

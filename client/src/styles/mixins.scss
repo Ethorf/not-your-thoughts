@@ -131,3 +131,9 @@
   align-items: center;
   justify-content: center;
 }
+
+@mixin page-header() {
+  color: $silver-active;
+  font-size: 2rem;
+  margin: 32px 0;
+}

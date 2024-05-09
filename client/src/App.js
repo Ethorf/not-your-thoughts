@@ -14,6 +14,7 @@ import AudioPlayer from './components/audioPlayer/audioPlayer.js'
 
 //Pages Imports
 import Landing from '@pages/Start/Start.js'
+import CategoriesPage from '@pages/CategoriesPage/CategoriesPage.js'
 import Dashboard from '@pages/Dashboard/Dashboard.js'
 import CreateJournalEntry from '@pages/CreateJournalEntry/CreateJournalEntry.js'
 import CreateNodeEntry from '@pages/CreateNodeEntry/CreateNodeEntry.js'
@@ -73,6 +74,7 @@ const App = () => {
                     {({ match }) => <Register show={match !== null} />}
                   </Route>
                   <PrivateRoute path="/dashboard" exact component={Dashboard} />
+                  <PrivateRoute path="/categories" exact component={CategoriesPage} />
                   <PrivateRoute path="/create-journal-entry" exact component={CreateJournalEntry} />
                   <PrivateRoute path="/profile" exact component={ProfilePage} />
                   <PrivateRoute path="/create-node-entry" exact component={CreateNodeEntry} />
