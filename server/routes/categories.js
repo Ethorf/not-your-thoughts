@@ -14,8 +14,55 @@ router.get('/', authorize, async (req, res) => {
       return res.status(404).json({ msg: 'No categories found' })
     }
 
+    // Iterate through each category to populate parent_category and child_categories
+    for (let i = 0; i < allCategories.rows.length; i++) {
+      const category = allCategories.rows[i]
+      if (category.parent_category) {
+        // Retrieve the corresponding parent category from categories table
+        const parentCategory = await pool.query('SELECT * FROM categories WHERE id = $1', [category.parent_category])
+
+        // If parent category is found, populate parent_category in category object
+        if (parentCategory.rows.length > 0) {
+          category.parent_category = parentCategory.rows[0]
+        }
+      }
+
+      if (category.child_categories && category.child_categories.length > 0) {
+        // Retrieve the corresponding child categories from categories table
+        const childCategories = await pool.query('SELECT * FROM categories WHERE id = ANY($1)', [
+          category.child_categories,
+        ])
+
+        // If child categories are found, populate child_categories in category object
+        if (childCategories.rows.length > 0) {
+          category.child_categories = childCategories.rows
+        }
+      }
+    }
+
     // If categories are found, return them
     res.json({ categories: allCategories.rows })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// Route to retrieve a single category by ID
+router.get('/:category_id', authorize, async (req, res) => {
+  const { category_id } = req.params
+
+  try {
+    // Retrieve the category by ID
+    const category = await pool.query('SELECT * FROM categories WHERE id = $1', [category_id])
+
+    // Check if the category is found
+    if (category.rows.length === 0) {
+      return res.status(404).json({ msg: 'Category not found' })
+    }
+
+    // If category is found, return it
+    res.json({ category: category.rows[0] })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')

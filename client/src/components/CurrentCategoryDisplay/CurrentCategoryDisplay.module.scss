@@ -1,0 +1,10 @@
+@import '@styles/mixins';
+
+.wrapper {
+  @include flex-center-column();
+}
+
+.name {
+  color: $silver-default;
+  font-size: 2.5rem;
+}

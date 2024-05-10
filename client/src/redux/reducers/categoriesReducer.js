@@ -23,7 +23,7 @@ const categoriesSlice = createSlice({
   initialState,
   reducers: {
     setCurrentCategory: (state, action) => {
-      state.category = action.payload
+      state.currentCategory = action.payload
     },
     setAllCategories: (state, action) => {
       state.allCategories = action.payload
