@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import { Link, Redirect } from 'react-router-dom'
 import { setAlert } from '../../redux/actions/alert.js'
 import { register, toggleGuestMode } from '../../redux/actions/authActions.js'
+import { showToast } from '@utils/toast.js'
 import PropTypes from 'prop-types'
 import './RegisterPage.scss'
 import '../LoginPage/LoginPage-RegisterPage.scss'
@@ -22,10 +23,18 @@ const Register = ({ setAlert, register, isAuthenticated, alert, guestMode, toggl
 
   const onSubmit = async (e) => {
     e.preventDefault()
-    if (password !== password2) {
-      setAlert('Passwords do not match', 'danger')
-    } else {
-      register({ name, email, password })
+    if (!name || !email || !password || !password2 )
+      showToast('all fields are required', 'warn')
+    else if (password !== password2) 
+      showToast('passwords do not match', 'warn')
+    else if (!/^[A-Za-z][A-Za-z0-9]*$/.test(name))
+      showToast('username must contain only letters and numbers', 'warn')
+    else if (!/^\S+@\S+\.\S+$/.test(email))
+      showToast('please enter a valid email', 'warn')
+    else {
+      console.log('register')
+      let res = await register({ name, email, password })
+      console.log(res)
     }
   }
 

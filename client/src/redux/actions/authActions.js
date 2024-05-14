@@ -34,14 +34,17 @@ export const register =
   async (dispatch) => {
     const body = JSON.stringify({ name, email, password })
     try {
+      console.log('in our try for register')
       const res = await axios.post('/api/auth/register', body, axiosConfig)
-
+      console.log(res)
       await dispatch({
         type: REGISTER_SUCCESS,
         payload: res.data,
       })
     } catch (err) {
+      console.log('in our catch')
       const errors = err.response.data.errors
+      console.log(errors)
 
       if (errors) {
         errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')))
