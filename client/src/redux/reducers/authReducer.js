@@ -11,6 +11,7 @@ import {
   TOGGLE_PROGRESS_AUDIO,
   TOGGLE_GUEST_MODE,
   TOGGLE_CUSTOM_PROMPTS_ENABLED,
+  RESET_AUTH_MESSAGES,
 } from '../actions/actionTypes'
 
 const initialState = {
@@ -19,6 +20,8 @@ const initialState = {
   loading: false,
   user: null,
   guestMode: false,
+  error: null,
+  message: null,
 }
 
 export default function (state = initialState, action) {
@@ -44,6 +47,13 @@ export default function (state = initialState, action) {
         guestMode: !state.guestMode,
       }
     case REGISTER_SUCCESS:
+      localStorage.setItem('token', payload.jwtToken)
+      return {
+        ...state,
+        isAuthenticated: true,
+        user: payload.userRes,
+        message: payload.message
+      }
     case LOGIN_SUCCESS:
       localStorage.setItem('token', payload.jwtToken)
       return {
@@ -53,6 +63,16 @@ export default function (state = initialState, action) {
         loading: true,
       }
     case REGISTER_FAIL:
+      return {
+        ...state,
+        error: payload.message
+      }
+    case RESET_AUTH_MESSAGES:
+      return {
+        ...state,
+        message: null,
+        error: null
+      }
     case AUTH_ERROR:
     case LOGIN_FAIL:
     case LOGOUT:

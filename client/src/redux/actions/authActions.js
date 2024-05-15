@@ -18,6 +18,7 @@ import {
   CUSTOM_PROMPT_ERROR,
   TOGGLE_CUSTOM_PROMPTS_ENABLED,
   TOGGLE_GUEST_MODE,
+  RESET_AUTH_MESSAGES,
 } from './actionTypes'
 
 import setAuthToken from '../../utils/setAuthToken'
@@ -29,25 +30,21 @@ const axiosConfig = {
 }
 
 // Register User
-export const register =
-  ({ name, email, password }) =>
+export const register = ({ name, email, password }) =>
   async (dispatch) => {
     const body = JSON.stringify({ name, email, password })
     try {
       const res = await axios.post('/api/auth/register', body, axiosConfig)
-
+      console.log(res)
       await dispatch({
         type: REGISTER_SUCCESS,
         payload: res.data,
       })
     } catch (err) {
-      const errors = err.response.data.errors
-
-      if (errors) {
-        errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')))
-      }
+      console.log(err.response)
       dispatch({
         type: REGISTER_FAIL,
+        payload: err.response.data
       })
     }
   }
@@ -65,12 +62,15 @@ export const login = (email, password) => async (dispatch) => {
     })
     return res.data
   } catch (err) {
+    console.log(err)
     dispatch({
       type: LOGIN_FAIL,
     })
     return err
   }
 }
+
+export const resetAuthMessages = async (dispatch) => dispatch({ type: RESET_AUTH_MESSAGES })
 
 // Load User
 export const loadUser = () => async (dispatch) => {

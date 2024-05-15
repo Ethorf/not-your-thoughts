@@ -10,16 +10,15 @@ const authorize = require('../middleware/authorize')
 // Register a new user
 
 router.post('/register', validInfo, async (req, res) => {
-  const { email, name, password } = req.body
-
   try {
-    // TODO this is broken!
+    console.log('in our auth js register')
+    const { email, name, password } = req.body
     // Check if user already exists
-    // const user = await pool.query('SELECT * FROM users WHERE email = $1', [email])
-    // if (user.rows.length > 0) {
-    //   return res.status(401).json('User already exists!')
-    // }
-
+    const user = await pool.query('SELECT * FROM users WHERE email = $1', [email])
+    if (user.rows.length > 0) {
+      console.log('caught same user!')
+      return res.status(400).json({ok: false, message: 'User already exists'})
+    }
     // Hash Password
     const salt = await bcrypt.genSalt(10)
     const bcryptPassword = await bcrypt.hash(password, salt)
@@ -47,10 +46,11 @@ router.post('/register', validInfo, async (req, res) => {
 
     // Return JWT token
     const jwtToken = jwtGenerator(userId)
-    return res.json({ jwtToken })
+    return res.json({ ok: true, message: 'Registration successful', jwtToken })
   } catch (err) {
+    console.log('in our register error catch')
     console.error(err.message)
-    res.status(500).send('Server error')
+    res.status(500).json({ok: false, message: 'Server error', err})
   }
 })
 
