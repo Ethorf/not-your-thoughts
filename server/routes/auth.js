@@ -17,7 +17,7 @@ router.post('/register', validInfo, async (req, res) => {
     const user = await pool.query('SELECT * FROM users WHERE email = $1', [email])
     if (user.rows.length > 0) {
       console.log('caught same user!')
-      return res.status(401).json('User already exists!')
+      return res.status(400).json({ok: false, message: 'User already exists'})
     }
     // Hash Password
     const salt = await bcrypt.genSalt(10)
@@ -46,11 +46,11 @@ router.post('/register', validInfo, async (req, res) => {
 
     // Return JWT token
     const jwtToken = jwtGenerator(userId)
-    return res.json({ jwtToken })
+    return res.json({ ok: true, message: 'Registration successful', jwtToken })
   } catch (err) {
     console.log('in our register error catch')
     console.error(err.message)
-    res.status(500).send('Server error')
+    res.status(500).json({ok: false, message: 'Server error', err})
   }
 })
 

@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { Link, Redirect } from 'react-router-dom'
 import { setAlert } from '../../redux/actions/alert.js'
-import { register, toggleGuestMode } from '../../redux/actions/authActions.js'
+import { register, resetAuthMessages, toggleGuestMode } from '../../redux/actions/authActions.js'
+import { useSelector, useDispatch } from 'react-redux'
 import { showToast } from '@utils/toast.js'
 import PropTypes from 'prop-types'
 import './RegisterPage.scss'
@@ -17,24 +18,43 @@ const Register = ({ setAlert, register, isAuthenticated, alert, guestMode, toggl
     password2: '',
   })
 
+  const dispatch = useDispatch()
+  const message = useSelector(state => state.auth.message)
+  const error = useSelector(state => state.auth.error)
+
   const { name, email, password, password2 } = formData
+
+  // listen for errors from our server and display them, then reset in
+  useEffect(()=>{
+    if (error) {
+      showToast(error, 'warn')
+      resetAuthMessages(dispatch)
+    }
+  }, [error])
+
+  // listen to messages from our server and display them, then reset it
+  useEffect(()=>{
+    if (message) {
+      showToast(message, 'success')
+      resetAuthMessages(dispatch)
+    }
+  }, [message])
 
   const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value })
 
   const onSubmit = async (e) => {
     e.preventDefault()
     if (!name || !email || !password || !password2 )
-      showToast('all fields are required', 'warn')
+      showToast('All fields are required', 'warn')
     else if (password !== password2) 
-      showToast('passwords do not match', 'warn')
+      showToast('Passwords do not match', 'warn')
     else if (!/^[A-Za-z][A-Za-z0-9]*$/.test(name))
-      showToast('username must contain only letters and numbers', 'warn')
+      showToast('Username must contain only letters and numbers', 'warn')
     else if (!/^\S+@\S+\.\S+$/.test(email))
-      showToast('please enter a valid email', 'warn')
+      showToast('Please enter a valid email', 'warn')
+    // passed validation
     else {
-      console.log('register')
-      let res = await register({ name, email, password })
-      console.log(res)
+      register({ name, email, password })
     }
   }
 
