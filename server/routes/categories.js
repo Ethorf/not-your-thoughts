@@ -95,7 +95,6 @@ router.put('/parent_category/:child_category_id', authorize, async (req, res) =>
   const { child_category_id } = req.params
   const { parent_category_id } = req.body
   try {
-    console.log('parent time hit')
     // Check if the parent category exists
     const parentCategoryQuery = await pool.query('SELECT id, child_categories FROM categories WHERE id = $1', [
       parent_category_id,
@@ -127,7 +126,39 @@ router.put('/parent_category/:child_category_id', authorize, async (req, res) =>
       child_category_id,
     ])
 
-    res.json({ msg: 'Parent category updated successfully' })
+    // Fetch all categories after updating
+    const allCategories = await pool.query('SELECT * FROM categories')
+    // TODO abstract out this repetetion
+    // Iterate through each category to populate parent_category and child_categories
+    for (let i = 0; i < allCategories.rows.length; i++) {
+      const category = allCategories.rows[i]
+      if (category.parent_category) {
+        // Retrieve the corresponding parent category from categories table
+        const parentCategory = await pool.query('SELECT * FROM categories WHERE id = $1', [category.parent_category])
+
+        // If parent category is found, populate parent_category in category object
+        if (parentCategory.rows.length > 0) {
+          category.parent_category = parentCategory.rows[0]
+        }
+      }
+
+      if (category.child_categories && category.child_categories.length > 0) {
+        // Retrieve the corresponding child categories from categories table
+        const childCategories = await pool.query('SELECT * FROM categories WHERE id = ANY($1)', [
+          category.child_categories,
+        ])
+
+        // If child categories are found, populate child_categories in category object
+        if (childCategories.rows.length > 0) {
+          category.child_categories = childCategories.rows
+        }
+      }
+    }
+
+    // If categories are found, return them
+    res.json({ categories: allCategories.rows })
+
+    res.json({ msg: 'Parent category updated successfully', categories: allCategories.rows })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -169,7 +200,40 @@ router.put('/child_categories/:parent_category_id', authorize, async (req, res) 
     // Commit the transaction if all queries succeed
     await pool.query('COMMIT')
 
-    res.json({ msg: 'Child category added successfully' })
+    // Fetch all categories after updating
+    const allCategories = await pool.query('SELECT * FROM categories')
+
+    // TODO abstract out this repetetion
+    // Iterate through each category to populate parent_category and child_categories
+    for (let i = 0; i < allCategories.rows.length; i++) {
+      const category = allCategories.rows[i]
+      if (category.parent_category) {
+        // Retrieve the corresponding parent category from categories table
+        const parentCategory = await pool.query('SELECT * FROM categories WHERE id = $1', [category.parent_category])
+
+        // If parent category is found, populate parent_category in category object
+        if (parentCategory.rows.length > 0) {
+          category.parent_category = parentCategory.rows[0]
+        }
+      }
+
+      if (category.child_categories && category.child_categories.length > 0) {
+        // Retrieve the corresponding child categories from categories table
+        const childCategories = await pool.query('SELECT * FROM categories WHERE id = ANY($1)', [
+          category.child_categories,
+        ])
+
+        // If child categories are found, populate child_categories in category object
+        if (childCategories.rows.length > 0) {
+          category.child_categories = childCategories.rows
+        }
+      }
+    }
+
+    // If categories are found, return them
+    res.json({ categories: allCategories.rows })
+
+    res.json({ msg: 'Child category added successfully', categories: allCategories.rows })
   } catch (err) {
     console.error(err.message)
     await pool.query('ROLLBACK') // Rollback transaction on error

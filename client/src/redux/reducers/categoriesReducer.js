@@ -7,6 +7,7 @@ const initialState = {
   category: '',
   allCategories: [],
   currentCategory: null,
+  loading: false,
 }
 
 export const fetchCategories = createAsyncThunk('categoriesReducer/fetchCategories', async (_, { rejectWithValue }) => {
@@ -18,21 +19,78 @@ export const fetchCategories = createAsyncThunk('categoriesReducer/fetchCategori
   }
 })
 
+export const updateParentCategory = createAsyncThunk(
+  'categoriesReducer/updateParentCategory',
+  async ({ childCategoryId, parentCategoryId }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(`api/categories/parent_category/${childCategoryId}`, {
+        parent_category_id: parentCategoryId,
+      })
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+export const updateChildCategories = createAsyncThunk(
+  'categoriesReducer/updateChildCategories',
+  async ({ parentCategoryId, childCategoryId }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(`api/categories/child_categories/${parentCategoryId}`, {
+        child_category_id: childCategoryId,
+      })
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+export const createCategory = createAsyncThunk(
+  'categoriesReducer/createCategory',
+  async (name, { rejectWithValue }) => {
+    try {
+      const response = await axios.post('api/categories/create_category', { name })
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
+
 const categoriesSlice = createSlice({
   name: 'categoriesReducer',
   initialState,
   reducers: {
     setCurrentCategory: (state, action) => {
-      state.currentCategory = action.payload
+      // if (action?.payload?.id) {
+      const categoryId = action?.payload?.id
+      const foundCategory = state.allCategories.find((category) => category.id === categoryId)
+      state.currentCategory = foundCategory || null
+      // } else {
+      //   state.currentCategory = null
+      // }
     },
     setAllCategories: (state, action) => {
       state.allCategories = action.payload
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchCategories.fulfilled, (state, action) => {
-      state.allCategories = action.payload
-    })
+    builder
+      .addCase(fetchCategories.pending, (state, action) => {
+        state.loading = true
+      })
+      .addCase(fetchCategories.fulfilled, (state, action) => {
+        state.allCategories = action.payload
+        state.loading = false
+      })
+      .addCase(updateChildCategories.fulfilled, (state, action) => {
+        state.allCategories = action.payload.categories
+      })
+      .addCase(updateParentCategory.fulfilled, (state, action) => {
+        state.allCategories = action.payload.categories
+      })
   },
 })
 

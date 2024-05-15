@@ -39,7 +39,7 @@ const CategoryInput = ({ className }) => {
         inputValue={initialCategoryValue}
         onChange={handleCategoryChange}
         options={options}
-        placeholder={'Category'}
+        placeholder="Category"
       />
     </div>
   )
