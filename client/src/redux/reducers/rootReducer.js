@@ -3,6 +3,7 @@ import authReducer from './authReducer'
 import wordCountReducer from './wordCountReducer'
 import modalsReducer from './modalsReducer'
 import modesReducer from './modesReducer'
+import connectionsReducer from './connectionsReducer'
 import currentEntryReducer from './currentEntryReducer'
 import categoriesReducer from './categoriesReducer'
 import nodeEntriesReducer from './nodeEntriesReducer'
@@ -18,6 +19,7 @@ export default combineReducers({
   modals: modalsReducer,
   modes: modesReducer,
   currentEntry: currentEntryReducer,
+  connections: connectionsReducer,
   categories: categoriesReducer,
   nodeEntries: nodeEntriesReducer,
   journalEntries: journalEntriesReducer,

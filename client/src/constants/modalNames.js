@@ -5,6 +5,6 @@ export const MODAL_NAMES = enumify([
   'success',
   'journal_content',
   'node_content',
-  'tags_input',
   'akas_input',
+  'connections',
 ])

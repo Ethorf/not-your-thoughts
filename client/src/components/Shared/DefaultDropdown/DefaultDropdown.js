@@ -14,11 +14,12 @@ const DefaultDropdown = ({ options, value, onChange, placeholder, tooltip }) => 
       <option value="" disabled hidden>
         {placeholder}
       </option>
-      {options.map((option) => (
-        <option key={option} value={option}>
-          {option}
-        </option>
-      ))}
+      {options &&
+        options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
     </select>
   )
 }

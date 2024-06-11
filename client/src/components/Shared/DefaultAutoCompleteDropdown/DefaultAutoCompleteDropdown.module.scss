@@ -1,0 +1,57 @@
+@import '@styles/variables';
+
+.wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.inputWrapper {
+  display: flex;
+  border: $silver-border-default;
+  border-radius: $default-border-radius;
+  background: black;
+  width: 100%;
+}
+
+.input {
+  width: 90%;
+  outline: none;
+  border: none;
+  background: black;
+  color: $silver-default;
+  padding-left: 8px;
+  font-size: 1.2rem;
+  font-family: 'Syncopate', sans-serif;
+  margin: 8px;
+
+  &:hover {
+    color: $silver-active;
+  }
+}
+
+.dropdownButton {
+  background: none;
+  color: $silver-default;
+  cursor: pointer;
+  transform: rotate(0);
+  font-size: 0.7rem;
+}
+
+.dropdownButtonOpen {
+  transform: rotate(180deg);
+}
+
+.dropdownList {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: black;
+  border: $silver-border-default;
+  z-index: 9999;
+}
+
+.option {
+  font-size: 0.6rem;
+}

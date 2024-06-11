@@ -9,7 +9,7 @@ const authorize = require('../middleware/authorize')
 
 router.post('/create_node_entry', authorize, async (req, res) => {
   const { id: user_id } = req.user
-  const { content, category, title, tags } = req.body
+  const { content, title } = req.body
   const type = 'node'
 
   try {
@@ -18,47 +18,10 @@ router.post('/create_node_entry', authorize, async (req, res) => {
       return res.status(400).json({ message: 'Content is required' })
     }
 
-    // Initialize variables to hold category ID and tag IDs
-    let category_id = null
-    let tag_ids = []
-
-    // Check if category is provided in request
-    if (category) {
-      // Check if category already exists
-      let existingCategory = await pool.query('SELECT id FROM categories WHERE name = $1', [category])
-
-      if (existingCategory.rows.length === 0) {
-        // If category doesn't exist, create a new one
-        let newCategory = await pool.query('INSERT INTO categories (name) VALUES ($1) RETURNING id', [category])
-        category_id = newCategory.rows[0].id
-      } else {
-        // If category exists, use its ID
-        category_id = existingCategory.rows[0].id
-      }
-    }
-
-    // Check if tags are provided
-    if (tags && tags.length > 0) {
-      for (const tag of tags) {
-        // Check if tag already exists
-        let existingTag = await pool.query('SELECT id FROM tags WHERE name = $1', [tag])
-        let tag_id = null
-        if (existingTag.rows.length === 0) {
-          // If tag doesn't exist, create a new one
-          let newTag = await pool.query('INSERT INTO tags (name) VALUES ($1) RETURNING id', [tag])
-          tag_id = newTag.rows[0].id
-        } else {
-          // If tag exists, use its ID
-          tag_id = existingTag.rows[0].id
-        }
-        tag_ids.push(tag_id)
-      }
-    }
-
     // Insert entry into entries table
     let newEntry = await pool.query(
-      'INSERT INTO entries (user_id, type, title, category_id, tags, content_ids) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-      [user_id, type, title, category_id || null, tag_ids.length > 0 ? tag_ids : null, []]
+      'INSERT INTO entries (user_id, type, title,  content_ids) VALUES ($1, $2, $3, $4) RETURNING id',
+      [user_id, type, title, []]
     )
 
     const entry_id = newEntry.rows[0].id
@@ -91,49 +54,12 @@ router.post('/create_node_entry', authorize, async (req, res) => {
 // Update a node entry
 router.post('/update_node_entry', authorize, async (req, res) => {
   const { id: user_id } = req.user
-  const { entryId, content, category, title, tags } = req.body
+  const { entryId, content, title } = req.body
 
   try {
     // Check if entryId, content, and user_id are provided
     if (!entryId || !content || !user_id) {
       return res.status(400).json({ message: 'entryId, content, and user_id are required' })
-    }
-
-    // Initialize variables to hold category ID and tag IDs
-    let category_id = null
-    let tag_ids = []
-
-    // Check if category is provided in request
-    if (category) {
-      // Check if category already exists
-      let existingCategory = await pool.query('SELECT id FROM categories WHERE name = $1', [category])
-
-      if (existingCategory.rows.length === 0) {
-        // If category doesn't exist, create a new one
-        let newCategory = await pool.query('INSERT INTO categories (name) VALUES ($1) RETURNING id', [category])
-        category_id = newCategory.rows[0].id
-      } else {
-        // If category exists, use its ID
-        category_id = existingCategory.rows[0].id
-      }
-    }
-
-    // Check if tags are provided
-    if (tags && tags.length > 0) {
-      for (const tag of tags) {
-        // Check if tag already exists
-        let existingTag = await pool.query('SELECT id FROM tags WHERE name = $1', [tag])
-        let tag_id = null
-        if (existingTag.rows.length === 0) {
-          // If tag doesn't exist, create a new one
-          let newTag = await pool.query('INSERT INTO tags (name) VALUES ($1) RETURNING id', [tag])
-          tag_id = newTag.rows[0].id
-        } else {
-          // If tag exists, use its ID
-          tag_id = existingTag.rows[0].id
-        }
-        tag_ids.push(tag_id)
-      }
     }
 
     // Get current content_ids from the entry
@@ -158,16 +84,12 @@ router.post('/update_node_entry', authorize, async (req, res) => {
 
     // Update entry in the entries table
     let updatedEntry = await pool.query(
-      'UPDATE entries SET content_ids = $1, title = COALESCE($2, title), category_id = COALESCE($3, category_id), tags = COALESCE($4, tags) WHERE id = $5 AND user_id = $6 RETURNING *',
-      [newContentIds, title, category_id, tag_ids, entryId, user_id]
+      'UPDATE entries SET content_ids = $1, title = COALESCE($2, title), RETURNING *',
+      [newContentIds, title, entryId, user_id]
     )
 
-    // Fetch the category name
-    let categoryData = await pool.query('SELECT name FROM categories WHERE id = $1', [category_id])
-    let category_name = categoryData.rows[0] ? categoryData.rows[0].name : null
-
     console.log('Node Entry updated successfully!')
-    return res.json({ updatedEntry: updatedEntry.rows[0], category_name })
+    return res.json({ updatedEntry: updatedEntry.rows[0] })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -307,12 +229,9 @@ router.get('/node_entries', authorize, async (req, res) => {
           FROM entry_contents 
           WHERE entry_id = entries.id 
           ORDER BY date_created DESC 
-          LIMIT 1) AS date_last_modified,
-        categories.name AS category_name
+          LIMIT 1) AS date_last_modified
       FROM 
         entries 
-      LEFT JOIN 
-        categories ON entries.category_id = categories.id 
       WHERE 
         user_id = $1 
         AND type = $2`,
@@ -393,18 +312,12 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
     const entry = await pool.query(
       `SELECT 
         entries.*, 
-        categories.name AS category_name, 
         ARRAY(
           SELECT content 
           FROM entry_contents 
           WHERE entry_id = $1 
           ORDER BY date_created DESC
         ) AS content,
-        ARRAY(
-          SELECT name 
-          FROM tags 
-          WHERE id = ANY(entries.tags)
-        ) AS tag_names,
         (SELECT date_created 
           FROM entry_contents 
           WHERE entry_id = $1 
@@ -417,11 +330,10 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
           LIMIT 1) AS date_last_updated
       FROM 
         entries 
-      LEFT JOIN 
-        categories ON entries.category_id = categories.id
       WHERE 
-        entries.id = $1`,
-      [entryId]
+        id = $1 
+        AND user_id = $2`,
+      [entryId, user_id]
     )
 
     // Check if the entry is found
@@ -430,51 +342,8 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
     }
 
     const entryData = entry.rows[0]
-    // Check if the user ID associated with the entry matches the user ID of the request
-    if (entryData.user_id !== user_id) {
-      return res.status(403).json({ msg: 'Unauthorized access to entry' })
-    }
-
     // If the entry is found and the user ID matches, return it
     res.json(entryData)
-  } catch (err) {
-    console.error(err.message)
-    res.status(500).send('Server error')
-  }
-})
-
-// Route to retrieve all categories
-router.get('/categories', authorize, async (req, res) => {
-  try {
-    // Retrieve all categories
-    const allCategories = await pool.query('SELECT * FROM categories')
-
-    // Check if there are any categories found
-    if (allCategories.rows.length === 0) {
-      return res.status(404).json({ msg: 'No categories found' })
-    }
-
-    // If categories are found, return them
-    res.json({ categories: allCategories.rows })
-  } catch (err) {
-    console.error(err.message)
-    res.status(500).send('Server error')
-  }
-})
-
-// Route to retrieve all tags
-router.get('/tags', authorize, async (req, res) => {
-  try {
-    // Retrieve all categories
-    const allTags = await pool.query('SELECT * FROM tags')
-
-    // Check if there are any categories found
-    if (allTags.rows.length === 0) {
-      return res.status(404).json({ msg: 'No tags found' })
-    }
-
-    // If categories are found, return them
-    res.json({ tags: allTags.rows })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')

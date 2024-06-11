@@ -13,8 +13,6 @@ import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import DefaultInput from '@components/Shared/DefaultInput/DefaultInput'
 import CustomPromptsSection from '@components/CustomPromptsSection/CustomPromptsSection.js'
-import CategoryInput from '@components/CategoryInput/CategoryInput'
-import TagsInput from '@components/TagsInput/TagsInput'
 
 // Constants
 import { ENTRY_TYPES } from '@constants/entryTypes'
@@ -25,7 +23,7 @@ import styles from './CreateNodeEntry.module.scss'
 const CreateNodeEntry = () => {
   const dispatch = useDispatch()
   const history = useHistory()
-  const { wordCount, content, title, category, tags, entriesLoading } = useSelector((state) => state.currentEntry)
+  const { wordCount, content, title, entriesLoading } = useSelector((state) => state.currentEntry)
 
   const handleTitleChange = (e) => {
     dispatch(setTitle(e.target.value))
@@ -33,7 +31,7 @@ const CreateNodeEntry = () => {
 
   const handleCreateNode = async (saveType) => {
     try {
-      const newNode = await dispatch(createNodeEntry({ content, category, title, tags, saveType }))
+      const newNode = await dispatch(createNodeEntry({ content, title, saveType }))
       const entryId = newNode?.payload?.id ?? null
 
       if (entryId) {
@@ -55,14 +53,12 @@ const CreateNodeEntry = () => {
         <h2>create node</h2>
         <CustomPromptsSection />
         <div className={classNames(styles.topContainer, styles.grid3Columns)}>
-          <CategoryInput className={styles.flexStart} />
           <DefaultInput
             className={classNames(styles.titleInput, styles.flexCenter, { [styles.titleInputNoBorder]: title.length })}
             placeholder={'Enter Title'}
             value={title}
             onChange={handleTitleChange}
           />
-          <TagsInput className={styles.flexEnd} />
         </div>
         <CreateEntry type={ENTRY_TYPES.NODE} />
         <div className={styles.grid3Columns}>

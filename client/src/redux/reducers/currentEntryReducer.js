@@ -14,11 +14,6 @@ const initialState = {
   timeElapsed: 0,
   wpm: 0,
   title: '',
-  category: '',
-  allCategories: [],
-  connections: [],
-  tags: [],
-  tagInput: '',
   akas: [],
   // TODO do we really need this? May be useful but not sure it is RN
   // HMMM maybe we integrate this with the autosave timer?
@@ -70,14 +65,12 @@ export const deleteAka = createAsyncThunk(
 
 export const createNodeEntry = createAsyncThunk(
   'currentEntryReducer/createNodeEntry',
-  async ({ user_id, content, category, title, tags }, { rejectWithValue, dispatch }) => {
+  async ({ user_id, content, title }, { rejectWithValue, dispatch }) => {
     try {
       const response = await axios.post('api/entries/create_node_entry', {
         user_id,
         content,
-        category,
         title,
-        tags,
       })
       dispatch(showToast('Node Created', 'success'))
       return response.data.newEntry.rows[0]
@@ -113,7 +106,7 @@ export const saveJournalEntry = createAsyncThunk(
 
 export const updateNodeEntry = createAsyncThunk(
   'currentEntryReducer/updateNodeEntry',
-  async ({ user_id, entryId, content, category, title, tags, saveType }, { getState, rejectWithValue, dispatch }) => {
+  async ({ user_id, entryId, content, title, saveType }, { getState, rejectWithValue, dispatch }) => {
     const { AUTO, MANUAL } = SAVE_TYPES
 
     try {
@@ -121,27 +114,23 @@ export const updateNodeEntry = createAsyncThunk(
       const fetchedEntry = fetchResponse.payload
       const currentState = getState().currentEntry
 
-      // Compare content, category, and tags with the fetched entry
+      // Compare content with the fetched entry
       const titleChanged = fetchedEntry.title !== currentState.title
       const contentChanged = fetchedEntry.content[0] !== currentState.content
-      const categoryChanged = fetchedEntry.category_name !== currentState.category
-      const tagsChanged = JSON.stringify(fetchedEntry.tag_names) !== JSON.stringify(tags)
 
-      // If no change in content, category, and tags, return the current state
-      if (!titleChanged && !contentChanged && !categoryChanged && !tagsChanged) {
+      // If no change in content, return the current state
+      if (!titleChanged && !contentChanged) {
         if (saveType === MANUAL) dispatch(showToast('Nothing to update', 'warn'))
 
-        console.log('No change to content, category, and tags. No update required.')
+        console.log('No change to content. No update required.')
         return currentState
       }
-      // Content, category, or tags have changed, proceed with update
+      // Content or title has changed, proceed with update
       const response = await axios.post('api/entries/update_node_entry', {
         user_id,
         entryId,
         content,
-        category,
         title,
-        tags,
       })
 
       if (saveType === AUTO) {
@@ -149,7 +138,7 @@ export const updateNodeEntry = createAsyncThunk(
       } else {
         dispatch(showToast('Node updated', 'success'))
       }
-      console.log('Updated with new content, category, or tags')
+      console.log('Updated with new content')
       return response.data
     } catch (error) {
       return rejectWithValue(error.response.data)
@@ -189,18 +178,9 @@ export const setEntryById = createAsyncThunk(
   async (queryParamEntryId, { rejectWithValue }) => {
     try {
       const response = await axios.get(`api/entries/entry/${queryParamEntryId}`)
-      const {
-        content,
-        category_name: category,
-        connections,
-        date,
-        id: entryId,
-        num_of_words: wordCount,
-        tag_names: tags,
-        title,
-      } = response.data
+      const { content, connections, date, id: entryId, num_of_words: wordCount, title } = response.data
 
-      return { content: content[0], category, connections, date, entryId, wordCount, tags, title }
+      return { content: content[0], connections, date, entryId, wordCount, title }
     } catch (error) {
       return rejectWithValue(error.response.data)
     }
@@ -211,15 +191,6 @@ export const fetchAkas = createAsyncThunk('akas/fetchAkas', async (entryId, { re
   try {
     const response = await axios.get(`api/akas/${entryId}/akas`)
     return response.data.akas
-  } catch (error) {
-    return rejectWithValue(error.response.data)
-  }
-})
-
-export const fetchTags = createAsyncThunk('currentEntryReducer/fetchTags', async (_, { rejectWithValue }) => {
-  try {
-    const response = await axios.get('api/entries/tags')
-    return response.data.tags
   } catch (error) {
     return rejectWithValue(error.response.data)
   }
@@ -249,15 +220,6 @@ const currentEntrySlice = createSlice({
     },
     setTimeElapsed(state, action) {
       state.timeElapsed = action.payload
-    },
-    setCategory: (state, action) => {
-      state.category = action.payload
-    },
-    setTags: (state, action) => {
-      state.tags.push(action.payload)
-    },
-    setTagInput: (state, action) => {
-      state.tagInput = action.payload
     },
     setConnections: (state, action) => {
       state.connections = action.payload
@@ -295,7 +257,6 @@ const currentEntrySlice = createSlice({
           ...state,
           entryId: action.payload.id,
           entriesLoading: false,
-          category: action.payload.category_name,
         }
       })
       .addCase(createNodeEntry.pending, (state) => {
@@ -315,7 +276,6 @@ const currentEntrySlice = createSlice({
         return {
           ...state,
           entriesLoading: false,
-          category: action.payload.category_name,
         }
       })
       .addCase(updateNodeEntry.pending, (state) => {
@@ -325,7 +285,6 @@ const currentEntrySlice = createSlice({
         return {
           ...state,
           entryId: action.payload.id,
-          tags: action.payload.tag_names,
         }
       })
       .addCase(setEntryById.fulfilled, (state, action) => {
@@ -349,10 +308,7 @@ export const {
   setTitle,
   setTitleAndResetAll,
   setTimeElapsed,
-  setCategory,
   setConnections,
-  setTags,
-  setTagInput,
   setTypeNode,
   setTypeJournal,
   setContent,

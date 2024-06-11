@@ -18,7 +18,7 @@ import { MODAL_NAMES } from '@constants/modalNames.js'
 
 import styles from './NodeEntry.module.scss'
 
-export const NodeEntry = ({ node: { id, date_last_modified, date_created, title, content, category_name } }) => {
+export const NodeEntry = ({ node: { id, date_last_modified, date_created, title, content } }) => {
   const [localLoading, setLocalLoading] = useState(false)
 
   const history = useHistory()
@@ -40,7 +40,6 @@ export const NodeEntry = ({ node: { id, date_last_modified, date_created, title,
       <div className={styles.nodeValue}>Title: {title}</div>
       <div className={styles.nodeValue}>Modified: {parseDate(date_last_modified)}</div>
       <div className={styles.nodeValue}>Created: {parseDate(date_created)}</div>
-      <div className={styles.nodeValue}>Category: {category_name ?? 'n/a'}</div>
       <div
         data-tooltip-id="main-tooltip"
         data-tooltip-content="expand"

@@ -1,20 +1,23 @@
 import React, { useEffect, useMemo } from 'react'
 import classNames from 'classnames'
-import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useHistory } from 'react-router-dom'
+
+// Redux
+import { useDispatch, useSelector } from 'react-redux'
 import { setTitle, updateNodeEntry, setEntryById, resetCurrentEntryState } from '@redux/reducers/currentEntryReducer'
+import { openModal } from '@redux/reducers/modalsReducer.js'
 
 // Constants
 import { SAVE_TYPES } from '@constants/saveTypes'
+import { MODAL_NAMES } from '@constants/modalNames.js'
 
 // Components
 import CreateEntry from '@components/Shared/CreateEntry/CreateEntry'
 import AkasDisplay from '@components/Shared/AkasDisplay/AkasDisplay'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
+import TextButton from '@components/Shared/TextButton/TextButton'
 import DefaultInput from '@components/Shared/DefaultInput/DefaultInput'
 import AutosaveTimer from '@components/Shared/AutosaveTimer/AutosaveTimer'
-import CategoryInput from '@components/CategoryInput/CategoryInput'
-import TagsInput from '@components/TagsInput/TagsInput'
 import Spinner from '@components/Shared/Spinner/Spinner'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 
@@ -24,9 +27,7 @@ const EditNodeEntry = () => {
   const dispatch = useDispatch()
   const location = useLocation()
   const history = useHistory()
-  const { wordCount, entryId, content, title, category, tags, entriesLoading } = useSelector(
-    (state) => state.currentEntry
-  )
+  const { wordCount, entryId, content, title, entriesLoading } = useSelector((state) => state.currentEntry)
 
   const params = useMemo(() => new URLSearchParams(location.search), [location.search])
 
@@ -42,7 +43,7 @@ const EditNodeEntry = () => {
   }
 
   const handleSaveNode = (saveType) => {
-    dispatch(updateNodeEntry({ entryId, content, category, title, tags, saveType }))
+    dispatch(updateNodeEntry({ entryId, content, title, saveType }))
   }
 
   const handleNewNode = () => {
@@ -50,6 +51,9 @@ const EditNodeEntry = () => {
     history.push('/create-node-entry')
   }
 
+  const handleOpenConnectionsModal = () => {
+    dispatch(openModal(MODAL_NAMES.CONNECTIONS))
+  }
   return (
     <div className={styles.wrapper}>
       <AutosaveTimer handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
@@ -58,7 +62,7 @@ const EditNodeEntry = () => {
         <div className={classNames(styles.topContainer, styles.grid4ColumnsCustom)}>
           {content ? (
             <>
-              <CategoryInput className={styles.flexStart} />
+              <TextButton onClick={handleOpenConnectionsModal}>Connections</TextButton>
               <DefaultInput
                 className={classNames(styles.titleInput, styles.flexCenter, {
                   [styles.titleInputNoBorder]: title.length,
@@ -68,7 +72,6 @@ const EditNodeEntry = () => {
                 onChange={handleTitleChange}
               />
               <AkasDisplay />
-              <TagsInput className={styles.flexEnd} />
             </>
           ) : (
             <Spinner />
