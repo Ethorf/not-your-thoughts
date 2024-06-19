@@ -13,23 +13,25 @@ router.post('/create_connection', authorize, async (req, res) => {
 
     // Check if a connection already exists with the same primary_entry_id and foreign_entry_id
     const existingConnectionQuery = `
-          SELECT id FROM connections 
-          WHERE primary_entry_id = $1 AND foreign_entry_id = $2
-        `
+            SELECT id FROM connections 
+            WHERE (primary_entry_id = $1 AND foreign_entry_id = $2)
+               OR (primary_entry_id = $2 AND foreign_entry_id = $1)
+          `
     const existingConnection = await pool.query(existingConnectionQuery, [primary_entry_id, foreign_entry_id])
 
     if (existingConnection.rows.length > 0) {
       // Rollback the transaction
       await pool.query('ROLLBACK')
+      console.log('Connection already exists')
       return res.status(400).json({ msg: 'Connection already exists' })
     }
 
     // Insert the new connection
     const newConnectionQuery = `
-          INSERT INTO connections (type, primary_entry_id, foreign_entry_id, source)
-          VALUES ($1, $2, $3, $4)
-          RETURNING id
-        `
+            INSERT INTO connections (type, primary_entry_id, foreign_entry_id, source)
+            VALUES ($1, $2, $3, $4)
+            RETURNING id
+          `
     const newConnection = await pool.query(newConnectionQuery, [type, primary_entry_id, foreign_entry_id, source])
     const newConnectionId = newConnection.rows[0].id
 
@@ -47,7 +49,16 @@ router.post('/create_connection', authorize, async (req, res) => {
     // Commit the transaction
     await pool.query('COMMIT')
 
-    res.json({ msg: 'Connection created successfully', connectionId: newConnectionId })
+    // Retrieve all connections for the primary_entry_id including titles of foreign entries
+    const connectionsQuery = `
+          SELECT connections.*, entries.title as foreign_entry_title
+          FROM connections
+          JOIN entries ON connections.foreign_entry_id = entries.id
+          WHERE connections.primary_entry_id = $1
+        `
+    const connections = await pool.query(connectionsQuery, [primary_entry_id])
+
+    res.json({ msg: 'Connection created successfully', connectionId: newConnectionId, connections: connections.rows })
   } catch (err) {
     // Rollback the transaction in case of error
     await pool.query('ROLLBACK')
@@ -106,7 +117,6 @@ router.delete('/delete_connection/:connectionId', authorize, async (req, res) =>
     res.status(500).send('Server error')
   }
 })
-
 // Route to retrieve all connections based on entry_id
 router.get('/:entry_id', authorize, async (req, res) => {
   const { entry_id } = req.params
@@ -114,9 +124,17 @@ router.get('/:entry_id', authorize, async (req, res) => {
   try {
     // Retrieve all connections where the given entry_id is either primary_entry_id or foreign_entry_id
     const connectionsQuery = `
-        SELECT * FROM connections
-        WHERE primary_entry_id = $1 OR foreign_entry_id = $1
-      `
+          SELECT 
+            connections.*, 
+            CASE 
+              WHEN connections.primary_entry_id = $1 THEN foreign_entries.title 
+              ELSE primary_entries.title 
+            END as foreign_entry_title
+          FROM connections
+          LEFT JOIN entries as foreign_entries ON connections.foreign_entry_id = foreign_entries.id
+          LEFT JOIN entries as primary_entries ON connections.primary_entry_id = primary_entries.id
+          WHERE primary_entry_id = $1 OR foreign_entry_id = $1
+        `
     const connections = await pool.query(connectionsQuery, [entry_id])
 
     // Check if any connections are found
@@ -124,14 +142,13 @@ router.get('/:entry_id', authorize, async (req, res) => {
       return res.status(404).json({ msg: 'No connections found for this entry' })
     }
 
-    // Return the connections
+    // Return the connections along with the title from the corresponding foreign_entry_id
     res.json({ connections: connections.rows })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
   }
 })
-
 // TODO lower-pri
 // Update connection source
 

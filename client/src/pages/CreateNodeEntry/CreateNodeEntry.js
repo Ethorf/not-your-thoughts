@@ -45,7 +45,8 @@ const CreateNodeEntry = () => {
       console.error('Error creating node entry:', error)
     }
   }
-
+  console.log('title.length is:')
+  console.log(title?.length)
   return (
     <div className={styles.wrapper}>
       <AutosaveTimer handleAutosave={() => handleCreateNode(SAVE_TYPES.AUTO)} />
@@ -54,7 +55,7 @@ const CreateNodeEntry = () => {
         <CustomPromptsSection />
         <div className={classNames(styles.topContainer, styles.grid3Columns)}>
           <DefaultInput
-            className={classNames(styles.titleInput, styles.flexCenter, { [styles.titleInputNoBorder]: title.length })}
+            className={classNames(styles.titleInput, styles.flexCenter, { [styles.titleInputNoBorder]: title?.length })}
             placeholder={'Enter Title'}
             value={title}
             onChange={handleTitleChange}
@@ -63,13 +64,13 @@ const CreateNodeEntry = () => {
         <CreateEntry type={ENTRY_TYPES.NODE} />
         <div className={styles.grid3Columns}>
           <span className={styles.flexStart}>Words: {wordCount}</span>
-          <span className={styles.flexCenter}></span>
+          <span className={styles.flexCenter} />
           <span className={styles.flexEnd}>
             {entriesLoading ? (
               <SmallSpinner />
             ) : (
               <DefaultButton
-                disabled={!content.length}
+                disabled={!content?.length && !title?.length}
                 onClick={() => handleCreateNode(SAVE_TYPES.MANUAL)}
                 className={styles.saveButton}
               >

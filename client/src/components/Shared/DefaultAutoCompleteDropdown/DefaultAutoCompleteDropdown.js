@@ -4,24 +4,30 @@ import TextButton from '@components/Shared/TextButton/TextButton.js'
 
 import styles from './DefaultAutoCompleteDropdown.module.scss'
 
-const DefaultAutoCompleteDropdown = ({ inputValue, options, className, placeholder, onChange }) => {
+const DefaultAutoCompleteDropdown = ({ options, className, placeholder, onChange }) => {
+  const [inputValue, setInputValue] = useState('')
   const [filteredOptions, setFilteredOptions] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
   const inputRef = useRef(null)
 
   const handleInputChange = (event) => {
     const value = event.target.value
+
+    setInputValue(value)
     filterOptions(value)
-    onChange && onChange(event.target.value)
+    onChange && onChange(value)
     setShowDropdown(value !== '')
   }
 
   const filterOptions = (value) => {
-    const filtered = options.filter((option) => option.toLowerCase().includes(value.toLowerCase()))
+    const filtered = options.filter((option) => option?.toLowerCase().includes(value?.toLowerCase()))
     setFilteredOptions(filtered)
   }
 
   const handleOptionSelect = (value) => {
+    console.log('value is:')
+    console.log(value)
+    setInputValue(value)
     onChange && onChange(value)
     setFilteredOptions([])
     setShowDropdown(false)

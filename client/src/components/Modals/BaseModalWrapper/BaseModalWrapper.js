@@ -6,7 +6,7 @@ import { closeModal } from '../../../redux/reducers/modalsReducer.js'
 
 import styles from './BaseModalWrapper.module.scss'
 
-export const BaseModalWrapper = ({ children, modalName }) => {
+export const BaseModalWrapper = ({ children, className, modalName }) => {
   const dispatch = useDispatch()
   const { isOpen, activeModal } = useSelector((state) => state.modals)
 
@@ -17,7 +17,7 @@ export const BaseModalWrapper = ({ children, modalName }) => {
   return (
     <Modal
       classNames={{
-        modal: styles.wrapper,
+        modal: [className, styles.wrapper],
         overlay: styles.overlay,
         closeButton: styles.closeButton,
       }}

@@ -36,6 +36,8 @@ export const createHorizontalConnection = createAsyncThunk(
         foreign_entry_id,
         source,
       })
+      console.log('<<<<<< response >>>>>>>>> is: <<<<<<<<<<<<')
+      console.log(response)
       return response.data
     } catch (error) {
       return rejectWithValue(error.response.data)
@@ -92,6 +94,17 @@ const connectionsSlice = createSlice({
         state.loading = false
         state.error = action.payload
       })
+      .addCase(createHorizontalConnection.fulfilled, (state, action) => {
+        return {
+          ...state,
+          connections: action.payload.connections,
+          loading: false,
+        }
+      })
+      .addCase(createHorizontalConnection.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload
+      })
       .addCase(deleteConnection.pending, (state) => {
         state.loading = true
       })
@@ -107,8 +120,11 @@ const connectionsSlice = createSlice({
         state.loading = true
       })
       .addCase(fetchConnections.fulfilled, (state, action) => {
-        state.loading = false
-        state.connections = action.payload
+        return {
+          ...state,
+          connections: action.payload,
+          loading: false,
+        }
       })
       .addCase(fetchConnections.rejected, (state, action) => {
         state.loading = false

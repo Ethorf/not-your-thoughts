@@ -197,7 +197,7 @@ export const fetchAkas = createAsyncThunk('akas/fetchAkas', async (entryId, { re
 })
 
 const currentEntrySlice = createSlice({
-  name: 'currentEntryReducer', // Name of your reducer slice
+  name: 'currentEntryReducer',
   initialState,
   reducers: {
     setAkas: (state, action) => {
@@ -232,9 +232,6 @@ const currentEntrySlice = createSlice({
     },
     setContent: (state, action) => {
       state.content = action.payload
-    },
-    setVersion: (state, action) => {
-      state.currentVersion = action.payload
     },
     setWPM(state, action) {
       state.wpm = action.payload
@@ -312,7 +309,6 @@ export const {
   setTypeNode,
   setTypeJournal,
   setContent,
-  setVersion,
   setWPM,
 } = currentEntrySlice.actions
 

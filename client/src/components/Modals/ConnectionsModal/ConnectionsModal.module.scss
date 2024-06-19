@@ -1,2 +1,9 @@
+@import '@styles/mixins.scss';
+
+.overflowVisible {
+  overflow: visible;
+}
+
 .wrapper {
+  // @include flex-center-column();
 }

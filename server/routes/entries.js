@@ -6,35 +6,44 @@ const authorize = require('../middleware/authorize')
 
 // post /entries/add_node_entry
 // Add a new node entry
-
 router.post('/create_node_entry', authorize, async (req, res) => {
   const { id: user_id } = req.user
   const { content, title } = req.body
   const type = 'node'
 
   try {
-    // Check if content is provided
-    if (!content) {
-      return res.status(400).json({ message: 'Content is required' })
+    if (!content && !title) {
+      return res.status(400).json({ message: 'Either content or title is required' })
+    }
+
+    // Check if the title already exists
+    if (title) {
+      const existingEntry = await pool.query('SELECT id FROM entries WHERE title = $1', [title])
+      if (existingEntry.rows.length > 0) {
+        return res.status(400).json({ message: 'Title already exists' })
+      }
     }
 
     // Insert entry into entries table
     let newEntry = await pool.query(
-      'INSERT INTO entries (user_id, type, title,  content_ids) VALUES ($1, $2, $3, $4) RETURNING id',
+      'INSERT INTO entries (user_id, type, title, content_ids) VALUES ($1, $2, $3, $4) RETURNING id',
       [user_id, type, title, []]
     )
 
     const entry_id = newEntry.rows[0].id
 
-    // Insert entry content into entry_contents table
-    let newContent = await pool.query('INSERT INTO entry_contents (content, entry_id) VALUES ($1, $2) RETURNING id', [
-      content,
-      entry_id,
-    ])
-    const content_id = newContent.rows[0].id
+    // If content is present, insert it into the entry_contents table
+    let content_id = null
+    if (content) {
+      let newContent = await pool.query('INSERT INTO entry_contents (content, entry_id) VALUES ($1, $2) RETURNING id', [
+        content,
+        entry_id,
+      ])
+      content_id = newContent.rows[0].id
 
-    // Update the entries table with the content_ids array
-    await pool.query('UPDATE entries SET content_ids = $1 WHERE id = $2', [[content_id], entry_id])
+      // Update the entries table with the content_ids array
+      await pool.query('UPDATE entries SET content_ids = $1 WHERE id = $2', [[content_id], entry_id])
+    }
 
     // Set the title to "Untitled" if not provided in the request
     const finalTitle = title || `Untitled #${entry_id}`
@@ -84,7 +93,7 @@ router.post('/update_node_entry', authorize, async (req, res) => {
 
     // Update entry in the entries table
     let updatedEntry = await pool.query(
-      'UPDATE entries SET content_ids = $1, title = COALESCE($2, title), RETURNING *',
+      'UPDATE entries SET content_ids = $1, title = COALESCE($2, title) WHERE id = $3 AND user_id = $4 RETURNING *',
       [newContentIds, title, entryId, user_id]
     )
 

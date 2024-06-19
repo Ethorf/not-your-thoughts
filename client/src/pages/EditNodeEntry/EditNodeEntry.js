@@ -60,7 +60,7 @@ const EditNodeEntry = () => {
       <div className={styles.editContainer}>
         <h2>Edit Node</h2>
         <div className={classNames(styles.topContainer, styles.grid4ColumnsCustom)}>
-          {content ? (
+          {content || title ? (
             <>
               <TextButton onClick={handleOpenConnectionsModal}>Connections</TextButton>
               <DefaultInput
@@ -89,11 +89,7 @@ const EditNodeEntry = () => {
             {entriesLoading ? (
               <SmallSpinner />
             ) : (
-              <DefaultButton
-                disabled={!content.length}
-                onClick={() => handleSaveNode(SAVE_TYPES.MANUAL)}
-                className={styles.saveButton}
-              >
+              <DefaultButton onClick={() => handleSaveNode(SAVE_TYPES.MANUAL)} className={styles.saveButton}>
                 Save Node
               </DefaultButton>
             )}

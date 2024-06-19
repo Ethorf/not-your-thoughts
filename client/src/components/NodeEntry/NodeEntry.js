@@ -53,12 +53,18 @@ export const NodeEntry = ({ node: { id, date_last_modified, date_created, title,
           </>
         ) : (
           <>
-            <span>
-              Content:
-              <span />
-            </span>
-            <div dangerouslySetInnerHTML={{ __html: content[0].slice(0, 8) }} />
-            <span>...</span>
+            {content.length ? (
+              <>
+                <span>
+                  Content:
+                  <span />
+                </span>
+                <div dangerouslySetInnerHTML={{ __html: content[0].slice(0, 8) }} />
+                <span>...</span>
+              </>
+            ) : (
+              'no content yet'
+            )}
           </>
         )}
       </div>

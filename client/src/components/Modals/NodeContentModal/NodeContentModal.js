@@ -18,7 +18,6 @@ export const NodeContentModal = () => {
   const dispatch = useDispatch()
 
   const { wordCount, content, entryId, wpm, timeElapsed } = useSelector((state) => state.currentEntry)
-  //   const { journalConfig } = useSelector((state) => state.journalEntries)
 
   return (
     <BaseModalWrapper modalName={MODAL_NAMES.NODE_CONTENT}>

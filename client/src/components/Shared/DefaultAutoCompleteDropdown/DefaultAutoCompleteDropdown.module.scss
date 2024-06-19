@@ -44,14 +44,19 @@
 
 .dropdownList {
   position: absolute;
+  display: flex;
+  flex-direction: column;
   top: 100%;
-  left: 0;
+  left: 10%;
   right: 0;
   background-color: black;
   border: $silver-border-default;
-  z-index: 9999;
+  width: fit-content;
+  padding: 12px;
+  max-height: 40vh;
+  overflow-y: scroll;
 }
 
 .option {
-  font-size: 0.6rem;
+  font-size: 0.8rem;
 }
