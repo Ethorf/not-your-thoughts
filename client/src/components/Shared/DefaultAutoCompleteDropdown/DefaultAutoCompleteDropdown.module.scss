@@ -4,6 +4,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  background: black;
 }
 
 .inputWrapper {
@@ -52,11 +53,19 @@
   background-color: black;
   border: $silver-border-default;
   width: fit-content;
-  padding: 12px;
+  padding: 12px 4px;
   max-height: 40vh;
   overflow-y: scroll;
 }
 
 .option {
-  font-size: 0.8rem;
+  font-size: 1rem;
+}
+
+.highlightedOption {
+  border: 1px solid white;
+  padding: 8px;
+  border-radius: $default-border-radius;
+  background-color: white;
+  color: black;
 }

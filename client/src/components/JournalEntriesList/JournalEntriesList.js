@@ -5,10 +5,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchJournalEntries } from '../../redux/reducers/journalEntriesReducer'
 
 // Components
-import SmallSpinner from '../Shared/SmallSpinner/SmallSpinner'
+import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import { JournalEntry } from '../JournalEntry/JournalEntry'
 import { EntriesSortDropdown } from '../Shared/EntriesSortDropdown/EntriesSortDropdown'
-import { EntriesSearchBar } from '../Shared/EntriesSearchBar/EntriesSearchBar'
 
 import styles from './JournalEntriesList.module.scss'
 

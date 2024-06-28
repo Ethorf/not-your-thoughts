@@ -45,8 +45,7 @@ const CreateNodeEntry = () => {
       console.error('Error creating node entry:', error)
     }
   }
-  console.log('title.length is:')
-  console.log(title?.length)
+
   return (
     <div className={styles.wrapper}>
       <AutosaveTimer handleAutosave={() => handleCreateNode(SAVE_TYPES.AUTO)} />

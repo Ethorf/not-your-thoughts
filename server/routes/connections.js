@@ -5,18 +5,23 @@ const authorize = require('../middleware/authorize')
 
 // Route to create a connection
 router.post('/create_connection', authorize, async (req, res) => {
-  const { type, primary_entry_id, foreign_entry_id, source } = req.body
+  const { connection_type, primary_entry_id, foreign_entry_id, primary_source, foreign_source, source_type } = req.body
 
   try {
+    // Check if source_type is provided when primary_source is present
+    if (primary_source && !source_type) {
+      return res.status(400).json({ msg: 'source_type is required when primary_source is present' })
+    }
+
     // Start a transaction
     await pool.query('BEGIN')
 
     // Check if a connection already exists with the same primary_entry_id and foreign_entry_id
     const existingConnectionQuery = `
-            SELECT id FROM connections 
-            WHERE (primary_entry_id = $1 AND foreign_entry_id = $2)
-               OR (primary_entry_id = $2 AND foreign_entry_id = $1)
-          `
+      SELECT id FROM connections 
+      WHERE (primary_entry_id = $1 AND foreign_entry_id = $2)
+         OR (primary_entry_id = $2 AND foreign_entry_id = $1)
+    `
     const existingConnection = await pool.query(existingConnectionQuery, [primary_entry_id, foreign_entry_id])
 
     if (existingConnection.rows.length > 0) {
@@ -28,11 +33,18 @@ router.post('/create_connection', authorize, async (req, res) => {
 
     // Insert the new connection
     const newConnectionQuery = `
-            INSERT INTO connections (type, primary_entry_id, foreign_entry_id, source)
-            VALUES ($1, $2, $3, $4)
-            RETURNING id
-          `
-    const newConnection = await pool.query(newConnectionQuery, [type, primary_entry_id, foreign_entry_id, source])
+      INSERT INTO connections (connection_type, primary_entry_id, foreign_entry_id, primary_source, foreign_source, source_type)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id
+    `
+    const newConnection = await pool.query(newConnectionQuery, [
+      connection_type,
+      primary_entry_id,
+      foreign_entry_id,
+      primary_source,
+      foreign_source,
+      source_type,
+    ])
     const newConnectionId = newConnection.rows[0].id
 
     const updateEntriesConnections = async (entryId) => {
@@ -51,11 +63,16 @@ router.post('/create_connection', authorize, async (req, res) => {
 
     // Retrieve all connections for the primary_entry_id including titles of foreign entries
     const connectionsQuery = `
-          SELECT connections.*, entries.title as foreign_entry_title
-          FROM connections
-          JOIN entries ON connections.foreign_entry_id = entries.id
-          WHERE connections.primary_entry_id = $1
-        `
+      SELECT connections.*, entries.title as foreign_entry_title
+      FROM connections
+      JOIN entries ON connections.foreign_entry_id = entries.id
+      WHERE connections.primary_entry_id = $1
+      UNION
+      SELECT connections.*, entries.title as foreign_entry_title
+      FROM connections
+      JOIN entries ON connections.primary_entry_id = entries.id
+      WHERE connections.foreign_entry_id = $1
+    `
     const connections = await pool.query(connectionsQuery, [primary_entry_id])
 
     res.json({ msg: 'Connection created successfully', connectionId: newConnectionId, connections: connections.rows })
@@ -149,7 +166,8 @@ router.get('/:entry_id', authorize, async (req, res) => {
     res.status(500).send('Server error')
   }
 })
+
 // TODO lower-pri
-// Update connection source
+// Update connection source as a separate  groggleway?
 
 module.exports = router

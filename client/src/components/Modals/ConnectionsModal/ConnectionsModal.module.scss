@@ -5,5 +5,70 @@
 }
 
 .wrapper {
-  // @include flex-center-column();
+  min-width: 47vw;
+  min-height: 90vh;
+  // :global {
+  //   .highlight {
+  //     background-color: yellow; /* or any other color you prefer */
+  //   }
+  // }
+}
+
+.connectionDisplay {
+  display: grid;
+  grid-template-columns: 15% 20% 15% 20% 20%;
+  align-items: center;
+}
+
+.sourceSelectionContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.createContainer {
+  width: 80%;
+  display: grid;
+  grid-template-columns: 65% 10% 20%;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.createDropdown {
+  height: 32px;
+  margin-left: 12px;
+}
+.flexContainer {
+  display: flex;
+  align-items: center;
+}
+.connectionLabel {
+  font-family: 'Syncopate', sans-serif;
+}
+
+.connectionText {
+  font-family: 'Syncopate', sans-serif;
+  color: white;
+}
+
+.entrySource {
+  padding: 0 12px;
+  width: 90%;
+  max-height: 25vh;
+  font-size: 0.8rem;
+  overflow: auto;
+  border: $silver-border-default;
+  border-radius: $default-border-radius;
+}
+
+.entrySourceHeader {
+  margin: 0;
+}
+.entrySourceContainer {
+  width: 90%;
+}
+
+.getSourceButton {
+  margin-left: 0;
+  padding-left: 0;
+  font-size: 1rem;
 }

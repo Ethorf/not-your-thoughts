@@ -1,43 +1,35 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
-import { CONNECTION_TYPES } from '@constants/connectionTypes'
+
+import { showToast } from '@utils/toast'
+
 const initialState = {
   connections: [],
-  loading: false,
+  connectionsLoading: false,
+  connectionTitleInput: '',
   error: null,
+  selectedPrimarySourceText: '',
+  selectedForeignSourceText: '',
 }
 
 // Async thunk to create a connection
 export const createConnection = createAsyncThunk(
   'connections/create_connection',
-  async ({ type, primary_entry_id, foreign_entry_id, source }, { rejectWithValue }) => {
+  async (
+    { connection_type, primary_entry_id, foreign_entry_id, primary_source, foreign_source, source_type },
+    { rejectWithValue, dispatch }
+  ) => {
     try {
       const response = await axios.post('api/connections/create_connection', {
-        type,
+        connection_type,
         primary_entry_id,
         foreign_entry_id,
-        source,
+        primary_source,
+        foreign_source,
+        source_type,
       })
-      return response.data
-    } catch (error) {
-      return rejectWithValue(error.response.data)
-    }
-  }
-)
 
-// Async thunk to create a connection
-export const createHorizontalConnection = createAsyncThunk(
-  'connectionsReducer/createHorizontalConnection',
-  async ({ primary_entry_id, foreign_entry_id, source }, { rejectWithValue }) => {
-    try {
-      const response = await axios.post('api/connections/create_connection', {
-        type: CONNECTION_TYPES.HORIZONTAL,
-        primary_entry_id,
-        foreign_entry_id,
-        source,
-      })
-      console.log('<<<<<< response >>>>>>>>> is: <<<<<<<<<<<<')
-      console.log(response)
+      dispatch(showToast('Connection created!', 'success'))
       return response.data
     } catch (error) {
       return rejectWithValue(error.response.data)
@@ -77,39 +69,46 @@ const connectionsSlice = createSlice({
   reducers: {
     resetConnections: (state) => {
       state.connections = []
-      state.loading = false
+      state.connectionsLoading = false
       state.error = null
+    },
+    setSelectedPrimarySourceText: (state, action) => {
+      console.log(action.payload)
+      state.selectedPrimarySourceText = action.payload
+    },
+    setSelectedForeignSourceText: (state, action) => {
+      console.log(action.payload)
+      state.selectedForeignSourceText = action.payload
+    },
+    setConnectionTitleInput: (state, action) => {
+      console.log(action.payload)
+      state.connectionTitleInput = action.payload
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(createConnection.pending, (state) => {
-        state.loading = true
+        state.connectionsLoading = true
       })
       .addCase(createConnection.fulfilled, (state, action) => {
-        state.loading = false
-        state.connections.push(action.payload)
-      })
-      .addCase(createConnection.rejected, (state, action) => {
-        state.loading = false
-        state.error = action.payload
-      })
-      .addCase(createHorizontalConnection.fulfilled, (state, action) => {
         return {
           ...state,
           connections: action.payload.connections,
-          loading: false,
+          connectionsLoading: false,
         }
       })
-      .addCase(createHorizontalConnection.rejected, (state, action) => {
-        state.loading = false
-        state.error = action.payload
+      .addCase(createConnection.rejected, (state, action) => {
+        return {
+          ...state,
+          connections: action.payload.connections,
+          connectionsLoading: false,
+        }
       })
       .addCase(deleteConnection.pending, (state) => {
-        state.loading = true
+        state.connectionsLoading = true
       })
       .addCase(deleteConnection.fulfilled, (state, action) => {
-        state.loading = false
+        state.connectionsLoading = false
         state.connections = state.connections.filter((connection) => connection.id !== action.payload.connectionId)
       })
       .addCase(deleteConnection.rejected, (state, action) => {
@@ -133,6 +132,7 @@ const connectionsSlice = createSlice({
   },
 })
 
-export const { resetConnections } = connectionsSlice.actions
+export const { resetConnections, setSelectedPrimarySourceText, setSelectedForeignSourceText, setConnectionTitleInput } =
+  connectionsSlice.actions
 
 export default connectionsSlice.reducer

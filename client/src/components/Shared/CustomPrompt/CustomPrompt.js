@@ -12,7 +12,7 @@ import { closeModal } from '@redux/reducers/modalsReducer.js'
 
 // Components
 import TextButton from '../TextButton/TextButton'
-import DefaultDropdown from '../DefaultDropdown/DefaultDropdown'
+import DefaultDropdown from '@components/Shared/DefaultDropdown/DefaultDropdown'
 import { FavStarIcon } from '../FavStarIcon/FavStarIcon'
 
 import styles from './CustomPrompt.module.scss'

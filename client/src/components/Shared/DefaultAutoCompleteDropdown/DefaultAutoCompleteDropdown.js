@@ -4,10 +4,10 @@ import TextButton from '@components/Shared/TextButton/TextButton.js'
 
 import styles from './DefaultAutoCompleteDropdown.module.scss'
 
-const DefaultAutoCompleteDropdown = ({ options, className, placeholder, onChange }) => {
-  const [inputValue, setInputValue] = useState('')
+const DefaultAutoCompleteDropdown = ({ inputValue, setInputValue, options, className, placeholder, onChange }) => {
   const [filteredOptions, setFilteredOptions] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
+  const [highlightedIndex, setHighlightedIndex] = useState(0)
   const inputRef = useRef(null)
 
   const handleInputChange = (event) => {
@@ -17,6 +17,7 @@ const DefaultAutoCompleteDropdown = ({ options, className, placeholder, onChange
     filterOptions(value)
     onChange && onChange(value)
     setShowDropdown(value !== '')
+    setHighlightedIndex(0) // Reset highlight to the first option
   }
 
   const filterOptions = (value) => {
@@ -25,8 +26,6 @@ const DefaultAutoCompleteDropdown = ({ options, className, placeholder, onChange
   }
 
   const handleOptionSelect = (value) => {
-    console.log('value is:')
-    console.log(value)
     setInputValue(value)
     onChange && onChange(value)
     setFilteredOptions([])
@@ -34,10 +33,20 @@ const DefaultAutoCompleteDropdown = ({ options, className, placeholder, onChange
   }
 
   const handleKeyDown = (event) => {
-    if (event.key === 'Tab' && filteredOptions.length > 0) {
-      event.preventDefault()
-      handleOptionSelect(filteredOptions[0])
-      inputRef.current.focus()
+    if (filteredOptions.length > 0) {
+      if (event.key === 'Enter') {
+        event.preventDefault()
+        handleOptionSelect(filteredOptions[highlightedIndex])
+      } else if (event.key === 'ArrowDown') {
+        event.preventDefault()
+        setHighlightedIndex((prevIndex) => (prevIndex + 1) % filteredOptions.length)
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        setHighlightedIndex((prevIndex) => (prevIndex - 1 + filteredOptions.length) % filteredOptions.length)
+      } else if (event.key === 'Tab') {
+        event.preventDefault()
+        setHighlightedIndex((prevIndex) => (prevIndex + 1) % filteredOptions.length)
+      }
     }
   }
 
@@ -72,7 +81,11 @@ const DefaultAutoCompleteDropdown = ({ options, className, placeholder, onChange
       {showDropdown && filteredOptions.length > 0 && (
         <ul className={classNames(styles.dropdownList)}>
           {filteredOptions.map((option, index) => (
-            <TextButton className={classNames(styles.option)} key={index} onClick={() => handleOptionSelect(option)}>
+            <TextButton
+              className={classNames(styles.option, { [styles.highlightedOption]: index === highlightedIndex })}
+              key={index}
+              onClick={() => handleOptionSelect(option)}
+            >
               {option}
             </TextButton>
           ))}

@@ -1,13 +1,14 @@
 import React from 'react'
+import classNames from 'classnames'
 
 import styles from './DefaultDropdown.module.scss'
 
-const DefaultDropdown = ({ options, value, onChange, placeholder, tooltip }) => {
+const DefaultDropdown = ({ className, options, value, onChange, placeholder, tooltip }) => {
   return (
     <select
       data-tooltip-id="main-tooltip"
       data-tooltip-content={tooltip}
-      className={styles.wrapper}
+      className={classNames(styles.wrapper, className)}
       value={value}
       onChange={onChange}
     >

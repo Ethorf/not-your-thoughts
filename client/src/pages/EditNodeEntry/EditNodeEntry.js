@@ -54,6 +54,7 @@ const EditNodeEntry = () => {
   const handleOpenConnectionsModal = () => {
     dispatch(openModal(MODAL_NAMES.CONNECTIONS))
   }
+
   return (
     <div className={styles.wrapper}>
       <AutosaveTimer handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
