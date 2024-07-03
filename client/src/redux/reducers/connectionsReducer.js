@@ -30,6 +30,7 @@ export const createConnection = createAsyncThunk(
       })
 
       dispatch(showToast('Connection created!', 'success'))
+
       return response.data
     } catch (error) {
       return rejectWithValue(error.response.data)

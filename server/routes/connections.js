@@ -138,6 +138,7 @@ router.delete('/delete_connection/:connectionId', authorize, async (req, res) =>
 router.get('/:entry_id', authorize, async (req, res) => {
   const { entry_id } = req.params
 
+  // ?? is it worth sending some data here as child / parent?? we're gonna have to represent this somehow
   try {
     // Retrieve all connections where the given entry_id is either primary_entry_id or foreign_entry_id
     const connectionsQuery = `
@@ -166,8 +167,5 @@ router.get('/:entry_id', authorize, async (req, res) => {
     res.status(500).send('Server error')
   }
 })
-
-// TODO lower-pri
-// Update connection source as a separate  groggleway?
 
 module.exports = router

@@ -278,10 +278,16 @@ const currentEntrySlice = createSlice({
       .addCase(updateNodeEntry.pending, (state) => {
         state.entriesLoading = true
       })
-      .addCase(fetchEntryById.fulfilled, (state, action) => {
+      .addCase(fetchEntryById.pending, (state) => {
         return {
           ...state,
-          entryId: action.payload.id,
+          entriesLoading: true,
+        }
+      })
+      .addCase(fetchEntryById.fulfilled, (state) => {
+        return {
+          ...state,
+          entriesLoading: false,
         }
       })
       .addCase(setEntryById.fulfilled, (state, action) => {

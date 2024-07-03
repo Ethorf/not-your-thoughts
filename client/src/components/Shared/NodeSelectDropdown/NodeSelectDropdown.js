@@ -24,7 +24,7 @@ function NodeSelectDropdown({ inputValue, setInputValue, className, onSelect, on
     const connectionIds = connections?.flatMap((conn) => [conn.foreign_entry_id, conn.primary_entry_id])
 
     return options.filter((option) => {
-      return !connectionIds.includes(option.id)
+      return !connectionIds?.includes(option.id)
     })
   }
 
@@ -35,7 +35,6 @@ function NodeSelectDropdown({ inputValue, setInputValue, className, onSelect, on
 
   return (
     <div className={classNames(styles.wrapper, className)}>
-      <p>Select node to connect</p>
       <DefaultAutoCompleteDropdown
         onChange={handleOnChange}
         placeholder={'Select or create node to connect...'}

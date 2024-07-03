@@ -7,13 +7,11 @@
 .wrapper {
   min-width: 47vw;
   min-height: 90vh;
-  // :global {
-  //   .highlight {
-  //     background-color: yellow; /* or any other color you prefer */
-  //   }
-  // }
 }
 
+.horizontalDivider {
+  width: 90%;
+}
 .connectionDisplay {
   display: grid;
   grid-template-columns: 15% 20% 15% 20% 20%;
@@ -37,6 +35,7 @@
   height: 32px;
   margin-left: 12px;
 }
+
 .flexContainer {
   display: flex;
   align-items: center;
@@ -71,4 +70,16 @@
   margin-left: 0;
   padding-left: 0;
   font-size: 1rem;
+}
+
+.connectionDescriptionTextarea {
+  outline: none;
+  border: $silver-border-default;
+  border-radius: $default-border-radius;
+  background: none;
+  resize: none;
+  color: $silver-default;
+  width: 60%;
+  height: 100px;
+  padding: 12px;
 }

@@ -26,7 +26,7 @@ import Modes from '@pages/ModesPage/ModesPage.js'
 import About from '@pages/AboutPage/About.js'
 import Entries from '@pages/EntriesPage/EntriesPage.js'
 
-//redux Stuff
+//Redux
 import store from './redux/store/index'
 import { loadUser } from './redux/actions/authActions'
 import setAuthToken from './utils/setAuthToken'
@@ -47,7 +47,7 @@ const App = () => {
   return (
     <div className={`App ${mode}`}>
       <ToastContainer />
-      <Tooltip id="main-tooltip" style={{ zIndex: 99 }} place="right" />
+      <Tooltip id="main-tooltip" style={{ zIndex: 99999 }} place="right" />
       <BrowserRouter>
         <ModalsContainer />
         <NavBarTop />
