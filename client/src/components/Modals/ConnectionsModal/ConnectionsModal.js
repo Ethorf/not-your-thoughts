@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 // Constants
 import { MODAL_NAMES } from '@constants/modalNames'
-import { CONNECTION_TYPES, VERTICAL_CONNECTION_TYPES } from '@constants/connectionTypes'
+import { CONNECTION_TYPES } from '@constants/connectionTypes'
 import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
 import { CONNECTION_ENTRY_SOURCES } from '@constants/connectionEntrySources'
 
@@ -27,18 +27,26 @@ import {
 } from '@redux/reducers/connectionsReducer'
 import { createNodeEntry, fetchEntryById } from '@redux/reducers/currentEntryReducer'
 
+// Utils
+import { highlightMatchingText } from '@utils/highlightMatchingText'
+
+// Styles
 import styles from './ConnectionsModal.module.scss'
 
 const { DIRECT, SINGLE_WORD, DESCRIPTIVE } = CONNECTION_SOURCE_TYPES
-const { HORIZONTAL, VERTICAL } = CONNECTION_TYPES
+const {
+  FRONTEND: { SIBLING, CHILD, PARENT },
+  BACKEND: { HORIZONTAL, VERTICAL },
+} = CONNECTION_TYPES
+
 const { PRIMARY, FOREIGN } = CONNECTION_ENTRY_SOURCES
 
 export const ConnectionsModal = () => {
   const dispatch = useDispatch()
   const [localForeignEntryId, setLocalForeignEntryId] = useState(null)
   const [localForeignEntryContent, setLocalForeignEntryContent] = useState(null)
-  const [localConnectionType, setLocalConnectionType] = useState(HORIZONTAL)
-  const [localConnectionSourceType, setLocalConnectionSourceType] = useState(DIRECT)
+  const [localConnectionType, setLocalConnectionType] = useState(SIBLING)
+  const [localConnectionSourceType, setLocalConnectionSourceType] = useState(DESCRIPTIVE)
   const [connectionDescription, setConnectionDescription] = useState('')
   const [newNodeTitle, setNewNodeTitle] = useState('')
 
@@ -51,6 +59,10 @@ export const ConnectionsModal = () => {
     connectionTitleInput,
   } = useSelector((state) => state.connections)
   const { content } = useSelector((state) => state.currentEntry)
+
+  useEffect(() => {
+    dispatch(setConnectionTitleInput(''))
+  }, [dispatch])
 
   useEffect(() => {
     dispatch(fetchConnections(entryId))
@@ -66,29 +78,14 @@ export const ConnectionsModal = () => {
     fetchForeignEntry()
   }, [dispatch, localForeignEntryId])
 
-  const handleCreateDirectConnection = async () => {
-    // TODO see if I can abstract this shit out to the reducer without being redundant
-    // ?? How much local state do I really need and why
+  const onCreateConnection = async () => {
     await dispatch(
       createConnection({
         connection_type: localConnectionType,
-        primary_entry_id: entryId,
-        foreign_entry_id: localForeignEntryId,
-        primary_source: selectedPrimarySourceText,
-        foreign_source: selectedForeignSourceText,
-        source_type: localConnectionSourceType,
-      })
-    )
-    await dispatch(setConnectionTitleInput(''))
-  }
-
-  const handleCreatDescriptionConnection = async () => {
-    await dispatch(
-      createConnection({
-        connection_type: localConnectionType,
-        primary_entry_id: entryId,
-        foreign_entry_id: localForeignEntryId,
-        primary_source: connectionDescription,
+        primary_entry_id: localConnectionType === PARENT ? localForeignEntryId : entryId,
+        foreign_entry_id: localConnectionType === PARENT ? entryId : localForeignEntryId,
+        primary_source: localConnectionSourceType === DESCRIPTIVE ? connectionDescription : selectedPrimarySourceText,
+        foreign_source: localConnectionSourceType === DIRECT ? selectedForeignSourceText : null,
         source_type: localConnectionSourceType,
       })
     )
@@ -97,16 +94,13 @@ export const ConnectionsModal = () => {
 
   const handleCreateConnection = async () => {
     if (localForeignEntryId) {
-      await handleCreateDirectConnection()
+      await onCreateConnection()
     } else {
       const newNode = await dispatch(createNodeEntry({ title: newNodeTitle }))
       const newForeignEntryId = newNode?.payload?.id ?? null
 
-      if (localConnectionSourceType === DIRECT) {
-        await handleCreateDirectConnection()
-      } else if (localConnectionSourceType === DESCRIPTIVE) {
-        await handleCreatDescriptionConnection()
-      }
+      await onCreateConnection()
+
       setLocalForeignEntryId(newForeignEntryId)
     }
   }
@@ -115,6 +109,7 @@ export const ConnectionsModal = () => {
     dispatch(deleteConnection(id))
   }
 
+  // TODO abstract this out but see if we can make it work in a reducer?
   const getSelectedText = (entry_source) => {
     if (window.getSelection) {
       const selection = window.getSelection()
@@ -132,27 +127,33 @@ export const ConnectionsModal = () => {
     }
   }
 
-  const highlightMatchingText = (content, match) => {
-    if (!match) return content
-    const regex = new RegExp(`(${match})`, 'gi')
-    return content?.replace(regex, '<span class="highlight">$1</span>')
-  }
-
   const highlightedPrimaryContent = highlightMatchingText(content, selectedPrimarySourceText)
   const highlightedForeignContent = highlightMatchingText(localForeignEntryContent, selectedForeignSourceText)
 
   return (
     <BaseModalWrapper modalName={MODAL_NAMES.CONNECTIONS} className={styles.overflowVisible}>
       <div className={styles.wrapper}>
-        <h2>{title}</h2>
-        <NodeSelectDropdown
-          onChange={(value) => setNewNodeTitle(value)}
-          onSelect={(value) => setLocalForeignEntryId(value)}
-          setInputValue={(e) => dispatch(setConnectionTitleInput(e))}
-          inputValue={connectionTitleInput}
-        />
+        <h2>Connect {title} to:</h2>
         <div className={styles.flexContainer}>
-          <p>Select Connection Source Type:</p>
+          <NodeSelectDropdown
+            className={styles.nodeSelect}
+            onChange={(value) => setNewNodeTitle(value)}
+            onSelect={(value) => setLocalForeignEntryId(value)}
+            setInputValue={(e) => dispatch(setConnectionTitleInput(e))}
+            inputValue={connectionTitleInput}
+          />
+          <p>Type:</p>
+          <DefaultDropdown
+            className={styles.createDropdown}
+            value={localConnectionType}
+            options={Object.values(CONNECTION_TYPES.FRONTEND)}
+            onChange={(e) => setLocalConnectionType(e.target.value)}
+            tooltip={'Change connection type'}
+          />
+        </div>
+        <HorizontalDivider className={styles.horizontalDivider} />
+        <div className={styles.flexContainer}>
+          <p>Connection Source Type:</p>
           <DefaultDropdown
             className={styles.createDropdown}
             value={localConnectionSourceType}
@@ -161,7 +162,6 @@ export const ConnectionsModal = () => {
             tooltip={'Change connection source type'}
           />
         </div>
-        <HorizontalDivider className={styles.horizontalDivider} />
         <div className={styles.sourceSelectionContainer}>
           {localConnectionSourceType === DIRECT ? (
             <>
@@ -188,37 +188,17 @@ export const ConnectionsModal = () => {
             </>
           ) : null}
           {localConnectionSourceType === DESCRIPTIVE ? (
-            <div>
-              <h4>Enter connection description...</h4>
-              <textarea
-                className={styles.connectionDescriptionTextarea}
-                value={connectionDescription}
-                onChange={(e) => setConnectionDescription(e.target.value)}
-              />
-            </div>
+            <textarea
+              className={styles.connectionDescriptionTextarea}
+              value={connectionDescription}
+              onChange={(e) => setConnectionDescription(e.target.value)}
+              placeholder="Enter optional connection description..."
+            />
           ) : null}
         </div>
+        <HorizontalDivider className={styles.horizontalDivider} />
         <div className={styles.createContainer}>
-          <DefaultButton onClick={handleCreateConnection}>Create connection</DefaultButton>
-          <div className={styles.flexContainer}>
-            <p>Type:</p>
-            <DefaultDropdown
-              className={styles.createDropdown}
-              value={localConnectionType}
-              options={Object.values(CONNECTION_TYPES)}
-              onChange={(e) => setLocalConnectionType(e.target.value)}
-              tooltip={'Change connection type'}
-            />
-            {localConnectionType === VERTICAL && (
-              <DefaultDropdown
-                className={styles.createDropdown}
-                value={localConnectionType}
-                options={Object.values(VERTICAL_CONNECTION_TYPES)}
-                onChange={(e) => setLocalConnectionType(e.target.value)}
-                tooltip={'Change vertical connection type'}
-              />
-            )}
-          </div>
+          <DefaultButton onClick={handleCreateConnection}>Create {localConnectionType} connection</DefaultButton>
         </div>
         <HorizontalDivider className={styles.horizontalDivider} />
         {connectionsLoading ? (

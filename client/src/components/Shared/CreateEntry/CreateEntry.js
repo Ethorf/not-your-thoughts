@@ -8,9 +8,9 @@ import TextButton from '@components/Shared/TextButton/TextButton'
 
 // Redux
 import { setContent, setWordCount, setCharCount } from '@redux/reducers/currentEntryReducer' // Replace with the correct path
-import { setSelectedPrimarySourceText } from '@redux/reducers/connectionsReducer'
 
 import { ENTRY_TYPES } from '@constants/entryTypes'
+
 // Styles
 import styles from './CreateEntry.module.scss'
 import './CustomQuillStyles.scss'
@@ -18,14 +18,13 @@ import './CustomQuillStyles.scss'
 const CreateEntry = ({ type }) => {
   const dispatch = useDispatch()
   const { content } = useSelector((state) => state.currentEntry)
-  const { selectedPrimarySourceText } = useSelector((state) => state.connections)
 
   const [toolbarVisible, setToolbarVisible] = useState(false)
 
   const handleContentChange = (e) => {
     dispatch(setContent(e))
 
-    const wordsAmount = content.split(/\s+/).filter((word) => word.length > 0)
+    const wordsAmount = content?.split(/\s+/).filter((word) => word.length > 0)
     dispatch(setWordCount(wordsAmount.length))
 
     dispatch(setCharCount(content.length))
@@ -44,18 +43,6 @@ const CreateEntry = ({ type }) => {
       ['link'],
       [],
     ],
-  }
-
-  const getSelectedText = () => {
-    if (window.getSelection) {
-      const selection = window.getSelection()
-      if (selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0)
-        const container = document.createElement('div')
-        container.appendChild(range.cloneContents())
-        dispatch(setSelectedPrimarySourceText(container.innerHTML))
-      }
-    }
   }
 
   return (

@@ -283,7 +283,7 @@ router.get('/node_entries_info', authorize, async (req, res) => {
   }
 })
 
-// Route to retrieve all entrie regardless of type for a user
+// Route to retrieve all entries regardless of type for a user
 router.get('/all_entries', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
@@ -354,6 +354,59 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
     // If the entry is found and the user ID matches, return it
     res.json(entryData)
   } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// Route to delete an entry by ID
+router.delete('/delete_entry/:id', authorize, async (req, res) => {
+  const { id } = req.params
+
+  try {
+    // Start a transaction
+    await pool.query('BEGIN')
+
+    // Retrieve connections related to the entry
+    const getConnectionsQuery = 'SELECT id FROM connections WHERE primary_entry_id = $1 OR foreign_entry_id = $1'
+    const connectionsResult = await pool.query(getConnectionsQuery, [id])
+    const connectionIds = connectionsResult.rows.map((row) => row.id)
+
+    if (connectionIds.length > 0) {
+      // Retrieve all entries that have any of these connections
+      const getEntriesQuery = `
+        SELECT id, connections 
+        FROM entries 
+        WHERE connections && $1::int[]
+      `
+      const entriesResult = await pool.query(getEntriesQuery, [connectionIds])
+
+      // Update the connections array for each related entry
+      const updateEntriesConnections = async (entryId, updatedConnections) => {
+        await pool.query('UPDATE entries SET connections = $1 WHERE id = $2', [updatedConnections, entryId])
+      }
+
+      for (const entry of entriesResult.rows) {
+        const updatedConnections = entry.connections.filter((connId) => !connectionIds.includes(connId))
+        await updateEntriesConnections(entry.id, updatedConnections)
+      }
+    }
+
+    // Delete the connections related to the entry
+    const deleteConnectionsQuery = 'DELETE FROM connections WHERE primary_entry_id = $1 OR foreign_entry_id = $1'
+    await pool.query(deleteConnectionsQuery, [id])
+
+    // Delete the entry
+    const deleteEntryQuery = 'DELETE FROM entries WHERE id = $1'
+    await pool.query(deleteEntryQuery, [id])
+
+    // Commit the transaction
+    await pool.query('COMMIT')
+
+    res.json({ msg: 'Entry and associated connections deleted successfully' })
+  } catch (err) {
+    // Rollback the transaction in case of error
+    await pool.query('ROLLBACK')
     console.error(err.message)
     res.status(500).send('Server error')
   }

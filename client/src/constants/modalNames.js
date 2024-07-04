@@ -7,4 +7,5 @@ export const MODAL_NAMES = enumify([
   'node_content',
   'akas_input',
   'connections',
+  'are_you_sure',
 ])

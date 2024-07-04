@@ -1,5 +1,17 @@
 import { enumify } from '../utils/enumify'
 
-export const CONNECTION_TYPES = enumify(['vertical', 'horizontal'])
+export const CONNECTION_TYPES = {
+  BACKEND: enumify(['vertical', 'horizontal']),
+  FRONTEND: enumify(['parent', 'child', 'sibling']),
+}
 
-export const VERTICAL_CONNECTION_TYPES = enumify(['parent', 'child'])
+const {
+  FRONTEND: { SIBLING, CHILD, PARENT },
+  BACKEND: { HORIZONTAL, VERTICAL },
+} = CONNECTION_TYPES
+
+const FRONT_TO_BACK_CONN_TYPES = {
+  [SIBLING]: HORIZONTAL,
+  [CHILD]: VERTICAL,
+  [PARENT]: VERTICAL,
+}

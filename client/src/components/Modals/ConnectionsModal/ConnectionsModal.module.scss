@@ -12,6 +12,12 @@
 .horizontalDivider {
   width: 90%;
 }
+
+.nodeSelect {
+  width: 65%;
+  margin-right: 12px;
+}
+
 .connectionDisplay {
   display: grid;
   grid-template-columns: 15% 20% 15% 20% 20%;
@@ -23,14 +29,6 @@
   flex-direction: column;
 }
 
-.createContainer {
-  width: 80%;
-  display: grid;
-  grid-template-columns: 65% 10% 20%;
-  align-items: center;
-  margin-top: 16px;
-}
-
 .createDropdown {
   height: 32px;
   margin-left: 12px;
@@ -40,6 +38,7 @@
   display: flex;
   align-items: center;
 }
+
 .connectionLabel {
   font-family: 'Syncopate', sans-serif;
 }

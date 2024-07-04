@@ -1,8 +1,19 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
+import { CONNECTION_TYPES } from '@constants/connectionTypes'
 
 import { showToast } from '@utils/toast'
 
+const {
+  FRONTEND: { SIBLING, CHILD, PARENT },
+  BACKEND: { HORIZONTAL, VERTICAL },
+} = CONNECTION_TYPES
+
+const FRONT_TO_BACK_CONN_TYPES = {
+  [SIBLING]: HORIZONTAL,
+  [CHILD]: VERTICAL,
+  [PARENT]: VERTICAL,
+}
 const initialState = {
   connections: [],
   connectionsLoading: false,
@@ -21,7 +32,7 @@ export const createConnection = createAsyncThunk(
   ) => {
     try {
       const response = await axios.post('api/connections/create_connection', {
-        connection_type,
+        connection_type: FRONT_TO_BACK_CONN_TYPES[connection_type],
         primary_entry_id,
         foreign_entry_id,
         primary_source,

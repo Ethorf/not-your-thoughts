@@ -15,12 +15,8 @@ const initialState = {
   wpm: 0,
   title: '',
   akas: [],
-  // TODO do we really need this? May be useful but not sure it is RN
-  // HMMM maybe we integrate this with the autosave timer?
   type: JOURNAL,
   content: '',
-  // Note this will hold only title and ID of node entries, I'm currently doing this to not overburden the backend
-  //  and compromise performance but think this may be able to be improved
   nodeEntriesInfo: [],
 }
 
@@ -114,18 +110,16 @@ export const updateNodeEntry = createAsyncThunk(
       const fetchedEntry = fetchResponse.payload
       const currentState = getState().currentEntry
 
-      // Compare content with the fetched entry
       const titleChanged = fetchedEntry.title !== currentState.title
       const contentChanged = fetchedEntry.content[0] !== currentState.content
 
-      // If no change in content, return the current state
       if (!titleChanged && !contentChanged) {
         if (saveType === MANUAL) dispatch(showToast('Nothing to update', 'warn'))
 
         console.log('No change to content. No update required.')
         return currentState
       }
-      // Content or title has changed, proceed with update
+
       const response = await axios.post('api/entries/update_node_entry', {
         user_id,
         entryId,
@@ -159,7 +153,6 @@ export const fetchEntryById = createAsyncThunk(
   }
 )
 
-// Define async thunk to fetch node entries' information
 export const fetchNodeEntriesInfo = createAsyncThunk(
   'currentEntryReducer/fetchNodeEntriesInfo',
   async (_, { rejectWithValue, dispatch }) => {
@@ -195,6 +188,20 @@ export const fetchAkas = createAsyncThunk('akas/fetchAkas', async (entryId, { re
     return rejectWithValue(error.response.data)
   }
 })
+
+export const deleteEntry = createAsyncThunk(
+  'currentEntryReducer/deleteEntry',
+  async (entryId, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axios.delete(`api/entries/delete_entry/${entryId}`)
+      dispatch(showToast('Entry Deleted', 'success'))
+      return response.data
+    } catch (error) {
+      dispatch(showToast('Error deleting entry', 'error'))
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
 
 const currentEntrySlice = createSlice({
   name: 'currentEntryReducer',
@@ -298,6 +305,9 @@ const currentEntrySlice = createSlice({
       })
       .addCase(fetchNodeEntriesInfo.fulfilled, (state, action) => {
         state.nodeEntriesInfo = action.payload
+      })
+      .addCase(deleteEntry.fulfilled, (state) => {
+        return initialState
       })
   },
 })

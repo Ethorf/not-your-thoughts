@@ -63,15 +63,20 @@ router.post('/create_connection', authorize, async (req, res) => {
 
     // Retrieve all connections for the primary_entry_id including titles of foreign entries
     const connectionsQuery = `
-      SELECT connections.*, entries.title as foreign_entry_title
+      SELECT connections.*, 
+        CASE 
+          WHEN connections.primary_entry_id = $1 THEN foreign_entries.title 
+          ELSE primary_entries.title 
+        END as foreign_entry_title,
+        CASE 
+          WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'horizontal' THEN 'sibling'
+          WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'vertical' THEN 'child'
+          WHEN connections.foreign_entry_id = $1 AND connections.connection_type = 'vertical' THEN 'parent'
+        END as connection_type
       FROM connections
-      JOIN entries ON connections.foreign_entry_id = entries.id
-      WHERE connections.primary_entry_id = $1
-      UNION
-      SELECT connections.*, entries.title as foreign_entry_title
-      FROM connections
-      JOIN entries ON connections.primary_entry_id = entries.id
-      WHERE connections.foreign_entry_id = $1
+      LEFT JOIN entries as foreign_entries ON connections.foreign_entry_id = foreign_entries.id
+      LEFT JOIN entries as primary_entries ON connections.primary_entry_id = primary_entries.id
+      WHERE primary_entry_id = $1 OR foreign_entry_id = $1
     `
     const connections = await pool.query(connectionsQuery, [primary_entry_id])
 
@@ -138,29 +143,34 @@ router.delete('/delete_connection/:connectionId', authorize, async (req, res) =>
 router.get('/:entry_id', authorize, async (req, res) => {
   const { entry_id } = req.params
 
-  // ?? is it worth sending some data here as child / parent?? we're gonna have to represent this somehow
   try {
     // Retrieve all connections where the given entry_id is either primary_entry_id or foreign_entry_id
     const connectionsQuery = `
-          SELECT 
-            connections.*, 
-            CASE 
-              WHEN connections.primary_entry_id = $1 THEN foreign_entries.title 
-              ELSE primary_entries.title 
-            END as foreign_entry_title
-          FROM connections
-          LEFT JOIN entries as foreign_entries ON connections.foreign_entry_id = foreign_entries.id
-          LEFT JOIN entries as primary_entries ON connections.primary_entry_id = primary_entries.id
-          WHERE primary_entry_id = $1 OR foreign_entry_id = $1
-        `
+      SELECT 
+        connections.*, 
+        CASE 
+          WHEN connections.primary_entry_id = $1 THEN foreign_entries.title 
+          ELSE primary_entries.title 
+        END as foreign_entry_title,
+        CASE 
+          WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'horizontal' THEN 'sibling'
+          WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'vertical' THEN 'child'
+          WHEN connections.foreign_entry_id = $1 AND connections.connection_type = 'vertical' THEN 'parent'
+        END as connection_type
+      FROM connections
+      LEFT JOIN entries as foreign_entries ON connections.foreign_entry_id = foreign_entries.id
+      LEFT JOIN entries as primary_entries ON connections.primary_entry_id = primary_entries.id
+      WHERE primary_entry_id = $1 OR foreign_entry_id = $1
+    `
     const connections = await pool.query(connectionsQuery, [entry_id])
 
     // Check if any connections are found
     if (connections.rows.length === 0) {
       return res.status(404).json({ msg: 'No connections found for this entry' })
     }
-
-    // Return the connections along with the title from the corresponding foreign_entry_id
+    console.log('<<<<<< connections.rows >>>>>>>>> is: <<<<<<<<<<<<')
+    console.log(connections.rows)
+    // Return the connections along with the title from the corresponding foreign_entry_id and updated type
     res.json({ connections: connections.rows })
   } catch (err) {
     console.error(err.message)
@@ -169,3 +179,6 @@ router.get('/:entry_id', authorize, async (req, res) => {
 })
 
 module.exports = router
+
+// !! This is my like beginning draft of documentation
+// if the connection in question's primary_entry_id is the same as the entry id passed in the params and it's type is 'horizontal' send back the connection with the type prop 'sibling', if the connection in question's primary_entry_id is the same as the entry id passed in the params and it's type is 'vertical' send back the connection with the type prop 'child', and if the connection in question's foreign_entry_id is the same as the entry id passed in the params and it's type is 'vertical' send back the connection with the type prop 'parent',
