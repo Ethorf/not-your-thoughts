@@ -27,7 +27,7 @@ const initialState = {
 export const createConnection = createAsyncThunk(
   'connections/create_connection',
   async (
-    { connection_type, primary_entry_id, foreign_entry_id, primary_source, foreign_source, source_type },
+    { connection_type, main_entry_id, primary_entry_id, foreign_entry_id, primary_source, foreign_source, source_type },
     { rejectWithValue, dispatch }
   ) => {
     try {
@@ -35,6 +35,7 @@ export const createConnection = createAsyncThunk(
         connection_type: FRONT_TO_BACK_CONN_TYPES[connection_type],
         primary_entry_id,
         foreign_entry_id,
+        main_entry_id,
         primary_source,
         foreign_source,
         source_type,
@@ -63,17 +64,15 @@ export const deleteConnection = createAsyncThunk(
 )
 
 // Async thunk to fetch all connections based on entry_id
-export const fetchConnections = createAsyncThunk(
-  'connections/fetchConnections',
-  async (entry_id, { rejectWithValue }) => {
-    try {
-      const response = await axios.get(`api/connections/${entry_id}`)
-      return response.data.connections
-    } catch (error) {
-      return rejectWithValue(error.response.data)
-    }
+export const fetchConnections = createAsyncThunk('connections/', async (entry_id, { rejectWithValue }) => {
+  try {
+    const response = await axios.get(`api/connections/${entry_id}`)
+
+    return response.data.connections
+  } catch (error) {
+    return rejectWithValue(error.response.data)
   }
-)
+})
 
 const connectionsSlice = createSlice({
   name: 'connections',
@@ -124,21 +123,21 @@ const connectionsSlice = createSlice({
         state.connections = state.connections.filter((connection) => connection.id !== action.payload.connectionId)
       })
       .addCase(deleteConnection.rejected, (state, action) => {
-        state.loading = false
+        state.connectionsLoading = false
         state.error = action.payload
       })
       .addCase(fetchConnections.pending, (state) => {
-        state.loading = true
+        state.connectionsLoading = true
       })
       .addCase(fetchConnections.fulfilled, (state, action) => {
         return {
           ...state,
           connections: action.payload,
-          loading: false,
+          connectionsLoading: false,
         }
       })
       .addCase(fetchConnections.rejected, (state, action) => {
-        state.loading = false
+        state.connectionsLoading = false
         state.error = action.payload
       })
   },

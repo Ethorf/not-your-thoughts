@@ -5,7 +5,16 @@ const authorize = require('../middleware/authorize')
 
 // Route to create a connection
 router.post('/create_connection', authorize, async (req, res) => {
-  const { connection_type, primary_entry_id, foreign_entry_id, primary_source, foreign_source, source_type } = req.body
+  const {
+    connection_type,
+    primary_entry_id,
+    foreign_entry_id,
+    primary_source,
+    foreign_source,
+    source_type,
+    // main_entry_id is primarily used to make sure we send back the correct values when we have that flippy weird vertical / parent logic
+    main_entry_id,
+  } = req.body
 
   try {
     // Check if source_type is provided when primary_source is present
@@ -70,6 +79,7 @@ router.post('/create_connection', authorize, async (req, res) => {
         END as foreign_entry_title,
         CASE 
           WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'horizontal' THEN 'sibling'
+          WHEN connections.foreign_entry_id = $1 AND connections.connection_type = 'horizontal' THEN 'sibling'
           WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'vertical' THEN 'child'
           WHEN connections.foreign_entry_id = $1 AND connections.connection_type = 'vertical' THEN 'parent'
         END as connection_type
@@ -78,7 +88,8 @@ router.post('/create_connection', authorize, async (req, res) => {
       LEFT JOIN entries as primary_entries ON connections.primary_entry_id = primary_entries.id
       WHERE primary_entry_id = $1 OR foreign_entry_id = $1
     `
-    const connections = await pool.query(connectionsQuery, [primary_entry_id])
+
+    const connections = await pool.query(connectionsQuery, [main_entry_id])
 
     res.json({ msg: 'Connection created successfully', connectionId: newConnectionId, connections: connections.rows })
   } catch (err) {
@@ -154,6 +165,7 @@ router.get('/:entry_id', authorize, async (req, res) => {
         END as foreign_entry_title,
         CASE 
           WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'horizontal' THEN 'sibling'
+          WHEN connections.foreign_entry_id = $1 AND connections.connection_type = 'horizontal' THEN 'sibling'
           WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'vertical' THEN 'child'
           WHEN connections.foreign_entry_id = $1 AND connections.connection_type = 'vertical' THEN 'parent'
         END as connection_type
@@ -166,10 +178,9 @@ router.get('/:entry_id', authorize, async (req, res) => {
 
     // Check if any connections are found
     if (connections.rows.length === 0) {
-      return res.status(404).json({ msg: 'No connections found for this entry' })
+      return res.status(204).json({ msg: 'No connections found for this entry' })
     }
-    console.log('<<<<<< connections.rows >>>>>>>>> is: <<<<<<<<<<<<')
-    console.log(connections.rows)
+
     // Return the connections along with the title from the corresponding foreign_entry_id and updated type
     res.json({ connections: connections.rows })
   } catch (err) {

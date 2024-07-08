@@ -19,13 +19,13 @@ import HorizontalDivider from '@components/Shared/HorizontalDivider/HorizontalDi
 // Redux
 import {
   createConnection,
-  fetchConnections,
   deleteConnection,
   setConnectionTitleInput,
   setSelectedPrimarySourceText,
   setSelectedForeignSourceText,
 } from '@redux/reducers/connectionsReducer'
 import { createNodeEntry, fetchEntryById } from '@redux/reducers/currentEntryReducer'
+import { fetchNodeEntries } from '@redux/reducers/nodeEntriesReducer'
 
 // Utils
 import { highlightMatchingText } from '@utils/highlightMatchingText'
@@ -60,19 +60,20 @@ export const ConnectionsModal = () => {
   } = useSelector((state) => state.connections)
   const { content } = useSelector((state) => state.currentEntry)
 
-  useEffect(() => {
-    dispatch(setConnectionTitleInput(''))
-  }, [dispatch])
+  // Reset all local state values on load
+  // TODO see if this is necessary or could be simplified?
 
-  useEffect(() => {
-    dispatch(fetchConnections(entryId))
-  }, [dispatch, entryId])
+  const handleModalOpen = () => {
+    dispatch(setConnectionTitleInput(''))
+    setLocalForeignEntryId(null)
+    setConnectionDescription('')
+  }
 
   useEffect(() => {
     const fetchForeignEntry = async () => {
       if (localForeignEntryId) {
         const fetchedForeignEntry = await dispatch(fetchEntryById(localForeignEntryId))
-        setLocalForeignEntryContent(fetchedForeignEntry.payload.content[0])
+        setLocalForeignEntryContent(fetchedForeignEntry?.payload?.content[0])
       }
     }
     fetchForeignEntry()
@@ -82,6 +83,7 @@ export const ConnectionsModal = () => {
     await dispatch(
       createConnection({
         connection_type: localConnectionType,
+        main_entry_id: entryId,
         primary_entry_id: localConnectionType === PARENT ? localForeignEntryId : entryId,
         foreign_entry_id: localConnectionType === PARENT ? entryId : localForeignEntryId,
         primary_source: localConnectionSourceType === DESCRIPTIVE ? connectionDescription : selectedPrimarySourceText,
@@ -90,8 +92,11 @@ export const ConnectionsModal = () => {
       })
     )
     await dispatch(setConnectionTitleInput(''))
+    setConnectionDescription('')
+    setLocalForeignEntryId(null)
   }
 
+  // TODO see if we can make this work with our weird async ness
   const handleCreateConnection = async () => {
     if (localForeignEntryId) {
       await onCreateConnection()
@@ -99,9 +104,21 @@ export const ConnectionsModal = () => {
       const newNode = await dispatch(createNodeEntry({ title: newNodeTitle }))
       const newForeignEntryId = newNode?.payload?.id ?? null
 
-      await onCreateConnection()
-
-      setLocalForeignEntryId(newForeignEntryId)
+      await dispatch(
+        createConnection({
+          connection_type: localConnectionType,
+          foreign_entry_id: localConnectionType === PARENT ? entryId : newForeignEntryId,
+          main_entry_id: entryId,
+          primary_entry_id: localConnectionType === PARENT ? newForeignEntryId : entryId,
+          primary_source: localConnectionSourceType === DESCRIPTIVE ? connectionDescription : selectedPrimarySourceText,
+          foreign_source: localConnectionSourceType === DIRECT ? selectedForeignSourceText : null,
+          source_type: localConnectionSourceType,
+        })
+      )
+      await dispatch(setConnectionTitleInput(''))
+      await dispatch(fetchNodeEntries())
+      setConnectionDescription('')
+      setLocalForeignEntryId(null)
     }
   }
 
@@ -131,7 +148,7 @@ export const ConnectionsModal = () => {
   const highlightedForeignContent = highlightMatchingText(localForeignEntryContent, selectedForeignSourceText)
 
   return (
-    <BaseModalWrapper modalName={MODAL_NAMES.CONNECTIONS} className={styles.overflowVisible}>
+    <BaseModalWrapper modalName={MODAL_NAMES.CONNECTIONS} className={styles.overflowVisible} onOpen={handleModalOpen}>
       <div className={styles.wrapper}>
         <h2>Connect {title} to:</h2>
         <div className={styles.flexContainer}>

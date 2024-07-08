@@ -11,6 +11,7 @@ import './App.scss'
 import NavBarSide from './components/nav/navBarSide.js'
 import NavBarTop from './components/nav/navBarTop.js'
 import AudioPlayer from './components/audioPlayer/audioPlayer.js'
+import GeneralNodeSelector from '@components/Shared/GeneralNodeSelector/GeneralNodeSelector.js'
 
 //Pages Imports
 import Landing from '@pages/Start/Start.js'
@@ -53,6 +54,7 @@ const App = () => {
         <NavBarTop />
         <NavBarSide />
         <AudioPlayer />
+        <GeneralNodeSelector />
         <Route
           render={({ location }) => (
             <TransitionGroup>

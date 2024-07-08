@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Modal } from 'react-responsive-modal'
 import 'react-responsive-modal/styles.css'
@@ -6,13 +6,18 @@ import { closeModal } from '../../../redux/reducers/modalsReducer.js'
 
 import styles from './BaseModalWrapper.module.scss'
 
-export const BaseModalWrapper = ({ children, className, modalName }) => {
+export const BaseModalWrapper = ({ children, className, modalName, onOpen }) => {
   const dispatch = useDispatch()
   const { isOpen, activeModal } = useSelector((state) => state.modals)
 
   const handleCloseModal = () => {
     dispatch(closeModal())
   }
+  useEffect(() => {
+    if (isOpen && activeModal === modalName) {
+      onOpen && onOpen()
+    }
+  }, [isOpen])
 
   return (
     <Modal
@@ -23,6 +28,7 @@ export const BaseModalWrapper = ({ children, className, modalName }) => {
       }}
       open={isOpen && activeModal === modalName}
       onClose={handleCloseModal}
+      onOpen={() => console.log('coggle boggle')}
       center
     >
       {children}

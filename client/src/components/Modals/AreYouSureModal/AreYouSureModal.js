@@ -5,6 +5,7 @@ import 'react-responsive-modal/styles.css'
 
 // Constants
 import { MODAL_NAMES } from '@constants/modalNames'
+
 // Components
 import { BaseModalWrapper } from '../BaseModalWrapper/BaseModalWrapper'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
@@ -12,6 +13,7 @@ import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 // Redux
 import { closeModal } from '@redux/reducers/modalsReducer.js'
 import { deleteEntry } from '@redux/reducers/currentEntryReducer'
+import { fetchNodeEntries } from '@redux/reducers/nodeEntriesReducer'
 
 import styles from './AreYouSureModal.module.scss'
 
@@ -21,6 +23,7 @@ export const AreYouSureModal = () => {
 
   const handleDeleteEntry = async () => {
     await dispatch(deleteEntry(entryId))
+    await dispatch(fetchNodeEntries())
     await dispatch(closeModal())
   }
 

@@ -69,7 +69,9 @@ export const createNodeEntry = createAsyncThunk(
         title,
       })
       dispatch(showToast('Node Created', 'success'))
-      return response.data.newEntry.rows[0]
+      console.log('<<<<<< response.data.newEntry.rows[0] >>>>>>>>> is: <<<<<<<<<<<<')
+      console.log(response.data)
+      return response.data
     } catch (error) {
       dispatch(showToast('Node creation error', 'error'))
       return rejectWithValue(error.response.data)
@@ -257,11 +259,8 @@ const currentEntrySlice = createSlice({
         state.akas = action.payload.akas
       })
       .addCase(createNodeEntry.fulfilled, (state, action) => {
-        return {
-          ...state,
-          entryId: action.payload.id,
-          entriesLoading: false,
-        }
+        state.entriesLoading = false
+        state.nodeEntriesInfo.push(action.payload)
       })
       .addCase(createNodeEntry.pending, (state) => {
         state.entriesLoading = true

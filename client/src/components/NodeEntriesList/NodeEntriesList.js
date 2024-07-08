@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchNodeEntries } from '../../redux/reducers/nodeEntriesReducer'
+
+// Redux
+import { fetchNodeEntries } from '@redux/reducers/nodeEntriesReducer'
+
+// Components
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import { NodeEntry } from '../NodeEntry/NodeEntry'
 import { EntriesSortDropdown } from '@components/Shared/EntriesSortDropdown/EntriesSortDropdown'

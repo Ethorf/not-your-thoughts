@@ -43,6 +43,7 @@ export const NodeEntry = ({ node: { id, date_last_modified, date_created, title,
     await dispatch(openModal(MODAL_NAMES.ARE_YOU_SURE))
     setLocalLoading(false)
   }
+
   return (
     <li className={styles.wrapper} key={id}>
       <div className={styles.nodeValue}>

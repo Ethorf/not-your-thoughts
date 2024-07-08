@@ -1,11 +1,14 @@
 import React, { useEffect, useMemo } from 'react'
 import classNames from 'classnames'
 import { useLocation, useHistory } from 'react-router-dom'
+import { unwrapResult } from '@reduxjs/toolkit'
 
 // Redux
 import { useDispatch, useSelector } from 'react-redux'
-import { setTitle, updateNodeEntry, setEntryById, resetCurrentEntryState } from '@redux/reducers/currentEntryReducer'
+import { setTitle, updateNodeEntry, setEntryById } from '@redux/reducers/currentEntryReducer'
+import { fetchNodeEntries } from '@redux/reducers/nodeEntriesReducer'
 import { openModal } from '@redux/reducers/modalsReducer.js'
+import { fetchConnections } from '@redux/reducers/connectionsReducer'
 
 // Constants
 import { SAVE_TYPES } from '@constants/saveTypes'
@@ -26,9 +29,8 @@ import styles from './EditNodeEntry.module.scss'
 const EditNodeEntry = () => {
   const dispatch = useDispatch()
   const location = useLocation()
-  const history = useHistory()
   const { wordCount, entryId, content, title, entriesLoading } = useSelector((state) => state.currentEntry)
-
+  const { selectedPrimarySourceText } = useSelector((state) => state.connections)
   const params = useMemo(() => new URLSearchParams(location.search), [location.search])
 
   useEffect(() => {
@@ -46,13 +48,16 @@ const EditNodeEntry = () => {
     dispatch(updateNodeEntry({ entryId, content, title, saveType }))
   }
 
-  const handleNewNode = () => {
-    dispatch(resetCurrentEntryState())
-    history.push('/create-node-entry')
-  }
-
-  const handleOpenConnectionsModal = () => {
-    dispatch(openModal(MODAL_NAMES.CONNECTIONS))
+  const handleOpenConnectionsModal = async () => {
+    try {
+      const fetchConnRes = await dispatch(fetchConnections(entryId))
+      unwrapResult(fetchConnRes)
+      console.log('<<<<<< fetchConnRes >>>>>>>>> is: <<<<<<<<<<<<')
+      console.log(fetchConnRes)
+      dispatch(openModal(MODAL_NAMES.CONNECTIONS))
+    } catch (error) {
+      console.error('Failed to fetch connections:', error)
+    }
   }
 
   return (
@@ -81,11 +86,6 @@ const EditNodeEntry = () => {
         <CreateEntry />
         <div className={styles.grid3Columns}>
           <span className={styles.flexStart}>Words: {wordCount}</span>
-          <span className={styles.flexCenter}>
-            <DefaultButton onClick={() => handleNewNode()} className={styles.saveButton}>
-              New Node
-            </DefaultButton>
-          </span>
           <span className={styles.flexEnd}>
             {entriesLoading ? (
               <SmallSpinner />

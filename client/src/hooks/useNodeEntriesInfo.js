@@ -6,7 +6,7 @@ import isEqual from 'lodash/isEqual' // Import lodash isEqual for deep compariso
 // TODO This is weird, not really doing the equivalency check it should
 const useNodeEntriesInfo = () => {
   const dispatch = useDispatch()
-  const { nodeEntriesInfo } = useSelector((state) => state.currentEntry)
+  const { entries, nodeEntriesInfo } = useSelector((state) => state.currentEntry)
 
   // useRef to store the previous nodeEntriesInfo
   const prevNodeEntriesInfo = useRef(nodeEntriesInfo)
@@ -24,7 +24,7 @@ const useNodeEntriesInfo = () => {
 
     // Update prevNodeEntriesInfo to the current value
     prevNodeEntriesInfo.current = nodeEntriesInfo
-  }, [dispatch, nodeEntriesInfo])
+  }, [dispatch, nodeEntriesInfo, entries])
 
   return nodeEntriesInfo
 }

@@ -1,5 +1,5 @@
 const express = require('express')
-const { parse, isValid } = require('date-fns')
+const { parse } = require('date-fns')
 const router = express.Router()
 const pool = require('../config/neonDb')
 const authorize = require('../middleware/authorize')
@@ -52,7 +52,12 @@ router.post('/create_node_entry', authorize, async (req, res) => {
     await pool.query('UPDATE entries SET title = $1 WHERE id = $2', [finalTitle, entry_id])
 
     console.log('Node Entry created successfully!')
-    return res.json({ newEntry })
+
+    console.log('<<<<<< newEntry >>>>>>>>> is: <<<<<<<<<<<<')
+    console.log(newEntry.rows[0].id)
+    console.log('<<<<<< title >>>>>>>>> is: <<<<<<<<<<<<')
+    console.log(title)
+    return res.json({ id: newEntry.rows[0].id, title })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -377,7 +382,7 @@ router.delete('/delete_entry/:id', authorize, async (req, res) => {
       const getEntriesQuery = `
         SELECT id, connections 
         FROM entries 
-        WHERE connections && $1::int[]
+        WHERE connections && $1::uuid[]
       `
       const entriesResult = await pool.query(getEntriesQuery, [connectionIds])
 
