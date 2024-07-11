@@ -102,8 +102,11 @@ router.post('/update_node_entry', authorize, async (req, res) => {
       [newContentIds, title, entryId, user_id]
     )
 
+    // Retrieve the most recent content associated with the entry
+    let mostRecentContent = await pool.query('SELECT * FROM entry_contents WHERE id = $1', [newContentIds[0]])
+
     console.log('Node Entry updated successfully!')
-    return res.json({ updatedEntry: updatedEntry.rows[0] })
+    return res.json({ updatedEntry: updatedEntry.rows[0], content: mostRecentContent.rows[0].content })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')

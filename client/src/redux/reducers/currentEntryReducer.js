@@ -105,7 +105,7 @@ export const saveJournalEntry = createAsyncThunk(
 export const updateNodeEntry = createAsyncThunk(
   'currentEntryReducer/updateNodeEntry',
   async ({ user_id, entryId, content, title, saveType }, { getState, rejectWithValue, dispatch }) => {
-    const { AUTO, MANUAL } = SAVE_TYPES
+    const { AUTO, MANUAL, EXTERNAL_CONNECTION } = SAVE_TYPES
 
     try {
       const fetchResponse = await dispatch(fetchEntryById(entryId))
@@ -115,7 +115,7 @@ export const updateNodeEntry = createAsyncThunk(
       const titleChanged = fetchedEntry.title !== currentState.title
       const contentChanged = fetchedEntry.content[0] !== currentState.content
 
-      if (!titleChanged && !contentChanged) {
+      if (!titleChanged && !contentChanged && saveType !== EXTERNAL_CONNECTION) {
         if (saveType === MANUAL) dispatch(showToast('Nothing to update', 'warn'))
 
         console.log('No change to content. No update required.')
@@ -134,7 +134,7 @@ export const updateNodeEntry = createAsyncThunk(
       } else {
         dispatch(showToast('Node updated', 'success'))
       }
-      console.log('Updated with new content')
+
       return response.data
     } catch (error) {
       return rejectWithValue(error.response.data)
@@ -276,9 +276,12 @@ const currentEntrySlice = createSlice({
         }
       })
       .addCase(updateNodeEntry.fulfilled, (state, action) => {
+        console.log('<<<<<< action.payload.content >>>>>>>>> is: <<<<<<<<<<<<')
+        console.log(action.payload.content)
         return {
           ...state,
           entriesLoading: false,
+          content: action.payload.content,
         }
       })
       .addCase(updateNodeEntry.pending, (state) => {

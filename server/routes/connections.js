@@ -12,20 +12,16 @@ router.post('/create_connection', authorize, async (req, res) => {
     primary_source,
     foreign_source,
     source_type,
-    // main_entry_id is primarily used to make sure we send back the correct values when we have that flippy weird vertical / parent logic
     main_entry_id,
   } = req.body
 
   try {
-    // Check if source_type is provided when primary_source is present
     if (primary_source && !source_type) {
       return res.status(400).json({ msg: 'source_type is required when primary_source is present' })
     }
 
-    // Start a transaction
     await pool.query('BEGIN')
 
-    // Check if a connection already exists with the same primary_entry_id and foreign_entry_id
     const existingConnectionQuery = `
       SELECT id FROM connections 
       WHERE (primary_entry_id = $1 AND foreign_entry_id = $2)
@@ -34,13 +30,11 @@ router.post('/create_connection', authorize, async (req, res) => {
     const existingConnection = await pool.query(existingConnectionQuery, [primary_entry_id, foreign_entry_id])
 
     if (existingConnection.rows.length > 0) {
-      // Rollback the transaction
       await pool.query('ROLLBACK')
       console.log('Connection already exists')
       return res.status(400).json({ msg: 'Connection already exists' })
     }
 
-    // Insert the new connection
     const newConnectionQuery = `
       INSERT INTO connections (connection_type, primary_entry_id, foreign_entry_id, primary_source, foreign_source, source_type)
       VALUES ($1, $2, $3, $4, $5, $6)
@@ -58,19 +52,18 @@ router.post('/create_connection', authorize, async (req, res) => {
 
     const updateEntriesConnections = async (entryId) => {
       const entry = await pool.query('SELECT connections FROM entries WHERE id = $1', [entryId])
-      let currentConnections = entry.rows[0].connections || [] // Initialize to an empty array if null
+      let currentConnections = entry.rows[0].connections || []
       currentConnections.push(newConnectionId)
       await pool.query('UPDATE entries SET connections = $1 WHERE id = $2', [currentConnections, entryId])
     }
 
-    // Update connections array for both primary_entry_id and foreign_entry_id
     await updateEntriesConnections(primary_entry_id)
-    await updateEntriesConnections(foreign_entry_id)
+    if (foreign_entry_id) {
+      await updateEntriesConnections(foreign_entry_id)
+    }
 
-    // Commit the transaction
     await pool.query('COMMIT')
 
-    // Retrieve all connections for the primary_entry_id including titles of foreign entries
     const connectionsQuery = `
       SELECT connections.*, 
         CASE 
@@ -93,7 +86,6 @@ router.post('/create_connection', authorize, async (req, res) => {
 
     res.json({ msg: 'Connection created successfully', connectionId: newConnectionId, connections: connections.rows })
   } catch (err) {
-    // Rollback the transaction in case of error
     await pool.query('ROLLBACK')
     console.error(err.message)
     res.status(500).send('Server error')
@@ -135,9 +127,13 @@ router.delete('/delete_connection/:connectionId', authorize, async (req, res) =>
       await pool.query('UPDATE entries SET connections = $1 WHERE id = $2', [currentConnections, entryId])
     }
 
-    // Update connections array for both primary_entry_id and foreign_entry_id
+    // Update connections array for primary_entry_id
     await updateEntriesConnections(primary_entry_id)
-    await updateEntriesConnections(foreign_entry_id)
+
+    // Update connections array for foreign_entry_id if it's not null
+    if (foreign_entry_id !== null) {
+      await updateEntriesConnections(foreign_entry_id)
+    }
 
     // Commit the transaction
     await pool.query('COMMIT')
@@ -150,6 +146,7 @@ router.delete('/delete_connection/:connectionId', authorize, async (req, res) =>
     res.status(500).send('Server error')
   }
 })
+
 // Route to retrieve all connections based on entry_id
 router.get('/:entry_id', authorize, async (req, res) => {
   const { entry_id } = req.params

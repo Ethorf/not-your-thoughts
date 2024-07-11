@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 // Constants
+import { SAVE_TYPES } from '@constants/saveTypes'
 import { MODAL_NAMES } from '@constants/modalNames'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
 import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
@@ -23,13 +24,13 @@ import {
   setConnectionSourceType,
   getSelectedText,
 } from '@redux/reducers/connectionsReducer'
-import { createNodeEntry, fetchEntryById } from '@redux/reducers/currentEntryReducer'
-import { fetchNodeEntries } from '@redux/reducers/nodeEntriesReducer'
+import { createNodeEntry, fetchEntryById, updateNodeEntry } from '@redux/reducers/currentEntryReducer'
 
 // Utils
 import { highlightMatchingText } from '@utils/highlightMatchingText'
-import { showToast } from '@utils/toast.js'
-import { isValidUrl } from '@utils/isValidUrl.js'
+import { showToast } from '@utils/toast'
+import { isValidUrl } from '@utils/isValidUrl'
+import { wrapLinkStringInAnchorTag } from '@utils/wrapLinkStringInAnchorTag'
 
 // Styles
 import styles from './ConnectionsModal.module.scss'
@@ -64,10 +65,15 @@ export const ConnectionsModal = () => {
   // Reset all local state values on load
   // TODO see if this is necessary or could be simplified?
 
-  const handleModalOpen = () => {
-    dispatch(setConnectionTitleInput(''))
+  const resetLocalState = async () => {
+    await dispatch(setConnectionTitleInput(''))
     setLocalForeignEntryId(null)
+    setExternalLinkInput(null)
     setConnectionDescription('')
+  }
+
+  const handleModalOpen = async () => {
+    await resetLocalState()
   }
 
   useEffect(() => {
@@ -92,9 +98,18 @@ export const ConnectionsModal = () => {
         source_type: connectionSourceType,
       })
     )
-    await dispatch(setConnectionTitleInput(''))
-    setConnectionDescription('')
-    setLocalForeignEntryId(null)
+    await resetLocalState()
+  }
+
+  const handleUpdateNodeWithLink = async (content, linkString, link) => {
+    await dispatch(
+      updateNodeEntry({
+        entryId,
+        content: wrapLinkStringInAnchorTag(content, linkString, link),
+        title,
+        saveType: SAVE_TYPES.EXTERNAL_CONNECTION,
+      })
+    )
   }
 
   const onCreateExternalConnection = async () => {
@@ -113,9 +128,9 @@ export const ConnectionsModal = () => {
         source_type: DIRECT,
       })
     )
-    await dispatch(setConnectionTitleInput(''))
-    setConnectionDescription('')
-    setLocalForeignEntryId(null)
+
+    if (selectedPrimarySourceText) await handleUpdateNodeWithLink(content, selectedPrimarySourceText, externalLinkInput)
+    await resetLocalState()
   }
 
   // TODO see if we can make this work with our weird async ness
@@ -139,10 +154,7 @@ export const ConnectionsModal = () => {
           source_type: connectionSourceType,
         })
       )
-      await dispatch(setConnectionTitleInput(''))
-      await dispatch(fetchNodeEntries())
-      setConnectionDescription('')
-      setLocalForeignEntryId(null)
+      resetLocalState()
     }
   }
 
@@ -257,8 +269,14 @@ export const ConnectionsModal = () => {
                 <h3>Active Connections:</h3>
                 {connections.map((c) => (
                   <div className={styles.connectionDisplay}>
-                    <div className={styles.connectionLabel}>node:</div>
-                    <div className={styles.connectionText}>{c.foreign_entry_title && c.foreign_entry_title}</div>
+                    <div className={styles.connectionLabel}>{c.connection_type === EXTERNAL ? 'link:' : 'node:'}</div>
+                    {c.connection_type === EXTERNAL ? (
+                      <a target="_blank" rel="noopener noreferrer" href={c.foreign_source}>
+                        {c.primary_source ? c.primary_source : 'click here'}
+                      </a>
+                    ) : (
+                      <div className={styles.connectionText}>{c.foreign_entry_title}</div>
+                    )}
                     <div className={styles.connectionLabel}>type:</div>
                     <div className={styles.connectionText}>{c.connection_type}</div>
                     <DefaultButton onClick={() => handleDeleteConnection(c.id)}>X</DefaultButton>
