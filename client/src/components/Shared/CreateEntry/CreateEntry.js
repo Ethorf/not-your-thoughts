@@ -24,10 +24,9 @@ const CreateEntry = ({ type }) => {
   const handleContentChange = (e) => {
     dispatch(setContent(e))
 
-    const wordsAmount = content?.split(/\s+/).filter((word) => word.length > 0)
-    dispatch(setWordCount(wordsAmount.length))
-
-    dispatch(setCharCount(content.length))
+    const wordsAmount = content?.split(/\s+/).filter((word) => word?.length > 0)
+    wordsAmount?.length && dispatch(setWordCount(wordsAmount?.length))
+    content?.length && dispatch(setCharCount(content?.length))
   }
 
   const PLACEHOLDER_COPY = {

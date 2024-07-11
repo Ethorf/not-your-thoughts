@@ -13,6 +13,12 @@
   width: 90%;
 }
 
+.sourceWord {
+  font-family: 'Syncopate', sans-serif;
+  font-weight: 600;
+  font-size: 1.3rem;
+}
+
 .nodeSelect {
   width: 65%;
   margin-right: 12px;
@@ -65,9 +71,13 @@
   width: 90%;
 }
 
+.sourceSelectContainer {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+}
 .getSourceButton {
-  margin-left: 0;
-  padding-left: 0;
+  margin-left: 12px;
   font-size: 1rem;
 }
 
@@ -81,4 +91,8 @@
   width: 60%;
   height: 100px;
   padding: 12px;
+}
+
+.externalConnectionInput {
+  width: 50%;
 }

@@ -247,7 +247,6 @@
   }
 
   /////Begin Pillars\\\\\\
-
   &__pillar-left-container {
     display: flex;
     justify-content: center;
@@ -261,6 +260,7 @@
     width: 100%;
     top: 11px;
     height: 101%;
+    z-index: 4;
   }
   &__pillar-left {
     position: relative;

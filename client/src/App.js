@@ -44,6 +44,7 @@ const App = () => {
   }, [])
 
   const mode = useSelector((state) => state.modes.mode)
+  const { user } = useSelector((state) => state.auth)
 
   return (
     <div className={`App ${mode}`}>
@@ -54,7 +55,7 @@ const App = () => {
         <NavBarTop />
         <NavBarSide />
         <AudioPlayer />
-        <GeneralNodeSelector />
+        {user && <GeneralNodeSelector />}
         <Route
           render={({ location }) => (
             <TransitionGroup>

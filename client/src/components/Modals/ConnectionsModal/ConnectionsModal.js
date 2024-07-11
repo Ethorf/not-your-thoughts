@@ -10,7 +10,6 @@ import { CONNECTION_ENTRY_SOURCES } from '@constants/connectionEntrySources'
 // Components
 import { BaseModalWrapper } from '../BaseModalWrapper/BaseModalWrapper'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
-import TextButton from '@components/Shared/TextButton/TextButton'
 import NodeSelectDropdown from '@components/Shared/NodeSelectDropdown/NodeSelectDropdown'
 import DefaultDropdown from '@components/Shared/DefaultDropdown/DefaultDropdown'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
@@ -21,44 +20,46 @@ import {
   createConnection,
   deleteConnection,
   setConnectionTitleInput,
-  setSelectedPrimarySourceText,
-  setSelectedForeignSourceText,
+  setConnectionSourceType,
+  getSelectedText,
 } from '@redux/reducers/connectionsReducer'
 import { createNodeEntry, fetchEntryById } from '@redux/reducers/currentEntryReducer'
 import { fetchNodeEntries } from '@redux/reducers/nodeEntriesReducer'
 
 // Utils
 import { highlightMatchingText } from '@utils/highlightMatchingText'
+import { showToast } from '@utils/toast.js'
+import { isValidUrl } from '@utils/isValidUrl.js'
 
 // Styles
 import styles from './ConnectionsModal.module.scss'
 
 const { DIRECT, SINGLE_WORD, DESCRIPTIVE } = CONNECTION_SOURCE_TYPES
 const {
-  FRONTEND: { SIBLING, CHILD, PARENT },
-  BACKEND: { HORIZONTAL, VERTICAL },
+  FRONTEND: { SIBLING, CHILD, PARENT, EXTERNAL },
 } = CONNECTION_TYPES
 
 const { PRIMARY, FOREIGN } = CONNECTION_ENTRY_SOURCES
 
 export const ConnectionsModal = () => {
   const dispatch = useDispatch()
-  const [localForeignEntryId, setLocalForeignEntryId] = useState(null)
-  const [localForeignEntryContent, setLocalForeignEntryContent] = useState(null)
-  const [localConnectionType, setLocalConnectionType] = useState(SIBLING)
-  const [localConnectionSourceType, setLocalConnectionSourceType] = useState(DESCRIPTIVE)
-  const [connectionDescription, setConnectionDescription] = useState('')
-  const [newNodeTitle, setNewNodeTitle] = useState('')
-
-  const { entryId, title } = useSelector((state) => state.currentEntry)
   const {
-    selectedPrimarySourceText,
-    selectedForeignSourceText,
     connections,
     connectionsLoading,
     connectionTitleInput,
+    connectionSourceType,
+    modalConnectionType,
+    selectedPrimarySourceText,
+    selectedForeignSourceText,
   } = useSelector((state) => state.connections)
-  const { content } = useSelector((state) => state.currentEntry)
+  const { content, entryId, title } = useSelector((state) => state.currentEntry)
+
+  const [localForeignEntryId, setLocalForeignEntryId] = useState(null)
+  const [localForeignEntryContent, setLocalForeignEntryContent] = useState(null)
+  const [localConnectionType, setLocalConnectionType] = useState(modalConnectionType)
+  const [connectionDescription, setConnectionDescription] = useState('')
+  const [externalLinkInput, setExternalLinkInput] = useState(null)
+  const [newNodeTitle, setNewNodeTitle] = useState('')
 
   // Reset all local state values on load
   // TODO see if this is necessary or could be simplified?
@@ -86,9 +87,30 @@ export const ConnectionsModal = () => {
         main_entry_id: entryId,
         primary_entry_id: localConnectionType === PARENT ? localForeignEntryId : entryId,
         foreign_entry_id: localConnectionType === PARENT ? entryId : localForeignEntryId,
-        primary_source: localConnectionSourceType === DESCRIPTIVE ? connectionDescription : selectedPrimarySourceText,
-        foreign_source: localConnectionSourceType === DIRECT ? selectedForeignSourceText : null,
-        source_type: localConnectionSourceType,
+        primary_source: connectionSourceType === DESCRIPTIVE ? connectionDescription : selectedPrimarySourceText,
+        foreign_source: connectionSourceType === DIRECT ? selectedForeignSourceText : null,
+        source_type: connectionSourceType,
+      })
+    )
+    await dispatch(setConnectionTitleInput(''))
+    setConnectionDescription('')
+    setLocalForeignEntryId(null)
+  }
+
+  const onCreateExternalConnection = async () => {
+    if (!isValidUrl(externalLinkInput)) {
+      showToast('Please enter a valid external link', 'error')
+      return
+    }
+    await dispatch(
+      createConnection({
+        connection_type: localConnectionType,
+        main_entry_id: entryId,
+        primary_entry_id: entryId,
+        foreign_entry_id: null,
+        primary_source: selectedPrimarySourceText,
+        foreign_source: externalLinkInput,
+        source_type: DIRECT,
       })
     )
     await dispatch(setConnectionTitleInput(''))
@@ -98,7 +120,9 @@ export const ConnectionsModal = () => {
 
   // TODO see if we can make this work with our weird async ness
   const handleCreateConnection = async () => {
-    if (localForeignEntryId) {
+    if (localConnectionType === EXTERNAL) {
+      await onCreateExternalConnection()
+    } else if (localForeignEntryId) {
       await onCreateConnection()
     } else {
       const newNode = await dispatch(createNodeEntry({ title: newNodeTitle }))
@@ -107,12 +131,12 @@ export const ConnectionsModal = () => {
       await dispatch(
         createConnection({
           connection_type: localConnectionType,
-          foreign_entry_id: localConnectionType === PARENT ? entryId : newForeignEntryId,
           main_entry_id: entryId,
+          foreign_entry_id: localConnectionType === PARENT ? entryId : newForeignEntryId,
           primary_entry_id: localConnectionType === PARENT ? newForeignEntryId : entryId,
-          primary_source: localConnectionSourceType === DESCRIPTIVE ? connectionDescription : selectedPrimarySourceText,
-          foreign_source: localConnectionSourceType === DIRECT ? selectedForeignSourceText : null,
-          source_type: localConnectionSourceType,
+          primary_source: connectionSourceType === DESCRIPTIVE ? connectionDescription : selectedPrimarySourceText,
+          foreign_source: connectionSourceType === DIRECT ? selectedForeignSourceText : null,
+          source_type: connectionSourceType,
         })
       )
       await dispatch(setConnectionTitleInput(''))
@@ -126,24 +150,6 @@ export const ConnectionsModal = () => {
     dispatch(deleteConnection(id))
   }
 
-  // TODO abstract this out but see if we can make it work in a reducer?
-  const getSelectedText = (entry_source) => {
-    if (window.getSelection) {
-      const selection = window.getSelection()
-      if (selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0)
-        const container = document.createElement('div')
-        container.appendChild(range.cloneContents())
-
-        if (entry_source === PRIMARY) {
-          dispatch(setSelectedPrimarySourceText(container.innerHTML))
-        } else if (entry_source === FOREIGN) {
-          dispatch(setSelectedForeignSourceText(container.innerHTML))
-        }
-      }
-    }
-  }
-
   const highlightedPrimaryContent = highlightMatchingText(content, selectedPrimarySourceText)
   const highlightedForeignContent = highlightMatchingText(localForeignEntryContent, selectedForeignSourceText)
 
@@ -152,13 +158,6 @@ export const ConnectionsModal = () => {
       <div className={styles.wrapper}>
         <h2>Connect {title} to:</h2>
         <div className={styles.flexContainer}>
-          <NodeSelectDropdown
-            className={styles.nodeSelect}
-            onChange={(value) => setNewNodeTitle(value)}
-            onSelect={(value) => setLocalForeignEntryId(value)}
-            setInputValue={(e) => dispatch(setConnectionTitleInput(e))}
-            inputValue={connectionTitleInput}
-          />
           <p>Type:</p>
           <DefaultDropdown
             className={styles.createDropdown}
@@ -167,44 +166,75 @@ export const ConnectionsModal = () => {
             onChange={(e) => setLocalConnectionType(e.target.value)}
             tooltip={'Change connection type'}
           />
+          {localConnectionType !== EXTERNAL && (
+            <NodeSelectDropdown
+              className={styles.nodeSelect}
+              onChange={(value) => setNewNodeTitle(value)}
+              onSelect={(value) => setLocalForeignEntryId(value)}
+              setInputValue={(e) => dispatch(setConnectionTitleInput(e))}
+              inputValue={connectionTitleInput}
+            />
+          )}
         </div>
         <HorizontalDivider className={styles.horizontalDivider} />
-        <div className={styles.flexContainer}>
-          <p>Connection Source Type:</p>
-          <DefaultDropdown
-            className={styles.createDropdown}
-            value={localConnectionSourceType}
-            options={Object.values(CONNECTION_SOURCE_TYPES)}
-            onChange={(e) => setLocalConnectionSourceType(e.target.value)}
-            tooltip={'Change connection source type'}
-          />
-        </div>
+        {localConnectionType !== EXTERNAL && (
+          <div className={styles.flexContainer}>
+            <p>Connection Source Type:</p>
+            <DefaultDropdown
+              className={styles.createDropdown}
+              value={connectionSourceType}
+              options={Object.values(CONNECTION_SOURCE_TYPES)}
+              onChange={(e) => dispatch(setConnectionSourceType(e.target.value))}
+              tooltip={'Change connection source type'}
+            />
+          </div>
+        )}
         <div className={styles.sourceSelectionContainer}>
-          {localConnectionSourceType === DIRECT ? (
+          {localConnectionType === EXTERNAL ? (
+            <div className={styles.entrySourceContainer}>
+              <div className={styles.sourceSelectContainer}>
+                <DefaultButton className={styles.getSourceButton} onClick={() => dispatch(getSelectedText(PRIMARY))}>
+                  Select Text to Link
+                </DefaultButton>
+              </div>
+              <div className={styles.entrySource} dangerouslySetInnerHTML={{ __html: highlightedPrimaryContent }} />
+              <input
+                className={styles.externalConnectionInput}
+                value={externalLinkInput}
+                onChange={(e) => setExternalLinkInput(e.target.value)}
+                placeholder="Enter external connection link"
+              />
+            </div>
+          ) : null}
+          {connectionSourceType === DIRECT && localConnectionType !== EXTERNAL ? (
             <>
               <div className={styles.entrySourceContainer}>
-                <h4 className={styles.entrySourceHeader}>Primary Entry Source</h4>
-                <TextButton className={styles.getSourceButton} onClick={() => getSelectedText(PRIMARY)}>
-                  Select Primary Source Text
-                </TextButton>
+                <div className={styles.sourceSelectContainer}>
+                  <h4 className={styles.entrySourceHeader}>Primary Entry Source</h4>
+                  <DefaultButton className={styles.getSourceButton} onClick={() => dispatch(getSelectedText(PRIMARY))}>
+                    Select Text
+                  </DefaultButton>
+                </div>
                 <div className={styles.entrySource} dangerouslySetInnerHTML={{ __html: highlightedPrimaryContent }} />
               </div>
               {localForeignEntryId ? (
                 <div className={styles.entrySourceContainer}>
-                  <h4 className={styles.entrySourceHeader}>Foreign Entry Source</h4>
-                  <TextButton
-                    className={styles.getSourceButton}
-                    onClick={() => getSelectedText(FOREIGN)}
-                    tooltip="cruckky"
-                  >
-                    Select Foreign Source Text
-                  </TextButton>
+                  <div className={styles.sourceSelectContainer}>
+                    <h4 className={styles.entrySourceHeader}>Foreign Entry Source</h4>
+                    <DefaultButton
+                      className={styles.getSourceButton}
+                      onClick={() => dispatch(getSelectedText(FOREIGN))}
+                      tooltip="cruckky"
+                    >
+                      Select Text
+                    </DefaultButton>
+                  </div>
                   <div className={styles.entrySource} dangerouslySetInnerHTML={{ __html: highlightedForeignContent }} />
                 </div>
               ) : null}
             </>
           ) : null}
-          {localConnectionSourceType === DESCRIPTIVE ? (
+          {connectionSourceType === DESCRIPTIVE && localConnectionType !== EXTERNAL ? (
             <textarea
               className={styles.connectionDescriptionTextarea}
               value={connectionDescription}
@@ -228,7 +258,7 @@ export const ConnectionsModal = () => {
                 {connections.map((c) => (
                   <div className={styles.connectionDisplay}>
                     <div className={styles.connectionLabel}>node:</div>
-                    <div className={styles.connectionText}>{c.foreign_entry_title}</div>
+                    <div className={styles.connectionText}>{c.foreign_entry_title && c.foreign_entry_title}</div>
                     <div className={styles.connectionLabel}>type:</div>
                     <div className={styles.connectionText}>{c.connection_type}</div>
                     <DefaultButton onClick={() => handleDeleteConnection(c.id)}>X</DefaultButton>

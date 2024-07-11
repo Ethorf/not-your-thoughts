@@ -56,6 +56,13 @@ const NodeEntriesList = () => {
             </div>
           </div>
           <div className={styles.divider} />
+          <div className={styles.headerContainer}>
+            <p className={styles.listHeader}>Title</p>
+            <p className={styles.listHeader}>Modified</p>
+            <p className={styles.listHeader}>Created</p>
+            <p className={styles.listHeader}>Content</p>
+          </div>
+          <div className={styles.divider} />
           <ul className={styles.listContainer}>
             {sortedAndFilteredEntries.map((nodeEntry) => (
               <NodeEntry key={nodeEntry.id} node={nodeEntry} />

@@ -1,29 +1,30 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
-import { CONNECTION_TYPES } from '@constants/connectionTypes'
+import { CONNECTION_TYPES, FRONT_TO_BACK_CONN_TYPES } from '@constants/connectionTypes'
+import { CONNECTION_ENTRY_SOURCES } from '@constants/connectionEntrySources'
+import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
 
 import { showToast } from '@utils/toast'
+import { hasOneWord } from '@utils/hasOneWord'
 
 const {
-  FRONTEND: { SIBLING, CHILD, PARENT },
-  BACKEND: { HORIZONTAL, VERTICAL },
+  FRONTEND: { SIBLING, EXTERNAL },
 } = CONNECTION_TYPES
 
-const FRONT_TO_BACK_CONN_TYPES = {
-  [SIBLING]: HORIZONTAL,
-  [CHILD]: VERTICAL,
-  [PARENT]: VERTICAL,
-}
+const { PRIMARY, FOREIGN } = CONNECTION_ENTRY_SOURCES
+const { DIRECT, SINGLE_WORD, DESCRIPTIVE } = CONNECTION_SOURCE_TYPES
+
 const initialState = {
   connections: [],
   connectionsLoading: false,
+  connectionSourceType: DIRECT,
   connectionTitleInput: '',
-  error: null,
+  externalConnectionSource: null,
+  modalConnectionType: SIBLING,
   selectedPrimarySourceText: '',
   selectedForeignSourceText: '',
 }
 
-// Async thunk to create a connection
 export const createConnection = createAsyncThunk(
   'connections/create_connection',
   async (
@@ -32,7 +33,7 @@ export const createConnection = createAsyncThunk(
   ) => {
     try {
       const response = await axios.post('api/connections/create_connection', {
-        connection_type: FRONT_TO_BACK_CONN_TYPES[connection_type],
+        connection_type: connection_type === EXTERNAL ? connection_type : FRONT_TO_BACK_CONN_TYPES[connection_type],
         primary_entry_id,
         foreign_entry_id,
         main_entry_id,
@@ -50,7 +51,6 @@ export const createConnection = createAsyncThunk(
   }
 )
 
-// Async thunk to delete a connection
 export const deleteConnection = createAsyncThunk(
   'connections/delete_connection',
   async (connectionId, { rejectWithValue }) => {
@@ -63,7 +63,6 @@ export const deleteConnection = createAsyncThunk(
   }
 )
 
-// Async thunk to fetch all connections based on entry_id
 export const fetchConnections = createAsyncThunk('connections/', async (entry_id, { rejectWithValue }) => {
   try {
     const response = await axios.get(`api/connections/${entry_id}`)
@@ -83,17 +82,44 @@ const connectionsSlice = createSlice({
       state.connectionsLoading = false
       state.error = null
     },
+    setModalConnectionType: (state, action) => {
+      state.modalConnectionType = action.payload
+    },
+    setConnectionSourceType: (state, action) => {
+      state.connectionSourceType = action.payload
+    },
     setSelectedPrimarySourceText: (state, action) => {
-      console.log(action.payload)
       state.selectedPrimarySourceText = action.payload
     },
     setSelectedForeignSourceText: (state, action) => {
-      console.log(action.payload)
       state.selectedForeignSourceText = action.payload
     },
     setConnectionTitleInput: (state, action) => {
-      console.log(action.payload)
       state.connectionTitleInput = action.payload
+    },
+    getSelectedText: (state, action) => {
+      const entry_source = action.payload
+
+      if (window.getSelection) {
+        const selection = window.getSelection()
+        if (selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0)
+          const container = document.createElement('div')
+          container.appendChild(range.cloneContents())
+
+          if (hasOneWord(container.innerHTML)) {
+            state.connectionSourceType = SINGLE_WORD
+          } else {
+            state.connectionSourceType = DIRECT
+          }
+
+          if (entry_source === PRIMARY) {
+            state.selectedPrimarySourceText = container.innerHTML
+          } else if (entry_source === FOREIGN) {
+            state.selectedForeignSourceText = container.innerHTML
+          }
+        }
+      }
     },
   },
   extraReducers: (builder) => {
@@ -143,7 +169,14 @@ const connectionsSlice = createSlice({
   },
 })
 
-export const { resetConnections, setSelectedPrimarySourceText, setSelectedForeignSourceText, setConnectionTitleInput } =
-  connectionsSlice.actions
+export const {
+  resetConnections,
+  setSelectedPrimarySourceText,
+  setSelectedForeignSourceText,
+  setConnectionTitleInput,
+  setConnectionSourceType,
+  setModalConnectionType,
+  getSelectedText,
+} = connectionsSlice.actions
 
 export default connectionsSlice.reducer

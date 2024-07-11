@@ -1,6 +1,8 @@
+@import '@styles/variables.scss';
+
 .wrapper {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: $entries-list-columns;
   gap: 8px;
   margin-bottom: 8px;
 }
@@ -13,6 +15,8 @@
 
 .titleButton {
   font-size: 1.2rem;
+  margin-left: 0;
+  padding: 0;
 }
 
 .editButton {
@@ -20,7 +24,6 @@
   width: 32px;
   fill: rgba(192, 192, 192, 0.5);
   transition: all 0.2s ease-in-out;
-
   cursor: pointer;
 
   &:hover {

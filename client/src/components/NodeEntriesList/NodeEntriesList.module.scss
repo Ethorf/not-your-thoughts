@@ -1,3 +1,5 @@
+@import '@styles/variables';
+
 .wrapper {
   width: 70%;
 }
@@ -18,8 +20,21 @@
 }
 
 .divider {
-  margin: 24px 0;
+  margin: 12px 0;
   border-top: 2px solid rgba(192, 192, 192, 0.8);
+}
+
+.headerContainer {
+  grid-template-columns: $entries-list-columns;
+  gap: 8px;
+  display: grid;
+}
+
+.listHeader {
+  font-family: 'Syncopate', sans-serif;
+  font-size: 1.3rem;
+  color: $white-text-color;
+  margin: 0;
 }
 
 .searchSortContainer {
