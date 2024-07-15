@@ -69,8 +69,7 @@ export const createNodeEntry = createAsyncThunk(
         title,
       })
       dispatch(showToast('Node Created', 'success'))
-      console.log('<<<<<< response.data.newEntry.rows[0] >>>>>>>>> is: <<<<<<<<<<<<')
-      console.log(response.data)
+
       return response.data
     } catch (error) {
       dispatch(showToast('Node creation error', 'error'))
@@ -131,11 +130,11 @@ export const updateNodeEntry = createAsyncThunk(
 
       if (saveType === AUTO) {
         dispatch(showToast('Node autosaved', 'warn'))
+        return ''
       } else {
         dispatch(showToast('Node updated', 'success'))
+        return response.data
       }
-
-      return response.data
     } catch (error) {
       return rejectWithValue(error.response.data)
     }
@@ -200,6 +199,20 @@ export const deleteEntry = createAsyncThunk(
       return response.data
     } catch (error) {
       dispatch(showToast('Error deleting entry', 'error'))
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+export const toggleNodeStarred = createAsyncThunk(
+  'currentEntryReducer/toggleNodeStarred',
+  async ({ entryId }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axios.post('/api/entries/toggle_starred', { entryId })
+      dispatch(showToast('Starred status updated', 'success'))
+      return response.data
+    } catch (error) {
+      dispatch(showToast('Error updating starred status', 'error'))
       return rejectWithValue(error.response.data)
     }
   }
@@ -276,12 +289,18 @@ const currentEntrySlice = createSlice({
         }
       })
       .addCase(updateNodeEntry.fulfilled, (state, action) => {
-        console.log('<<<<<< action.payload.content >>>>>>>>> is: <<<<<<<<<<<<')
-        console.log(action.payload.content)
-        return {
-          ...state,
-          entriesLoading: false,
-          content: action.payload.content,
+        // Will only receive a payload if not an autosave update
+        if (action.payload.content) {
+          return {
+            ...state,
+            entriesLoading: false,
+            content: action.payload.content,
+          }
+        } else {
+          return {
+            ...state,
+            entriesLoading: false,
+          }
         }
       })
       .addCase(updateNodeEntry.pending, (state) => {
@@ -310,6 +329,12 @@ const currentEntrySlice = createSlice({
       })
       .addCase(deleteEntry.fulfilled, (state) => {
         return initialState
+      })
+      .addCase(toggleNodeStarred.fulfilled, (state, action) => {
+        const { entryId, starred } = action.payload
+        if (state.entryId === entryId) {
+          state.starred = starred
+        }
       })
   },
 })

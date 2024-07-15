@@ -5,7 +5,6 @@ import { useHistory } from 'react-router-dom'
 
 // Components
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner.js'
-import { EditPencil } from '@components/Shared/EditPencil/EditPencil'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import TextButton from '@components/Shared/TextButton/TextButton'
 

@@ -31,7 +31,7 @@ const {
   FRONTEND: { SIBLING, CHILD, PARENT },
 } = CONNECTION_TYPES
 
-const { PRIMARY, FOREIGN } = CONNECTION_ENTRY_SOURCES
+const { PRIMARY } = CONNECTION_ENTRY_SOURCES
 
 const EditNodeEntry = () => {
   const dispatch = useDispatch()
@@ -88,7 +88,7 @@ const EditNodeEntry = () => {
 
   return (
     <div className={styles.wrapper}>
-      <AutosaveTimer handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
+      {/* <AutosaveTimer handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} /> */}
       <div className={styles.editContainer}>
         <h2>Edit Node</h2>
         <div className={classNames(styles.topContainer, styles.grid4ColumnsCustom)}>

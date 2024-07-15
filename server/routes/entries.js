@@ -260,31 +260,61 @@ router.get('/node_entries', authorize, async (req, res) => {
       return res.status(404).json({ msg: 'No node entries found for this user' })
     }
 
-    // If node entries are found, return them
-    res.json({ entries: allNodeEntries.rows })
+    // Map over entries and add pending status
+    const entriesWithPendingStatus = allNodeEntries.rows.map((entry) => {
+      return {
+        ...entry,
+        pending: !entry.content || entry.content.length === 0,
+      }
+    })
+
+    // If node entries are found, return them with pending status
+    res.json({ entries: entriesWithPendingStatus })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
   }
 })
 
-// Route to retrieve all node type entries with title and id
+// Route to retrieve all node type entries with title, id, starred, and pending status
 router.get('/node_entries_info', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
   try {
-    // Retrieve node entries' title and id for the user with the provided user_id
-    const nodeEntries = await pool.query(`SELECT id, title FROM entries WHERE user_id = $1 AND type = 'node'`, [
-      user_id,
-    ])
+    // Retrieve node entries' title, id, and starred for the user with the provided user_id
+    const nodeEntriesQuery = await pool.query(
+      `SELECT 
+        entries.id, 
+        entries.title, 
+        entries.starred,
+        ARRAY(
+          SELECT content 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created DESC
+        ) AS content
+      FROM entries 
+      WHERE user_id = $1 AND type = 'node'`,
+      [user_id]
+    )
+
+    const nodeEntries = nodeEntriesQuery.rows
 
     // Check if there are any entries found
-    if (nodeEntries.rows.length === 0) {
+    if (nodeEntries.length === 0) {
       return res.status(404).json({ msg: 'No node entries found for this user' })
     }
 
+    // Process entries to include pending status
+    const processedEntries = nodeEntries.map((entry) => ({
+      id: entry.id,
+      title: entry.title,
+      starred: entry.starred,
+      pending: !entry.content || entry.content.length === 0,
+    }))
+
     // If node entries are found, return them
-    res.json({ nodeEntries: nodeEntries.rows })
+    res.json({ nodeEntries: processedEntries })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -415,6 +445,44 @@ router.delete('/delete_entry/:id', authorize, async (req, res) => {
   } catch (err) {
     // Rollback the transaction in case of error
     await pool.query('ROLLBACK')
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// Route to toggle the starred value of an entry
+router.post('/toggle_starred', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+  const { entryId } = req.body
+
+  try {
+    // Check if entryId and user_id are provided
+    if (!entryId || !user_id) {
+      return res.status(400).json({ message: 'entryId and user_id are required' })
+    }
+
+    // Retrieve the current starred status of the entry
+    const entry = await pool.query('SELECT starred FROM entries WHERE id = $1 AND user_id = $2', [entryId, user_id])
+
+    // Check if the entry exists
+    if (entry.rows.length === 0) {
+      return res.status(404).json({ message: 'Entry not found' })
+    }
+
+    // Toggle the starred status
+    const currentStarredStatus = entry.rows[0].starred
+    const newStarredStatus = !currentStarredStatus
+
+    // Update the entry's starred status
+    await pool.query('UPDATE entries SET starred = $1 WHERE id = $2 AND user_id = $3', [
+      newStarredStatus,
+      entryId,
+      user_id,
+    ])
+
+    console.log(`Entry ${entryId} starred status updated successfully!`)
+    return res.json({ entryId, starred: newStarredStatus })
+  } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
   }

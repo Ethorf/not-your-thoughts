@@ -1,5 +1,15 @@
 @import '@styles/mixins.scss';
 
+.titleWrapper {
+  margin: 0;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-family: 'Syncopate', sans-serif;
+  color: white;
+}
+
 .overflowVisible {
   overflow: visible;
 }
@@ -20,8 +30,8 @@
 }
 
 .nodeSelect {
-  width: 65%;
-  margin-right: 12px;
+  width: 60%;
+  margin: 0 10px;
 }
 
 .connectionDisplay {
@@ -37,7 +47,7 @@
 
 .createDropdown {
   height: 32px;
-  margin-left: 12px;
+  margin: 0 10px;
 }
 
 .flexContainer {

@@ -1,6 +1,16 @@
 .main {
   border: none;
   border-top: 1px solid rgba(204, 204, 204, 0.6);
+}
+
+.small {
+  margin: 1em 0;
+}
+
+.default {
   margin: 2em 0;
-  width: 100%;
+}
+
+.tall {
+  margin: 3em 0;
 }

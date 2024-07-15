@@ -11,7 +11,7 @@ import sharedStyles from '@styles/shared.module.scss'
 
 // Components
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
-import { CustomPromptsList } from '@components/Shared/CustomPromptsList/CustomPromptsList'
+import { NodesDashboardList } from '@components/Shared/NodesDashboardList/NodesDashboardList'
 import CustomPromptsSection from '@components/CustomPromptsSection/CustomPromptsSection.js'
 
 const Dashboard = () => {
@@ -36,9 +36,9 @@ const Dashboard = () => {
         <DefaultButton onClick={handleNewNodeEntryClick}>Node</DefaultButton>
         <DefaultButton onClick={handleNewJournalEntryClick}>Journal</DefaultButton>
       </div>
-      <CustomPromptsSection />
+      <h3>Nodes</h3>
       <div className={styles.customPromptsList}>
-        <CustomPromptsList />
+        <NodesDashboardList />
       </div>
     </div>
   )

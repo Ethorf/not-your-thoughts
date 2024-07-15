@@ -7,6 +7,7 @@ import { MODAL_NAMES } from '@constants/modalNames'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
 import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
 import { CONNECTION_ENTRY_SOURCES } from '@constants/connectionEntrySources'
+import { HORIZONTAL_DIVIDER_HEIGHTS } from '@constants/horizontalDividerHeights'
 
 // Components
 import { BaseModalWrapper } from '../BaseModalWrapper/BaseModalWrapper'
@@ -35,12 +36,15 @@ import { wrapLinkStringInAnchorTag } from '@utils/wrapLinkStringInAnchorTag'
 // Styles
 import styles from './ConnectionsModal.module.scss'
 
-const { DIRECT, SINGLE_WORD, DESCRIPTIVE } = CONNECTION_SOURCE_TYPES
+// Constand Destructures
+const { DIRECT, DESCRIPTIVE } = CONNECTION_SOURCE_TYPES
 const {
-  FRONTEND: { SIBLING, CHILD, PARENT, EXTERNAL },
+  FRONTEND: { PARENT, EXTERNAL },
 } = CONNECTION_TYPES
 
 const { PRIMARY, FOREIGN } = CONNECTION_ENTRY_SOURCES
+
+const { DEFAULT, SMALL } = HORIZONTAL_DIVIDER_HEIGHTS
 
 export const ConnectionsModal = () => {
   const dispatch = useDispatch()
@@ -63,7 +67,6 @@ export const ConnectionsModal = () => {
   const [newNodeTitle, setNewNodeTitle] = useState('')
 
   // Reset all local state values on load
-  // TODO see if this is necessary or could be simplified?
 
   const resetLocalState = async () => {
     await dispatch(setConnectionTitleInput(''))
@@ -168,7 +171,9 @@ export const ConnectionsModal = () => {
   return (
     <BaseModalWrapper modalName={MODAL_NAMES.CONNECTIONS} className={styles.overflowVisible} onOpen={handleModalOpen}>
       <div className={styles.wrapper}>
-        <h2>Connect {title} to:</h2>
+        <h2 className={styles.titleWrapper}>
+          connect <span className={styles.title}>{title}</span> to:
+        </h2>
         <div className={styles.flexContainer}>
           <p>Type:</p>
           <DefaultDropdown
@@ -179,16 +184,19 @@ export const ConnectionsModal = () => {
             tooltip={'Change connection type'}
           />
           {localConnectionType !== EXTERNAL && (
-            <NodeSelectDropdown
-              className={styles.nodeSelect}
-              onChange={(value) => setNewNodeTitle(value)}
-              onSelect={(value) => setLocalForeignEntryId(value)}
-              setInputValue={(e) => dispatch(setConnectionTitleInput(e))}
-              inputValue={connectionTitleInput}
-            />
+            <>
+              <span>Node:</span>
+              <NodeSelectDropdown
+                className={styles.nodeSelect}
+                onChange={(value) => setNewNodeTitle(value)}
+                onSelect={(value) => setLocalForeignEntryId(value)}
+                setInputValue={(e) => dispatch(setConnectionTitleInput(e))}
+                inputValue={connectionTitleInput}
+              />
+            </>
           )}
         </div>
-        <HorizontalDivider className={styles.horizontalDivider} />
+        <HorizontalDivider className={styles.horizontalDivider} height={SMALL} />
         {localConnectionType !== EXTERNAL && (
           <div className={styles.flexContainer}>
             <p>Connection Source Type:</p>

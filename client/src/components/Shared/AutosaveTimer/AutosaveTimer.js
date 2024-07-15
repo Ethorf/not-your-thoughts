@@ -27,7 +27,7 @@ const AutosaveTimer = ({ handleAutosave }) => {
       timer = setInterval(() => {
         handleAutosave()
         setShouldAutosave(false)
-      }, 30000) // Autosave every 10 seconds
+      }, 5000) // Autosave every 30 seconds
     }
 
     // Clean up timer on component unmount or state change
