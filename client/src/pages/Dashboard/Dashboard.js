@@ -12,7 +12,6 @@ import sharedStyles from '@styles/shared.module.scss'
 // Components
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import { NodesDashboardList } from '@components/Shared/NodesDashboardList/NodesDashboardList'
-import CustomPromptsSection from '@components/CustomPromptsSection/CustomPromptsSection.js'
 
 const Dashboard = () => {
   const history = useHistory()

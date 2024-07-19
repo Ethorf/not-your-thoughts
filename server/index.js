@@ -14,7 +14,20 @@ dotenv.config({ path: envPath })
 const app = express()
 const pool = require('./config/neonDb.js')
 
-pool.connect()
+// Attempt to connect to the database
+const connectWithRetry = () => {
+  pool
+    .connect()
+    .then(() => {
+      console.log('Connected to the database.')
+    })
+    .catch((err) => {
+      console.error('Failed to connect to the database. Retrying in 5 seconds...', err)
+      setTimeout(connectWithRetry, 5000)
+    })
+}
+
+connectWithRetry()
 
 // Parse JSON bodies with a larger limit (e.g., 10MB)
 app.use(bodyParser.json({ limit: '10mb' }))
@@ -45,7 +58,7 @@ if (process.env.NODE_ENV === 'production') {
 
 const PORT = process.env.PORT || 8082
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`It's an ${PORT} type of guy for NYT`)
 
   // Check if backupProcess should run based on process.env.GH_HANDLE
@@ -66,8 +79,32 @@ app.listen(PORT, () => {
   }
 })
 
-// OLD ROUTES
+// Graceful shutdown
+const gracefulShutdown = (signal) => {
+  console.log(`Received ${signal}. Shutting down gracefully...`)
+  server.close(() => {
+    console.log('Closed out remaining connections.')
+    process.exit(0)
+  })
 
-// app.use('/api/setFirstLogin', require('./routes/api/setFirstLogin.js'))
-// app.use('/api/contact', require('./routes/api/contact.js'))
-// app.use('/api/increaseDays', require('./routes/api/increaseDays.js'))
+  // Forcefully shut down after 10 seconds
+  setTimeout(() => {
+    console.error('Forcing shutdown...')
+    process.exit(1)
+  }, 10000)
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
+process.on('SIGINT', () => gracefulShutdown('SIGINT'))
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception', err)
+  gracefulShutdown('uncaughtException')
+})
+
+// Handle unhandled rejections
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled rejection', err)
+  gracefulShutdown('unhandledRejection')
+})

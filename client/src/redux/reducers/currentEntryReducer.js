@@ -208,7 +208,7 @@ export const toggleNodeStarred = createAsyncThunk(
   'currentEntryReducer/toggleNodeStarred',
   async ({ entryId }, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axios.post('/api/entries/toggle_starred', { entryId })
+      const response = await axios.post('api/entries/toggle_starred', { entryId })
       dispatch(showToast('Starred status updated', 'success'))
       return response.data
     } catch (error) {

@@ -10,7 +10,6 @@ import { useSelector, connect } from 'react-redux'
 import './App.scss'
 import NavBarSide from './components/nav/navBarSide.js'
 import NavBarTop from './components/nav/navBarTop.js'
-import AudioPlayer from './components/audioPlayer/audioPlayer.js'
 import GeneralNodeSelector from '@components/Shared/GeneralNodeSelector/GeneralNodeSelector.js'
 
 //Pages Imports
@@ -54,7 +53,6 @@ const App = () => {
         <ModalsContainer />
         <NavBarTop />
         <NavBarSide />
-        <AudioPlayer />
         {user && <GeneralNodeSelector />}
         <Route
           render={({ location }) => (

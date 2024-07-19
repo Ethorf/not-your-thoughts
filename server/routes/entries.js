@@ -277,11 +277,12 @@ router.get('/node_entries', authorize, async (req, res) => {
 })
 
 // Route to retrieve all node type entries with title, id, starred, and pending status
+// Route to retrieve all node type entries with title, id, starred, pending status, date_created, and date_last_modified
 router.get('/node_entries_info', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
   try {
-    // Retrieve node entries' title, id, and starred for the user with the provided user_id
+    // Retrieve node entries' title, id, starred, date_created, and date_last_modified for the user with the provided user_id
     const nodeEntriesQuery = await pool.query(
       `SELECT 
         entries.id, 
@@ -292,7 +293,17 @@ router.get('/node_entries_info', authorize, async (req, res) => {
           FROM entry_contents 
           WHERE entry_id = entries.id 
           ORDER BY date_created DESC
-        ) AS content
+        ) AS content,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created ASC 
+          LIMIT 1) AS date_created,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created DESC 
+          LIMIT 1) AS date_last_modified
       FROM entries 
       WHERE user_id = $1 AND type = 'node'`,
       [user_id]
@@ -311,10 +322,62 @@ router.get('/node_entries_info', authorize, async (req, res) => {
       title: entry.title,
       starred: entry.starred,
       pending: !entry.content || entry.content.length === 0,
+      date_created: entry.date_created,
+      date_last_modified: entry.date_last_modified,
     }))
 
     // If node entries are found, return them
     res.json({ nodeEntries: processedEntries })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// Route to retrieve all entries regardless of type for a user
+router.get('/all_entries', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+
+  try {
+    // Retrieve all journal entries for the user with the provided user_id
+    const allEntriesQuery = await pool.query(
+      `SELECT 
+        entries.*, 
+        ARRAY(
+          SELECT content 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created DESC
+        ) AS content,
+        ARRAY(
+          SELECT name 
+          FROM tags 
+          WHERE id = ANY(entries.tags)
+        ) AS tag_names,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created ASC 
+          LIMIT 1) AS date_created,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created DESC 
+          LIMIT 1) AS date_last_modified
+      FROM entries 
+      WHERE user_id = $1`,
+      [user_id]
+    )
+
+    const allEntries = allEntriesQuery.rows
+
+    // Check if there are any entries found
+    if (allEntries.length === 0) {
+      return res.status(404).json({ msg: 'No entries found for this user' })
+    }
+
+    // If journal entries are found, return them
+    res.json({ entries: allEntries })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -454,7 +517,10 @@ router.delete('/delete_entry/:id', authorize, async (req, res) => {
 router.post('/toggle_starred', authorize, async (req, res) => {
   const { id: user_id } = req.user
   const { entryId } = req.body
-
+  console.log('<<<<<< entryId in Backend Route >>>>>>>>> is: <<<<<<<<<<<<')
+  console.log(entryId)
+  console.log('<<<<<< req.body >>>>>>>>> is: <<<<<<<<<<<<')
+  console.log(req.body)
   try {
     // Check if entryId and user_id are provided
     if (!entryId || !user_id) {

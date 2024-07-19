@@ -9,11 +9,15 @@ import styles from './NodesDashboardList.module.scss'
 export const NodesDashboardList = () => {
   const nodeEntriesInfo = useNodeEntriesInfo()
 
-  // Sort custom prompts with starred prompts first
+  // Sort nodes with starred first, then pending, then by date_last_modified
   const sortedNodes = [...nodeEntriesInfo].sort((a, b) => {
     if (a.starred && !b.starred) return -1 // a comes first if it's starred
     if (!a.starred && b.starred) return 1 // b comes first if a is not starred but b is
-    return 0 // maintain the order for non-starred prompts
+    if (a.pending && !b.pending) return -1 // a comes first if it's pending
+    if (!a.pending && b.pending) return 1 // b comes first if a is not pending but b is
+    if (new Date(a.date_last_modified) > new Date(b.date_last_modified)) return -1 // a comes first if it is more recently modified
+    if (new Date(a.date_last_modified) < new Date(b.date_last_modified)) return 1 // b comes first if it is more recently modified
+    return 0 // maintain the order if all conditions are equal
   })
 
   return (
@@ -25,7 +29,7 @@ export const NodesDashboardList = () => {
           ))}
         </ul>
       ) : (
-        <h3>No prompts created yet...</h3>
+        <h3>No nodes created yet...</h3>
       )}
     </>
   )

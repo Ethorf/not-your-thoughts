@@ -2,50 +2,23 @@
 
 .wrapper {
   display: grid;
-  grid-template-columns: $entries-list-columns;
+  grid-template-columns: $dashboard-nodes-columns;
+  align-items: center;
   gap: 8px;
   margin-bottom: 8px;
 }
 
-.nodeValue {
-  margin-right: 8px;
-  display: flex;
-  align-items: center;
+.date {
+  color: $silver-faded;
 }
 
-.titleButton {
-  font-size: 1.2rem;
-  margin-left: 0;
-  padding: 0;
+.deleteButton {
+  font-size: 0.8rem;
 }
 
-.editButton {
-  height: 32px;
-  width: 32px;
-  fill: rgba(192, 192, 192, 0.5);
-  transition: all 0.2s ease-in-out;
-  cursor: pointer;
-
-  &:hover {
-    fill: rgba(192, 192, 192, 1);
-    transition: all 0.2s ease-in-out;
-  }
-}
-
-.contentButton {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  &:hover {
-    color: white;
-    transition: all 0.2s ease-in-out;
-  }
-}
-
-.editContainer {
-  display: flex;
-  justify-content: flex-end;
-  padding-right: 16px;
+.pending {
+  text-transform: uppercase;
+  color: $silver-active;
 }
 
 .favStarIcon {
@@ -61,4 +34,9 @@
     fill: rgba(192, 192, 192, 0.5);
     transition: all 200ms ease-in-out;
   }
+}
+
+.starred {
+  fill: silver;
+  transition: all 200ms ease-in-out;
 }

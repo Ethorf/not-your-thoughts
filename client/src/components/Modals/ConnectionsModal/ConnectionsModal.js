@@ -16,6 +16,7 @@ import NodeSelectDropdown from '@components/Shared/NodeSelectDropdown/NodeSelect
 import DefaultDropdown from '@components/Shared/DefaultDropdown/DefaultDropdown'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import HorizontalDivider from '@components/Shared/HorizontalDivider/HorizontalDivider'
+import EditNodeLink from '@components/Shared/EditNodeLink/EditNodeLink'
 
 // Redux
 import {
@@ -44,7 +45,7 @@ const {
 
 const { PRIMARY, FOREIGN } = CONNECTION_ENTRY_SOURCES
 
-const { DEFAULT, SMALL } = HORIZONTAL_DIVIDER_HEIGHTS
+const { SMALL } = HORIZONTAL_DIVIDER_HEIGHTS
 
 export const ConnectionsModal = () => {
   const dispatch = useDispatch()
@@ -283,7 +284,10 @@ export const ConnectionsModal = () => {
                         {c.primary_source ? c.primary_source : 'click here'}
                       </a>
                     ) : (
-                      <div className={styles.connectionText}>{c.foreign_entry_title}</div>
+                      <EditNodeLink
+                        className={styles.connectionText}
+                        node={{ id: c.foreign_entry_id, title: c.foreign_entry_title }}
+                      />
                     )}
                     <div className={styles.connectionLabel}>type:</div>
                     <div className={styles.connectionText}>{c.connection_type}</div>

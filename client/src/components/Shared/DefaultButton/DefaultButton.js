@@ -7,8 +7,8 @@ const DefaultButton = ({ tooltip, className, children, isSelected, ...props }) =
   return (
     <button
       {...props}
-      data-tooltip-id="main-tooltip"
-      data-tooltip-content={props.disabled ? 'button disabled' : tooltip}
+      // data-tooltip-id="main-tooltip"
+      // data-tooltip-content={props.disabled ? 'button disabled' : tooltip}
       className={classNames(styles.wrapper, className, { [styles.selected]: isSelected })}
     >
       {children}

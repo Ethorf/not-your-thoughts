@@ -1,0 +1,11 @@
+.titleButton {
+  font-size: 1.2rem;
+  margin-left: 0;
+  padding: 0;
+
+  &:hover {
+    transition: all 0.3s;
+    color: white;
+    cursor: pointer;
+  }
+}

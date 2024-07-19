@@ -1,7 +1,13 @@
 .wrapper {
-  width: 20vw;
+  width: 25vw;
   position: absolute;
   left: 15vw;
   top: 18px;
   z-index: 10;
+  display: flex;
+  align-items: center;
+}
+
+.createButton {
+  font-size: 0.7rem;
 }

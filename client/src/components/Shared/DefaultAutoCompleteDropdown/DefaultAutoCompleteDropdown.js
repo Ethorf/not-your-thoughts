@@ -4,7 +4,15 @@ import TextButton from '@components/Shared/TextButton/TextButton.js'
 
 import styles from './DefaultAutoCompleteDropdown.module.scss'
 
-const DefaultAutoCompleteDropdown = ({ inputValue, setInputValue, options, className, placeholder, onChange }) => {
+const DefaultAutoCompleteDropdown = ({
+  inputValue,
+  setInputValue,
+  options,
+  className,
+  placeholder,
+  onChange,
+  onSubmit,
+}) => {
   const [filteredOptions, setFilteredOptions] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
   const [highlightedIndex, setHighlightedIndex] = useState(0)
@@ -16,8 +24,9 @@ const DefaultAutoCompleteDropdown = ({ inputValue, setInputValue, options, class
     setInputValue(value)
     filterOptions(value)
     onChange && onChange(value)
+
     setShowDropdown(value !== '')
-    setHighlightedIndex(0) // Reset highlight to the first option
+    setHighlightedIndex(0)
   }
 
   const filterOptions = (value) => {
@@ -25,18 +34,19 @@ const DefaultAutoCompleteDropdown = ({ inputValue, setInputValue, options, class
     setFilteredOptions(filtered)
   }
 
-  const handleOptionSelect = (value) => {
+  const handleOptionSelect = async (value) => {
     setInputValue(value)
-    onChange && onChange(value)
     setFilteredOptions([])
     setShowDropdown(false)
+    return value
   }
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = async (event) => {
     if (filteredOptions.length > 0) {
       if (event.key === 'Enter') {
         event.preventDefault()
-        handleOptionSelect(filteredOptions[highlightedIndex])
+        const selectedOption = await handleOptionSelect(filteredOptions[highlightedIndex])
+        await onSubmit(selectedOption)
       } else if (event.key === 'ArrowDown') {
         event.preventDefault()
         setHighlightedIndex((prevIndex) => (prevIndex + 1) % filteredOptions.length)
@@ -47,6 +57,9 @@ const DefaultAutoCompleteDropdown = ({ inputValue, setInputValue, options, class
         event.preventDefault()
         setHighlightedIndex((prevIndex) => (prevIndex + 1) % filteredOptions.length)
       }
+    } else if (event.key === 'Enter') {
+      event.preventDefault()
+      onSubmit && onSubmit()
     }
   }
 
@@ -67,7 +80,7 @@ const DefaultAutoCompleteDropdown = ({ inputValue, setInputValue, options, class
           value={inputValue}
           onChange={handleInputChange}
           placeholder={placeholder}
-          autoComplete="off"
+          autoComplete="on"
           list="options"
           onKeyDown={handleKeyDown}
         />
