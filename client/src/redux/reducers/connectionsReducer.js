@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
+import axiosInstance from '@utils/axiosInstance'
 import { CONNECTION_TYPES, FRONT_TO_BACK_CONN_TYPES } from '@constants/connectionTypes'
 import { CONNECTION_ENTRY_SOURCES } from '@constants/connectionEntrySources'
 import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
@@ -32,7 +32,7 @@ export const createConnection = createAsyncThunk(
     { rejectWithValue, dispatch }
   ) => {
     try {
-      const response = await axios.post('api/connections/create_connection', {
+      const response = await axiosInstance.post('api/connections/create_connection', {
         connection_type: connection_type === EXTERNAL ? connection_type : FRONT_TO_BACK_CONN_TYPES[connection_type],
         primary_entry_id,
         foreign_entry_id,
@@ -55,7 +55,7 @@ export const deleteConnection = createAsyncThunk(
   'connections/delete_connection',
   async (connectionId, { rejectWithValue }) => {
     try {
-      const response = await axios.delete(`api/connections/delete_connection/${connectionId}`)
+      const response = await axiosInstance.delete(`api/connections/delete_connection/${connectionId}`)
       return { connectionId, ...response.data }
     } catch (error) {
       return rejectWithValue(error.response.data)
@@ -65,7 +65,7 @@ export const deleteConnection = createAsyncThunk(
 
 export const fetchConnections = createAsyncThunk('connections/', async (entry_id, { rejectWithValue }) => {
   try {
-    const response = await axios.get(`api/connections/${entry_id}`)
+    const response = await axiosInstance.get(`api/connections/${entry_id}`)
 
     return response.data.connections
   } catch (error) {

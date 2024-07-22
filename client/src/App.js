@@ -32,6 +32,9 @@ import { loadUser } from './redux/actions/authActions'
 import setAuthToken from './utils/setAuthToken'
 import { ModalsContainer } from './components/Modals/ModalsContainer/ModalsContainer.js'
 
+// Utils
+import { checkServerStatus } from '@utils/checkServerStatus'
+
 if (localStorage.token) {
   setAuthToken(localStorage.token)
 }
@@ -40,6 +43,10 @@ const App = () => {
   // This one is basically just checking if you're already logged in
   useEffect(() => {
     store.dispatch(loadUser())
+  }, [])
+
+  useEffect(() => {
+    checkServerStatus('http://localhost:8082/api/health', 5000) // Adjust URL and interval as needed
   }, [])
 
   const mode = useSelector((state) => state.modes.mode)

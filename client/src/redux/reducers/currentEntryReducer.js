@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
+import axiosInstance from '@utils/axiosInstance'
 import { ENTRY_TYPES } from '@constants/entryTypes'
 import { SAVE_TYPES } from '@constants/saveTypes'
 
@@ -35,7 +35,7 @@ export const addAka = createAsyncThunk(
         return rejectWithValue({ message: 'Aka already exists' })
       }
 
-      const response = await axios.post(`api/akas/${entryId}/add_aka`, { aka })
+      const response = await axiosInstance.post(`api/akas/${entryId}/add_aka`, { aka })
       dispatch(showToast('AKA added', 'success'))
 
       return response.data
@@ -49,7 +49,7 @@ export const deleteAka = createAsyncThunk(
   'akas/deleteAka',
   async ({ entryId, akaId }, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axios.delete(`api/akas/${entryId}/akas/${akaId}`)
+      const response = await axiosInstance.delete(`api/akas/${entryId}/akas/${akaId}`)
       dispatch(showToast('AKA Deleted', 'success'))
 
       return response.data
@@ -63,7 +63,7 @@ export const createNodeEntry = createAsyncThunk(
   'currentEntryReducer/createNodeEntry',
   async ({ user_id, content, title }, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axios.post('api/entries/create_node_entry', {
+      const response = await axiosInstance.post('api/entries/create_node_entry', {
         user_id,
         content,
         title,
@@ -82,7 +82,7 @@ export const saveJournalEntry = createAsyncThunk(
   'currentEntryReducer/saveJournalEntry',
   async ({ entryId, user_id, content, timeElapsed, wpm, wordCount }, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axios.post('api/entries/save_journal_entry', {
+      const response = await axiosInstance.post('api/entries/save_journal_entry', {
         user_id,
         content,
         num_of_words: wordCount,
@@ -121,7 +121,7 @@ export const updateNodeEntry = createAsyncThunk(
         return currentState
       }
 
-      const response = await axios.post('api/entries/update_node_entry', {
+      const response = await axiosInstance.post('api/entries/update_node_entry', {
         user_id,
         entryId,
         content,
@@ -145,7 +145,7 @@ export const fetchEntryById = createAsyncThunk(
   'currentEntryReducer/fetchEntryById',
   async (entryId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`api/entries/entry/${entryId}`)
+      const response = await axiosInstance.get(`api/entries/entry/${entryId}`)
 
       return response.data
     } catch (error) {
@@ -158,7 +158,7 @@ export const fetchNodeEntriesInfo = createAsyncThunk(
   'currentEntryReducer/fetchNodeEntriesInfo',
   async (_, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axios.get('api/entries/node_entries_info')
+      const response = await axiosInstance.get('api/entries/node_entries_info')
       return response.data.nodeEntries
     } catch (error) {
       dispatch(showToast('Error fetching node entries', 'error'))
@@ -171,7 +171,7 @@ export const setEntryById = createAsyncThunk(
   'currentEntryReducer/setEntryById',
   async (queryParamEntryId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`api/entries/entry/${queryParamEntryId}`)
+      const response = await axiosInstance.get(`api/entries/entry/${queryParamEntryId}`)
       const { content, connections, date, id: entryId, num_of_words: wordCount, title } = response.data
 
       return { content: content[0], connections, date, entryId, wordCount, title }
@@ -183,7 +183,7 @@ export const setEntryById = createAsyncThunk(
 
 export const fetchAkas = createAsyncThunk('akas/fetchAkas', async (entryId, { rejectWithValue }) => {
   try {
-    const response = await axios.get(`api/akas/${entryId}/akas`)
+    const response = await axiosInstance.get(`api/akas/${entryId}/akas`)
     return response.data.akas
   } catch (error) {
     return rejectWithValue(error.response.data)
@@ -194,7 +194,7 @@ export const deleteEntry = createAsyncThunk(
   'currentEntryReducer/deleteEntry',
   async (entryId, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axios.delete(`api/entries/delete_entry/${entryId}`)
+      const response = await axiosInstance.delete(`api/entries/delete_entry/${entryId}`)
       dispatch(showToast('Entry Deleted', 'success'))
       return response.data
     } catch (error) {
@@ -208,7 +208,7 @@ export const toggleNodeStarred = createAsyncThunk(
   'currentEntryReducer/toggleNodeStarred',
   async ({ entryId }, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axios.post('api/entries/toggle_starred', { entryId })
+      const response = await axiosInstance.post('api/entries/toggle_starred', { entryId })
       dispatch(showToast('Starred status updated', 'success'))
       return response.data
     } catch (error) {

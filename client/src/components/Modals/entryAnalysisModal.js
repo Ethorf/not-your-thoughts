@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import './entryAnalysisModal.scss'
 import { gradeLevel } from '../../misc/gradeLevel.js'
 import { connect } from 'react-redux'
-import axios from 'axios'
+import axiosInstance from '@utils/axiosInstance'
 
 import { loadUser } from '../../redux/actions/authActions.js'
 import { getJournalEntries } from '../../redux/actions/journalEntryActions.js'
@@ -30,7 +30,7 @@ function EntryAnalysisModal(props) {
     try {
       await setLoading(true)
       console.log('entryAnalysis sent')
-      let res = await axios.post(`/api/updateUser/entryAnalysis/${id}`, config)
+      let res = await axiosInstance.post(`/api/updateUser/entryAnalysis/${id}`, config)
       await setLocalEmotionData(res.data)
       await setLoading(false)
       await loadUser()

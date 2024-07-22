@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
+import axiosInstance from '@utils/axiosInstance'
 
 import { showToast } from '@utils/toast'
 
@@ -12,7 +12,7 @@ const initialState = {
 
 export const fetchCategories = createAsyncThunk('categoriesReducer/fetchCategories', async (_, { rejectWithValue }) => {
   try {
-    const response = await axios.get('api/categories')
+    const response = await axiosInstance.get('api/categories')
     return response.data.categories
   } catch (error) {
     return rejectWithValue(error.response.data)
@@ -23,7 +23,7 @@ export const updateParentCategory = createAsyncThunk(
   'categoriesReducer/updateParentCategory',
   async ({ childCategoryId, parentCategoryId }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`api/categories/parent_category/${childCategoryId}`, {
+      const response = await axiosInstance.put(`api/categories/parent_category/${childCategoryId}`, {
         parent_category_id: parentCategoryId,
       })
       return response.data
@@ -37,7 +37,7 @@ export const updateChildCategories = createAsyncThunk(
   'categoriesReducer/updateChildCategories',
   async ({ parentCategoryId, childCategoryId }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`api/categories/child_categories/${parentCategoryId}`, {
+      const response = await axiosInstance.put(`api/categories/child_categories/${parentCategoryId}`, {
         child_category_id: childCategoryId,
       })
       return response.data
@@ -51,7 +51,7 @@ export const createCategory = createAsyncThunk(
   'categoriesReducer/createCategory',
   async (name, { rejectWithValue }) => {
     try {
-      const response = await axios.post('api/categories/create_category', { name })
+      const response = await axiosInstance.post('api/categories/create_category', { name })
       return response.data
     } catch (error) {
       return rejectWithValue(error.response.data)

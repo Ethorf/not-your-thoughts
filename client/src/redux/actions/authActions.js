@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axiosInstance from '@utils/axiosInstance'
 import { setAlert } from './alert'
 import {
   REGISTER_SUCCESS,
@@ -34,7 +34,7 @@ export const register =
   async (dispatch) => {
     const body = JSON.stringify({ name, email, password })
     try {
-      const res = await axios.post('/api/auth/register', body, axiosConfig)
+      const res = await axiosInstance.post('/api/auth/register', body, axiosConfig)
 
       await dispatch({
         type: REGISTER_SUCCESS,
@@ -55,9 +55,9 @@ export const register =
 // Login User
 export const login = (email, password) => async (dispatch) => {
   const body = JSON.stringify({ email, password })
-  
+
   try {
-    const res = await axios.post('/api/auth/login', body, axiosConfig)
+    const res = await axiosInstance.post('/api/auth/login', body, axiosConfig)
     // This is the reducer where the localStorage token is set
     await dispatch({
       type: LOGIN_SUCCESS,
@@ -79,7 +79,7 @@ export const loadUser = () => async (dispatch) => {
   }
 
   try {
-    const res = await axios.get('/api/auth/user', axiosConfig)
+    const res = await axiosInstance.get('/api/auth/user', axiosConfig)
 
     await dispatch({
       type: USER_LOADED,
@@ -104,7 +104,7 @@ export const logout = () => (dispatch) => {
 
 export const increaseDays = () => async (dispatch) => {
   try {
-    const res = await axios.post('/api/increaseDays', axiosConfig)
+    const res = await axiosInstance.post('/api/increaseDays', axiosConfig)
     dispatch({
       type: INCREASE_DAYS,
       payload: res.data,
@@ -122,7 +122,7 @@ export const increaseDays = () => async (dispatch) => {
 
 export const setFirstLogin = () => async (dispatch) => {
   try {
-    const res = await axios.post('/api/setFirstLogin', axiosConfig)
+    const res = await axiosInstance.post('/api/setFirstLogin', axiosConfig)
     dispatch({
       type: SET_FIRST_LOGIN,
       payload: res.data,
@@ -142,7 +142,7 @@ export const addCustomPrompt =
   async (dispatch) => {
     const body = JSON.stringify({ prompt })
     try {
-      const res = await axios.post('/api/updateUser/prompts', body, axiosConfig)
+      const res = await axiosInstance.post('/api/updateUser/prompts', body, axiosConfig)
       dispatch({
         type: ADD_CUSTOM_PROMPT,
         payload: res.data,
@@ -156,7 +156,7 @@ export const addCustomPrompt =
 
 export const deleteCustomPrompt = (id) => async (dispatch) => {
   try {
-    const res = await axios.delete(`/api/updateUser/prompts/${id}`)
+    const res = await axiosInstance.delete(`/api/updateUser/prompts/${id}`)
     dispatch({
       type: DELETE_CUSTOM_PROMPT,
       payload: id,
@@ -175,7 +175,7 @@ export const toggleCustomPromptsEnabled = () => async (dispatch) => {
     },
   }
   try {
-    const res = await axios.post('/api/updateUser/toggleCustomPrompts', config)
+    const res = await axiosInstance.post('/api/updateUser/toggleCustomPrompts', config)
     dispatch({
       type: TOGGLE_CUSTOM_PROMPTS_ENABLED,
     })
@@ -191,7 +191,7 @@ export const addTrackedPhrase =
   async (dispatch) => {
     const body = JSON.stringify({ phrase })
     try {
-      const res = await axios.post('/api/updateUser/phrases/', body, axiosConfig)
+      const res = await axiosInstance.post('/api/updateUser/phrases/', body, axiosConfig)
       dispatch({
         type: ADD_TRACKED_PHRASE,
         payload: res.data,
@@ -206,7 +206,7 @@ export const addTrackedPhrase =
 
 export const deleteTrackedPhrase = (id) => async (dispatch) => {
   try {
-    await axios.delete(`/api/updateUser/phrases/${id}`)
+    await axiosInstance.delete(`/api/updateUser/phrases/${id}`)
     dispatch({
       type: DELETE_TRACKED_PHRASE,
       payload: id,

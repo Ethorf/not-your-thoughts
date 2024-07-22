@@ -12,6 +12,7 @@ const DefaultAutoCompleteDropdown = ({
   placeholder,
   onChange,
   onSubmit,
+  onDropdownOptionClick,
 }) => {
   const [filteredOptions, setFilteredOptions] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
@@ -70,6 +71,11 @@ const DefaultAutoCompleteDropdown = ({
     setShowDropdown(!showDropdown)
   }
 
+  const handleDropdownOptionClick = async (opt) => {
+    const selectedOption = await handleOptionSelect(opt)
+    onSubmit && (await onSubmit(selectedOption))
+  }
+
   return (
     <div className={classNames(styles.wrapper, className)}>
       <div className={styles.inputWrapper}>
@@ -97,7 +103,7 @@ const DefaultAutoCompleteDropdown = ({
             <TextButton
               className={classNames(styles.option, { [styles.highlightedOption]: index === highlightedIndex })}
               key={index}
-              onClick={() => handleOptionSelect(option)}
+              onClick={() => handleDropdownOptionClick(option)}
             >
               {option}
             </TextButton>

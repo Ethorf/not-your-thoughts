@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
+import axiosInstance from '@utils/axiosInstance'
 
 const initialState = {
   allNodeEntries: [],
@@ -10,7 +10,7 @@ export const fetchNodeEntries = createAsyncThunk(
   'nodeEntriesReducer/fetchNodeEntries',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get('/api/entries/node_entries')
+      const response = await axiosInstance.get('/api/entries/node_entries')
       return response.data
     } catch (error) {
       return rejectWithValue(error.response.data)

@@ -27,6 +27,7 @@ import {
   getSelectedText,
 } from '@redux/reducers/connectionsReducer'
 import { createNodeEntry, fetchEntryById, updateNodeEntry } from '@redux/reducers/currentEntryReducer'
+import { closeModal } from '@redux/reducers/modalsReducer.js'
 
 // Utils
 import { highlightMatchingText } from '@utils/highlightMatchingText'
@@ -165,7 +166,9 @@ export const ConnectionsModal = () => {
   const handleDeleteConnection = async (id) => {
     dispatch(deleteConnection(id))
   }
-
+  const handleEditNodeClick = (c) => {
+    dispatch(closeModal())
+  }
   const highlightedPrimaryContent = highlightMatchingText(content, selectedPrimarySourceText)
   const highlightedForeignContent = highlightMatchingText(localForeignEntryContent, selectedForeignSourceText)
 
@@ -286,7 +289,11 @@ export const ConnectionsModal = () => {
                     ) : (
                       <EditNodeLink
                         className={styles.connectionText}
-                        node={{ id: c.foreign_entry_id, title: c.foreign_entry_title }}
+                        node={{
+                          id: entryId === c.foreign_entry_id ? c.primary_entry_id : c.foreign_entry_id,
+                          title: c.foreign_entry_title,
+                        }}
+                        onClick={() => handleEditNodeClick(c)}
                       />
                     )}
                     <div className={styles.connectionLabel}>type:</div>

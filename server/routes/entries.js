@@ -276,13 +276,11 @@ router.get('/node_entries', authorize, async (req, res) => {
   }
 })
 
-// Route to retrieve all node type entries with title, id, starred, and pending status
 // Route to retrieve all node type entries with title, id, starred, pending status, date_created, and date_last_modified
 router.get('/node_entries_info', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
   try {
-    // Retrieve node entries' title, id, starred, date_created, and date_last_modified for the user with the provided user_id
     const nodeEntriesQuery = await pool.query(
       `SELECT 
         entries.id, 
@@ -517,10 +515,7 @@ router.delete('/delete_entry/:id', authorize, async (req, res) => {
 router.post('/toggle_starred', authorize, async (req, res) => {
   const { id: user_id } = req.user
   const { entryId } = req.body
-  console.log('<<<<<< entryId in Backend Route >>>>>>>>> is: <<<<<<<<<<<<')
-  console.log(entryId)
-  console.log('<<<<<< req.body >>>>>>>>> is: <<<<<<<<<<<<')
-  console.log(req.body)
+
   try {
     // Check if entryId and user_id are provided
     if (!entryId || !user_id) {
@@ -555,7 +550,7 @@ router.post('/toggle_starred', authorize, async (req, res) => {
 })
 
 // POST /entries/batch_create
-// Batch create user journal entriesconst { Pool } = require('pg');
+// Batch create user journal entries
 
 router.post('/batch_create', authorize, async (req, res) => {
   const { id: user_id } = req.user

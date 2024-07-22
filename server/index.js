@@ -42,6 +42,7 @@ app.use('/api/auth', require('./routes/auth'))
 app.use('/api/akas', require('./routes/akas'))
 app.use('/api/connections', require('./routes/connections'))
 app.use('/api/entries', require('./routes/entries'))
+app.use('/api/health', require('./routes/health'))
 app.use('/api/prompts', require('./routes/prompts'))
 app.use('/api/journal_config', require('./routes/journal_config'))
 
