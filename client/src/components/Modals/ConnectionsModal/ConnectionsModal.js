@@ -122,6 +122,7 @@ export const ConnectionsModal = () => {
       showToast('Please enter a valid external link', 'error')
       return
     }
+
     await dispatch(
       createConnection({
         connection_type: localConnectionType,
@@ -166,9 +167,11 @@ export const ConnectionsModal = () => {
   const handleDeleteConnection = async (id) => {
     dispatch(deleteConnection(id))
   }
+
   const handleEditNodeClick = (c) => {
     dispatch(closeModal())
   }
+
   const highlightedPrimaryContent = highlightMatchingText(content, selectedPrimarySourceText)
   const highlightedForeignContent = highlightMatchingText(localForeignEntryContent, selectedForeignSourceText)
 

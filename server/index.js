@@ -14,21 +14,6 @@ dotenv.config({ path: envPath })
 const app = express()
 const pool = require('./config/neonDb.js')
 
-// Attempt to connect to the database
-const connectWithRetry = () => {
-  pool
-    .connect()
-    .then(() => {
-      console.log('Connected to the database.')
-    })
-    .catch((err) => {
-      console.error('Failed to connect to the database. Retrying in 5 seconds...', err)
-      setTimeout(connectWithRetry, 5000)
-    })
-}
-
-connectWithRetry()
-
 // Parse JSON bodies with a larger limit (e.g., 10MB)
 app.use(bodyParser.json({ limit: '10mb' }))
 app.use(compression())
@@ -80,19 +65,32 @@ const server = app.listen(PORT, () => {
   }
 })
 
-// Graceful shutdown
 const gracefulShutdown = (signal) => {
   console.log(`Received ${signal}. Shutting down gracefully...`)
-  server.close(() => {
-    console.log('Closed out remaining connections.')
-    process.exit(0)
-  })
 
-  // Forcefully shut down after 10 seconds
-  setTimeout(() => {
-    console.error('Forcing shutdown...')
-    process.exit(1)
-  }, 10000)
+  const retryInterval = 5000 // Retry every 5 seconds
+  const maxRetries = 12 // Try for 1 minute
+
+  let attempt = 0
+
+  const tryReconnect = async () => {
+    if (attempt < maxRetries) {
+      attempt += 1
+      try {
+        await pool.connect()
+        console.log('Reconnected to the database. Resuming operations...')
+        return
+      } catch (error) {
+        console.log(`Retrying to connect to the database... (Attempt ${attempt}/${maxRetries})`)
+        setTimeout(tryReconnect, retryInterval)
+      }
+    } else {
+      console.error('Max retries reached. Forcing shutdown...')
+      process.exit(1)
+    }
+  }
+
+  tryReconnect()
 }
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))

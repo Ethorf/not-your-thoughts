@@ -260,7 +260,7 @@
     width: 100%;
     top: 11px;
     height: 101%;
-    z-index: 4;
+    z-index: $pillars-z-index;
   }
   &__pillar-left {
     position: relative;

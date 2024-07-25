@@ -49,7 +49,6 @@ const CreateNodeEntry = () => {
     <div className={styles.wrapper}>
       <div className={styles.editContainer}>
         <h2>create node</h2>
-        <CustomPromptsSection />
         <div className={classNames(styles.topContainer, styles.grid3Columns)}>
           <DefaultInput
             className={classNames(styles.titleInput, styles.flexCenter, { [styles.titleInputNoBorder]: title?.length })}

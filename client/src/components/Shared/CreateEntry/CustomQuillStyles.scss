@@ -19,6 +19,7 @@
 }
 
 .ql-toolbar.ql-snow {
+  z-index: 99;
   border: none;
   border-bottom: 1px solid rgba(192, 192, 192, 0.5);
 }
@@ -26,7 +27,7 @@
 .ql-snow.ql-toolbar button:hover .ql-stroke,
 .ql-snow.ql-toolbar button:hover .ql-fill {
   stroke: silver;
-  fill: silver;
+  // fill: silver;
 }
 
 .ql-snow.ql-toolbar button.ql-active .ql-stroke,

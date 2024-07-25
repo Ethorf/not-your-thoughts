@@ -5,8 +5,8 @@
   max-width: 100%;
   min-height: 70%;
   border: $silver-border-default;
+  z-index: $pillars-z-index + 1;
   border-radius: 12px;
-
   transition: $default-transition;
   position: relative;
 
@@ -15,12 +15,10 @@
     border: $silver-border-active;
     transition: $default-transition;
   }
-  &.ql-editor {
-    background: red;
-  }
 }
-.wrapper > .toolbarToggleButton {
+.toolbarToggleButton {
   position: absolute;
   top: 0;
   right: 6px;
+  z-index: $pillars-z-index + 1;
 }

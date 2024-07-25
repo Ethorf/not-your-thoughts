@@ -18,6 +18,7 @@ const initialState = {
   type: JOURNAL,
   content: '',
   nodeEntriesInfo: [],
+  starred: false,
 }
 
 export const addAka = createAsyncThunk(
@@ -68,7 +69,9 @@ export const createNodeEntry = createAsyncThunk(
         content,
         title,
       })
+
       dispatch(showToast('Node Created', 'success'))
+      await dispatch(fetchNodeEntriesInfo())
 
       return response.data
     } catch (error) {
@@ -128,6 +131,8 @@ export const updateNodeEntry = createAsyncThunk(
         title,
       })
 
+      await dispatch(fetchNodeEntriesInfo())
+
       if (saveType === AUTO) {
         dispatch(showToast('Node autosaved', 'warn'))
         return ''
@@ -172,9 +177,9 @@ export const setEntryById = createAsyncThunk(
   async (queryParamEntryId, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(`api/entries/entry/${queryParamEntryId}`)
-      const { content, connections, date, id: entryId, num_of_words: wordCount, title } = response.data
+      const { content, connections, date, id: entryId, num_of_words: wordCount, starred, title } = response.data
 
-      return { content: content[0], connections, date, entryId, wordCount, title }
+      return { content: content[0], connections, date, entryId, wordCount, starred, title }
     } catch (error) {
       return rejectWithValue(error.response.data)
     }
@@ -209,7 +214,9 @@ export const toggleNodeStarred = createAsyncThunk(
   async ({ entryId }, { rejectWithValue, dispatch }) => {
     try {
       const response = await axiosInstance.post('api/entries/toggle_starred', { entryId })
-      dispatch(showToast('Starred status updated', 'success'))
+
+      await dispatch(fetchNodeEntriesInfo())
+
       return response.data
     } catch (error) {
       dispatch(showToast('Error updating starred status', 'error'))
@@ -318,10 +325,18 @@ const currentEntrySlice = createSlice({
           entriesLoading: false,
         }
       })
+      .addCase(setEntryById.pending, (state, action) => {
+        return {
+          ...state,
+          ...action.payload,
+          entriesLoading: true,
+        }
+      })
       .addCase(setEntryById.fulfilled, (state, action) => {
         return {
           ...state,
           ...action.payload,
+          entriesLoading: false,
         }
       })
       .addCase(fetchNodeEntriesInfo.fulfilled, (state, action) => {

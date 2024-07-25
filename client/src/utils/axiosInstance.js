@@ -3,8 +3,8 @@ import axiosRetry from 'axios-retry'
 
 // Create an Axios instance
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8082/', // Base URL for the API
-  timeout: 5000, // Request timeout in milliseconds
+  baseURL: 'http://localhost:8082/',
+  timeout: 5000,
 })
 
 // Configure retry logic
@@ -18,6 +18,22 @@ axiosRetry(axiosInstance, {
     return (error.response && error.response.status >= 500) || error.code === 'ECONNABORTED'
   },
 })
+
+// Add request interceptor to include x-auth-token
+axiosInstance.interceptors.request.use(
+  (config) => {
+    // Get the token from localStorage (or wherever you store it)
+    const token = localStorage.getItem('x-auth-token')
+    if (token) {
+      // Add token to headers
+      config.headers['x-auth-token'] = token
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
 
 // Function to attempt server restart
 const attemptServerRestart = async () => {

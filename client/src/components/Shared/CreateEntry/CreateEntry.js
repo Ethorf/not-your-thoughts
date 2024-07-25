@@ -5,6 +5,7 @@ import 'react-quill/dist/quill.snow.css'
 
 // Components
 import TextButton from '@components/Shared/TextButton/TextButton'
+import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 
 // Redux
 import { setContent, setWordCount, setCharCount } from '@redux/reducers/currentEntryReducer' // Replace with the correct path
@@ -17,7 +18,7 @@ import './CustomQuillStyles.scss'
 
 const CreateEntry = ({ type }) => {
   const dispatch = useDispatch()
-  const { content } = useSelector((state) => state.currentEntry)
+  const { content, entriesLoading } = useSelector((state) => state.currentEntry)
 
   const [toolbarVisible, setToolbarVisible] = useState(false)
 
@@ -46,22 +47,28 @@ const CreateEntry = ({ type }) => {
 
   return (
     <div className={styles.wrapper}>
-      <ReactQuill
-        className={`textArea ${toolbarVisible ? 'toolbar-visible' : 'toolbar-hidden'} ${
-          type === ENTRY_TYPES.JOURNAL ? 'noScroll' : null
-        }`}
-        modules={toolBarModules}
-        placeholder={PLACEHOLDER_COPY[type]}
-        value={content}
-        onChange={(e) => handleContentChange(e)}
-      />
-      <TextButton
-        className={styles.toolbarToggleButton}
-        tooltip={'Toggle formatting toolbar'}
-        onClick={() => setToolbarVisible(!toolbarVisible)}
-      >
-        {toolbarVisible ? 'X' : '+'}
-      </TextButton>
+      {entriesLoading ? (
+        <SmallSpinner />
+      ) : (
+        <>
+          <ReactQuill
+            className={`textArea ${toolbarVisible ? 'toolbar-visible' : 'toolbar-hidden'} ${
+              type === ENTRY_TYPES.JOURNAL ? 'noScroll' : null
+            }`}
+            modules={toolBarModules}
+            placeholder={PLACEHOLDER_COPY[type]}
+            value={content}
+            onChange={(e) => handleContentChange(e)}
+          />
+          <TextButton
+            className={styles.toolbarToggleButton}
+            tooltip={'Toggle formatting toolbar'}
+            onClick={() => setToolbarVisible(!toolbarVisible)}
+          >
+            {toolbarVisible ? 'X' : '+'}
+          </TextButton>
+        </>
+      )}
     </div>
   )
 }

@@ -12,7 +12,8 @@ function NodeSelectDropdown({ inputValue, setInputValue, className, onSelect, on
 
   const handleOnChange = (value) => {
     onChange(value)
-
+    console.log('<<<<<< value >>>>>>>>> is: <<<<<<<<<<<<')
+    console.log(value)
     const foundEntry = nodeEntriesInfo.find((x) => x.title.toLowerCase() === value.toLowerCase())
     if (foundEntry) {
       onSelect(foundEntry.id)

@@ -37,6 +37,7 @@ const DefaultAutoCompleteDropdown = ({
 
   const handleOptionSelect = async (value) => {
     setInputValue(value)
+    onChange && onChange(value)
     setFilteredOptions([])
     setShowDropdown(false)
     return value
@@ -47,7 +48,9 @@ const DefaultAutoCompleteDropdown = ({
       if (event.key === 'Enter') {
         event.preventDefault()
         const selectedOption = await handleOptionSelect(filteredOptions[highlightedIndex])
-        await onSubmit(selectedOption)
+        // we have no onSubmit when coming from NodeSelectDropdown
+        // UGH generality gayness
+        onSubmit && (await onSubmit(selectedOption))
       } else if (event.key === 'ArrowDown') {
         event.preventDefault()
         setHighlightedIndex((prevIndex) => (prevIndex + 1) % filteredOptions.length)

@@ -5,6 +5,12 @@
   justify-content: center;
 }
 
+.connectStarContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .editContainer {
   width: 70vw;
   height: 90vh;
