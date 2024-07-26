@@ -12,7 +12,6 @@ const DefaultAutoCompleteDropdown = ({
   placeholder,
   onChange,
   onSubmit,
-  onDropdownOptionClick,
 }) => {
   const [filteredOptions, setFilteredOptions] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
