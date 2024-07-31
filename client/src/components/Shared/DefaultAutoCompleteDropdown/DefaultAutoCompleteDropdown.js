@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import classNames from 'classnames'
 import TextButton from '@components/Shared/TextButton/TextButton.js'
 
@@ -12,7 +13,11 @@ const DefaultAutoCompleteDropdown = ({
   placeholder,
   onChange,
   onSubmit,
+  handleTargetInput,
+  insideSidebar,
 }) => {
+  const { sidebarOpen } = useSelector((state) => state.sidebar)
+
   const [filteredOptions, setFilteredOptions] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
   const [highlightedIndex, setHighlightedIndex] = useState(0)
@@ -47,8 +52,6 @@ const DefaultAutoCompleteDropdown = ({
       if (event.key === 'Enter') {
         event.preventDefault()
         const selectedOption = await handleOptionSelect(filteredOptions[highlightedIndex])
-        // we have no onSubmit when coming from NodeSelectDropdown
-        // UGH generality gayness
         onSubmit && (await onSubmit(selectedOption))
       } else if (event.key === 'ArrowDown') {
         event.preventDefault()
@@ -77,6 +80,37 @@ const DefaultAutoCompleteDropdown = ({
     const selectedOption = await handleOptionSelect(opt)
     onSubmit && (await onSubmit(selectedOption))
   }
+
+  useEffect(() => {
+    const handleKeyDownWrapper = (e) => handleKeyDown(e)
+    window.addEventListener('keydown', handleKeyDownWrapper)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDownWrapper)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (handleTargetInput) {
+      const handleTargetInputWrapper = (e) => handleTargetInput(e, inputRef)
+      window.addEventListener('keydown', handleTargetInputWrapper)
+
+      return () => {
+        window.removeEventListener('keydown', handleTargetInputWrapper)
+      }
+    }
+  }, [handleTargetInput])
+
+  useEffect(() => {
+    if (insideSidebar) {
+      if (sidebarOpen) {
+        handleTargetInput({}, inputRef)
+      } else {
+        if (inputRef.current) {
+          inputRef.current.blur()
+        }
+      }
+    }
+  }, [sidebarOpen, insideSidebar, handleTargetInput])
 
   return (
     <div className={classNames(styles.wrapper, className)}>

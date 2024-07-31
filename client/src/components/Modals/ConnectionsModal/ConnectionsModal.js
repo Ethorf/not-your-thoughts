@@ -39,7 +39,7 @@ import { wrapLinkStringInAnchorTag } from '@utils/wrapLinkStringInAnchorTag'
 import styles from './ConnectionsModal.module.scss'
 
 // Constand Destructures
-const { DIRECT, DESCRIPTIVE } = CONNECTION_SOURCE_TYPES
+const { DIRECT, DESCRIPTIVE, SINGLE_WORD } = CONNECTION_SOURCE_TYPES
 const {
   FRONTEND: { PARENT, EXTERNAL },
 } = CONNECTION_TYPES
@@ -233,7 +233,8 @@ export const ConnectionsModal = () => {
               />
             </div>
           ) : null}
-          {connectionSourceType === DIRECT && localConnectionType !== EXTERNAL ? (
+          {(connectionSourceType === DIRECT || connectionSourceType === SINGLE_WORD) &&
+          localConnectionType !== EXTERNAL ? (
             <>
               <div className={styles.entrySourceContainer}>
                 <div className={styles.sourceSelectContainer}>

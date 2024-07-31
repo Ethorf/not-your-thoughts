@@ -20,11 +20,10 @@ const EditNodeLink = ({ className, node, onClick }) => {
   return (
     <TextButton
       tooltip={longerThanElipsis ? `edit: ${title}` : 'edit'}
-      className={classNames(styles.titleButton, className)}
+      className={classNames(styles.titleButton, styles.ellipsisify, className)}
       onClick={handleEditNode}
     >
-      {title.split('').splice(0, TITLE_ELIPSIS_SPLIT)}
-      {longerThanElipsis && '...'}
+      {title}
     </TextButton>
   )
 }

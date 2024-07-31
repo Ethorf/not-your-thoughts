@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
@@ -18,7 +18,9 @@ import './CustomQuillStyles.scss'
 
 const CreateEntry = ({ type }) => {
   const dispatch = useDispatch()
+  const quillRef = useRef(null)
   const { content, entriesLoading } = useSelector((state) => state.currentEntry)
+  const { sidebarOpen } = useSelector((state) => state.sidebar)
 
   const [toolbarVisible, setToolbarVisible] = useState(false)
 
@@ -45,6 +47,15 @@ const CreateEntry = ({ type }) => {
     ],
   }
 
+  useEffect(() => {
+    if (!sidebarOpen && quillRef.current) {
+      const quill = quillRef.current.getEditor()
+      quill.focus()
+      const length = quill.getLength()
+      quill.setSelection(length, length)
+    }
+  }, [sidebarOpen])
+
   return (
     <div className={styles.wrapper}>
       {entriesLoading ? (
@@ -59,6 +70,7 @@ const CreateEntry = ({ type }) => {
             placeholder={PLACEHOLDER_COPY[type]}
             value={content}
             onChange={(e) => handleContentChange(e)}
+            ref={quillRef}
           />
           <TextButton
             className={styles.toolbarToggleButton}

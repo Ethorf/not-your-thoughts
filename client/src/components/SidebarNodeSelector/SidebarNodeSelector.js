@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import classNames from 'classnames'
 import { useHistory } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -8,17 +8,20 @@ import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 
 // Redux
 import { createNodeEntry } from '@redux/reducers/currentEntryReducer'
+import { toggleSidebar } from '@redux/reducers/sidebarReducer'
 
 // Hooks
 import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
 
-import styles from './GeneralNodeSelector.module.scss'
+import styles from './SidebarNodeSelector.module.scss'
 
-function GeneralNodeSelector({ className }) {
+function SidebarNodeSelector({ className }) {
   const history = useHistory()
   const dispatch = useDispatch()
   const nodeEntriesInfo = useNodeEntriesInfo()
+
   const { entryId } = useSelector((state) => state.currentEntry)
+  const { sidebarOpen } = useSelector((state) => state.sidebar)
 
   const [inputValue, setInputValue] = useState('')
   const [foundEntry, setFoundEntry] = useState(null)
@@ -30,8 +33,10 @@ function GeneralNodeSelector({ className }) {
 
   const handleCreateNodeEntry = async () => {
     const newNode = await dispatch(createNodeEntry({ title: inputValue }))
-    history.push(`/edit-node-entry?entryId=${newNode.payload.id}`)
+
+    // history.push(`/edit-node-entry?entryId=${newNode.payload.id}`)
     setInputValue('')
+    dispatch(toggleSidebar())
   }
 
   const handleOnSubmit = async (entryTitle) => {
@@ -43,26 +48,30 @@ function GeneralNodeSelector({ className }) {
     } else {
       handleCreateNodeEntry()
     }
+    dispatch(toggleSidebar())
   }
 
   const handleTargetInput = (event, ref) => {
-    if (event.metaKey && event.shiftKey && event.key === 'f') {
-      ref.current.focus()
-    }
+    ref.current.focus()
   }
 
   return (
     <div className={classNames(styles.wrapper, className)}>
-      <DefaultAutoCompleteDropdown
-        handleTargetInput={handleTargetInput}
-        onChange={handleOnChange}
-        placeholder={'Select node...'}
-        inputValue={inputValue}
-        setInputValue={setInputValue}
-        options={nodeEntriesInfo.filter((n) => n.id !== entryId).map((x) => x.title)}
-        onSubmit={handleOnSubmit}
-        className={styles.dropDown}
-      />
+      {sidebarOpen ? (
+        <DefaultAutoCompleteDropdown
+          insideSidebar
+          handleTargetInput={handleTargetInput}
+          onChange={handleOnChange}
+          placeholder={'Select node...'}
+          inputValue={inputValue}
+          setInputValue={setInputValue}
+          options={nodeEntriesInfo.filter((n) => n.id !== entryId).map((x) => x.title)}
+          onSubmit={handleOnSubmit}
+          className={styles.dropDown}
+        />
+      ) : (
+        <div className={styles.placeholder} />
+      )}
       {inputValue && !foundEntry ? (
         <DefaultButton className={styles.createButton} onClick={handleCreateNodeEntry}>
           Create
@@ -72,4 +81,4 @@ function GeneralNodeSelector({ className }) {
   )
 }
 
-export default GeneralNodeSelector
+export default SidebarNodeSelector

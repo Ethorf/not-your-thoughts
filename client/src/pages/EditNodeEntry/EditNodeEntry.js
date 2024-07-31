@@ -47,18 +47,6 @@ const EditNodeEntry = () => {
     }
   }, [dispatch, params])
 
-  useEffect(() => {
-    const handleKeyDown = async (e) => {
-      if (e.ctrlKey && e.metaKey && e.key === 'c') {
-        await handleOpenConnectionsWithSelectedText()
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [])
-
   const handleTitleChange = (e) => {
     dispatch(setTitle(e.target.value))
   }
@@ -87,6 +75,22 @@ const EditNodeEntry = () => {
     }
   }
 
+  useEffect(() => {
+    const handleShortcuts = async (e) => {
+      if (e.ctrlKey && e.metaKey && e.key === 'c') {
+        await handleOpenConnectionsWithSelectedText()
+      }
+      if (e.metaKey && e.shiftKey && e.key === 's') {
+        await handleSaveNode(SAVE_TYPES.MANUAL)
+      }
+    }
+
+    window.addEventListener('keydown', handleShortcuts)
+    return () => {
+      window.removeEventListener('keydown', handleShortcuts)
+    }
+  }, [])
+
   return (
     <div className={styles.wrapper}>
       {/* <AutosaveTimer handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} /> */}
@@ -95,31 +99,25 @@ const EditNodeEntry = () => {
         <div className={classNames(styles.topContainer, styles.grid4ColumnsCustom)}>
           {content || title ? (
             <>
-              {entriesLoading ? (
-                <SmallSpinner />
-              ) : (
-                <>
-                  <div className={styles.connectStarContainer}>
-                    <DefaultButton
-                      tooltip="Open connections menu"
-                      onClick={handleOpenConnectionsWithSelectedText}
-                      className={styles.saveButton}
-                    >
-                      Connect
-                    </DefaultButton>
-                    <StarButton id={entryId} initialStarred={starred} />
-                  </div>
-                  <DefaultInput
-                    className={classNames(styles.titleInput, styles.flexCenter, {
-                      [styles.titleInputNoBorder]: title.length,
-                    })}
-                    placeholder={'Enter Title'}
-                    value={title}
-                    onChange={handleTitleChange}
-                  />
-                  <AkasDisplay />
-                </>
-              )}
+              <div className={styles.connectStarContainer}>
+                <DefaultButton
+                  tooltip="Open connections menu"
+                  onClick={handleOpenConnectionsWithSelectedText}
+                  className={styles.saveButton}
+                >
+                  Connect
+                </DefaultButton>
+                <StarButton id={entryId} initialStarred={starred} />
+              </div>
+              <DefaultInput
+                className={classNames(styles.titleInput, styles.flexCenter, {
+                  [styles.titleInputNoBorder]: title.length,
+                })}
+                placeholder={'Enter Title'}
+                value={title}
+                onChange={handleTitleChange}
+              />
+              <AkasDisplay />
             </>
           ) : (
             <Spinner />

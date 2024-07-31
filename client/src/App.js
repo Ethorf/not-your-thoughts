@@ -8,8 +8,12 @@ import 'react-toastify/dist/ReactToastify.css'
 import PrivateRoute from './components/higherOrderComponents/PrivateRoute/PrivateRoute.js'
 import { useSelector, connect } from 'react-redux'
 import './App.scss'
-import NavBarSide from './components/nav/navBarSide.js'
-import NavBarTop from './components/nav/navBarTop.js'
+
+// Components
+import NavBarSide from '@components/nav/navBarLeftSide.js'
+import RightSidebar from '@components/RightSidebar/RightSidebar.js'
+
+import NavBarTop from '@components/nav/navBarTop.js'
 import GeneralNodeSelector from '@components/Shared/GeneralNodeSelector/GeneralNodeSelector.js'
 
 //Pages Imports
@@ -60,7 +64,13 @@ const App = () => {
         <ModalsContainer />
         <NavBarTop />
         <NavBarSide />
-        {user && <GeneralNodeSelector />}
+
+        {user && (
+          <>
+            {/* <GeneralNodeSelector /> */}
+            <RightSidebar />
+          </>
+        )}
         <Route
           render={({ location }) => (
             <TransitionGroup>
