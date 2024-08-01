@@ -25,6 +25,7 @@ const StarButton = ({ id, initialStarred }) => {
       onClick={handleToggleNodeStarred}
       starred={isStarred}
       className={classNames(styles.favStarIcon, { [styles.starred]: isStarred })}
+      tabIndex="-1"
     />
   )
 }

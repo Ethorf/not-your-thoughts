@@ -19,7 +19,7 @@ import { MODAL_NAMES } from '@constants/modalNames.js'
 // Styles
 import styles from './DashboardNodeEntry.module.scss'
 
-export const DashboardNodeEntry = ({ node: { id, starred, title, pending, date_last_modified } }) => {
+export const DashboardNodeEntry = ({ node: { id, starred, title, pending, date_last_modified, num_of_words } }) => {
   const dispatch = useDispatch()
 
   const handleOpenAreYouSureModal = async () => {
@@ -38,7 +38,7 @@ export const DashboardNodeEntry = ({ node: { id, starred, title, pending, date_l
         <div>Not yet...</div>
       )}
       <EditNodeLink node={{ id, title }} />
-      <div className={styles.pending}>{pending && 'Pending'}</div>
+      <div className={styles.pending}>{pending ? 'Pending' : num_of_words}</div>
       <DefaultButton className={styles.deleteButton} onClick={handleOpenAreYouSureModal}>
         Delete
       </DefaultButton>

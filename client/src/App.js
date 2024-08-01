@@ -14,7 +14,6 @@ import NavBarSide from '@components/nav/navBarLeftSide.js'
 import RightSidebar from '@components/RightSidebar/RightSidebar.js'
 
 import NavBarTop from '@components/nav/navBarTop.js'
-import GeneralNodeSelector from '@components/Shared/GeneralNodeSelector/GeneralNodeSelector.js'
 
 //Pages Imports
 import Landing from '@pages/Start/Start.js'
@@ -65,20 +64,16 @@ const App = () => {
         <NavBarTop />
         <NavBarSide />
 
-        {user && (
-          <>
-            {/* <GeneralNodeSelector /> */}
-            <RightSidebar />
-          </>
-        )}
+        {user && <RightSidebar />}
         <Route
           render={({ location }) => (
             <TransitionGroup>
+              {/* TODO fix this transition or remove & change all together */}
               <CSSTransition
-                key={location.key}
-                timeout={1100}
-                classNames={mode === '-light' ? 'fade' : 'fad'}
-                unmountOnExit
+              // key={location.key}
+              // timeout={1100}
+              // classNames={mode === '-light' ? 'fade' : 'fad'}
+              // unmountOnExit
               >
                 <Switch location={location}>
                   <Route path="/" exact>

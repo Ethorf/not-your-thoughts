@@ -129,6 +129,7 @@ const DefaultAutoCompleteDropdown = ({
         <TextButton
           className={classNames(styles.dropdownButton, { [styles.dropdownButtonOpen]: showDropdown })}
           onClick={handleDropdownToggle}
+          tabIndex="-1"
         >
           ▼
         </TextButton>

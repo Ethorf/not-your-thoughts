@@ -5,7 +5,7 @@
 .wrapper {
   transition: 1s all;
   position: fixed;
-  right: -110px; // Initial state (closed)
+  right: -110px;
   display: flex;
   flex-direction: column;
   font-family: 'Poppins', sans-serif;
@@ -15,7 +15,7 @@
   z-index: $pillars-z-index + 2;
 
   &.sidebarOpen {
-    right: 0; // Adjust this value to fit your needs when sidebar is open
+    right: 0;
   }
 }
 

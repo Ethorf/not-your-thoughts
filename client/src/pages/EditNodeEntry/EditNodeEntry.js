@@ -28,10 +28,6 @@ import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 
 import styles from './EditNodeEntry.module.scss'
 
-const {
-  FRONTEND: { SIBLING, CHILD, PARENT },
-} = CONNECTION_TYPES
-
 const { PRIMARY } = CONNECTION_ENTRY_SOURCES
 
 const EditNodeEntry = () => {
@@ -52,7 +48,7 @@ const EditNodeEntry = () => {
   }
 
   const handleSaveNode = (saveType) => {
-    dispatch(updateNodeEntry({ entryId, content, title, saveType }))
+    dispatch(updateNodeEntry({ saveType }))
   }
 
   const handleOpenConnectionsModal = async () => {
@@ -81,6 +77,7 @@ const EditNodeEntry = () => {
         await handleOpenConnectionsWithSelectedText()
       }
       if (e.metaKey && e.shiftKey && e.key === 's') {
+        console.log('Save Shortcut heet')
         await handleSaveNode(SAVE_TYPES.MANUAL)
       }
     }

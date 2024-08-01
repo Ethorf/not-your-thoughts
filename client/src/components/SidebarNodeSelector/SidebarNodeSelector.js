@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import classNames from 'classnames'
 import { useHistory } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -32,6 +32,8 @@ function SidebarNodeSelector({ className }) {
   }
 
   const handleCreateNodeEntry = async () => {
+    console.log('<<<<<< inputValue >>>>>>>>> is: <<<<<<<<<<<<')
+    console.log(inputValue)
     const newNode = await dispatch(createNodeEntry({ title: inputValue }))
 
     // history.push(`/edit-node-entry?entryId=${newNode.payload.id}`)
@@ -72,11 +74,13 @@ function SidebarNodeSelector({ className }) {
       ) : (
         <div className={styles.placeholder} />
       )}
-      {inputValue && !foundEntry ? (
-        <DefaultButton className={styles.createButton} onClick={handleCreateNodeEntry}>
-          Create
-        </DefaultButton>
-      ) : null}
+      <div className={styles.createButtonContainer}>
+        {inputValue && !foundEntry ? (
+          <DefaultButton className={styles.createButton} onClick={handleCreateNodeEntry}>
+            Create node
+          </DefaultButton>
+        ) : null}
+      </div>
     </div>
   )
 }

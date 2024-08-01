@@ -19,6 +19,7 @@ import './CustomQuillStyles.scss'
 const CreateEntry = ({ type }) => {
   const dispatch = useDispatch()
   const quillRef = useRef(null)
+
   const { content, entriesLoading } = useSelector((state) => state.currentEntry)
   const { sidebarOpen } = useSelector((state) => state.sidebar)
 

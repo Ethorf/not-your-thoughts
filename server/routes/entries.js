@@ -67,6 +67,7 @@ router.post('/create_node_entry', authorize, async (req, res) => {
 // post /entries/update_node_entry
 // Update a node entry
 router.post('/update_node_entry', authorize, async (req, res) => {
+  console.log('UPDATE_NODE_ENTRY_HIT')
   const { id: user_id } = req.user
   const { entryId, content, title } = req.body
 

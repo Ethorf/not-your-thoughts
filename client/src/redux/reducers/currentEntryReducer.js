@@ -62,10 +62,9 @@ export const deleteAka = createAsyncThunk(
 
 export const createNodeEntry = createAsyncThunk(
   'currentEntryReducer/createNodeEntry',
-  async ({ user_id, content, title }, { rejectWithValue, dispatch }) => {
+  async ({ content, title }, { rejectWithValue, dispatch }) => {
     try {
       const response = await axiosInstance.post('api/entries/create_node_entry', {
-        user_id,
         content,
         title,
       })
@@ -83,10 +82,9 @@ export const createNodeEntry = createAsyncThunk(
 
 export const saveJournalEntry = createAsyncThunk(
   'currentEntryReducer/saveJournalEntry',
-  async ({ entryId, user_id, content, timeElapsed, wpm, wordCount }, { rejectWithValue, dispatch }) => {
+  async ({ entryId, content, timeElapsed, wpm, wordCount }, { rejectWithValue, dispatch }) => {
     try {
       const response = await axiosInstance.post('api/entries/save_journal_entry', {
-        user_id,
         content,
         num_of_words: wordCount,
         entryId,
@@ -106,13 +104,13 @@ export const saveJournalEntry = createAsyncThunk(
 
 export const updateNodeEntry = createAsyncThunk(
   'currentEntryReducer/updateNodeEntry',
-  async ({ user_id, entryId, content, title, saveType }, { getState, rejectWithValue, dispatch }) => {
+  async ({ saveType }, { getState, rejectWithValue, dispatch }) => {
     const { AUTO, MANUAL, EXTERNAL_CONNECTION } = SAVE_TYPES
 
     try {
-      const fetchResponse = await dispatch(fetchEntryById(entryId))
+      const currentState = await getState().currentEntry
+      const fetchResponse = await dispatch(fetchEntryById(currentState.entryId))
       const fetchedEntry = fetchResponse.payload
-      const currentState = getState().currentEntry
 
       const titleChanged = fetchedEntry.title !== currentState.title
       const contentChanged = fetchedEntry.content[0] !== currentState.content
@@ -123,12 +121,12 @@ export const updateNodeEntry = createAsyncThunk(
         console.log('No change to content. No update required.')
         return currentState
       }
-
+      // *** I have no fucking idea why this is happening but passing these as args doesn't work when I trigger
+      // *** this function via keyboard shortcut, using the currentState function has no problem though
       const response = await axiosInstance.post('api/entries/update_node_entry', {
-        user_id,
-        entryId,
-        content,
-        title,
+        entryId: currentState.entryId,
+        content: currentState.content,
+        title: currentState.title,
       })
 
       await dispatch(fetchNodeEntriesInfo())
@@ -325,10 +323,9 @@ const currentEntrySlice = createSlice({
           entriesLoading: false,
         }
       })
-      .addCase(setEntryById.pending, (state, action) => {
+      .addCase(setEntryById.pending, (state) => {
         return {
           ...state,
-          ...action.payload,
           entriesLoading: true,
         }
       })
