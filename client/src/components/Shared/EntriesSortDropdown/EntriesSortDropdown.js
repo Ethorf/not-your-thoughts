@@ -5,8 +5,19 @@ export const EntriesSortDropdown = ({ sortOptions, setSortedEntries, entries }) 
   const [selectedOption, setSelectedOption] = useState('date modified newest first')
 
   useEffect(() => {
-    setSortedEntries(sortBy(entries, selectedOption))
+    const updatedEntries = updateEntriesDates(entries)
+    setSortedEntries(sortBy(updatedEntries, selectedOption))
   }, [entries, setSortedEntries, selectedOption])
+
+  const updateEntriesDates = (arr) => {
+    return arr.map((item) => {
+      return {
+        ...item,
+        date_last_modified: item.date_last_modified || item.date_originally_created,
+        date_created: item.date_created || item.date_originally_created,
+      }
+    })
+  }
 
   const sortBy = (arr, option) => {
     switch (option) {

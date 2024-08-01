@@ -4,75 +4,46 @@ const router = express.Router()
 const pool = require('../config/neonDb')
 const authorize = require('../middleware/authorize')
 
-// TODO add check for lowercase categories
 // post /entries/add_node_entry
 // Add a new node entry
-
 router.post('/create_node_entry', authorize, async (req, res) => {
   const { id: user_id } = req.user
-  const { content, category, title, tags } = req.body
+  const { content, title } = req.body
   const type = 'node'
 
   try {
-    // Check if content is provided
-    if (!content) {
-      return res.status(400).json({ message: 'Content is required' })
+    if (!content && !title) {
+      return res.status(400).json({ message: 'Either content or title is required' })
     }
 
-    // Initialize variables to hold category ID and tag IDs
-    let category_id = null
-    let tag_ids = []
-
-    // Check if category is provided in request
-    if (category) {
-      // Check if category already exists
-      let existingCategory = await pool.query('SELECT id FROM categories WHERE name = $1', [category])
-
-      if (existingCategory.rows.length === 0) {
-        // If category doesn't exist, create a new one
-        let newCategory = await pool.query('INSERT INTO categories (name) VALUES ($1) RETURNING id', [category])
-        category_id = newCategory.rows[0].id
-      } else {
-        // If category exists, use its ID
-        category_id = existingCategory.rows[0].id
-      }
-    }
-
-    // Check if tags are provided
-    if (tags && tags.length > 0) {
-      for (const tag of tags) {
-        // Check if tag already exists
-        let existingTag = await pool.query('SELECT id FROM tags WHERE name = $1', [tag])
-        let tag_id = null
-        if (existingTag.rows.length === 0) {
-          // If tag doesn't exist, create a new one
-          let newTag = await pool.query('INSERT INTO tags (name) VALUES ($1) RETURNING id', [tag])
-          tag_id = newTag.rows[0].id
-        } else {
-          // If tag exists, use its ID
-          tag_id = existingTag.rows[0].id
-        }
-        tag_ids.push(tag_id)
+    // Check if the title already exists
+    if (title) {
+      const existingEntry = await pool.query('SELECT id FROM entries WHERE title = $1', [title])
+      if (existingEntry.rows.length > 0) {
+        return res.status(400).json({ message: 'Title already exists' })
       }
     }
 
     // Insert entry into entries table
     let newEntry = await pool.query(
-      'INSERT INTO entries (user_id, type, title, category_id, tags, content_ids) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-      [user_id, type, title, category_id || null, tag_ids.length > 0 ? tag_ids : null, []]
+      'INSERT INTO entries (user_id, type, title, content_ids) VALUES ($1, $2, $3, $4) RETURNING id',
+      [user_id, type, title, []]
     )
 
     const entry_id = newEntry.rows[0].id
 
-    // Insert entry content into entry_contents table
-    let newContent = await pool.query('INSERT INTO entry_contents (content, entry_id) VALUES ($1, $2) RETURNING id', [
-      content,
-      entry_id,
-    ])
-    const content_id = newContent.rows[0].id
+    // If content is present, insert it into the entry_contents table
+    let content_id = null
+    if (content) {
+      let newContent = await pool.query('INSERT INTO entry_contents (content, entry_id) VALUES ($1, $2) RETURNING id', [
+        content,
+        entry_id,
+      ])
+      content_id = newContent.rows[0].id
 
-    // Update the entries table with the content_ids array
-    await pool.query('UPDATE entries SET content_ids = $1 WHERE id = $2', [[content_id], entry_id])
+      // Update the entries table with the content_ids array
+      await pool.query('UPDATE entries SET content_ids = $1 WHERE id = $2', [[content_id], entry_id])
+    }
 
     // Set the title to "Untitled" if not provided in the request
     const finalTitle = title || `Untitled #${entry_id}`
@@ -81,7 +52,12 @@ router.post('/create_node_entry', authorize, async (req, res) => {
     await pool.query('UPDATE entries SET title = $1 WHERE id = $2', [finalTitle, entry_id])
 
     console.log('Node Entry created successfully!')
-    return res.json({ newEntry })
+
+    console.log('<<<<<< newEntry >>>>>>>>> is: <<<<<<<<<<<<')
+    console.log(newEntry.rows[0].id)
+    console.log('<<<<<< title >>>>>>>>> is: <<<<<<<<<<<<')
+    console.log(title)
+    return res.json({ id: newEntry.rows[0].id, title })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -91,50 +67,14 @@ router.post('/create_node_entry', authorize, async (req, res) => {
 // post /entries/update_node_entry
 // Update a node entry
 router.post('/update_node_entry', authorize, async (req, res) => {
+  console.log('UPDATE_NODE_ENTRY_HIT')
   const { id: user_id } = req.user
-  const { entryId, content, category, title, tags } = req.body
+  const { entryId, content, title } = req.body
 
   try {
     // Check if entryId, content, and user_id are provided
     if (!entryId || !content || !user_id) {
       return res.status(400).json({ message: 'entryId, content, and user_id are required' })
-    }
-
-    // Initialize variables to hold category ID and tag IDs
-    let category_id = null
-    let tag_ids = []
-
-    // Check if category is provided in request
-    if (category) {
-      // Check if category already exists
-      let existingCategory = await pool.query('SELECT id FROM categories WHERE name = $1', [category])
-
-      if (existingCategory.rows.length === 0) {
-        // If category doesn't exist, create a new one
-        let newCategory = await pool.query('INSERT INTO categories (name) VALUES ($1) RETURNING id', [category])
-        category_id = newCategory.rows[0].id
-      } else {
-        // If category exists, use its ID
-        category_id = existingCategory.rows[0].id
-      }
-    }
-
-    // Check if tags are provided
-    if (tags && tags.length > 0) {
-      for (const tag of tags) {
-        // Check if tag already exists
-        let existingTag = await pool.query('SELECT id FROM tags WHERE name = $1', [tag])
-        let tag_id = null
-        if (existingTag.rows.length === 0) {
-          // If tag doesn't exist, create a new one
-          let newTag = await pool.query('INSERT INTO tags (name) VALUES ($1) RETURNING id', [tag])
-          tag_id = newTag.rows[0].id
-        } else {
-          // If tag exists, use its ID
-          tag_id = existingTag.rows[0].id
-        }
-        tag_ids.push(tag_id)
-      }
     }
 
     // Get current content_ids from the entry
@@ -159,16 +99,15 @@ router.post('/update_node_entry', authorize, async (req, res) => {
 
     // Update entry in the entries table
     let updatedEntry = await pool.query(
-      'UPDATE entries SET content_ids = $1, title = COALESCE($2, title), category_id = COALESCE($3, category_id), tags = COALESCE($4, tags) WHERE id = $5 AND user_id = $6 RETURNING *',
-      [newContentIds, title, category_id, tag_ids, entryId, user_id]
+      'UPDATE entries SET content_ids = $1, title = COALESCE($2, title) WHERE id = $3 AND user_id = $4 RETURNING *',
+      [newContentIds, title, entryId, user_id]
     )
 
-    // Fetch the category name
-    let categoryData = await pool.query('SELECT name FROM categories WHERE id = $1', [category_id])
-    let category_name = categoryData.rows[0] ? categoryData.rows[0].name : null
+    // Retrieve the most recent content associated with the entry
+    let mostRecentContent = await pool.query('SELECT * FROM entry_contents WHERE id = $1', [newContentIds[0]])
 
     console.log('Node Entry updated successfully!')
-    return res.json({ updatedEntry: updatedEntry.rows[0], category_name })
+    return res.json({ updatedEntry: updatedEntry.rows[0], content: mostRecentContent.rows[0].content })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -308,12 +247,9 @@ router.get('/node_entries', authorize, async (req, res) => {
           FROM entry_contents 
           WHERE entry_id = entries.id 
           ORDER BY date_created DESC 
-          LIMIT 1) AS date_last_modified,
-        categories.name AS category_name
+          LIMIT 1) AS date_last_modified
       FROM 
         entries 
-      LEFT JOIN 
-        categories ON entries.category_id = categories.id 
       WHERE 
         user_id = $1 
         AND type = $2`,
@@ -325,38 +261,129 @@ router.get('/node_entries', authorize, async (req, res) => {
       return res.status(404).json({ msg: 'No node entries found for this user' })
     }
 
-    // If node entries are found, return them
-    res.json({ entries: allNodeEntries.rows })
+    // Map over entries and add pending status
+    const entriesWithPendingStatus = allNodeEntries.rows.map((entry) => {
+      return {
+        ...entry,
+        pending: !entry.content || entry.content.length === 0,
+      }
+    })
+
+    // If node entries are found, return them with pending status
+    res.json({ entries: entriesWithPendingStatus })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
   }
 })
 
-// Route to retrieve all node type entries with title and id
+// Route to retrieve all node type entries with title, id, starred, pending status, date_created, and date_last_modified
 router.get('/node_entries_info', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
   try {
-    // Retrieve node entries' title and id for the user with the provided user_id
-    const nodeEntries = await pool.query(`SELECT id, title FROM entries WHERE user_id = $1 AND type = 'node'`, [
-      user_id,
-    ])
+    const nodeEntriesQuery = await pool.query(
+      `SELECT 
+        entries.id, 
+        entries.title, 
+        entries.starred,
+        ARRAY(
+          SELECT content 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created DESC
+        ) AS content,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created ASC 
+          LIMIT 1) AS date_created,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created DESC 
+          LIMIT 1) AS date_last_modified
+      FROM entries 
+      WHERE user_id = $1 AND type = 'node'`,
+      [user_id]
+    )
+
+    const nodeEntries = nodeEntriesQuery.rows
 
     // Check if there are any entries found
-    if (nodeEntries.rows.length === 0) {
+    if (nodeEntries.length === 0) {
       return res.status(404).json({ msg: 'No node entries found for this user' })
     }
 
+    // Process entries to include pending status
+    const processedEntries = nodeEntries.map((entry) => ({
+      id: entry.id,
+      title: entry.title,
+      starred: entry.starred,
+      pending: !entry.content || entry.content.length === 0,
+      date_created: entry.date_created,
+      date_last_modified: entry.date_last_modified,
+    }))
+
     // If node entries are found, return them
-    res.json({ nodeEntries: nodeEntries.rows })
+    res.json({ nodeEntries: processedEntries })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
   }
 })
 
-// Route to retrieve all entrie regardless of type for a user
+// Route to retrieve all entries regardless of type for a user
+router.get('/all_entries', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+
+  try {
+    // Retrieve all journal entries for the user with the provided user_id
+    const allEntriesQuery = await pool.query(
+      `SELECT 
+        entries.*, 
+        ARRAY(
+          SELECT content 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created DESC
+        ) AS content,
+        ARRAY(
+          SELECT name 
+          FROM tags 
+          WHERE id = ANY(entries.tags)
+        ) AS tag_names,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created ASC 
+          LIMIT 1) AS date_created,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = entries.id 
+          ORDER BY date_created DESC 
+          LIMIT 1) AS date_last_modified
+      FROM entries 
+      WHERE user_id = $1`,
+      [user_id]
+    )
+
+    const allEntries = allEntriesQuery.rows
+
+    // Check if there are any entries found
+    if (allEntries.length === 0) {
+      return res.status(404).json({ msg: 'No entries found for this user' })
+    }
+
+    // If journal entries are found, return them
+    res.json({ entries: allEntries })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// Route to retrieve all entries regardless of type for a user
 router.get('/all_entries', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
@@ -394,18 +421,12 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
     const entry = await pool.query(
       `SELECT 
         entries.*, 
-        categories.name AS category_name, 
         ARRAY(
           SELECT content 
           FROM entry_contents 
           WHERE entry_id = $1 
           ORDER BY date_created DESC
         ) AS content,
-        ARRAY(
-          SELECT name 
-          FROM tags 
-          WHERE id = ANY(entries.tags)
-        ) AS tag_names,
         (SELECT date_created 
           FROM entry_contents 
           WHERE entry_id = $1 
@@ -418,11 +439,10 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
           LIMIT 1) AS date_last_updated
       FROM 
         entries 
-      LEFT JOIN 
-        categories ON entries.category_id = categories.id
       WHERE 
-        entries.id = $1`,
-      [entryId]
+        id = $1 
+        AND user_id = $2`,
+      [entryId, user_id]
     )
 
     // Check if the entry is found
@@ -431,11 +451,6 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
     }
 
     const entryData = entry.rows[0]
-    // Check if the user ID associated with the entry matches the user ID of the request
-    if (entryData.user_id !== user_id) {
-      return res.status(403).json({ msg: 'Unauthorized access to entry' })
-    }
-
     // If the entry is found and the user ID matches, return it
     res.json(entryData)
   } catch (err) {
@@ -444,38 +459,91 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
   }
 })
 
-// Route to retrieve all categories
-router.get('/categories', authorize, async (req, res) => {
-  try {
-    // Retrieve all categories
-    const allCategories = await pool.query('SELECT * FROM categories')
+// Route to delete an entry by ID
+router.delete('/delete_entry/:id', authorize, async (req, res) => {
+  const { id } = req.params
 
-    // Check if there are any categories found
-    if (allCategories.rows.length === 0) {
-      return res.status(404).json({ msg: 'No categories found' })
+  try {
+    // Start a transaction
+    await pool.query('BEGIN')
+
+    // Retrieve connections related to the entry
+    const getConnectionsQuery = 'SELECT id FROM connections WHERE primary_entry_id = $1 OR foreign_entry_id = $1'
+    const connectionsResult = await pool.query(getConnectionsQuery, [id])
+    const connectionIds = connectionsResult.rows.map((row) => row.id)
+
+    if (connectionIds.length > 0) {
+      // Retrieve all entries that have any of these connections
+      const getEntriesQuery = `
+        SELECT id, connections 
+        FROM entries 
+        WHERE connections && $1::uuid[]
+      `
+      const entriesResult = await pool.query(getEntriesQuery, [connectionIds])
+
+      // Update the connections array for each related entry
+      const updateEntriesConnections = async (entryId, updatedConnections) => {
+        await pool.query('UPDATE entries SET connections = $1 WHERE id = $2', [updatedConnections, entryId])
+      }
+
+      for (const entry of entriesResult.rows) {
+        const updatedConnections = entry.connections.filter((connId) => !connectionIds.includes(connId))
+        await updateEntriesConnections(entry.id, updatedConnections)
+      }
     }
 
-    // If categories are found, return them
-    res.json({ categories: allCategories.rows })
+    // Delete the connections related to the entry
+    const deleteConnectionsQuery = 'DELETE FROM connections WHERE primary_entry_id = $1 OR foreign_entry_id = $1'
+    await pool.query(deleteConnectionsQuery, [id])
+
+    // Delete the entry
+    const deleteEntryQuery = 'DELETE FROM entries WHERE id = $1'
+    await pool.query(deleteEntryQuery, [id])
+
+    // Commit the transaction
+    await pool.query('COMMIT')
+
+    res.json({ msg: 'Entry and associated connections deleted successfully' })
   } catch (err) {
+    // Rollback the transaction in case of error
+    await pool.query('ROLLBACK')
     console.error(err.message)
     res.status(500).send('Server error')
   }
 })
 
-// Route to retrieve all tags
-router.get('/tags', authorize, async (req, res) => {
-  try {
-    // Retrieve all categories
-    const allTags = await pool.query('SELECT * FROM tags')
+// Route to toggle the starred value of an entry
+router.post('/toggle_starred', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+  const { entryId } = req.body
 
-    // Check if there are any categories found
-    if (allTags.rows.length === 0) {
-      return res.status(404).json({ msg: 'No tags found' })
+  try {
+    // Check if entryId and user_id are provided
+    if (!entryId || !user_id) {
+      return res.status(400).json({ message: 'entryId and user_id are required' })
     }
 
-    // If categories are found, return them
-    res.json({ tags: allTags.rows })
+    // Retrieve the current starred status of the entry
+    const entry = await pool.query('SELECT starred FROM entries WHERE id = $1 AND user_id = $2', [entryId, user_id])
+
+    // Check if the entry exists
+    if (entry.rows.length === 0) {
+      return res.status(404).json({ message: 'Entry not found' })
+    }
+
+    // Toggle the starred status
+    const currentStarredStatus = entry.rows[0].starred
+    const newStarredStatus = !currentStarredStatus
+
+    // Update the entry's starred status
+    await pool.query('UPDATE entries SET starred = $1 WHERE id = $2 AND user_id = $3', [
+      newStarredStatus,
+      entryId,
+      user_id,
+    ])
+
+    console.log(`Entry ${entryId} starred status updated successfully!`)
+    return res.json({ entryId, starred: newStarredStatus })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -483,7 +551,7 @@ router.get('/tags', authorize, async (req, res) => {
 })
 
 // POST /entries/batch_create
-// Batch create user journal entriesconst { Pool } = require('pg');
+// Batch create user journal entries
 
 router.post('/batch_create', authorize, async (req, res) => {
   const { id: user_id } = req.user

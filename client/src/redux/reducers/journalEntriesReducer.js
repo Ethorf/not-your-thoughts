@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
+import axiosInstance from '@utils/axiosInstance'
 
 const initialState = {
   journalConfig: null,
@@ -13,7 +13,7 @@ const initialState = {
 export const fetchJournalConfig = createAsyncThunk('journal/fetchJournalConfig', async (_, { rejectWithValue }) => {
   try {
     console.log('fetching journal config')
-    const response = await axios.get('/api/journal_config')
+    const response = await axiosInstance.get('/api/journal_config')
     return response.data.journalConfig
   } catch (error) {
     return rejectWithValue(error.response.data)
@@ -24,7 +24,7 @@ export const fetchJournalEntries = createAsyncThunk(
   'journalEntriesReducer/fetchJournalEntries',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get('/api/entries/journal_entries')
+      const response = await axiosInstance.get('/api/entries/journal_entries')
       return response.data
     } catch (error) {
       return rejectWithValue(error.response.data)

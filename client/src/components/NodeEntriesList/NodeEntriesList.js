@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchNodeEntries } from '../../redux/reducers/nodeEntriesReducer'
+
+// Redux
+import { fetchNodeEntries } from '@redux/reducers/nodeEntriesReducer'
+
+// Components
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import { NodeEntry } from '../NodeEntry/NodeEntry'
 import { EntriesSortDropdown } from '@components/Shared/EntriesSortDropdown/EntriesSortDropdown'
@@ -50,6 +54,13 @@ const NodeEntriesList = () => {
                 setSortedEntries={setSortedAndFilteredEntries}
               />
             </div>
+          </div>
+          <div className={styles.divider} />
+          <div className={styles.headerContainer}>
+            <p className={styles.listHeader}>Title</p>
+            <p className={styles.listHeader}>Modified</p>
+            <p className={styles.listHeader}>Created</p>
+            <p className={styles.listHeader}>Content</p>
           </div>
           <div className={styles.divider} />
           <ul className={styles.listContainer}>

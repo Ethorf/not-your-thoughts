@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import axios from 'axios'
+import axiosInstance from '@utils/axiosInstance'
 import { TimelineMax } from 'gsap'
 
 import './About.scss'
@@ -37,7 +37,7 @@ function About({ mode }) {
     }
     const body = JSON.stringify({ name, email, message })
     try {
-      axios.post('/api/contact', body, config)
+      axiosInstance.post('/api/contact', body, config)
     } catch (err) {
       console.log('Error submitting form ')
     }

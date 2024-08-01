@@ -1,0 +1,108 @@
+@import '@styles/mixins.scss';
+
+.titleWrapper {
+  margin: 0;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-family: 'Syncopate', sans-serif;
+  color: white;
+}
+
+.overflowVisible {
+  overflow: visible;
+}
+
+.wrapper {
+  min-width: 47vw;
+  min-height: 90vh;
+}
+
+.horizontalDivider {
+  width: 90%;
+}
+
+.sourceWord {
+  font-family: 'Syncopate', sans-serif;
+  font-weight: 600;
+  font-size: 1.3rem;
+}
+
+.nodeSelect {
+  width: 60%;
+  margin: 0 10px;
+}
+
+.connectionDisplay {
+  display: grid;
+  grid-template-columns: 12% 33% 10% 15% 20%;
+  align-items: center;
+}
+
+.sourceSelectionContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.createDropdown {
+  height: 32px;
+  margin: 0 10px;
+}
+
+.flexContainer {
+  display: flex;
+  align-items: center;
+}
+
+.connectionLabel {
+  font-family: 'Syncopate', sans-serif;
+}
+
+.connectionText {
+  font-family: 'Syncopate', sans-serif;
+  color: white;
+}
+
+.entrySource {
+  padding: 0 12px;
+  width: 90%;
+  max-height: 25vh;
+  font-size: 0.8rem;
+  overflow: auto;
+  border: $silver-border-default;
+  border-radius: $default-border-radius;
+}
+
+.entrySourceHeader {
+  margin: 0;
+}
+.entrySourceContainer {
+  width: 90%;
+}
+
+.sourceSelectContainer {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+}
+.getSourceButton {
+  margin-left: 12px;
+  font-size: 1rem;
+}
+
+.connectionDescriptionTextarea {
+  outline: none;
+  border: $silver-border-default;
+  border-radius: $default-border-radius;
+  background: none;
+  resize: none;
+  color: $silver-default;
+  width: 60%;
+  height: 100px;
+  padding: 12px;
+}
+
+.externalConnectionInput {
+  width: 50%;
+}

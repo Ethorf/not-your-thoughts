@@ -5,9 +5,17 @@ $silver-active: rgba(192, 192, 192, 0.9);
 $silver-default: rgba(192, 192, 192, 0.7);
 $silver-faded: rgba(192, 192, 192, 0.5);
 
+// z-index
+$pillars-z-index: 4;
+
 // Borders
 $silver-border-default: 1px solid rgba(192, 192, 192, 0.5);
 $silver-border-active: 1px solid rgba(192, 192, 192, 0.5);
+$default-border-radius: 8px;
+
+// Grid
+$entries-list-columns: 25% 12% 12% 15% 10% 20%;
+$dashboard-nodes-columns: 5% 18% 35% 15% 20%;
 
 // Transition Time
 $default-transition: all 250ms ease-in-out;

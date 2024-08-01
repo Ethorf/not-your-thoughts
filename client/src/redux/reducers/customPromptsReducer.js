@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
+import axiosInstance from '@utils/axiosInstance'
 
 // Initial state
 const initialState = {
@@ -12,7 +12,7 @@ const initialState = {
 export const fetchCustomPrompts = createAsyncThunk('customPrompts/fetchCustomPrompts', async () => {
   try {
     console.log('fetching custom prompts')
-    const response = await axios.get('/api/prompts/custom_prompts')
+    const response = await axiosInstance.get('/api/prompts/custom_prompts')
     return response.data
   } catch (error) {
     throw Error(error.response.data.message)
@@ -22,7 +22,7 @@ export const fetchCustomPrompts = createAsyncThunk('customPrompts/fetchCustomPro
 // Async thunk to create a new custom prompt
 export const createCustomPrompt = createAsyncThunk('customPrompts/createCustomPrompt', async (newPromptData) => {
   try {
-    const response = await axios.post('/api/prompts/create_custom_prompt', { content: newPromptData })
+    const response = await axiosInstance.post('/api/prompts/create_custom_prompt', { content: newPromptData })
     return response.data
   } catch (error) {
     throw Error(error.response.data.message)
@@ -32,7 +32,7 @@ export const createCustomPrompt = createAsyncThunk('customPrompts/createCustomPr
 // Async thunk to delete a custom prompt by ID
 export const deleteCustomPrompt = createAsyncThunk('customPrompts/deleteCustomPrompt', async (promptId) => {
   try {
-    await axios.delete(`/api/prompts/delete_custom_prompt/${promptId}`)
+    await axiosInstance.delete(`/api/prompts/delete_custom_prompt/${promptId}`)
     return promptId
   } catch (error) {
     throw Error(error.response.data.message)
@@ -42,7 +42,7 @@ export const deleteCustomPrompt = createAsyncThunk('customPrompts/deleteCustomPr
 // Async thunk to update a custom prompt's status
 export const updatePromptStatus = createAsyncThunk('customPrompts/updatePromptStatus', async ({ promptId, status }) => {
   try {
-    const response = await axios.put(`/api/prompts/update_prompt_status/${promptId}`, { status })
+    const response = await axiosInstance.put(`/api/prompts/update_prompt_status/${promptId}`, { status })
     return response.data
   } catch (error) {
     throw Error(error.response.data.message)
@@ -52,7 +52,7 @@ export const updatePromptStatus = createAsyncThunk('customPrompts/updatePromptSt
 // Async thunk to toggle a custom prompt's starred value
 export const togglePromptStarred = createAsyncThunk('customPrompts/togglePromptStarred', async (promptId) => {
   try {
-    const response = await axios.put(`/api/prompts/toggle_prompt_starred/${promptId}`)
+    const response = await axiosInstance.put(`/api/prompts/toggle_prompt_starred/${promptId}`)
     return response.data
   } catch (error) {
     throw Error(error.response.data.message)

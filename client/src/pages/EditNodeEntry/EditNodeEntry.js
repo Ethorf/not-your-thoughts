@@ -1,33 +1,39 @@
 import React, { useEffect, useMemo } from 'react'
 import classNames from 'classnames'
+import { useLocation } from 'react-router-dom'
+import { unwrapResult } from '@reduxjs/toolkit'
+
+// Redux
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation, useHistory } from 'react-router-dom'
-import { setTitle, updateNodeEntry, setEntryById, resetCurrentEntryState } from '@redux/reducers/currentEntryReducer'
+import { setTitle, updateNodeEntry, setEntryById } from '@redux/reducers/currentEntryReducer'
+import { openModal } from '@redux/reducers/modalsReducer.js'
+import { fetchConnections, getSelectedText } from '@redux/reducers/connectionsReducer'
 
 // Constants
 import { SAVE_TYPES } from '@constants/saveTypes'
+import { MODAL_NAMES } from '@constants/modalNames.js'
+import { CONNECTION_TYPES } from '@constants/connectionTypes'
+import { CONNECTION_ENTRY_SOURCES } from '@constants/connectionEntrySources'
+import { ENTRY_TYPES } from '@constants/entryTypes'
 
 // Components
 import CreateEntry from '@components/Shared/CreateEntry/CreateEntry'
 import AkasDisplay from '@components/Shared/AkasDisplay/AkasDisplay'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
+import StarButton from '@components/Shared/StarButton/StarButton'
 import DefaultInput from '@components/Shared/DefaultInput/DefaultInput'
 import AutosaveTimer from '@components/Shared/AutosaveTimer/AutosaveTimer'
-import CategoryInput from '@components/CategoryInput/CategoryInput'
-import TagsInput from '@components/TagsInput/TagsInput'
 import Spinner from '@components/Shared/Spinner/Spinner'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 
 import styles from './EditNodeEntry.module.scss'
 
+const { PRIMARY } = CONNECTION_ENTRY_SOURCES
+
 const EditNodeEntry = () => {
   const dispatch = useDispatch()
   const location = useLocation()
-  const history = useHistory()
-  const { wordCount, entryId, content, title, category, tags, entriesLoading } = useSelector(
-    (state) => state.currentEntry
-  )
-
+  const { wordCount, entryId, content, title, starred, entriesLoading } = useSelector((state) => state.currentEntry)
   const params = useMemo(() => new URLSearchParams(location.search), [location.search])
 
   useEffect(() => {
@@ -42,23 +48,64 @@ const EditNodeEntry = () => {
   }
 
   const handleSaveNode = (saveType) => {
-    dispatch(updateNodeEntry({ entryId, content, category, title, tags, saveType }))
+    dispatch(updateNodeEntry({ saveType }))
   }
 
-  const handleNewNode = () => {
-    dispatch(resetCurrentEntryState())
-    history.push('/create-node-entry')
+  const handleOpenConnectionsModal = async () => {
+    try {
+      const fetchConnRes = await dispatch(fetchConnections(entryId))
+      unwrapResult(fetchConnRes)
+      dispatch(openModal(MODAL_NAMES.CONNECTIONS))
+    } catch (error) {
+      console.error('Failed to fetch connections:', error)
+    }
   }
+
+  const handleOpenConnectionsWithSelectedText = async () => {
+    try {
+      const getSelectedTextRes = await dispatch(getSelectedText(PRIMARY))
+      unwrapResult(getSelectedTextRes)
+      await handleOpenConnectionsModal()
+    } catch (error) {
+      console.error('Get selected text failure', error)
+    }
+  }
+
+  useEffect(() => {
+    const handleShortcuts = async (e) => {
+      if (e.ctrlKey && e.metaKey && e.key === 'c') {
+        await handleOpenConnectionsWithSelectedText()
+      }
+      if (e.metaKey && e.shiftKey && e.key === 's') {
+        console.log('Save Shortcut heet')
+        await handleSaveNode(SAVE_TYPES.MANUAL)
+      }
+    }
+
+    window.addEventListener('keydown', handleShortcuts)
+    return () => {
+      window.removeEventListener('keydown', handleShortcuts)
+    }
+  }, [])
 
   return (
     <div className={styles.wrapper}>
-      <AutosaveTimer handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
+      {/* <AutosaveTimer handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} /> */}
       <div className={styles.editContainer}>
         <h2>Edit Node</h2>
         <div className={classNames(styles.topContainer, styles.grid4ColumnsCustom)}>
-          {content ? (
+          {content || title ? (
             <>
-              <CategoryInput className={styles.flexStart} />
+              <div className={styles.connectStarContainer}>
+                <DefaultButton
+                  tooltip="Open connections menu"
+                  onClick={handleOpenConnectionsWithSelectedText}
+                  className={styles.saveButton}
+                >
+                  Connect
+                </DefaultButton>
+                <StarButton id={entryId} initialStarred={starred} />
+              </div>
               <DefaultInput
                 className={classNames(styles.titleInput, styles.flexCenter, {
                   [styles.titleInputNoBorder]: title.length,
@@ -68,29 +115,20 @@ const EditNodeEntry = () => {
                 onChange={handleTitleChange}
               />
               <AkasDisplay />
-              <TagsInput className={styles.flexEnd} />
             </>
           ) : (
             <Spinner />
           )}
         </div>
-        <CreateEntry />
+        <CreateEntry type={ENTRY_TYPES.NODE} />
         <div className={styles.grid3Columns}>
           <span className={styles.flexStart}>Words: {wordCount}</span>
-          <span className={styles.flexCenter}>
-            <DefaultButton onClick={() => handleNewNode()} className={styles.saveButton}>
-              New Node
-            </DefaultButton>
-          </span>
+          <span />
           <span className={styles.flexEnd}>
             {entriesLoading ? (
               <SmallSpinner />
             ) : (
-              <DefaultButton
-                disabled={!content.length}
-                onClick={() => handleSaveNode(SAVE_TYPES.MANUAL)}
-                className={styles.saveButton}
-              >
+              <DefaultButton onClick={() => handleSaveNode(SAVE_TYPES.MANUAL)} className={styles.saveButton}>
                 Save Node
               </DefaultButton>
             )}

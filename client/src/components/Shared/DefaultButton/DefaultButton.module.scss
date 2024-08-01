@@ -10,9 +10,8 @@
   border-radius: 15px;
   outline: none;
   transition: all 0.3s;
-  z-index: 10;
-
   width: fit-content;
+  cursor: pointer;
 
   &:hover {
     transition: all 0.3s;

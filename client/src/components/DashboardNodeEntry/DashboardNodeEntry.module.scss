@@ -1,0 +1,21 @@
+@import '@styles/variables.scss';
+
+.wrapper {
+  display: grid;
+  grid-template-columns: $dashboard-nodes-columns;
+  align-items: center;
+  gap: 8px;
+}
+
+.date {
+  color: $silver-faded;
+}
+
+.deleteButton {
+  font-size: 0.8rem;
+}
+
+.pending {
+  text-transform: uppercase;
+  color: $silver-active;
+}

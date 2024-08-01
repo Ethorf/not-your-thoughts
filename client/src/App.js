@@ -8,9 +8,12 @@ import 'react-toastify/dist/ReactToastify.css'
 import PrivateRoute from './components/higherOrderComponents/PrivateRoute/PrivateRoute.js'
 import { useSelector, connect } from 'react-redux'
 import './App.scss'
-import NavBarSide from './components/nav/navBarSide.js'
-import NavBarTop from './components/nav/navBarTop.js'
-import AudioPlayer from './components/audioPlayer/audioPlayer.js'
+
+// Components
+import NavBarSide from '@components/nav/navBarLeftSide.js'
+import RightSidebar from '@components/RightSidebar/RightSidebar.js'
+
+import NavBarTop from '@components/nav/navBarTop.js'
 
 //Pages Imports
 import Landing from '@pages/Start/Start.js'
@@ -26,11 +29,14 @@ import Modes from '@pages/ModesPage/ModesPage.js'
 import About from '@pages/AboutPage/About.js'
 import Entries from '@pages/EntriesPage/EntriesPage.js'
 
-//redux Stuff
+//Redux
 import store from './redux/store/index'
 import { loadUser } from './redux/actions/authActions'
 import setAuthToken from './utils/setAuthToken'
 import { ModalsContainer } from './components/Modals/ModalsContainer/ModalsContainer.js'
+
+// Utils
+import { checkServerStatus } from '@utils/checkServerStatus'
 
 if (localStorage.token) {
   setAuthToken(localStorage.token)
@@ -42,25 +48,32 @@ const App = () => {
     store.dispatch(loadUser())
   }, [])
 
+  useEffect(() => {
+    checkServerStatus('http://localhost:8082/api/health', 5000) // Adjust URL and interval as needed
+  }, [])
+
   const mode = useSelector((state) => state.modes.mode)
+  const { user } = useSelector((state) => state.auth)
 
   return (
     <div className={`App ${mode}`}>
       <ToastContainer />
-      <Tooltip id="main-tooltip" style={{ zIndex: 99 }} place="right" />
+      <Tooltip id="main-tooltip" style={{ zIndex: 99999 }} place="right" />
       <BrowserRouter>
         <ModalsContainer />
         <NavBarTop />
         <NavBarSide />
-        <AudioPlayer />
+
+        {user && <RightSidebar />}
         <Route
           render={({ location }) => (
             <TransitionGroup>
+              {/* TODO fix this transition or remove & change all together */}
               <CSSTransition
-                key={location.key}
-                timeout={1100}
-                classNames={mode === '-light' ? 'fade' : 'fad'}
-                unmountOnExit
+              // key={location.key}
+              // timeout={1100}
+              // classNames={mode === '-light' ? 'fade' : 'fad'}
+              // unmountOnExit
               >
                 <Switch location={location}>
                   <Route path="/" exact>

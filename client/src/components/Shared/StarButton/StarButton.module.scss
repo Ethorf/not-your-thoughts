@@ -1,0 +1,19 @@
+.favStarIcon {
+  width: 25px;
+  height: 25px;
+  stroke: silver;
+  stroke-width: 2px;
+  outline: none;
+  cursor: pointer;
+  transition: all 200ms ease-in-out;
+
+  &:hover {
+    fill: rgba(192, 192, 192, 0.5);
+    transition: all 200ms ease-in-out;
+  }
+}
+
+.starred {
+  fill: silver;
+  transition: all 200ms ease-in-out;
+}

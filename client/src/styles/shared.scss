@@ -108,18 +108,6 @@
     height: 10%;
     width: 100%;
   }
-  &__date-goal-wordcount-container-light {
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-    padding-bottom: 1%;
-    height: 10%;
-    width: 100%;
-    font-size: 24px;
-    z-index: 4;
-    color: black;
-    background-color: none;
-  }
   &__date {
     font-size: 1.3rem;
     width: 15%;
@@ -139,7 +127,6 @@
   &__wpm-text-container {
     display: flex;
     width: 15%;
-    // border: 1px solid red;
     width: 15%;
     align-items: center;
     justify-content: space-between;
@@ -164,15 +151,6 @@
     font-size: 1.6rem;
   }
 
-  &__date-goal-wordcount-textarea-container {
-    display: flex;
-    flex-direction: column;
-    margin-top: 1%;
-    height: 100%;
-    width: 80%;
-    z-index: 4;
-    margin-bottom: 1%;
-  }
   &__textarea {
     text-align: center;
     box-shadow: none;
@@ -269,7 +247,6 @@
   }
 
   /////Begin Pillars\\\\\\
-
   &__pillar-left-container {
     display: flex;
     justify-content: center;
@@ -282,8 +259,8 @@
     left: 40%;
     width: 100%;
     top: 11px;
-    z-index: 4;
     height: 101%;
+    z-index: $pillars-z-index;
   }
   &__pillar-left {
     position: relative;
@@ -577,20 +554,15 @@
   }
 }
 
-* {
-  z-index: 4;
-}
 .textblind {
   color: black;
 }
 .full-opacity {
   opacity: 0.9;
-  // transition: all 0.5s;
 }
 
 .less-opacity {
   opacity: 0.6;
-  // transition: all 0.5s;
 }
 
 #header-container {
@@ -600,4 +572,9 @@
 #header {
   opacity: 1;
   width: 100%;
+}
+
+.highlight {
+  // background-color: yellow; /* or any other color you prefer */
+  color: red;
 }

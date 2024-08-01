@@ -1,0 +1,13 @@
+@import '@styles/variables.scss';
+
+.wrapper {
+  display: grid;
+  grid-template-columns: 10% 73% 5%;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.deleteButton {
+  font-size: 0.8rem;
+}

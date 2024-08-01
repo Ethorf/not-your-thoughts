@@ -14,8 +14,6 @@ dotenv.config({ path: envPath })
 const app = express()
 const pool = require('./config/neonDb.js')
 
-pool.connect()
-
 // Parse JSON bodies with a larger limit (e.g., 10MB)
 app.use(bodyParser.json({ limit: '10mb' }))
 app.use(compression())
@@ -27,7 +25,9 @@ app.use(express.json({ extended: false }))
 // Routes
 app.use('/api/auth', require('./routes/auth'))
 app.use('/api/akas', require('./routes/akas'))
+app.use('/api/connections', require('./routes/connections'))
 app.use('/api/entries', require('./routes/entries'))
+app.use('/api/health', require('./routes/health'))
 app.use('/api/prompts', require('./routes/prompts'))
 app.use('/api/journal_config', require('./routes/journal_config'))
 
@@ -44,7 +44,7 @@ if (process.env.NODE_ENV === 'production') {
 
 const PORT = process.env.PORT || 8082
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`It's an ${PORT} type of guy for NYT`)
 
   // Check if backupProcess should run based on process.env.GH_HANDLE
@@ -65,8 +65,45 @@ app.listen(PORT, () => {
   }
 })
 
-// OLD ROUTES
+const gracefulShutdown = (signal) => {
+  console.log(`Received ${signal}. Shutting down gracefully...`)
 
-// app.use('/api/setFirstLogin', require('./routes/api/setFirstLogin.js'))
-// app.use('/api/contact', require('./routes/api/contact.js'))
-// app.use('/api/increaseDays', require('./routes/api/increaseDays.js'))
+  const retryInterval = 5000 // Retry every 5 seconds
+  const maxRetries = 12 // Try for 1 minute
+
+  let attempt = 0
+
+  const tryReconnect = async () => {
+    if (attempt < maxRetries) {
+      attempt += 1
+      try {
+        await pool.connect()
+        console.log('Reconnected to the database. Resuming operations...')
+        return
+      } catch (error) {
+        console.log(`Retrying to connect to the database... (Attempt ${attempt}/${maxRetries})`)
+        setTimeout(tryReconnect, retryInterval)
+      }
+    } else {
+      console.error('Max retries reached. Forcing shutdown...')
+      process.exit(1)
+    }
+  }
+
+  tryReconnect()
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
+process.on('SIGINT', () => gracefulShutdown('SIGINT'))
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception', err)
+  gracefulShutdown('uncaughtException')
+})
+
+// Handle unhandled rejections
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled rejection', err)
+  gracefulShutdown('unhandledRejection')
+})

@@ -19,26 +19,34 @@ pool.on('error', (err) => {
   process.exit(-1) // Exit the Node.js process on critical error
 })
 
-// Establish a database connection
-async function connectToDatabase() {
-  let client
-  try {
-    client = await pool.connect()
-    console.log('Connected to NYT NeonDB PostgreSQL database')
-    // Perform database operations here using the 'client' object
-  } catch (error) {
-    console.error('Error connecting to PostgreSQL:', error.message)
-    // Handle connection error gracefully (e.g., retry connection or display error message)
-  } finally {
-    // Release the client back to the pool when done
-    if (client) {
-      client.release()
-      console.log('Database client released back to the pool')
+// Establish a database connection with retry logic
+const connectWithRetry = async () => {
+  const retryInterval = 5000 // Retry every 5 seconds
+  const maxRetries = 12 // Try for 1 minute
+
+  let attempt = 0
+
+  while (attempt < maxRetries) {
+    attempt += 1
+    try {
+      await pool.connect()
+      console.log('Connected to NYT NeonDB PostgreSQL database')
+      return
+    } catch (error) {
+      console.error(`Error connecting to PostgreSQL (Attempt ${attempt}/${maxRetries}):`, error.message)
+      if (attempt < maxRetries) {
+        await new Promise((resolve) => setTimeout(resolve, retryInterval))
+      } else {
+        throw error
+      }
     }
   }
 }
 
-// Call the connectToDatabase function to initiate the connection
-connectToDatabase()
+// Call the connectWithRetry function to initiate the connection
+connectWithRetry().catch((error) => {
+  console.error('Failed to connect to the database after maximum retries. Exiting...')
+  process.exit(-1)
+})
 
 module.exports = pool

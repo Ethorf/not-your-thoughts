@@ -1,0 +1,75 @@
+@import '@styles/mixins.scss';
+@import '@styles/variables.scss';
+@import '@styles/base.scss';
+
+.wrapper {
+  transition: 1s all;
+  position: fixed;
+  right: -110px;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Poppins', sans-serif;
+  width: 375px;
+  height: 100%;
+  font-size: 1.3rem;
+  z-index: $pillars-z-index + 2;
+
+  &.sidebarOpen {
+    right: 0;
+  }
+}
+
+.arrowContainer {
+  margin-top: 20px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+
+.arrow {
+  color: silver;
+  border: none;
+  background-color: transparent;
+  opacity: 1;
+  outline: none;
+  height: 30px;
+  width: 30px;
+  transition: all 1.5s;
+  transform: rotate(180deg);
+
+  &:focus {
+    border: none;
+    outline: none;
+  }
+
+  &:hover {
+    content: url('../../assets/Icons/down-arrow-white-2.png');
+    transition: all 0.5s;
+    cursor: pointer;
+  }
+
+  &.arrowRotate {
+    transform: rotate(0deg);
+    transition: all 1.5s;
+  }
+}
+
+.sidebarContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  opacity: 0;
+  border: $silver-border-default;
+  border-radius: $default-border-radius;
+  transition: all 1s ease-in-out;
+  width: 100%;
+  padding-left: 8px;
+  max-height: 85vh;
+  background: transparent;
+
+  &.sidebarOpen {
+    opacity: 1;
+    transition: all 1s ease-in-out;
+    background: black;
+  }
+}
