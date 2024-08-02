@@ -8,7 +8,7 @@ const authorize = require('../middleware/authorize')
 // Add a new node entry
 router.post('/create_node_entry', authorize, async (req, res) => {
   const { id: user_id } = req.user
-  const { content, title } = req.body
+  const { content, title, num_of_words = 0 } = req.body
   const type = 'node'
 
   try {
