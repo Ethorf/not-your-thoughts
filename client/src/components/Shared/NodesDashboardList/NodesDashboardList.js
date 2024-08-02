@@ -19,7 +19,8 @@ export const NodesDashboardList = () => {
     if (new Date(a.date_last_modified) < new Date(b.date_last_modified)) return 1 // b comes first if it is more recently modified
     return 0 // maintain the order if all conditions are equal
   })
-
+  console.log('<<<<<< nodeEntriesInfo >>>>>>>>> is: <<<<<<<<<<<<')
+  console.log(nodeEntriesInfo)
   return (
     <>
       {sortedNodes.length ? (

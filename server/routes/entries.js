@@ -26,8 +26,8 @@ router.post('/create_node_entry', authorize, async (req, res) => {
 
     // Insert entry into entries table
     let newEntry = await pool.query(
-      'INSERT INTO entries (user_id, type, title, content_ids) VALUES ($1, $2, $3, $4) RETURNING id',
-      [user_id, type, title, []]
+      'INSERT INTO entries (user_id, type, title, content_ids, num_of_words) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+      [user_id, type, title, [], num_of_words]
     )
 
     const entry_id = newEntry.rows[0].id
@@ -53,10 +53,6 @@ router.post('/create_node_entry', authorize, async (req, res) => {
 
     console.log('Node Entry created successfully!')
 
-    console.log('<<<<<< newEntry >>>>>>>>> is: <<<<<<<<<<<<')
-    console.log(newEntry.rows[0].id)
-    console.log('<<<<<< title >>>>>>>>> is: <<<<<<<<<<<<')
-    console.log(title)
     return res.json({ id: newEntry.rows[0].id, title })
   } catch (err) {
     console.error(err.message)
@@ -66,6 +62,53 @@ router.post('/create_node_entry', authorize, async (req, res) => {
 
 // post /entries/update_node_entry
 // Update a node entry
+router.post('/update_node_entry', authorize, async (req, res) => {
+  console.log('UPDATE_NODE_ENTRY_HIT')
+  const { id: user_id } = req.user
+  const { entryId, content, title, num_of_words = 0 } = req.body
+
+  try {
+    // Check if entryId, content, and user_id are provided
+    if (!entryId || !content || !user_id) {
+      return res.status(400).json({ message: 'entryId, content, and user_id are required' })
+    }
+
+    // Get current content_ids from the entry
+    let currentEntry = await pool.query('SELECT content_ids FROM entries WHERE id = $1', [entryId])
+    let currentContentIds = currentEntry.rows[0].content_ids || [] // Handle case where current content_ids is null
+
+    // Initialize newContentIds array with current content IDs
+    let newContentIds = [...currentContentIds]
+
+    // Check if content has changed
+    if (content !== currentContentIds[0]) {
+      // Insert new content into entry_contents table
+      let newContentInsert = await pool.query(
+        'INSERT INTO entry_contents (content, entry_id) VALUES ($1, $2) RETURNING id',
+        [content, entryId]
+      )
+      let newContentId = newContentInsert.rows[0].id
+
+      // Add new content ID to the beginning of content IDs array
+      newContentIds.unshift(newContentId)
+    }
+
+    // Update entry in the entries table
+    let updatedEntry = await pool.query(
+      'UPDATE entries SET content_ids = $1, title = COALESCE($2, title), num_of_words = $3 WHERE id = $4 AND user_id = $5 RETURNING *',
+      [newContentIds, title, num_of_words, entryId, user_id]
+    )
+
+    // Retrieve the most recent content associated with the entry
+    let mostRecentContent = await pool.query('SELECT * FROM entry_contents WHERE id = $1', [newContentIds[0]])
+
+    console.log('Node Entry updated successfully!')
+    return res.json({ updatedEntry: updatedEntry.rows[0], content: mostRecentContent.rows[0].content })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
 router.post('/update_node_entry', authorize, async (req, res) => {
   console.log('UPDATE_NODE_ENTRY_HIT')
   const { id: user_id } = req.user
@@ -287,6 +330,7 @@ router.get('/node_entries_info', authorize, async (req, res) => {
         entries.id, 
         entries.title, 
         entries.starred,
+        entries.num_of_words AS "wordCount",
         ARRAY(
           SELECT content 
           FROM entry_contents 
@@ -320,6 +364,7 @@ router.get('/node_entries_info', authorize, async (req, res) => {
       id: entry.id,
       title: entry.title,
       starred: entry.starred,
+      wordCount: entry.wordCount,
       pending: !entry.content || entry.content.length === 0,
       date_created: entry.date_created,
       date_last_modified: entry.date_last_modified,

@@ -62,11 +62,12 @@ export const deleteAka = createAsyncThunk(
 
 export const createNodeEntry = createAsyncThunk(
   'currentEntryReducer/createNodeEntry',
-  async ({ content, title }, { rejectWithValue, dispatch }) => {
+  async ({ content, title, wordCount }, { rejectWithValue, dispatch }) => {
     try {
       const response = await axiosInstance.post('api/entries/create_node_entry', {
         content,
         title,
+        num_of_words: wordCount,
       })
 
       dispatch(showToast('Node Created', 'success'))
@@ -127,6 +128,7 @@ export const updateNodeEntry = createAsyncThunk(
         entryId: currentState.entryId,
         content: currentState.content,
         title: currentState.title,
+        num_of_words: currentState.wordCount,
       })
 
       await dispatch(fetchNodeEntriesInfo())
