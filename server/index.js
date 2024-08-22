@@ -29,7 +29,9 @@ app.use('/api/connections', require('./routes/connections'))
 app.use('/api/entries', require('./routes/entries'))
 app.use('/api/health', require('./routes/health'))
 app.use('/api/prompts', require('./routes/prompts'))
-app.use('/api/journal_config', require('./routes/journal_config'))
+app.use('/api/user_journal_config', require('./routes/user_journal_config.js'))
+app.use('/api/user_nodes_config.js', require('./routes/user_nodes_config.js'))
+app.use('/api/writing_data', require('./routes/writing_data.js'))
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {
@@ -90,7 +92,7 @@ const gracefulShutdown = (signal) => {
     }
   }
 
-  tryReconnect()
+  // tryReconnect()
 }
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))

@@ -10,8 +10,12 @@ const { NODE, JOURNAL } = ENTRY_TYPES
 const initialState = {
   entryId: null,
   entriesLoading: false,
+  entriesSaving: false,
   wordCount: 0,
   timeElapsed: 0,
+  // TODO the below are temporary until we can effectively consolidate writing data and old style timeElapsed etc
+  wdWordCount: 0,
+  wdTimeElapsed: 0,
   wpm: 0,
   title: '',
   akas: [],
@@ -128,7 +132,11 @@ export const updateNodeEntry = createAsyncThunk(
         content: currentState.content,
         title: currentState.title,
       })
-
+      // await axiosInstance.post('api/writing_data/create_writing_data', {
+      //   entryId: currentState.entryId,
+      //   content: currentState.content,
+      //   title: currentState.title,
+      // })
       await dispatch(fetchNodeEntriesInfo())
 
       if (saveType === AUTO) {
@@ -170,14 +178,25 @@ export const fetchNodeEntriesInfo = createAsyncThunk(
   }
 )
 
+// TODO this is a duplicate of fetchEntryById, Consolidate
 export const setEntryById = createAsyncThunk(
   'currentEntryReducer/setEntryById',
   async (queryParamEntryId, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(`api/entries/entry/${queryParamEntryId}`)
-      const { content, connections, date, id: entryId, num_of_words: wordCount, starred, title } = response.data
+      const {
+        content,
+        connections,
+        date,
+        id: entryId,
+        num_of_words: wordCount,
+        starred,
+        title,
+        wdWordCount,
+        wdTimeElapsed,
+      } = response.data
 
-      return { content: content[0], connections, date, entryId, wordCount, starred, title }
+      return { wdWordCount, wdTimeElapsed, content: content[0], connections, date, entryId, wordCount, starred, title }
     } catch (error) {
       return rejectWithValue(error.response.data)
     }
@@ -293,23 +312,25 @@ const currentEntrySlice = createSlice({
           entryId: action.payload,
         }
       })
+      .addCase(updateNodeEntry.pending, (state) => {
+        return { ...state, entriesLoading: true, entriesSaving: true }
+      })
       .addCase(updateNodeEntry.fulfilled, (state, action) => {
         // Will only receive a payload if not an autosave update
         if (action.payload.content) {
           return {
             ...state,
             entriesLoading: false,
+            entriesSaving: false,
             content: action.payload.content,
           }
         } else {
           return {
             ...state,
             entriesLoading: false,
+            entriesSaving: false,
           }
         }
-      })
-      .addCase(updateNodeEntry.pending, (state) => {
-        state.entriesLoading = true
       })
       .addCase(fetchEntryById.pending, (state) => {
         return {

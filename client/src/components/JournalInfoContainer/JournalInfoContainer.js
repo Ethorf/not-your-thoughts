@@ -22,7 +22,7 @@ const JournalInfoContainer = () => {
       ) : (
         <h2 className={styles.goal}>
           Goal:{' '}
-          {journalConfig.goal_preference === 'words'
+          {journalConfig.journal_goal_preference === 'words'
             ? `${journalConfig.daily_words_goal} Words`
             : `${journalConfig.daily_time_goal} Minute${journalConfig.daily_time_goal >= 2 ? 's' : ''}`}
         </h2>

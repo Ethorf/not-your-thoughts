@@ -18,7 +18,6 @@ const CustomPromptsSection = () => {
   return (
     <div className={styles.wrapper}>
       <h2 className={styles.header}>Custom Prompts</h2>
-      {/* Toggle here once we turn things into user_config */}
       <TextButton tooltip="add prompts" onClick={handleOpenModal}>
         +
       </TextButton>

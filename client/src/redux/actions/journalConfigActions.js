@@ -24,7 +24,7 @@ export const getJournalConfig = () => async (dispatch) => {
     setAuthToken(localStorage.token)
   }
   try {
-    const res = await axiosInstance.get('/api/journal_config')
+    const res = await axiosInstance.get('/api/user_journal_config')
 
     dispatch({
       type: SET_JOURNAL_CONFIG,
@@ -45,7 +45,7 @@ export const toggleJournalConfigSetting = (setting, bool) => async (dispatch) =>
     // ** Doing it this way makes the state update on the front end slightly slower but feels like then we're seeing the actual data as opposed to just state?
     // ** Maybe see if we can improve that?
 
-    const res = await axiosInstance.post(`/api/journal_config/update_toggles`, body, axiosConfig)
+    const res = await axiosInstance.post(`/api/user_journal_config/update_toggles`, body, axiosConfig)
     let newConfig = res.data.newJournalConfigToggles.rows[0]
     dispatch({
       type: UPDATE_JOURNAL_CONFIG,
@@ -61,7 +61,7 @@ export const updateJournalGoal = (payload) => async (dispatch) => {
   const body = payload
 
   try {
-    const res = await axiosInstance.post(`/api/journal_config/update_goals`, body, axiosConfig)
+    const res = await axiosInstance.post(`/api/user_journal_config/update_goals`, body, axiosConfig)
 
     dispatch({
       type: CHANGE_GOAL,

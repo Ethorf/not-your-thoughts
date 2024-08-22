@@ -8,7 +8,7 @@ const authorize = require('../middleware/authorize')
 // Add a new node entry
 router.post('/create_node_entry', authorize, async (req, res) => {
   const { id: user_id } = req.user
-  const { content, title, num_of_words = 0 } = req.body
+  const { content, title } = req.body
   const type = 'node'
 
   try {
@@ -53,10 +53,6 @@ router.post('/create_node_entry', authorize, async (req, res) => {
 
     console.log('Node Entry created successfully!')
 
-    console.log('<<<<<< newEntry >>>>>>>>> is: <<<<<<<<<<<<')
-    console.log(newEntry.rows[0].id)
-    console.log('<<<<<< title >>>>>>>>> is: <<<<<<<<<<<<')
-    console.log(title)
     return res.json({ id: newEntry.rows[0].id, title })
   } catch (err) {
     console.error(err.message)
@@ -287,6 +283,7 @@ router.get('/node_entries_info', authorize, async (req, res) => {
         entries.id, 
         entries.title, 
         entries.starred,
+        entries.num_of_words,
         ARRAY(
           SELECT content 
           FROM entry_contents 
@@ -320,6 +317,7 @@ router.get('/node_entries_info', authorize, async (req, res) => {
       id: entry.id,
       title: entry.title,
       starred: entry.starred,
+      wordCount: entry.num_of_words,
       pending: !entry.content || entry.content.length === 0,
       date_created: entry.date_created,
       date_last_modified: entry.date_last_modified,
@@ -383,34 +381,6 @@ router.get('/all_entries', authorize, async (req, res) => {
   }
 })
 
-// Route to retrieve all entries regardless of type for a user
-router.get('/all_entries', authorize, async (req, res) => {
-  const { id: user_id } = req.user
-
-  try {
-    // Retrieve all journal entries for the user with the provided user_id
-    const allEntries = await pool.query(
-      `SELECT entries.*, 
-      ARRAY(SELECT content FROM entry_contents WHERE entry_id = entries.id) AS content,
-      ARRAY(SELECT name FROM tags WHERE id = ANY(entries.tags)) AS tag_names
-       FROM entries 
-       WHERE user_id = $1`,
-      [user_id]
-    )
-
-    // Check if there are any entries found
-    if (allEntries.rows.length === 0) {
-      return res.status(404).json({ msg: 'No node entries found for this user' })
-    }
-
-    // If journal entries are found, return them
-    res.json({ entries: allEntries.rows })
-  } catch (err) {
-    console.error(err.message)
-    res.status(500).send('Server error')
-  }
-})
-
 // Route to get entry by entryId query param
 router.get('/entry/:entryId', authorize, async (req, res) => {
   const { id: user_id } = req.user
@@ -418,8 +388,8 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
 
   try {
     // Retrieve the entry with the provided entryId
-    const entry = await pool.query(
-      `SELECT 
+    const entryQuery = `
+      SELECT 
         entries.*, 
         ARRAY(
           SELECT content 
@@ -441,18 +411,37 @@ router.get('/entry/:entryId', authorize, async (req, res) => {
         entries 
       WHERE 
         id = $1 
-        AND user_id = $2`,
-      [entryId, user_id]
-    )
+        AND user_id = $2
+    `
+    const entryResult = await pool.query(entryQuery, [entryId, user_id])
 
     // Check if the entry is found
-    if (entry.rows.length === 0) {
+    if (entryResult.rows.length === 0) {
       return res.status(404).json({ msg: 'Entry not found' })
     }
 
-    const entryData = entry.rows[0]
-    // If the entry is found and the user ID matches, return it
-    res.json(entryData)
+    const entryData = entryResult.rows[0]
+
+    // Calculate wdTimeElapsed and wdWordCount
+    const writingDataQuery = `
+      SELECT 
+        COALESCE(SUM(duration), 0) AS wd_time_elapsed,
+        COALESCE(SUM(word_count), 0) AS wd_word_count
+      FROM 
+        entry_writing_data 
+      WHERE 
+        entry_id = $1
+    `
+    const writingDataResult = await pool.query(writingDataQuery, [entryId])
+
+    const { wd_time_elapsed: wdTimeElapsed, wd_word_count: wdWordCount } = writingDataResult.rows[0]
+
+    // Include wdTimeElapsed and wdWordCount in the response
+    res.json({
+      ...entryData,
+      wdTimeElapsed,
+      wdWordCount,
+    })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
