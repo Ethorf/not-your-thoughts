@@ -18,10 +18,10 @@ const PillarTop = ({ mode, auth: { user }, guestMode }) => {
     if (guestMode) {
       userGoal = 200
       goalCount = wordCount
-    } else if (journalConfig.goal_preference === 'words') {
+    } else if (journalConfig.journal_goal_preference === 'words') {
       userGoal = journalConfig.daily_words_goal
       goalCount = wordCount
-    } else if (journalConfig.goal_preference === 'time') {
+    } else if (journalConfig.journal_goal_preference === 'time') {
       userGoal = user.dailyTimeGoal * 60
       goalCount = timeElapsed
     }

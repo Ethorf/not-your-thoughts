@@ -21,7 +21,7 @@ const Profile = ({ auth: { user }, mode, toggleJournalConfigSetting }) => {
 
   const [localProgressAudioEnabled, setLocalProgressAudioEnabled] = useState(journalConfig?.progress_audio_enabled)
   const [localTimerEnabled, setLocalTimerEnabled] = useState(journalConfig?.timer_enabled)
-  const [localWPMEnabled, setLocalWPMEnabled] = useState(journalConfig?.wpm_enabled)
+  const [localWPMEnabled, setLocalWPMEnabled] = useState(journalConfig?.wpm_display_enabled)
 
   useEffect(() => {
     dispatch(fetchJournalConfig())
@@ -39,7 +39,7 @@ const Profile = ({ auth: { user }, mode, toggleJournalConfigSetting }) => {
 
   const handleWPMToggle = (isEnabled) => {
     setLocalWPMEnabled(isEnabled)
-    toggleJournalConfigSetting('wpm_enabled', isEnabled)
+    toggleJournalConfigSetting('wpm_display_enabled', isEnabled)
   }
 
   // TODO would love to update this one to more modern patterns too but is lo-pri

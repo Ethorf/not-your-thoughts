@@ -9,9 +9,9 @@ import styles from './ProfileGoalEditComponent.module.scss'
 
 function ProfileGoalEdit({ newGoal, toggleEditGoal, goalIsEditable, updateJournalGoal, setNewGoal, mode }) {
   const {
-    journalConfig: { goal_preference, daily_words_goal, daily_time_goal },
+    journalConfig: { journal_goal_preference, daily_words_goal, daily_time_goal },
   } = useSelector((state) => state.journalEntries)
-  const [localGoalPreference, setLocalGoalPreference] = useState(goal_preference)
+  const [localGoalPreference, setLocalGoalPreference] = useState(journal_goal_preference)
   const [localWordsGoal, setLocalWordsGoal] = useState(daily_words_goal)
   const [localTimeGoal, setLocalTimeGoal] = useState(daily_time_goal)
 
@@ -37,7 +37,7 @@ function ProfileGoalEdit({ newGoal, toggleEditGoal, goalIsEditable, updateJourna
   }
 
   useEffect(() => {
-    updateJournalGoal({ goal_preference: localGoalPreference })
+    updateJournalGoal({ journal_goal_preference: localGoalPreference })
   }, [localGoalPreference, updateJournalGoal])
 
   // TODO it would be really nice to update this file with a better pattern as it is clearly a cluttered mess

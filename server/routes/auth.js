@@ -34,16 +34,16 @@ router.post('/register', validInfo, async (req, res) => {
     console.log(`User with email ${newUser.rows[0].email} created successfully`)
     const userId = newUser.rows[0].id
 
-    // Create journal config in user_journal_config database
-    const newJournalConfig = await pool.query('INSERT INTO user_journal_config (user_id) VALUES ($1) RETURNING *', [
+    // Create user config in user_journal_config database table
+    const newUserConfig = await pool.query('INSERT INTO user_journal_config (user_id) VALUES ($1) RETURNING *', [
       userId,
     ])
-    const newJournalConfigId = newJournalConfig.rows[0].id
+    const newUserConfigId = newUserConfig.rows[0].id
 
     console.log(`User with id ${userId} Journal config created successfully`)
 
     // Associate new user with journal config
-    await pool.query('UPDATE users SET journal_config = $1 WHERE id = $2', [newJournalConfigId, userId])
+    await pool.query('UPDATE users SET journal_config = $1 WHERE id = $2', [newUserConfigId, userId])
 
     // Return JWT token
     const jwtToken = jwtGenerator(userId)

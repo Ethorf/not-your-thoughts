@@ -12,6 +12,7 @@ import modesReducer from './modesReducer'
 import nodeEntriesReducer from './nodeEntriesReducer'
 import sidebarReducer from './sidebarReducer'
 import wordCountReducer from './wordCountReducer'
+import writingDataReducer from './writingDataReducer'
 
 export default combineReducers({
   alert,
@@ -26,4 +27,5 @@ export default combineReducers({
   nodeEntries: nodeEntriesReducer,
   sidebar: sidebarReducer,
   wordCount: wordCountReducer,
+  writingData: writingDataReducer,
 })

@@ -29,9 +29,9 @@ CREATE TABLE user_journal_config (
   id serial PRIMARY KEY,
   user_id uuid UNIQUE REFERENCES users(id),
   progress_audio_enabled BOOLEAN DEFAULT true,
-  wpm_enabled BOOLEAN DEFAULT false,
+  wpm_display_enabled BOOLEAN DEFAULT false,
   timer_enabled BOOLEAN DEFAULT false,
-  goal_preference VARCHAR(255) DEFAULT 'words',
+  journal_goal_preference VARCHAR(255) DEFAULT 'words',
   daily_time_goal INT DEFAULT 5,
   daily_words_goal INT DEFAULT 400,
   custom_prompts_ids INT[] DEFAULT (ARRAY[]::INT[]),
@@ -44,7 +44,7 @@ CREATE TABLE user_journal_config (
 
 CREATE TYPE entry_type_enum AS ENUM ('node', 'journal');
 
-CREATE TYPE goal_preference_enum AS ENUM ('words', 'time');
+CREATE TYPE journal_goal_preference_enum AS ENUM ('words', 'time');
 
 CREATE TABLE entries (
   entry_id SERIAL PRIMARY KEY,

@@ -20,18 +20,25 @@ const CreateEntry = ({ type }) => {
   const dispatch = useDispatch()
   const quillRef = useRef(null)
 
-  const { content, entriesLoading } = useSelector((state) => state.currentEntry)
+  const { content, entriesLoading, entryId } = useSelector((state) => state.currentEntry)
   const { sidebarOpen } = useSelector((state) => state.sidebar)
 
   const [toolbarVisible, setToolbarVisible] = useState(false)
 
-  const handleContentChange = (e) => {
-    dispatch(setContent(e))
-
+  const setTotalWordCount = () => {
     const wordsAmount = content?.split(/\s+/).filter((word) => word?.length > 0)
     wordsAmount?.length && dispatch(setWordCount(wordsAmount?.length))
     content?.length && dispatch(setCharCount(content?.length))
   }
+
+  const handleContentChange = (e) => {
+    dispatch(setContent(e))
+    setTotalWordCount()
+  }
+
+  useEffect(() => {
+    setTotalWordCount()
+  }, [entryId])
 
   const PLACEHOLDER_COPY = {
     [ENTRY_TYPES.NODE]: 'Start node here...',

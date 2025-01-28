@@ -98,7 +98,7 @@ const SuccessModal = ({
       if (wordCount >= 200) {
         toggleTimerActive(false)
       }
-    } else if (journalConfig.goal_preference === 'words') {
+    } else if (journalConfig.journal_goal_preference === 'words') {
       if (wordCount > 0 && wordCount <= journalConfig.daily_words_goal) {
         toggleTimerActive(true)
       }
@@ -109,7 +109,7 @@ const SuccessModal = ({
       if (wordCount >= journalConfig.daily_words_goal) {
         toggleTimerActive(false)
       }
-    } else if (journalConfig.goal_preference === 'time') {
+    } else if (journalConfig.journal_goal_preference === 'time') {
       if (wordCount > 0) {
         toggleTimerActive(true)
       }
