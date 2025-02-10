@@ -8,7 +8,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setTitle, updateNodeEntry, setEntryById } from '@redux/reducers/currentEntryReducer'
 import { openModal } from '@redux/reducers/modalsReducer.js'
 import { fetchConnections, getSelectedText } from '@redux/reducers/connectionsReducer'
-import { fetchAllWritingData } from '@redux/reducers/writingDataReducer'
 
 // Constants
 import { SAVE_TYPES } from '@constants/saveTypes'
@@ -35,15 +34,9 @@ const { PRIMARY } = CONNECTION_ENTRY_SOURCES
 const EditNodeEntry = () => {
   const dispatch = useDispatch()
   const location = useLocation()
-  const { wordCount, entryId, content, title, starred, entriesLoading, wdTimeElapsed, wdWordCount } = useSelector(
-    (state) => state.currentEntry
-  )
+  const { wordCount, entryId, content, title, starred, entriesLoading } = useSelector((state) => state.currentEntry)
   const params = useMemo(() => new URLSearchParams(location.search), [location.search])
 
-  console.log('<<<<<< wdTimeElapsed >>>>>>>>> is: <<<<<<<<<<<<')
-  console.log(wdTimeElapsed)
-  console.log('<<<<<< wdWordCount >>>>>>>>> is: <<<<<<<<<<<<')
-  console.log(wdWordCount)
   useEffect(() => {
     const entryIdParam = params.get('entryId')
     if (entryIdParam) {
@@ -99,7 +92,7 @@ const EditNodeEntry = () => {
   return (
     <div className={styles.wrapper}>
       {/* <AutosaveTimer handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} /> */}
-      <WritingDataTimer />
+      <WritingDataTimer type={ENTRY_TYPES.NODE} />
       <div className={styles.editContainer}>
         <h2>Edit Node</h2>
         <div className={classNames(styles.topContainer, styles.grid4ColumnsCustom)}>

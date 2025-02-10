@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { createWritingData, setTimeElapsed, setWordsAdded } from '@redux/reducers/writingDataReducer'
 
-const WritingDataTimer = () => {
+const WritingDataTimer = ({ entryType }) => {
   const dispatch = useDispatch()
 
   const [activeWordCount, setActiveWordCount] = useState(null)
@@ -14,28 +14,18 @@ const WritingDataTimer = () => {
   const entryIdRef = useRef(null)
 
   const { wordCount, entryId, entriesSaving } = useSelector((state) => state.currentEntry)
-  const { timeElapsed, wordsAdded, stats } = useSelector((state) => state.writingData)
+  const { timeElapsed, wordsAdded } = useSelector((state) => state.writingData)
 
   useEffect(() => {
     wordCountRef.current = wordCount
     const wordsAdded = activeWordCount !== null ? wordCountRef.current - activeWordCount : 0
+
     dispatch(setWordsAdded(wordsAdded))
-  }, [wordCount])
+  }, [activeWordCount, dispatch, wordCount])
 
-  useEffect(() => {
-    entryIdRef.current = entryId
-    stopTimer()
-  }, [entryId])
-
-  useEffect(() => {
-    if (entriesSaving === true) {
-      stopTimer()
-    }
-  }, [entriesSaving])
-
-  const startTimer = () => {
+  const startTimer = useCallback(() => {
     if (intervalRef.current === null) {
-      console.log('timer started')
+      console.log('<><><><><><><><timer started')
       setActiveWordCount(wordCountRef.current)
 
       intervalRef.current = setInterval(() => {
@@ -46,15 +36,21 @@ const WritingDataTimer = () => {
         dispatch(setTimeElapsed(newTime))
       }, 1000)
     }
-  }
+  }, [dispatch])
 
-  const stopTimer = async () => {
+  const stopTimer = useCallback(async () => {
+    console.log('TIMER STOPPED BIIIIITCH')
+    console.log('<<<<<< entryIdRef >>>>>>>>> is: <<<<<<<<<<<<')
+    console.log(entryIdRef)
+    console.log('entryId is:')
+    console.log(entryId)
+
     if (intervalRef.current !== null && entryIdRef.current !== null) {
       const {
         meta: { requestStatus },
-      } = await dispatch(createWritingData())
-
+      } = await dispatch(createWritingData({ entryType }))
       console.log(requestStatus)
+
       clearInterval(intervalRef.current)
       intervalRef.current = null
 
@@ -62,18 +58,29 @@ const WritingDataTimer = () => {
       timeElapsedRef.current = 0
       setActiveWordCount(null)
     }
-  }
-
-  const handleKeyPress = () => {
-    startTimer()
-
-    clearTimeout(timeoutRef.current)
-    timeoutRef.current = setTimeout(() => {
-      stopTimer()
-    }, 5000)
-  }
+  }, [dispatch]) // `dispatch` is the only dependency since refs don't trigger re-renders
 
   useEffect(() => {
+    if (entriesSaving === true) {
+      stopTimer()
+    }
+  }, [entriesSaving, stopTimer])
+
+  useEffect(() => {
+    entryIdRef.current = entryId
+    stopTimer()
+  }, [entryId, stopTimer])
+
+  useEffect(() => {
+    // This is basically setting a timeout so that we can create writing data when a key hasn't been pressed for 5 seconds
+    const handleKeyPress = () => {
+      startTimer()
+
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = setTimeout(() => {
+        stopTimer()
+      }, 5000)
+    }
     window.addEventListener('keydown', handleKeyPress)
 
     return () => {
@@ -82,14 +89,13 @@ const WritingDataTimer = () => {
 
       clearTimeout(timeoutRef.current)
     }
-  }, [])
+  }, [startTimer, stopTimer])
 
-  // TODO we can probably removed the time-elapsed ref once we don't actually need to display anything w/ this component
   return (
     <div>
       <h1>Writing Timer</h1>
       <p>Time Elapsed: {timeElapsed} seconds</p>
-      <p>Active word count: {activeWordCount !== null ? activeWordCount : 'N/A'}</p>
+      <p>total Word count at last writing data save: {activeWordCount !== null ? activeWordCount : 'N/A'}</p>
       <p>Words Added: {wordsAdded}</p>
     </div>
   )

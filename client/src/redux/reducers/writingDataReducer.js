@@ -25,19 +25,19 @@ const initialState = {
 
 export const createWritingData = createAsyncThunk(
   'writingDataReducer/createWritingData',
-  async (_, { rejectWithValue, dispatch, getState }) => {
+  async ({ entryType = ENTRY_TYPES.NODE }, { rejectWithValue, dispatch, getState }) => {
     try {
       const { timeElapsed, wordsAdded } = getState().writingData
       const { entryId } = getState().currentEntry
 
       const response = await axiosInstance.post('api/writing_data/create_writing_data', {
         entry_id: entryId,
-        entry_type: NODE,
+        entry_type: entryType,
         duration: timeElapsed,
         word_count: wordsAdded,
       })
 
-      console.log('writing data cree rated')
+      console.log('writing data created')
       return response.data
     } catch (error) {
       dispatch(showToast('Error saving writing data', 'error'))

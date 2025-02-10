@@ -7,6 +7,7 @@ import { setTitle, createNodeEntry } from '@redux/reducers/currentEntryReducer'
 import { showToast } from '@utils/toast.js'
 
 // Components
+import WritingDataTimer from '@components/WritingDataTimer/WritingDataTimer'
 import CreateEntry from '@components/Shared/CreateEntry/CreateEntry'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
@@ -48,6 +49,7 @@ const CreateNodeEntry = () => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.editContainer}>
+        <WritingDataTimer type={ENTRY_TYPES.NODE} />
         <h2>create node</h2>
         <div className={classNames(styles.topContainer, styles.grid3Columns)}>
           <DefaultInput

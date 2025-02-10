@@ -7,6 +7,8 @@ import { toggleJournalConfigSetting } from '@redux/actions/journalConfigActions.
 
 // Components
 import ProfileGoalEdit from '@components/ProfileGoalEditComponent/ProfileGoalEditComponent.js'
+import { WritingDataDisplay } from '@components/WritingDataDisplay/WritingDataDisplay.js'
+
 import TrackedPhrasesModal from '@components/Modals/trackedPhrasesModal.js'
 import CustomPromptsSection from '@components/CustomPromptsSection/CustomPromptsSection.js'
 import Spinner from '@components/Shared/Spinner/Spinner.js'
@@ -81,6 +83,7 @@ const Profile = ({ auth: { user }, mode, toggleJournalConfigSetting }) => {
           ) : (
             <h2 className={`profile__day-number profile__no-days  ${mode}`}>No days complete yet</h2>
           )}
+          <WritingDataDisplay />
           <CustomPromptsSection />
           <div className={`profile__stats-text profile__toggle-container`}>
             Progress Audio:

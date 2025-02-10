@@ -66,20 +66,38 @@ export const deleteAka = createAsyncThunk(
 
 export const createNodeEntry = createAsyncThunk(
   'currentEntryReducer/createNodeEntry',
-  async ({ content, title }, { rejectWithValue, dispatch }) => {
+  async ({ content = '', title = '' } = {}, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axiosInstance.post('api/entries/create_node_entry', {
-        content,
-        title,
-      })
+      // Remove undefined values so they don’t get sent
+      const payload = {}
+      if (content) payload.content = content
+      if (title) payload.title = title
+
+      const response = await axiosInstance.post('api/entries/create_node_entry', payload)
 
       dispatch(showToast('Node Created', 'success'))
       await dispatch(fetchNodeEntriesInfo())
 
-      return response.data
+      return response.data.entry_id
     } catch (error) {
       dispatch(showToast('Node creation error', 'error'))
-      return rejectWithValue(error.response.data)
+      return rejectWithValue(error.response?.data)
+    }
+  }
+)
+
+export const createJournalEntry = createAsyncThunk(
+  'currentEntryReducer/createJournalEntry',
+  async (_, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axiosInstance.post('api/entries/create_journal_entry')
+
+      await dispatch(fetchNodeEntriesInfo())
+
+      return response.data.entry_id
+    } catch (error) {
+      dispatch(showToast('Node creation error', 'error'))
+      return rejectWithValue(error.response?.data)
     }
   }
 )
@@ -132,11 +150,7 @@ export const updateNodeEntry = createAsyncThunk(
         content: currentState.content,
         title: currentState.title,
       })
-      // await axiosInstance.post('api/writing_data/create_writing_data', {
-      //   entryId: currentState.entryId,
-      //   content: currentState.content,
-      //   title: currentState.title,
-      // })
+
       await dispatch(fetchNodeEntriesInfo())
 
       if (saveType === AUTO) {
@@ -301,6 +315,16 @@ const currentEntrySlice = createSlice({
       })
       .addCase(createNodeEntry.pending, (state) => {
         state.entriesLoading = true
+      })
+      .addCase(createJournalEntry.pending, (state) => {
+        state.entriesLoading = true
+      })
+      .addCase(createJournalEntry.fulfilled, (state, action) => {
+        return {
+          ...state,
+          entriesLoading: false,
+          entryId: action.payload,
+        }
       })
       .addCase(saveJournalEntry.pending, (state) => {
         state.entriesLoading = true

@@ -7,7 +7,7 @@ const authorize = require('../middleware/authorize')
 router.post('/create_writing_data', authorize, async (req, res) => {
   const { duration, word_count, entry_id, entry_type } = req.body
   const { id: user_id } = req.user
-  console.log('created writing data hit backend')
+
   try {
     // Validate inputs
     if (duration === undefined || word_count === undefined || entry_id === undefined || entry_type === undefined) {

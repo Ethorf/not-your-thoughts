@@ -21,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/Ethorf/not-your-thoughts/issues"
   },
-  "homepage": "https://github.com/Ethorf/not-your-thoughts#readme"
+  "homepage": "https://github.com/Ethorf/not-your-thoughts#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3"
+  }
 }

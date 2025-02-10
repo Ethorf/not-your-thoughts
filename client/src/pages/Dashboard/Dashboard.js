@@ -3,7 +3,8 @@ import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import classNames from 'classnames'
 
-import { resetCurrentEntryState } from '@redux/reducers/currentEntryReducer'
+// Redux
+import { resetCurrentEntryState, createNodeEntry, createJournalEntry } from '@redux/reducers/currentEntryReducer'
 
 // Styles
 import styles from './Dashboard.module.scss'
@@ -17,14 +18,18 @@ const Dashboard = () => {
   const history = useHistory()
   const dispatch = useDispatch()
 
-  const handleNewNodeEntryClick = () => {
+  const handleNewNodeEntryClick = async () => {
     dispatch(resetCurrentEntryState())
-    return history.push('/create-node-entry')
+    const newNode = await dispatch(createNodeEntry())
+
+    history.push(`/edit-node-entry?entryId=${newNode.payload.id}`)
   }
 
-  const handleNewJournalEntryClick = () => {
+  const handleNewJournalEntryClick = async () => {
     dispatch(resetCurrentEntryState())
-    return history.push('/create-journal-entry')
+    const newJournal = await dispatch(createJournalEntry())
+
+    return history.push(`/create-journal-entry?entryId=${newJournal.payload}`)
   }
 
   return (

@@ -19,6 +19,7 @@ import PromptsDisplay from '@components/PromptsDisplay/PromptsDisplay.js'
 import CreateEntry from '@components/Shared/CreateEntry/CreateEntry'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner.js'
+import WritingDataTimer from '@components/WritingDataTimer/WritingDataTimer'
 
 // Constants
 import { ENTRY_TYPES } from '@constants/entryTypes'
@@ -52,10 +53,12 @@ const CreateJournalEntry = () => {
       setSuccessModalSeen(true)
     }
   }, [dispatch, journalConfig, wordCount])
-
+  console.log('<<<<<< entryID in JOURNAL CREATION LOCATION >>>>>>>>> is: <<<<<<<<<<<<')
+  console.log(entryId)
   return (
     journalConfig && (
       <div className={styles.wrapper}>
+        <WritingDataTimer type={ENTRY_TYPES.JOURNAL} />
         <ProgressWord />
         <BgImage />
         <div className={styles.headerPromptContainer}>

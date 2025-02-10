@@ -12,10 +12,6 @@ router.post('/create_node_entry', authorize, async (req, res) => {
   const type = 'node'
 
   try {
-    if (!content && !title) {
-      return res.status(400).json({ message: 'Either content or title is required' })
-    }
-
     // Check if the title already exists
     if (title) {
       const existingEntry = await pool.query('SELECT id FROM entries WHERE title = $1', [title])
@@ -34,6 +30,7 @@ router.post('/create_node_entry', authorize, async (req, res) => {
 
     // If content is present, insert it into the entry_contents table
     let content_id = null
+
     if (content) {
       let newContent = await pool.query('INSERT INTO entry_contents (content, entry_id) VALUES ($1, $2) RETURNING id', [
         content,
@@ -104,6 +101,27 @@ router.post('/update_node_entry', authorize, async (req, res) => {
 
     console.log('Node Entry updated successfully!')
     return res.json({ updatedEntry: updatedEntry.rows[0], content: mostRecentContent.rows[0].content })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+router.post('/create_journal_entry', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+  const type = 'journal'
+
+  try {
+    // Insert a new journal entry with default values
+    const newEntry = await pool.query(
+      'INSERT INTO entries (user_id, type, total_time_taken, wpm, num_of_words, content_ids) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+      [user_id, type, 0, 0, 0, []]
+    )
+
+    const entry_id = newEntry.rows[0].id
+
+    console.log('Journal Entry created successfully!')
+    return res.json({ entry_id })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
