@@ -53,12 +53,11 @@ const CreateJournalEntry = () => {
       setSuccessModalSeen(true)
     }
   }, [dispatch, journalConfig, wordCount])
-  console.log('<<<<<< entryID in JOURNAL CREATION LOCATION >>>>>>>>> is: <<<<<<<<<<<<')
-  console.log(entryId)
+
   return (
     journalConfig && (
       <div className={styles.wrapper}>
-        <WritingDataTimer type={ENTRY_TYPES.JOURNAL} />
+        <WritingDataTimer entryType={ENTRY_TYPES.JOURNAL} />
         <ProgressWord />
         <BgImage />
         <div className={styles.headerPromptContainer}>

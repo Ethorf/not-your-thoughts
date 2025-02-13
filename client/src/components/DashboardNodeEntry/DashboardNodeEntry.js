@@ -19,7 +19,8 @@ import { MODAL_NAMES } from '@constants/modalNames.js'
 // Styles
 import styles from './DashboardNodeEntry.module.scss'
 
-export const DashboardNodeEntry = ({ node: { id, starred, title, pending, date_last_modified, num_of_words } }) => {
+export const DashboardNodeEntry = ({ node = {} }) => {
+  const { id = null, starred, title, pending, date_last_modified, num_of_words } = node
   const dispatch = useDispatch()
 
   const handleOpenAreYouSureModal = async () => {

@@ -25,7 +25,7 @@ export const NodesDashboardList = () => {
       {sortedNodes.length ? (
         <ul className={styles.wrapper}>
           {sortedNodes.map((node) => (
-            <DashboardNodeEntry nodeEntriesInfo={nodeEntriesInfo} key={node.id} node={node} />
+            <DashboardNodeEntry nodeEntriesInfo={nodeEntriesInfo} node={node} />
           ))}
         </ul>
       ) : (

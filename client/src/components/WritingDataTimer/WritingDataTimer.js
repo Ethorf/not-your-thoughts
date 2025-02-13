@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { createWritingData, setTimeElapsed, setWordsAdded } from '@redux/reducers/writingDataReducer'
 
-const WritingDataTimer = ({ entryType }) => {
+const WritingDataTimer = ({ showDisplay = false, entryType }) => {
   const dispatch = useDispatch()
 
   const [activeWordCount, setActiveWordCount] = useState(null)
@@ -40,11 +40,8 @@ const WritingDataTimer = ({ entryType }) => {
 
   const stopTimer = useCallback(async () => {
     console.log('TIMER STOPPED BIIIIITCH')
-    console.log('<<<<<< entryIdRef >>>>>>>>> is: <<<<<<<<<<<<')
-    console.log(entryIdRef)
-    console.log('entryId is:')
-    console.log(entryId)
-
+    console.log('<<<<<< entryType >>>>>>>>> is: <<<<<<<<<<<<')
+    console.log(entryType)
     if (intervalRef.current !== null && entryIdRef.current !== null) {
       const {
         meta: { requestStatus },
@@ -91,14 +88,14 @@ const WritingDataTimer = ({ entryType }) => {
     }
   }, [startTimer, stopTimer])
 
-  return (
+  return showDisplay ? (
     <div>
       <h1>Writing Timer</h1>
       <p>Time Elapsed: {timeElapsed} seconds</p>
       <p>total Word count at last writing data save: {activeWordCount !== null ? activeWordCount : 'N/A'}</p>
       <p>Words Added: {wordsAdded}</p>
     </div>
-  )
+  ) : null
 }
 
 export default WritingDataTimer

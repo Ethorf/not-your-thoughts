@@ -9,7 +9,6 @@ router.post('/create_writing_data', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
   try {
-    // Validate inputs
     if (duration === undefined || word_count === undefined || entry_id === undefined || entry_type === undefined) {
       return res.status(400).json({ msg: 'Duration, word count, entry ID, and entry type are required' })
     }
@@ -78,12 +77,18 @@ router.get('/all_writing_data', authorize, async (req, res) => {
     let allEntriesWritingTimeToday = 0
     let allEntriesTotalWordCount = 0
     let allEntriesWordCountToday = 0
-    let totalNodesWritingTime = 0
+
+    // Nodes
+    let nodesTotalWritingTime = 0
     let nodesWritingTimeToday = 0
-    let totalNodeEntriesWordCount = 0
-    let nodeEntriesWordCountToday = 0
-    let totalJournalEntriesWritingTime = 0
-    let journalEntriesWritingTimeToday = 0
+    let nodesTotalWordCount = 0
+    let nodesWordCountToday = 0
+
+    // Journals
+    let journalsTotalWritingTime = 0
+    let journalWritingTimeToday = 0
+    let journalsTotalWordCount = 0
+    let journalWordCountToday = 0
 
     // Get today's date in UTC (ignoring time)
     const today = new Date().toISOString().split('T')[0]
@@ -101,20 +106,22 @@ router.get('/all_writing_data', authorize, async (req, res) => {
       }
 
       if (entry.entry_type === 'node') {
-        totalNodesWritingTime += entry.duration
-        totalNodeEntriesWordCount += entry.word_count
+        nodesTotalWritingTime += entry.duration
+        nodesTotalWordCount += entry.word_count
 
         if (entryDate === today) {
           nodesWritingTimeToday += entry.duration
-          nodeEntriesWordCountToday += entry.word_count
+          nodesWordCountToday += entry.word_count
         }
       }
 
       if (entry.entry_type === 'journal') {
-        totalJournalEntriesWritingTime += entry.duration
+        journalsTotalWritingTime += entry.duration
+        journalsTotalWordCount += entry.word_count
 
         if (entryDate === today) {
-          journalEntriesWritingTimeToday += entry.duration
+          journalWritingTimeToday += entry.duration
+          journalWordCountToday += entry.word_count
         }
       }
     })
@@ -124,12 +131,14 @@ router.get('/all_writing_data', authorize, async (req, res) => {
       allEntriesWritingTimeToday,
       allEntriesTotalWordCount,
       allEntriesWordCountToday,
-      totalNodesWritingTime,
+      nodesTotalWritingTime,
       nodesWritingTimeToday,
-      totalNodeEntriesWordCount,
-      nodeEntriesWordCountToday,
-      totalJournalEntriesWritingTime,
-      journalEntriesWritingTimeToday,
+      nodesTotalWordCount,
+      nodesWordCountToday,
+      journalsTotalWritingTime,
+      journalWritingTimeToday,
+      journalsTotalWordCount,
+      journalWordCountToday,
     })
   } catch (err) {
     console.error(err.message)

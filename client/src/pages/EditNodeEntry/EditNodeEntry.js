@@ -24,6 +24,7 @@ import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import StarButton from '@components/Shared/StarButton/StarButton'
 import DefaultInput from '@components/Shared/DefaultInput/DefaultInput'
 import AutosaveTimer from '@components/Shared/AutosaveTimer/AutosaveTimer'
+import WritingDataManager from '@components/Shared/WritingDataManager/WritingDataManager'
 import Spinner from '@components/Shared/Spinner/Spinner'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 
@@ -92,7 +93,8 @@ const EditNodeEntry = () => {
   return (
     <div className={styles.wrapper}>
       {/* <AutosaveTimer handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} /> */}
-      <WritingDataTimer type={ENTRY_TYPES.NODE} />
+      {/* <WritingDataTimer entryType={ENTRY_TYPES.NODE} /> */}
+      <WritingDataManager entryType={ENTRY_TYPES.NODE} handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
       <div className={styles.editContainer}>
         <h2>Edit Node</h2>
         <div className={classNames(styles.topContainer, styles.grid4ColumnsCustom)}>

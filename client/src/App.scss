@@ -1,6 +1,3 @@
-html {
-  overflow: hidden;
-}
 .page {
   position: absolute;
   height: 100%;
@@ -77,10 +74,8 @@ html {
 .App {
   background-color: black;
   margin: 0;
-  height: 100%;
-  padding-bottom: 1%;
+  height: 100vh;
   font-family: 'Syncopate', sans-serif;
-  overflow: hidden;
 }
 .-light {
   color: black;
@@ -91,11 +86,11 @@ html {
   background-color: black;
 }
 
-.page {
-  position: absolute;
-  left: 15px;
-  right: 15px;
-}
+// .page {
+//   position: absolute;
+//   left: 15px;
+//   right: 15px;
+// }
 
 .page-enter {
   opacity: 0;

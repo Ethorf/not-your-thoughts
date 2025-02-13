@@ -9,7 +9,18 @@ import styles from './WritingDataDisplay.module.scss'
 export const WritingDataDisplay = () => {
   const dispatch = useDispatch()
   const {
-    stats: { allEntriesTotalWordCount, allEntriesTotalWritingTime, allEntriesWordCountToday },
+    stats: {
+      allEntriesTotalWordCount,
+      allEntriesTotalWritingTime,
+      allEntriesWordCountToday,
+      nodesWritingTimeToday,
+      nodesTotalWordCount,
+      nodesTotalWritingTime,
+      journalWritingTimeToday,
+      journalsTotalWritingTime,
+      journalsTotalWordCount,
+      journalWordCountToday,
+    },
   } = useSelector((state) => state.writingData)
 
   useEffect(() => {
@@ -25,6 +36,19 @@ export const WritingDataDisplay = () => {
         <p>All Entries Total Word Count: {allEntriesTotalWordCount}</p>
         <p>All Entries Total Writing Time: {allEntriesTotalWritingTime}</p>
         <p>All Entries Words Written Today: {allEntriesWordCountToday}</p>
+        <h3 data-tooltip-id="main-tooltip" data-tooltip-content="Custom prompt" className={styles.prompt}>
+          Nodes
+        </h3>
+        <p>Nodes Total Word Count: {nodesTotalWordCount}</p>
+        <p>Nodes Total Writing Time: {nodesTotalWritingTime}</p>
+        <p>Nodes Words Written Today: {nodesWritingTimeToday}</p>
+        <h3 data-tooltip-id="main-tooltip" data-tooltip-content="Custom prompt" className={styles.prompt}>
+          Journals
+        </h3>
+        <p>Journals Total Writing Time: {journalsTotalWritingTime}</p>
+        <p>Journals Total Word Count: {journalsTotalWordCount}</p>
+        <p>Journals Writing Time Today: {journalWritingTimeToday}</p>
+        <p>Journals Word Count Today: {journalWordCountToday}</p>
       </div>
     </div>
   )

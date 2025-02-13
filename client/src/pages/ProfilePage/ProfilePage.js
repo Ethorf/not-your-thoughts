@@ -50,105 +50,103 @@ const Profile = ({ auth: { user }, mode, toggleJournalConfigSetting }) => {
   return (
     journalConfig && (
       <div className={`profile ${mode}`}>
-        <div className="profile__content">
-          <header className={`profile__header ${mode}`}>User Profile</header>
-          <h2 className={`profile__user ${mode}`}>{user.name}</h2>
+        <header className={`profile__header ${mode}`}>User Profile</header>
+        <h2 className={`profile__user ${mode}`}>{user.name}</h2>
 
-          {/* <h2 className={`profile__sub-header ${mode}`}>Stats</h2> */}
-          {user.last_day_completed !== null ? (
-            <>
-              <div className={`profile__stats-container ${mode}`}>
-                {/* <h2 className="profile__stats-text">
+        {/* <h2 className={`profile__sub-header ${mode}`}>Stats</h2> */}
+        {user.last_day_completed !== null ? (
+          <>
+            <div className={`profile__stats-container ${mode}`}>
+              {/* <h2 className="profile__stats-text">
                   Consecutive Days Completed:
                   <span className={`profile__day-number ${mode}`}> {journalConfig.consecutive_days}</span>
                 </h2> */}
-                {/* <h2 className="profile__total-days profile__stats-text">
+              {/* <h2 className="profile__total-days profile__stats-text">
                   Total Days Completed:
                   <span className={`profile__day-number ${mode}`}> {journalConfig.total_days_completed}</span>
                 </h2> */}
-              </div>
-              <div className={`profile__stats-container ${mode}`}>
-                {/* <h2 className="profile__stats-text">
+            </div>
+            <div className={`profile__stats-container ${mode}`}>
+              {/* <h2 className="profile__stats-text">
                   Last Day Completed:
                   <span className={`profile__day-number ${mode}`}> {journalConfig.last_day_completed}</span>
                 </h2> */}
-                <h2 className={`profile__sub-header ${mode}`}>Journal Settings</h2>
-                <ProfileGoalEdit />
-              </div>
-              {/* <div className={` profile__stats-text profile__edit-container`}>
+              <h2 className={`profile__sub-header ${mode}`}>Journal Settings</h2>
+              <ProfileGoalEdit />
+            </div>
+            {/* <div className={` profile__stats-text profile__edit-container`}>
                 Tracked Phrases:
                 <TrackedPhrasesModal />
               </div> */}
-            </>
-          ) : (
-            <h2 className={`profile__day-number profile__no-days  ${mode}`}>No days complete yet</h2>
-          )}
-          <WritingDataDisplay />
-          <CustomPromptsSection />
-          <div className={`profile__stats-text profile__toggle-container`}>
-            Progress Audio:
-            <div className={`profile__toggle-switch`}>
-              <span
-                onClick={() => handleProgressAudioToggle(true)}
-                className={` profile__toggle-button profile__on-button ${
-                  localProgressAudioEnabled ? 'profile__active' : 'profile__inactive'
-                }`}
-              >
-                On
-              </span>
-              <span
-                onClick={() => handleProgressAudioToggle(false)}
-                className={` profile__toggle-button profile__off-button ${
-                  localProgressAudioEnabled ? 'profile__inactive' : 'profile__active'
-                }`}
-              >
-                Off
-              </span>
-            </div>
+          </>
+        ) : (
+          <h2 className={`profile__day-number profile__no-days  ${mode}`}>No days complete yet</h2>
+        )}
+        <WritingDataDisplay />
+        <CustomPromptsSection />
+        <div className={`profile__stats-text profile__toggle-container`}>
+          Progress Audio:
+          <div className={`profile__toggle-switch`}>
+            <span
+              onClick={() => handleProgressAudioToggle(true)}
+              className={` profile__toggle-button profile__on-button ${
+                localProgressAudioEnabled ? 'profile__active' : 'profile__inactive'
+              }`}
+            >
+              On
+            </span>
+            <span
+              onClick={() => handleProgressAudioToggle(false)}
+              className={` profile__toggle-button profile__off-button ${
+                localProgressAudioEnabled ? 'profile__inactive' : 'profile__active'
+              }`}
+            >
+              Off
+            </span>
           </div>
+        </div>
 
-          <div className={`profile__stats-text profile__toggle-container`}>
-            Timer:
-            <div className={`profile__toggle-switch`}>
-              <span
-                onClick={() => handleTimerToggle(true)}
-                className={` profile__toggle-button profile__on-button ${
-                  localTimerEnabled ? 'profile__active' : 'profile__inactive'
-                }`}
-              >
-                On
-              </span>
-              <span
-                onClick={() => handleTimerToggle(false)}
-                className={` profile__toggle-button profile__off-button ${
-                  localTimerEnabled ? 'profile__inactive' : 'profile__active'
-                }`}
-              >
-                Off
-              </span>
-            </div>
+        <div className={`profile__stats-text profile__toggle-container`}>
+          Timer:
+          <div className={`profile__toggle-switch`}>
+            <span
+              onClick={() => handleTimerToggle(true)}
+              className={` profile__toggle-button profile__on-button ${
+                localTimerEnabled ? 'profile__active' : 'profile__inactive'
+              }`}
+            >
+              On
+            </span>
+            <span
+              onClick={() => handleTimerToggle(false)}
+              className={` profile__toggle-button profile__off-button ${
+                localTimerEnabled ? 'profile__inactive' : 'profile__active'
+              }`}
+            >
+              Off
+            </span>
           </div>
+        </div>
 
-          <div className={`profile__stats-text profile__toggle-container`}>
-            WPM readout:
-            <div className={`profile__toggle-switch`}>
-              <span
-                onClick={() => handleWPMToggle(true)}
-                className={` profile__toggle-button profile__on-button ${
-                  localWPMEnabled ? 'profile__active' : 'profile__inactive'
-                }`}
-              >
-                On
-              </span>
-              <span
-                onClick={() => handleWPMToggle(false)}
-                className={` profile__toggle-button profile__off-button ${
-                  localWPMEnabled ? 'profile__inactive' : 'profile__active'
-                }`}
-              >
-                Off
-              </span>
-            </div>
+        <div className={`profile__stats-text profile__toggle-container`}>
+          WPM readout:
+          <div className={`profile__toggle-switch`}>
+            <span
+              onClick={() => handleWPMToggle(true)}
+              className={` profile__toggle-button profile__on-button ${
+                localWPMEnabled ? 'profile__active' : 'profile__inactive'
+              }`}
+            >
+              On
+            </span>
+            <span
+              onClick={() => handleWPMToggle(false)}
+              className={` profile__toggle-button profile__off-button ${
+                localWPMEnabled ? 'profile__inactive' : 'profile__active'
+              }`}
+            >
+              Off
+            </span>
           </div>
         </div>
       </div>

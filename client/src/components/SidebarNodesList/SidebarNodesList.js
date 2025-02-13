@@ -25,7 +25,7 @@ export const SidebarNodesList = () => {
       {sortedNodes.length ? (
         <ul className={styles.wrapper}>
           {sortedNodes.map((node) => (
-            <SidebarNode nodeEntriesInfo={nodeEntriesInfo} key={node.id} node={node} />
+            <SidebarNode nodeEntriesInfo={nodeEntriesInfo} node={node} />
           ))}
         </ul>
       ) : (

@@ -22,7 +22,7 @@ const Dashboard = () => {
     dispatch(resetCurrentEntryState())
     const newNode = await dispatch(createNodeEntry())
 
-    history.push(`/edit-node-entry?entryId=${newNode.payload.id}`)
+    history.push(`/edit-node-entry?entryId=${newNode.payload}`)
   }
 
   const handleNewJournalEntryClick = async () => {
