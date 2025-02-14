@@ -19,7 +19,7 @@ import PromptsDisplay from '@components/PromptsDisplay/PromptsDisplay.js'
 import CreateEntry from '@components/Shared/CreateEntry/CreateEntry'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner.js'
-import WritingDataTimer from '@components/WritingDataTimer/WritingDataTimer'
+import WritingDataManager from '@components/Shared/WritingDataManager/WritingDataManager'
 
 // Constants
 import { ENTRY_TYPES } from '@constants/entryTypes'
@@ -57,7 +57,7 @@ const CreateJournalEntry = () => {
   return (
     journalConfig && (
       <div className={styles.wrapper}>
-        <WritingDataTimer entryType={ENTRY_TYPES.JOURNAL} />
+        <WritingDataManager entryType={ENTRY_TYPES.JOURNAL} />
         <ProgressWord />
         <BgImage />
         <div className={styles.headerPromptContainer}>

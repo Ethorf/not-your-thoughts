@@ -12,18 +12,15 @@ import { fetchConnections, getSelectedText } from '@redux/reducers/connectionsRe
 // Constants
 import { SAVE_TYPES } from '@constants/saveTypes'
 import { MODAL_NAMES } from '@constants/modalNames.js'
-import { CONNECTION_TYPES } from '@constants/connectionTypes'
 import { CONNECTION_ENTRY_SOURCES } from '@constants/connectionEntrySources'
 import { ENTRY_TYPES } from '@constants/entryTypes'
 
 // Components
-import WritingDataTimer from '@components/WritingDataTimer/WritingDataTimer'
 import CreateEntry from '@components/Shared/CreateEntry/CreateEntry'
 import AkasDisplay from '@components/Shared/AkasDisplay/AkasDisplay'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import StarButton from '@components/Shared/StarButton/StarButton'
 import DefaultInput from '@components/Shared/DefaultInput/DefaultInput'
-import AutosaveTimer from '@components/Shared/AutosaveTimer/AutosaveTimer'
 import WritingDataManager from '@components/Shared/WritingDataManager/WritingDataManager'
 import Spinner from '@components/Shared/Spinner/Spinner'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
@@ -92,8 +89,6 @@ const EditNodeEntry = () => {
 
   return (
     <div className={styles.wrapper}>
-      {/* <AutosaveTimer handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} /> */}
-      {/* <WritingDataTimer entryType={ENTRY_TYPES.NODE} /> */}
       <WritingDataManager entryType={ENTRY_TYPES.NODE} handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
       <div className={styles.editContainer}>
         <h2>Edit Node</h2>

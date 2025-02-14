@@ -53,7 +53,6 @@ const Profile = ({ auth: { user }, mode, toggleJournalConfigSetting }) => {
         <header className={`profile__header ${mode}`}>User Profile</header>
         <h2 className={`profile__user ${mode}`}>{user.name}</h2>
 
-        {/* <h2 className={`profile__sub-header ${mode}`}>Stats</h2> */}
         {user.last_day_completed !== null ? (
           <>
             <div className={`profile__stats-container ${mode}`}>
@@ -82,6 +81,8 @@ const Profile = ({ auth: { user }, mode, toggleJournalConfigSetting }) => {
         ) : (
           <h2 className={`profile__day-number profile__no-days  ${mode}`}>No days complete yet</h2>
         )}
+        <h2 className={`profile__sub-header ${mode}`}>Stats</h2>
+
         <WritingDataDisplay />
         <CustomPromptsSection />
         <div className={`profile__stats-text profile__toggle-container`}>

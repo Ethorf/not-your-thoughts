@@ -14,7 +14,7 @@ const AutoCompleteInput = ({ inputValue, options, className, placeholder, onChan
   }
 
   const filterOptions = (value) => {
-    const filtered = options.filter((option) => option.toLowerCase().includes(value.toLowerCase()))
+    const filtered = options?.filter((option) => option.toLowerCase().includes(value.toLowerCase()))
     setFilteredOptions(filtered)
   }
 

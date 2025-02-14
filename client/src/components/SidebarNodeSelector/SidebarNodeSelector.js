@@ -61,11 +61,11 @@ function SidebarNodeSelector({ className }) {
         <DefaultAutoCompleteDropdown
           insideSidebar
           handleTargetInput={handleTargetInput}
-          // onChange={handleOnChange}
+          onChange={handleOnChange}
           placeholder={'Select node...'}
           inputValue={inputValue}
           setInputValue={setInputValue}
-          // options={nodeEntriesInfo?.filter((n) => n.id !== entryId).map((x) => x.title)}
+          options={nodeEntriesInfo?.filter((n) => n.id !== entryId).map((x) => x.title)}
           onSubmit={handleOnSubmit}
           className={styles.dropDown}
         />
