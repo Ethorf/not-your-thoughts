@@ -32,6 +32,8 @@ const { PRIMARY } = CONNECTION_ENTRY_SOURCES
 const EditNodeEntry = () => {
   const dispatch = useDispatch()
   const location = useLocation()
+
+  const { connectionsLoading } = useSelector((state) => state.connections)
   const { wordCount, entryId, content, title, starred, entriesLoading } = useSelector((state) => state.currentEntry)
   const params = useMemo(() => new URLSearchParams(location.search), [location.search])
 
@@ -41,6 +43,12 @@ const EditNodeEntry = () => {
       dispatch(setEntryById(entryIdParam))
     }
   }, [dispatch, params])
+
+  useEffect(() => {
+    if (entryId) {
+      dispatch(fetchConnections(entryId))
+    }
+  }, [dispatch, entryId])
 
   const handleTitleChange = (e) => {
     dispatch(setTitle(e.target.value))
@@ -89,7 +97,7 @@ const EditNodeEntry = () => {
 
   return (
     <div className={styles.wrapper}>
-      <WritingDataManager entryType={ENTRY_TYPES.NODE} handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
+      {/* <WritingDataManager entryType={ENTRY_TYPES.NODE} handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} /> */}
       <div className={styles.editContainer}>
         <h2>Edit Node</h2>
         <div className={classNames(styles.topContainer, styles.grid4ColumnsCustom)}>
@@ -119,7 +127,7 @@ const EditNodeEntry = () => {
             <Spinner />
           )}
         </div>
-        <CreateEntry type={ENTRY_TYPES.NODE} />
+        {!connectionsLoading ? <CreateEntry type={ENTRY_TYPES.NODE} /> : null}
         <div className={styles.grid3Columns}>
           <span className={styles.flexStart}>Words: {wordCount}</span>
           <span />
