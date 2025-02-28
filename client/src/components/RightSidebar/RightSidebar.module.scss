@@ -13,9 +13,11 @@
   height: 100%;
   font-size: 1.3rem;
   z-index: $pillars-z-index + 2;
+  visibility: hidden;
 
   &.sidebarOpen {
     right: 0;
+    visibility: visible;
   }
 }
 
@@ -71,5 +73,6 @@
     opacity: 1;
     transition: all 1s ease-in-out;
     background: black;
+    visibility: visible;
   }
 }

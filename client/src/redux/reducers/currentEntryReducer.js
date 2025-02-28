@@ -74,8 +74,7 @@ export const createNodeEntry = createAsyncThunk(
       if (title) payload.title = title
 
       const response = await axiosInstance.post('api/entries/create_node_entry', payload)
-      console.log('<<<<<< response >>>>>>>>> is: <<<<<<<<<<<<')
-      console.log(response)
+
       dispatch(showToast('Node Created', 'success'))
       await dispatch(fetchNodeEntriesInfo())
 

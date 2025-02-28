@@ -1,0 +1,22 @@
+.wrapper {
+  font-size: 16px;
+  position: absolute;
+  top: 0;
+  // TODO variablize these
+  font-family: 'Poppins', sans-serif;
+  font-weight: 200;
+  font-size: 1.2rem;
+  padding: 26px;
+  padding-right: 46px;
+  color: silver;
+  transition: all 1s;
+
+  p {
+    margin: 0;
+  }
+}
+
+.toolbarVisible {
+  top: 41px;
+  transition: all 1s;
+}

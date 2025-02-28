@@ -1,10 +1,12 @@
 .ql-editor {
+  // TODO variablize these
   font-family: 'Poppins', sans-serif;
   font-weight: 200;
   font-size: 1.2rem;
   padding: 26px;
   padding-right: 46px;
-  color: silver;
+  color: transparent;
+  caret-color: silver;
   max-height: 60vh;
   z-index: 5;
   position: relative;
@@ -27,7 +29,6 @@
 .ql-snow.ql-toolbar button:hover .ql-stroke,
 .ql-snow.ql-toolbar button:hover .ql-fill {
   stroke: silver;
-  // fill: silver;
 }
 
 .ql-snow.ql-toolbar button.ql-active .ql-stroke,
