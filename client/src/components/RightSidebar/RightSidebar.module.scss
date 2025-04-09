@@ -13,7 +13,6 @@
   height: 100%;
   font-size: 1.3rem;
   z-index: $pillars-z-index + 2;
-  visibility: hidden;
 
   &.sidebarOpen {
     right: 0;
@@ -36,6 +35,7 @@
   outline: none;
   height: 30px;
   width: 30px;
+  right: -55px;
   transition: all 1.5s;
   transform: rotate(180deg);
 
@@ -68,6 +68,7 @@
   padding-left: 8px;
   max-height: 85vh;
   background: transparent;
+  visibility: hidden;
 
   &.sidebarOpen {
     opacity: 1;

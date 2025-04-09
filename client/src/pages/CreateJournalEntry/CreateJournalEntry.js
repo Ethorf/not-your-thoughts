@@ -24,6 +24,7 @@ import WritingDataManager from '@components/Shared/WritingDataManager/WritingDat
 // Constants
 import { ENTRY_TYPES } from '@constants/entryTypes'
 import { MODAL_NAMES } from '@constants/modalNames'
+import { SAVE_TYPES } from '@constants/saveTypes'
 
 //Pillars
 import PillarTop from '@components/PillarsComponents/PillarTopComponent.js'
@@ -57,7 +58,7 @@ const CreateJournalEntry = () => {
   return (
     journalConfig && (
       <div className={styles.wrapper}>
-        <WritingDataManager entryType={ENTRY_TYPES.JOURNAL} />
+        <WritingDataManager entryType={ENTRY_TYPES.JOURNAL} handleAutosave={() => handleSaveJournal(SAVE_TYPES.AUTO)} />
         <ProgressWord />
         <BgImage />
         <div className={styles.headerPromptContainer}>

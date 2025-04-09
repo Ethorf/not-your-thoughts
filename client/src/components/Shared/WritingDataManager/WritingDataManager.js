@@ -26,7 +26,6 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
 
   const startTimer = useCallback(() => {
     if (intervalRef.current === null) {
-      console.log('<><><><><><><><timer started')
       setActiveWordCount(wordCountRef.current)
 
       intervalRef.current = setInterval(() => {

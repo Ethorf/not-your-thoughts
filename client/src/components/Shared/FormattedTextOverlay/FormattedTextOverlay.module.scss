@@ -10,6 +10,8 @@
   padding-right: 46px;
   color: silver;
   transition: all 1s;
+  // TODO variablize z-indexes
+  z-index: 6;
 
   p {
     margin: 0;
@@ -19,4 +21,15 @@
 .toolbarVisible {
   top: 41px;
   transition: all 1s;
+}
+
+.externalConnection {
+  color: white;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.internalConnection {
+  color: white;
+  cursor: pointer;
 }

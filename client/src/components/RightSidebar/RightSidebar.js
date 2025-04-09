@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import classNames from 'classnames'
 
@@ -17,9 +17,9 @@ const RightSidebar = () => {
   const dispatch = useDispatch()
   const { sidebarOpen } = useSelector((state) => state.sidebar)
 
-  const handleToggleSidebar = () => {
+  const handleToggleSidebar = useCallback(() => {
     dispatch(toggleSidebar())
-  }
+  }, [dispatch])
 
   useEffect(() => {
     const handleToggleSidebarShortcut = (event) => {
@@ -33,7 +33,7 @@ const RightSidebar = () => {
     return () => {
       window.removeEventListener('keydown', handleToggleSidebarShortcut)
     }
-  }, [])
+  }, [handleToggleSidebar])
 
   return (
     <div

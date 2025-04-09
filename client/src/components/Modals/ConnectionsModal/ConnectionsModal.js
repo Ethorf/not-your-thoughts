@@ -38,7 +38,7 @@ import { wrapLinkStringInAnchorTag } from '@utils/wrapLinkStringInAnchorTag'
 // Styles
 import styles from './ConnectionsModal.module.scss'
 
-// Constand Destructures
+// Constant Destructures
 const { DIRECT, DESCRIPTIVE, SINGLE_WORD } = CONNECTION_SOURCE_TYPES
 const {
   FRONTEND: { PARENT, EXTERNAL },
