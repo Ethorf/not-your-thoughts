@@ -53,12 +53,17 @@ const CreateJournalEntry = () => {
       dispatch(openModal(MODAL_NAMES.SUCCESS))
       setSuccessModalSeen(true)
     }
-  }, [dispatch, journalConfig, wordCount])
+  }, [dispatch, journalConfig, successModalSeen, wordCount])
 
   return (
     journalConfig && (
       <div className={styles.wrapper}>
-        <WritingDataManager entryType={ENTRY_TYPES.JOURNAL} handleAutosave={() => handleSaveJournal(SAVE_TYPES.AUTO)} />
+        {wordCount > 0 ? (
+          <WritingDataManager
+            entryType={ENTRY_TYPES.JOURNAL}
+            handleAutosave={() => handleSaveJournal(SAVE_TYPES.AUTO)}
+          />
+        ) : null}
         <ProgressWord />
         <BgImage />
         <div className={styles.headerPromptContainer}>
@@ -71,7 +76,7 @@ const CreateJournalEntry = () => {
             <PillarLeft />
             <div className={styles.innerContainer}>
               <JournalInfoContainer />
-              <CreateEntry type={ENTRY_TYPES.JOURNAL} />
+              <CreateEntry entryType={ENTRY_TYPES.JOURNAL} />
               {entriesLoading ? (
                 <SmallSpinner />
               ) : (

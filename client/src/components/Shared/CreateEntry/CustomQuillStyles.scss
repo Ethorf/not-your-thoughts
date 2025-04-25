@@ -1,15 +1,13 @@
+@import '@styles/variables.scss';
+
 .ql-editor {
   // TODO variablize these
   font-family: 'Poppins', sans-serif;
-  font-weight: 200;
-  font-size: 1.2rem;
-  padding: 26px;
-  padding-right: 46px;
-  color: transparent;
+
   caret-color: silver;
   max-height: 60vh;
-  z-index: 5;
-  position: relative;
+  z-index: 6;
+  pointer-events: auto;
 }
 
 .ql-container.ql-snow {
@@ -67,4 +65,30 @@
     transition: all 500ms;
     opacity: 1;
   }
+}
+
+.visibleText .ql-editor {
+  color: $silver-default;
+}
+
+.hiddenText .ql-editor {
+  color: transparent;
+  color: red;
+  line-height: 1.5;
+  box-sizing: border-box;
+  font-size: 1.2rem;
+  font-weight: 200;
+  padding-left: 26px;
+  padding-bottom: 26px;
+  padding-right: 46px;
+  font-size: 19px;
+  line-height: 1.2;
+  position: relative;
+  top: 15px;
+}
+
+.hiddenText .ql-editor p {
+  padding: 0;
+  margin: 0;
+  line-height: inherit;
 }

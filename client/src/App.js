@@ -48,7 +48,7 @@ const App = () => {
   }, [])
 
   useEffect(() => {
-    checkServerStatus('http://localhost:8082/api/health', 5000) // Adjust URL and interval as needed
+    checkServerStatus('http://localhost:8080/api/health', 5000) // Adjust URL and interval as needed
   }, [])
 
   const mode = useSelector((state) => state.modes.mode)

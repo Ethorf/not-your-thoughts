@@ -4,8 +4,6 @@ import { ENTRY_TYPES } from '@constants/entryTypes'
 
 import { showToast } from '@utils/toast'
 
-const { NODE, JOURNAL } = ENTRY_TYPES
-
 const initialState = {
   stats: {
     allEntriesTotalWritingTime: 0,

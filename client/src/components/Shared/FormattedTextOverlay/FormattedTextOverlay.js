@@ -1,12 +1,18 @@
 import classNames from 'classnames'
-import React, { useMemo } from 'react'
-import { useSelector } from 'react-redux'
+import React, { useMemo, useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 
 import ShinyText from '@components/Shared/ShinyText/ShinyText'
+
+// Constants
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
+import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
 
 import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
+
+// Redux
+import { createConnection } from '@redux/reducers/connectionsReducer'
 
 import styles from './FormattedTextOverlay.module.scss'
 
@@ -14,13 +20,18 @@ const {
   FRONTEND: { EXTERNAL, SIBLING },
 } = CONNECTION_TYPES
 
-const FormattedTextOverlay = ({ toolbarVisible }) => {
+const { DIRECT } = CONNECTION_SOURCE_TYPES
+
+const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
+  const [quillEditorScrollTopVal, setQuillEditorScrollTopVal] = useState(0)
+
   const { connections } = useSelector((state) => state.connections)
-  const { content } = useSelector((state) => state.currentEntry)
+  const { content, entryId } = useSelector((state) => state.currentEntry)
   const history = useHistory()
   const nodeEntriesInfo = useNodeEntriesInfo()
+  const dispatch = useDispatch()
 
-  const allTitles = useMemo(() => nodeEntriesInfo?.map((x) => x.title.toLowerCase()) ?? [], [nodeEntriesInfo])
+  const allTitles = useMemo(() => nodeEntriesInfo?.map((x) => x?.title?.toLowerCase()) ?? [], [nodeEntriesInfo])
 
   const formatRules = useMemo(() => {
     const rules = {}
@@ -67,8 +78,26 @@ const FormattedTextOverlay = ({ toolbarVisible }) => {
     return rules
   }, [connections, history])
 
+  const findIdByNodeTitle = (nodes, title) => {
+    return nodes.find((x) => x.title.toLowerCase() === title.toLowerCase()).id ?? null
+  }
+
   const formattedContent = useMemo(() => {
     if (!content) return null
+
+    const handleCreateSimpleSiblingConnection = async (nodes, word) => {
+      await dispatch(
+        createConnection({
+          connection_type: SIBLING,
+          main_entry_id: entryId,
+          foreign_entry_id: findIdByNodeTitle(nodes, word),
+          primary_entry_id: entryId,
+          primary_source: word,
+          foreign_source: word,
+          source_type: DIRECT,
+        })
+      )
+    }
 
     const formatKeys = Object.keys(formatRules)
     const allWords = [...new Set([...formatKeys, ...allTitles])]
@@ -110,7 +139,15 @@ const FormattedTextOverlay = ({ toolbarVisible }) => {
             })
           )
         } else if (allTitles.includes(word.toLowerCase())) {
-          parts.push(<ShinyText key={`${word}-${i}-${match.index}`} text={word} />)
+          parts.push(
+            <ShinyText
+              key={`${word}-${i}-${match.index}`}
+              onClick={() => handleCreateSimpleSiblingConnection(nodeEntriesInfo, word)}
+              text={word}
+              data-tooltip-id="main-tooltip"
+              data-tooltip-content="node found, click to create connection"
+            />
+          )
         } else {
           parts.push(word)
         }
@@ -123,13 +160,26 @@ const FormattedTextOverlay = ({ toolbarVisible }) => {
 
       return <p key={i}>{parts}</p>
     })
-  }, [content, formatRules, allTitles])
+  }, [content, formatRules, allTitles, dispatch, entryId, nodeEntriesInfo])
+
+  useEffect(() => {
+    if (quillRef.current) {
+      const quill = quillRef.current.getEditor()
+
+      const update = () => setQuillEditorScrollTopVal(quill.root.scrollTop)
+      quill.root.addEventListener('scroll', update)
+
+      return () => quill.root.removeEventListener('scroll', update)
+    }
+  }, [quillRef, quillEditorScrollTopVal])
 
   return (
     <div
+      id="Formatted Text Overlay Boy"
       className={classNames(styles.wrapper, {
         [styles.toolbarVisible]: toolbarVisible,
       })}
+      style={{ top: `${27 - quillEditorScrollTopVal}px` }}
     >
       {formattedContent}
     </div>

@@ -3,3 +3,16 @@
   overflow: auto;
   max-height: 70vh;
 }
+
+.sortControls {
+  background: black;
+  font-family: 'Syncopate', sans-serif;
+  border: 2px solid rgba(192, 192, 192, 0.8);
+  border-radius: 12px;
+  padding: 8px 12px;
+  color: rgba(192, 192, 192, 0.8);
+  text-transform: uppercase;
+  outline: none;
+  margin-left: 8px;
+  cursor: pointer;
+}

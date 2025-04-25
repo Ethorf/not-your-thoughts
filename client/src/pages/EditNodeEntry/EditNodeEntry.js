@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useCallback } from 'react'
 import classNames from 'classnames'
 import { useLocation } from 'react-router-dom'
 import { unwrapResult } from '@reduxjs/toolkit'
@@ -54,21 +54,21 @@ const EditNodeEntry = () => {
     dispatch(setTitle(e.target.value))
   }
 
-  const handleSaveNode = (saveType) => {
+  const handleSaveNode = useCallback((saveType) => {
     dispatch(updateNodeEntry({ saveType }))
-  }
+  })
 
-  const handleOpenConnectionsModal = async () => {
-    try {
-      const fetchConnRes = await dispatch(fetchConnections(entryId))
-      unwrapResult(fetchConnRes)
-      dispatch(openModal(MODAL_NAMES.CONNECTIONS))
-    } catch (error) {
-      console.error('Failed to fetch connections:', error)
+  const handleOpenConnectionsWithSelectedText = useCallback(async () => {
+    const handleOpenConnectionsModal = async () => {
+      try {
+        const fetchConnRes = await dispatch(fetchConnections(entryId))
+        unwrapResult(fetchConnRes)
+        dispatch(openModal(MODAL_NAMES.CONNECTIONS))
+      } catch (error) {
+        console.error('Failed to fetch connections:', error)
+      }
     }
-  }
 
-  const handleOpenConnectionsWithSelectedText = async () => {
     try {
       const getSelectedTextRes = await dispatch(getSelectedText(PRIMARY))
       unwrapResult(getSelectedTextRes)
@@ -76,7 +76,7 @@ const EditNodeEntry = () => {
     } catch (error) {
       console.error('Get selected text failure', error)
     }
-  }
+  }, [dispatch, entryId])
 
   useEffect(() => {
     const handleShortcuts = async (e) => {
@@ -93,11 +93,11 @@ const EditNodeEntry = () => {
     return () => {
       window.removeEventListener('keydown', handleShortcuts)
     }
-  }, [])
+  }, [handleOpenConnectionsWithSelectedText, handleSaveNode])
 
   return (
     <div className={styles.wrapper}>
-      {/* <WritingDataManager entryType={ENTRY_TYPES.NODE} handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} /> */}
+      <WritingDataManager entryType={ENTRY_TYPES.NODE} handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
       <div className={styles.editContainer}>
         <h2>Edit Node</h2>
         <div className={classNames(styles.topContainer, styles.grid4ColumnsCustom)}>
@@ -127,7 +127,7 @@ const EditNodeEntry = () => {
             <Spinner />
           )}
         </div>
-        {!connectionsLoading ? <CreateEntry type={ENTRY_TYPES.NODE} /> : null}
+        {!connectionsLoading ? <CreateEntry entryType={ENTRY_TYPES.NODE} /> : null}
         <div className={styles.grid3Columns}>
           <span className={styles.flexStart}>Words: {wordCount}</span>
           <span />

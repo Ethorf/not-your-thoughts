@@ -381,11 +381,30 @@ const currentEntrySlice = createSlice({
           entriesLoading: false,
         }
       })
+      .addCase(fetchNodeEntriesInfo.pending, (state) => {
+        return {
+          ...state,
+          entriesLoading: true,
+        }
+      })
       .addCase(fetchNodeEntriesInfo.fulfilled, (state, action) => {
-        state.nodeEntriesInfo = action.payload
+        return {
+          ...state,
+          nodeEntriesInfo: action.payload,
+          entriesLoading: false,
+        }
+      })
+      .addCase(deleteEntry.pending, (state) => {
+        return {
+          ...state,
+          entriesLoading: true,
+        }
       })
       .addCase(deleteEntry.fulfilled, (state) => {
-        return initialState
+        return {
+          ...state,
+          entriesLoading: false,
+        }
       })
       .addCase(toggleNodeStarred.fulfilled, (state, action) => {
         const { entryId, starred } = action.payload

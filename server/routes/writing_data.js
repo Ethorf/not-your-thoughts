@@ -94,7 +94,7 @@ router.get('/all_writing_data', authorize, async (req, res) => {
     const today = new Date().toISOString().split('T')[0]
 
     // Iterate over each writing data entry to calculate totals
-    writingData.forEach((entry) => {
+    writingData?.forEach((entry) => {
       const entryDate = new Date(entry.date).toISOString().split('T')[0]
 
       allEntriesTotalWritingTime += entry.duration

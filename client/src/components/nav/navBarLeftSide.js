@@ -104,7 +104,7 @@ const NavBarSide = () => {
         {!guestMode && (
           <>
             <NavLink exact to="/profile" activeClassName="nav__active" className={`nav__link${mode}`}>
-              Profile
+              Profile / Stats
             </NavLink>
             <NavLink exact to="/entries" activeClassName="nav__active" className={`nav__link${mode}`}>
               Entries

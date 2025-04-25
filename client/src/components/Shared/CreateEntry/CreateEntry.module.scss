@@ -5,7 +5,7 @@
   max-width: 100%;
   min-height: 70%;
   border: $silver-border-default;
-  z-index: $pillars-z-index + 1;
+  z-index: $text-entry-z-index;
   border-radius: 12px;
   transition: $default-transition;
   position: relative;
@@ -16,13 +16,15 @@
     transition: $default-transition;
   }
 }
+
 .toolbarToggleButton {
   position: absolute;
   top: 0;
   right: 6px;
-  z-index: $pillars-z-index + 1;
+  z-index: $text-entry-z-index + 8;
 }
 
-.red {
-  color: red;
+.editorContainer {
+  position: relative;
+  overflow: hidden;
 }

@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { createWritingData, setTimeElapsed, setWordsAdded } from '@redux/reducers/writingDataReducer'
+import { deleteConnection } from '@redux/reducers/connectionsReducer'
+import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
+
+const { DIRECT, SINGLE_WORD } = CONNECTION_SOURCE_TYPES
 
 const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) => {
   const dispatch = useDispatch()
 
+  // state & refs
   const [activeWordCount, setActiveWordCount] = useState(null)
   const [shouldAutosave, setShouldAutosave] = useState(false)
 
@@ -15,118 +20,134 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
   const timeElapsedRef = useRef(0)
   const entryIdRef = useRef(null)
 
-  const { wordCount, entryId, entriesSaving } = useSelector((state) => state.currentEntry)
-  const { timeElapsed, wordsAdded } = useSelector((state) => state.writingData)
+  // store the latest timer callbacks here:
+  const startTimerRef = useRef()
+  const stopTimerRef = useRef()
 
+  // selectors
+  const { content, wordCount, entryId, entriesSaving } = useSelector((state) => state.currentEntry)
+  const { timeElapsed, wordsAdded } = useSelector((state) => state.writingData)
+  const { connections } = useSelector((state) => state.connections)
+
+  // update wordsAdded whenever wordCount changes
   useEffect(() => {
     wordCountRef.current = wordCount
-    const wordsAdded = activeWordCount !== null ? wordCountRef.current - activeWordCount : 0
-    dispatch(setWordsAdded(wordsAdded))
+    const added = activeWordCount !== null ? wordCountRef.current - activeWordCount : 0
+    dispatch(setWordsAdded(added))
   }, [activeWordCount, dispatch, wordCount])
 
-  const startTimer = useCallback(() => {
-    if (intervalRef.current === null) {
-      setActiveWordCount(wordCountRef.current)
+  // helper to delete stale connections
+  const deleteObsoleteConnections = useCallback(() => {
+    const text = (content || '').toLowerCase()
 
+    connections?.forEach((conn) => {
+      const { primary_source, source_type } = conn
+      if (
+        (source_type === DIRECT || source_type === SINGLE_WORD) &&
+        primary_source &&
+        !text.includes(primary_source.toLowerCase())
+      ) {
+        dispatch(deleteConnection(conn))
+      }
+    })
+  }, [connections, content, dispatch])
+
+  // startTimer: once per mount
+  const startTimer = useCallback(() => {
+    if (intervalRef.current == null) {
+      setActiveWordCount(wordCountRef.current)
       intervalRef.current = setInterval(() => {
-        const newTime = timeElapsedRef.current + 1
-        timeElapsedRef.current = newTime
-        dispatch(setTimeElapsed(newTime))
+        const t = timeElapsedRef.current + 1
+        timeElapsedRef.current = t
+        dispatch(setTimeElapsed(t))
       }, 1000)
     }
-
-    // Cancel any pending autosave since user is actively typing
     clearTimeout(autosaveTimeoutRef.current)
     setShouldAutosave(false)
   }, [dispatch])
 
+  // stopTimer: once per mount
   const stopTimer = useCallback(
     async (autosave = false) => {
       console.log('TIMER STOPPED')
-      if (intervalRef.current !== null && entryIdRef.current !== null) {
-        const {
-          meta: { requestStatus },
-        } = await dispatch(createWritingData({ entryType }))
-        console.log(requestStatus)
-
+      if (intervalRef.current != null && entryIdRef.current != null) {
+        await dispatch(createWritingData({ entryType }))
         clearInterval(intervalRef.current)
         intervalRef.current = null
         dispatch(setTimeElapsed(0))
         timeElapsedRef.current = 0
         setActiveWordCount(null)
       }
-
       if (autosave) {
+        deleteObsoleteConnections()
         setShouldAutosave(true)
       }
     },
-    [dispatch, entryType]
+    [dispatch, entryType, deleteObsoleteConnections]
   )
 
+  // keep refs up to date
   useEffect(() => {
-    if (entriesSaving) {
-      stopTimer()
-    }
-  }, [entriesSaving, stopTimer])
+    startTimerRef.current = startTimer
+    stopTimerRef.current = stopTimer
+  }, [startTimer, stopTimer])
 
-  useEffect(() => {
-    if (entryId !== entryIdRef.current) {
-      stopTimer(true) // Stop timer & mark for autosave
-      entryIdRef.current = entryId
-    }
-  }, [entryId, stopTimer])
-
+  // keydown listener — only mounted/unmounted once
   useEffect(() => {
     const handleKeyPress = () => {
-      startTimer()
-
+      startTimerRef.current()
       clearTimeout(timeoutRef.current)
       timeoutRef.current = setTimeout(() => {
-        stopTimer(true) // Stop & mark for autosave if idle for 5 sec
-      }, 5000)
+        stopTimerRef.current(true)
+      }, 10000)
     }
 
     window.addEventListener('keydown', handleKeyPress)
     return () => {
       window.removeEventListener('keydown', handleKeyPress)
-      stopTimer(true)
       clearTimeout(timeoutRef.current)
     }
-  }, [startTimer, stopTimer])
+  }, [])
 
-  // Autosave if idle for 10 seconds
+  // autosave if idle
   useEffect(() => {
     if (shouldAutosave) {
       autosaveTimeoutRef.current = setTimeout(() => {
-        console.log('Triggering Autosave...')
+        console.log('Triggering Autosave…')
         handleAutosave()
         setShouldAutosave(false)
-      }, 10000) // Autosave after 10 seconds of inactivity
+      }, 5000)
     }
     return () => clearTimeout(autosaveTimeoutRef.current)
   }, [shouldAutosave, handleAutosave])
 
-  // Detect tab switch or page visibility change
+  // on visibility change
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        console.log('Tab switched! Triggering autosave...')
-        stopTimer(true) // Stop and mark for autosave
-      }
+    const onVis = () => {
+      if (document.hidden) stopTimerRef.current(true)
     }
+    document.addEventListener('visibilitychange', onVis)
+    return () => document.removeEventListener('visibilitychange', onVis)
+  }, [])
 
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
-  }, [stopTimer])
-
-  // Autosave before navigating away from the page
+  // before unload
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      stopTimer(true) // Stop & mark for autosave before navigating away
+    const onBefore = () => stopTimerRef.current(true)
+    window.addEventListener('beforeunload', onBefore)
+    return () => window.removeEventListener('beforeunload', onBefore)
+  }, [])
+
+  // stop timer when entry saves or ID changes
+  useEffect(() => {
+    if (entriesSaving) stopTimer()
+  }, [entriesSaving, stopTimer])
+
+  useEffect(() => {
+    if (entryId !== entryIdRef.current) {
+      stopTimer(true)
+      entryIdRef.current = entryId
     }
-    window.addEventListener('beforeunload', handleBeforeUnload)
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
-  }, [stopTimer])
+  }, [entryId, stopTimer])
 
   return showDisplay ? (
     <div>

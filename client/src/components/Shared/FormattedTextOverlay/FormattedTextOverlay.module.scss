@@ -1,20 +1,32 @@
+@import '@styles/variables.scss';
+
 .wrapper {
-  font-size: 16px;
   position: absolute;
-  top: 0;
   // TODO variablize these
   font-family: 'Poppins', sans-serif;
   font-weight: 200;
   font-size: 1.2rem;
-  padding: 26px;
-  padding-right: 46px;
+  padding-left: 26px;
+  padding-bottom: 26px;
+  // padding-right: 46px;
+  // magical number confusion below
+  padding-right: 56px;
   color: silver;
-  transition: all 1s;
-  // TODO variablize z-indexes
-  z-index: 6;
+  font-size: 19px;
+  line-height: 1.2;
+  z-index: $text-entry-z-index + 1;
+  pointer-events: none;
+
+  box-sizing: border-box;
 
   p {
     margin: 0;
+    margin: 0;
+    line-height: inherit;
+    padding: 0;
+    box-sizing: inherit; /* inherit from container */
+    white-space: pre-wrap; /* if you need to preserve wraps/newlines */
+    word-break: break-word;
   }
 }
 
@@ -27,9 +39,11 @@
   color: white;
   text-decoration: underline;
   cursor: pointer;
+  pointer-events: auto;
 }
 
 .internalConnection {
   color: white;
   cursor: pointer;
+  pointer-events: auto;
 }
