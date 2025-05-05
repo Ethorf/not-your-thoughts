@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
+import Delta from 'quill-delta'
 
 // Components
 import TextButton from '@components/Shared/TextButton/TextButton'
@@ -74,6 +75,15 @@ const CreateEntry = ({ entryType }) => {
         }
       }
 
+      // Clear existing matchers (optional if you only want to override specific ones)
+      quill.clipboard.matchers = []
+
+      // Add a matcher that replaces everything with plain text
+      quill.clipboard.addMatcher(Node.ELEMENT_NODE, (node, delta) => {
+        const text = node.innerText || node.textContent || ''
+        return new Delta().insert(text)
+      })
+
       quill.root.addEventListener('click', handleClick)
       return () => quill.root.removeEventListener('click', handleClick)
     }
@@ -81,6 +91,13 @@ const CreateEntry = ({ entryType }) => {
 
   return (
     <div className={styles.wrapper}>
+      <TextButton
+        className={styles.toolbarToggleButton}
+        tooltip={'Toggle formatting toolbar'}
+        onClick={() => setToolbarVisible(!toolbarVisible)}
+      >
+        {toolbarVisible ? 'X' : '+'}
+      </TextButton>
       {entriesLoading ? (
         <SmallSpinner />
       ) : (
@@ -96,13 +113,6 @@ const CreateEntry = ({ entryType }) => {
             onChange={handleContentChange}
             ref={quillRef}
           />
-          <TextButton
-            className={styles.toolbarToggleButton}
-            tooltip={'Toggle formatting toolbar'}
-            onClick={() => setToolbarVisible(!toolbarVisible)}
-          >
-            {toolbarVisible ? 'X' : '+'}
-          </TextButton>
         </div>
       )}
     </div>

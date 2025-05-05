@@ -34,7 +34,7 @@ function SidebarNodeSelector({ className }) {
   const handleCreateNodeEntry = async () => {
     const newNode = await dispatch(createNodeEntry({ title: inputValue }))
 
-    history.push(`/edit-node-entry?entryId=${newNode.payload?.id}`)
+    history.push(`/edit-node-entry?entryId=${newNode?.payload}`)
     setInputValue('')
     dispatch(toggleSidebar())
   }
@@ -48,6 +48,7 @@ function SidebarNodeSelector({ className }) {
     } else {
       handleCreateNodeEntry()
     }
+
     dispatch(toggleSidebar())
   }
 

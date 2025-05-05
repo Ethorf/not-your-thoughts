@@ -9,6 +9,8 @@
   border-radius: 12px;
   transition: $default-transition;
   position: relative;
+  display: flex;
+  flex-direction: column;
 
   &:hover,
   &:focus {
@@ -27,4 +29,6 @@
 .editorContainer {
   position: relative;
   overflow: hidden;
+  height: 100%;
+  width: 100%;
 }

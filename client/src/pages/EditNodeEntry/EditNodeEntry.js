@@ -39,7 +39,7 @@ const EditNodeEntry = () => {
 
   useEffect(() => {
     const entryIdParam = params.get('entryId')
-    if (entryIdParam) {
+    if (entryIdParam !== undefined) {
       dispatch(setEntryById(entryIdParam))
     }
   }, [dispatch, params])
@@ -56,7 +56,7 @@ const EditNodeEntry = () => {
 
   const handleSaveNode = useCallback((saveType) => {
     dispatch(updateNodeEntry({ saveType }))
-  })
+  }, [])
 
   const handleOpenConnectionsWithSelectedText = useCallback(async () => {
     const handleOpenConnectionsModal = async () => {
@@ -97,7 +97,7 @@ const EditNodeEntry = () => {
 
   return (
     <div className={styles.wrapper}>
-      <WritingDataManager entryType={ENTRY_TYPES.NODE} handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
+      {/* <WritingDataManager entryType={ENTRY_TYPES.NODE} handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} /> */}
       <div className={styles.editContainer}>
         <h2>Edit Node</h2>
         <div className={classNames(styles.topContainer, styles.grid4ColumnsCustom)}>

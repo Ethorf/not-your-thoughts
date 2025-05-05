@@ -52,7 +52,7 @@ router.post('/create_node_entry', authorize, async (req, res) => {
 
     return res.json({ id: newEntry.rows[0].id, title })
   } catch (err) {
-    console.error(err.message)
+    console.error(`Error in create node entry: ${err.message}`)
     res.status(500).send('Server error')
   }
 })
@@ -302,6 +302,7 @@ router.get('/node_entries_info', authorize, async (req, res) => {
         entries.title, 
         entries.starred,
         entries.num_of_words,
+        entries.date_originally_created,
         ARRAY(
           SELECT content 
           FROM entry_contents 
@@ -325,23 +326,23 @@ router.get('/node_entries_info', authorize, async (req, res) => {
 
     const nodeEntries = nodeEntriesQuery.rows
 
-    // Check if there are any entries found
     if (nodeEntries.length === 0) {
       return res.status(404).json({ msg: 'No node entries found for this user' })
     }
 
-    // Process entries to include pending status
-    const processedEntries = nodeEntries.map((entry) => ({
-      id: entry.id,
-      title: entry.title,
-      starred: entry.starred,
-      wordCount: entry.num_of_words,
-      pending: !entry.content || entry.content.length === 0,
-      date_created: entry.date_created,
-      date_last_modified: entry.date_last_modified,
-    }))
+    const processedEntries = nodeEntries.map((entry) => {
+      const hasContent = entry.content && entry.content.length > 0
+      return {
+        id: entry.id,
+        title: entry.title,
+        starred: entry.starred,
+        wordCount: entry.num_of_words,
+        pending: !hasContent,
+        date_created: hasContent ? entry.date_created : entry.date_originally_created,
+        date_last_modified: hasContent ? entry.date_last_modified : entry.date_originally_created,
+      }
+    })
 
-    // If node entries are found, return them
     res.json({ nodeEntries: processedEntries })
   } catch (err) {
     console.error(err.message)

@@ -3,7 +3,7 @@ import axiosRetry from 'axios-retry'
 
 // Create an Axios instance
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8080/',
+  baseURL: 'http://localhost:8082/',
   timeout: 5000,
 })
 

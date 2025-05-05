@@ -2,37 +2,31 @@
 
 .wrapper {
   position: absolute;
-  // TODO variablize these
   font-family: 'Poppins', sans-serif;
   font-weight: 200;
-  font-size: 1.2rem;
-  padding-left: 26px;
-  padding-bottom: 26px;
-  // padding-right: 46px;
-  // magical number confusion below
-  padding-right: 56px;
   color: silver;
-  font-size: 19px;
-  line-height: 1.2;
   z-index: $text-entry-z-index + 1;
   pointer-events: none;
+  color: silver;
+  transition: all 1s;
 
-  box-sizing: border-box;
+  // Main text Variables
+  font-size: $main-text-font-size;
+  line-height: $main-text-line-height;
+  padding: 0;
+  margin: 0;
+  box-sizing: $main-text-box-sizing;
+  top: $main-top-offset;
 
   p {
-    margin: 0;
-    margin: 0;
-    line-height: inherit;
-    padding: 0;
-    box-sizing: inherit; /* inherit from container */
-    white-space: pre-wrap; /* if you need to preserve wraps/newlines */
-    word-break: break-word;
+    font-size: $main-text-font-size;
+    line-height: $main-text-line-height;
+    padding-left: $main-text-padding-left;
+    padding-top: 0;
+    padding-bottom: $main-text-padding-bottom;
+    box-sizing: $main-text-box-sizing;
+    margin-top: 0;
   }
-}
-
-.toolbarVisible {
-  top: 41px;
-  transition: all 1s;
 }
 
 .externalConnection {

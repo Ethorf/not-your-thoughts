@@ -9,6 +9,7 @@ import ShinyText from '@components/Shared/ShinyText/ShinyText'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
 import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
 
+// Hooks
 import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
 
 // Redux
@@ -22,16 +23,22 @@ const {
 
 const { DIRECT } = CONNECTION_SOURCE_TYPES
 
+const MAIN_TOP_OFFSET = 16
+
 const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
   const [quillEditorScrollTopVal, setQuillEditorScrollTopVal] = useState(0)
+  const [hasScrollbar, setHasScrollbar] = useState(false)
 
   const { connections } = useSelector((state) => state.connections)
-  const { content, entryId } = useSelector((state) => state.currentEntry)
+  const { content, entryId, title: currentTitle } = useSelector((state) => state.currentEntry)
   const history = useHistory()
   const nodeEntriesInfo = useNodeEntriesInfo()
   const dispatch = useDispatch()
 
-  const allTitles = useMemo(() => nodeEntriesInfo?.map((x) => x?.title?.toLowerCase()) ?? [], [nodeEntriesInfo])
+  const allTitles = useMemo(
+    () => nodeEntriesInfo?.map((x) => x?.title?.toLowerCase()).filter((t) => t !== currentTitle.toLowerCase()) ?? [],
+    [nodeEntriesInfo]
+  )
 
   const formatRules = useMemo(() => {
     const rules = {}
@@ -79,11 +86,18 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
   }, [connections, history])
 
   const findIdByNodeTitle = (nodes, title) => {
-    return nodes.find((x) => x.title.toLowerCase() === title.toLowerCase()).id ?? null
+    return nodes.find((x) => x.title.toLowerCase() === title.toLowerCase())?.id ?? null
   }
 
   const formattedContent = useMemo(() => {
     if (!content) return null
+
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(content, 'text/html')
+
+    const formatKeys = Object.keys(formatRules)
+    const allWords = [...new Set([...formatKeys, ...allTitles])]
+    const pattern = new RegExp(`\\b(${allWords.map(escapeRegExp).join('|')})\\b`, 'gi')
 
     const handleCreateSimpleSiblingConnection = async (nodes, word) => {
       await dispatch(
@@ -99,87 +113,162 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
       )
     }
 
-    const formatKeys = Object.keys(formatRules)
-    const allWords = [...new Set([...formatKeys, ...allTitles])]
+    const transformNode = (node, paragraphIndex) => {
+      if (!node) return null
 
-    if (allWords.length === 0) {
-      return content.split(/<\/p>\s*<p>/i).map((p, i) => <p key={i}>{p.replace(/<\/?p>/gi, '')}</p>)
-    }
+      // TEXT NODE
+      if (node.nodeType === Node.TEXT_NODE && node.textContent) {
+        const parts = []
+        let lastIndex = 0
+        pattern.lastIndex = 0 // reset regex state
 
-    const paragraphRegex = /<p>(.*?)<\/p>/gi
-    const paragraphs = []
-    let match
+        let match
+        while ((match = pattern.exec(node.textContent)) !== null) {
+          // Avoid infinite loops from zero-width matches
+          if (match.index === pattern.lastIndex) {
+            pattern.lastIndex++
+            continue
+          }
 
-    while ((match = paragraphRegex.exec(content)) !== null) {
-      paragraphs.push(match[1])
-    }
+          const before = node.textContent.slice(lastIndex, match.index)
+          if (before) parts.push(before)
 
-    if (paragraphs.length === 0) {
-      paragraphs.push(content)
-    }
+          const word = match[0]
+          const ruleKey = formatKeys.find((k) => k.toLowerCase() === word.toLowerCase())
 
-    const pattern = new RegExp(`\\b(${allWords.map(escapeRegExp).join('|')})\\b`, 'gi')
+          if (ruleKey) {
+            parts.push(
+              React.cloneElement(formatRules[ruleKey], {
+                key: `${word}-${paragraphIndex}-${match.index}`,
+              })
+            )
+          } else if (allTitles.includes(word.toLowerCase())) {
+            parts.push(
+              <ShinyText
+                key={`${word}-${paragraphIndex}-${match.index}`}
+                onClick={() => handleCreateSimpleSiblingConnection(nodeEntriesInfo, word)}
+                text={word}
+                data-tooltip-id="main-tooltip"
+                data-tooltip-content="node found, click to create connection"
+              />
+            )
+          } else {
+            parts.push(word)
+          }
 
-    return paragraphs.map((paragraph, i) => {
-      const parts = []
-      let lastIndex = 0
-
-      let match
-      while ((match = pattern.exec(paragraph)) !== null) {
-        const before = paragraph.slice(lastIndex, match.index)
-        if (before) parts.push(before)
-
-        const word = match[0]
-        const ruleKey = formatKeys.find((k) => k.toLowerCase() === word.toLowerCase())
-
-        if (ruleKey) {
-          parts.push(
-            React.cloneElement(formatRules[ruleKey], {
-              key: `${word}-${i}-${match.index}`,
-            })
-          )
-        } else if (allTitles.includes(word.toLowerCase())) {
-          parts.push(
-            <ShinyText
-              key={`${word}-${i}-${match.index}`}
-              onClick={() => handleCreateSimpleSiblingConnection(nodeEntriesInfo, word)}
-              text={word}
-              data-tooltip-id="main-tooltip"
-              data-tooltip-content="node found, click to create connection"
-            />
-          )
-        } else {
-          parts.push(word)
+          lastIndex = match.index + word.length
         }
 
-        lastIndex = match.index + word.length
+        const after = node.textContent.slice(lastIndex)
+        if (after) parts.push(after)
+
+        return parts
       }
 
-      const after = paragraph.slice(lastIndex)
-      if (after) parts.push(after)
+      // ELEMENT NODE
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const children = safeTransformChildren(node.childNodes, paragraphIndex)
 
-      return <p key={i}>{parts}</p>
-    })
+        if (!node.tagName) return children
+
+        switch (node.tagName.toLowerCase()) {
+          case 'strong':
+            return <strong key={`${paragraphIndex}-${Math.random()}`}>{children}</strong>
+          case 'em':
+            return <em key={`${paragraphIndex}-${Math.random()}`}>{children}</em>
+          case 'u':
+            return <u key={`${paragraphIndex}-${Math.random()}`}>{children}</u>
+          case 's':
+          case 'del':
+            return <s key={`${paragraphIndex}-${Math.random()}`}>{children}</s>
+          case 'ul':
+            return <ul key={`${paragraphIndex}-${Math.random()}`}>{children}</ul>
+          case 'ol':
+            return <ol key={`${paragraphIndex}-${Math.random()}`}>{children}</ol>
+          case 'li':
+            return <li key={`${paragraphIndex}-${Math.random()}`}>{children}</li>
+          case 'p':
+            return <p key={`${paragraphIndex}-${Math.random()}`}>{children}</p>
+          default:
+            return children
+        }
+      }
+
+      return null
+    }
+
+    const safeTransformChildren = (childNodes, paragraphIndex) => {
+      const result = []
+
+      if (!childNodes || !childNodes.length) return result
+
+      for (const child of childNodes) {
+        try {
+          const transformed = transformNode(child, paragraphIndex)
+          if (Array.isArray(transformed)) {
+            result.push(...transformed)
+          } else if (transformed != null) {
+            result.push(transformed)
+          }
+        } catch (e) {
+          console.warn('Error transforming child node:', e, child)
+        }
+      }
+
+      return result
+    }
+
+    const rootChildren = Array.from(doc.body.childNodes)
+
+    return rootChildren.map((node, i) => transformNode(node, i))
   }, [content, formatRules, allTitles, dispatch, entryId, nodeEntriesInfo])
 
+  const initialTopValue = toolbarVisible ? 41 + MAIN_TOP_OFFSET : MAIN_TOP_OFFSET
+
+  // Mostly event listeners and scroll stuff
   useEffect(() => {
-    if (quillRef.current) {
-      const quill = quillRef.current.getEditor()
+    if (!quillRef.current) return
 
-      const update = () => setQuillEditorScrollTopVal(quill.root.scrollTop)
-      quill.root.addEventListener('scroll', update)
+    const quill = quillRef.current.getEditor()
+    const root = quill.root
 
-      return () => quill.root.removeEventListener('scroll', update)
+    const update = () => {
+      setQuillEditorScrollTopVal(root.scrollTop)
+      setHasScrollbar(root.scrollHeight > root.clientHeight)
     }
-  }, [quillRef, quillEditorScrollTopVal])
+
+    const rafUpdate = () => {
+      requestAnimationFrame(update)
+    }
+
+    root.addEventListener('scroll', update)
+    window.addEventListener('resize', update)
+
+    const resizeObserver = new ResizeObserver(rafUpdate)
+    resizeObserver.observe(root)
+
+    update()
+
+    const contentTimeout = setTimeout(() => {
+      update()
+    }, 250)
+
+    return () => {
+      root.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+      resizeObserver.disconnect()
+      clearTimeout(contentTimeout)
+    }
+  }, [quillRef, content])
 
   return (
     <div
       id="Formatted Text Overlay Boy"
-      className={classNames(styles.wrapper, {
-        [styles.toolbarVisible]: toolbarVisible,
-      })}
-      style={{ top: `${27 - quillEditorScrollTopVal}px` }}
+      className={styles.wrapper}
+      style={{
+        top: `${initialTopValue - quillEditorScrollTopVal}px`,
+        paddingRight: `${hasScrollbar ? 46 + 12 : 46}px`,
+      }}
     >
       {formattedContent}
     </div>
@@ -189,5 +278,5 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
 export default FormattedTextOverlay
 
 function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return string?.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }

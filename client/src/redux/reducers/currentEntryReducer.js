@@ -75,51 +75,14 @@ export const createNodeEntry = createAsyncThunk(
 
       const response = await axiosInstance.post('api/entries/create_node_entry', payload)
 
-      dispatch(showToast('Node Created', 'success'))
       await dispatch(fetchNodeEntriesInfo())
+
+      dispatch(showToast('Node Created', 'success'))
 
       return response.data.id
     } catch (error) {
       dispatch(showToast('Node creation error', 'error'))
       return rejectWithValue(error.response?.data)
-    }
-  }
-)
-
-export const createJournalEntry = createAsyncThunk(
-  'currentEntryReducer/createJournalEntry',
-  async (_, { rejectWithValue, dispatch }) => {
-    try {
-      const response = await axiosInstance.post('api/entries/create_journal_entry')
-
-      await dispatch(fetchNodeEntriesInfo())
-
-      return response.data.entry_id
-    } catch (error) {
-      dispatch(showToast('Node creation error', 'error'))
-      return rejectWithValue(error.response?.data)
-    }
-  }
-)
-
-export const saveJournalEntry = createAsyncThunk(
-  'currentEntryReducer/saveJournalEntry',
-  async ({ entryId, content, timeElapsed, wpm, wordCount }, { rejectWithValue, dispatch }) => {
-    try {
-      const response = await axiosInstance.post('api/entries/save_journal_entry', {
-        content,
-        num_of_words: wordCount,
-        entryId,
-        total_time_taken: timeElapsed,
-        wpm,
-      })
-
-      dispatch(showToast('Journal Entry Saved', 'success'))
-
-      return response.data.entry_id
-    } catch (error) {
-      dispatch(showToast('Error saving journal entry', 'error'))
-      return rejectWithValue(error.response.data)
     }
   }
 )
@@ -161,6 +124,44 @@ export const updateNodeEntry = createAsyncThunk(
         return response.data
       }
     } catch (error) {
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+export const createJournalEntry = createAsyncThunk(
+  'currentEntryReducer/createJournalEntry',
+  async (_, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axiosInstance.post('api/entries/create_journal_entry')
+
+      await dispatch(fetchNodeEntriesInfo())
+
+      return response.data.entry_id
+    } catch (error) {
+      dispatch(showToast('Node creation error', 'error'))
+      return rejectWithValue(error.response?.data)
+    }
+  }
+)
+
+export const saveJournalEntry = createAsyncThunk(
+  'currentEntryReducer/saveJournalEntry',
+  async ({ entryId, content, timeElapsed, wpm, wordCount }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axiosInstance.post('api/entries/save_journal_entry', {
+        content,
+        num_of_words: wordCount,
+        entryId,
+        total_time_taken: timeElapsed,
+        wpm,
+      })
+
+      dispatch(showToast('Journal Entry Saved', 'success'))
+
+      return response.data.entry_id
+    } catch (error) {
+      dispatch(showToast('Error saving journal entry', 'error'))
       return rejectWithValue(error.response.data)
     }
   }
@@ -309,12 +310,12 @@ const currentEntrySlice = createSlice({
       .addCase(deleteAka.fulfilled, (state, action) => {
         state.akas = action.payload.akas
       })
+      .addCase(createNodeEntry.pending, (state) => {
+        state.entriesLoading = true
+      })
       .addCase(createNodeEntry.fulfilled, (state, action) => {
         state.entriesLoading = false
         state.nodeEntriesInfo.push(action.payload)
-      })
-      .addCase(createNodeEntry.pending, (state) => {
-        state.entriesLoading = true
       })
       .addCase(createJournalEntry.pending, (state) => {
         state.entriesLoading = true
