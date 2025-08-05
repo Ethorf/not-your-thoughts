@@ -46,6 +46,8 @@ const RightSidebar = () => {
           className={classNames(styles.arrow, { [styles.arrowRotate]: sidebarOpen })}
           src={arrow}
           alt="hamburger arrow"
+          data-tooltip-id="main-tooltip"
+          data-tooltip-content="open (cmd + shft + K)"
         />
       </button>
       <div

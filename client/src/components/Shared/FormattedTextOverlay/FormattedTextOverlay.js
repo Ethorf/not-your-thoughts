@@ -1,4 +1,3 @@
-import classNames from 'classnames'
 import React, { useMemo, useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
@@ -37,7 +36,7 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
 
   const allTitles = useMemo(
     () => nodeEntriesInfo?.map((x) => x?.title?.toLowerCase()).filter((t) => t !== currentTitle.toLowerCase()) ?? [],
-    [nodeEntriesInfo]
+    [currentTitle, nodeEntriesInfo]
   )
 
   const formatRules = useMemo(() => {
@@ -103,7 +102,7 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
       await dispatch(
         createConnection({
           connection_type: SIBLING,
-          main_entry_id: entryId,
+          current_entry_id: entryId,
           foreign_entry_id: findIdByNodeTitle(nodes, word),
           primary_entry_id: entryId,
           primary_source: word,

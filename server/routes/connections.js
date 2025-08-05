@@ -12,7 +12,7 @@ router.post('/create_connection', authorize, async (req, res) => {
     primary_source,
     foreign_source,
     source_type,
-    main_entry_id,
+    current_entry_id,
   } = req.body
 
   try {
@@ -22,21 +22,22 @@ router.post('/create_connection', authorize, async (req, res) => {
 
     await pool.query('BEGIN')
 
+    // Check for existing connection
     const existingConnectionQuery = `
       SELECT id FROM connections 
       WHERE (primary_entry_id = $1 AND foreign_entry_id = $2)
          OR (primary_entry_id = $2 AND foreign_entry_id = $1)
     `
     const existingConnection = await pool.query(existingConnectionQuery, [primary_entry_id, foreign_entry_id])
-
     if (existingConnection.rows.length > 0) {
       await pool.query('ROLLBACK')
-      console.log('Connection already exists')
       return res.status(400).json({ msg: 'Connection already exists' })
     }
 
+    // Insert new connection
     const newConnectionQuery = `
-      INSERT INTO connections (connection_type, primary_entry_id, foreign_entry_id, primary_source, foreign_source, source_type)
+      INSERT INTO connections 
+        (connection_type, primary_entry_id, foreign_entry_id, primary_source, foreign_source, source_type)
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING id
     `
@@ -50,9 +51,10 @@ router.post('/create_connection', authorize, async (req, res) => {
     ])
     const newConnectionId = newConnection.rows[0].id
 
+    // Helper to append to entries.connections array
     const updateEntriesConnections = async (entryId) => {
       const entry = await pool.query('SELECT connections FROM entries WHERE id = $1', [entryId])
-      let currentConnections = entry.rows[0].connections || []
+      const currentConnections = entry.rows[0].connections || []
       currentConnections.push(newConnectionId)
       await pool.query('UPDATE entries SET connections = $1 WHERE id = $2', [currentConnections, entryId])
     }
@@ -64,27 +66,30 @@ router.post('/create_connection', authorize, async (req, res) => {
 
     await pool.query('COMMIT')
 
+    // Return updated list of connections for the current entry
     const connectionsQuery = `
-      SELECT connections.*, 
-        CASE 
-          WHEN connections.primary_entry_id = $1 THEN foreign_entries.title 
-          ELSE primary_entries.title 
-        END as foreign_entry_title,
+      SELECT 
+        connections.*,
+        foreign_entries.title  AS foreign_entry_title,
+        primary_entries.title  AS primary_entry_title,
         CASE 
           WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'horizontal' THEN 'sibling'
-          WHEN connections.foreign_entry_id = $1 AND connections.connection_type = 'horizontal' THEN 'sibling'
-          WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'vertical' THEN 'child'
-          WHEN connections.foreign_entry_id = $1 AND connections.connection_type = 'vertical' THEN 'parent'
-        END as connection_type
+          WHEN connections.foreign_entry_id = $1  AND connections.connection_type = 'horizontal' THEN 'sibling'
+          WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'vertical'   THEN 'child'
+          WHEN connections.foreign_entry_id = $1  AND connections.connection_type = 'vertical'   THEN 'parent'
+        END AS connection_type
       FROM connections
-      LEFT JOIN entries as foreign_entries ON connections.foreign_entry_id = foreign_entries.id
-      LEFT JOIN entries as primary_entries ON connections.primary_entry_id = primary_entries.id
-      WHERE primary_entry_id = $1 OR foreign_entry_id = $1
+      LEFT JOIN entries AS foreign_entries  ON connections.foreign_entry_id  = foreign_entries.id
+      LEFT JOIN entries AS primary_entries  ON connections.primary_entry_id  = primary_entries.id
+      WHERE connections.primary_entry_id = $1 OR connections.foreign_entry_id = $1
     `
+    const connections = await pool.query(connectionsQuery, [current_entry_id])
 
-    const connections = await pool.query(connectionsQuery, [main_entry_id])
-
-    res.json({ msg: 'Connection created successfully', connectionId: newConnectionId, connections: connections.rows })
+    res.json({
+      msg: 'Connection created successfully',
+      connectionId: newConnectionId,
+      connections: connections.rows,
+    })
   } catch (err) {
     await pool.query('ROLLBACK')
     console.error(err.message)
@@ -97,88 +102,140 @@ router.delete('/delete_connection/:connectionId', authorize, async (req, res) =>
   const { connectionId } = req.params
 
   try {
-    // Start a transaction
     await pool.query('BEGIN')
 
-    // Retrieve the connection to be deleted
+    // Retrieve the connection
     const connectionQuery = 'SELECT primary_entry_id, foreign_entry_id FROM connections WHERE id = $1'
     const connectionResult = await pool.query(connectionQuery, [connectionId])
-
     if (connectionResult.rows.length === 0) {
-      // Rollback the transaction
       await pool.query('ROLLBACK')
       return res.status(404).json({ msg: 'Connection not found' })
     }
-
     const { primary_entry_id, foreign_entry_id } = connectionResult.rows[0]
 
-    // Delete the connection
-    const deleteConnectionQuery = 'DELETE FROM connections WHERE id = $1'
-    await pool.query(deleteConnectionQuery, [connectionId])
+    // Delete the connection row
+    await pool.query('DELETE FROM connections WHERE id = $1', [connectionId])
 
-    // Function to update the connections array in the entries table
+    // Helper to remove from entries.connections array
     const updateEntriesConnections = async (entryId) => {
       const entry = await pool.query('SELECT connections FROM entries WHERE id = $1', [entryId])
-      let currentConnections = entry.rows[0].connections || [] // Initialize to an empty array if null
-
-      // Remove the deleted connectionId from the connections array
+      let currentConnections = entry.rows[0].connections || []
       currentConnections = currentConnections.filter((id) => id !== connectionId)
-
       await pool.query('UPDATE entries SET connections = $1 WHERE id = $2', [currentConnections, entryId])
     }
 
-    // Update connections array for primary_entry_id
     await updateEntriesConnections(primary_entry_id)
-
-    // Update connections array for foreign_entry_id if it's not null
     if (foreign_entry_id !== null) {
       await updateEntriesConnections(foreign_entry_id)
     }
 
-    // Commit the transaction
     await pool.query('COMMIT')
-
     res.json({ msg: 'Connection deleted successfully' })
   } catch (err) {
-    // Rollback the transaction in case of error
     await pool.query('ROLLBACK')
     console.error(err.message)
     res.status(500).send('Server error')
   }
 })
 
-// Route to retrieve all connections based on entry_id
+// Route to update an existing connection
+router.put('/update_connection/:connectionId', authorize, async (req, res) => {
+  const { connectionId } = req.params
+  const { connection_type, primary_entry_id, foreign_entry_id, primary_source, foreign_source, source_type } = req.body
+
+  try {
+    await pool.query('BEGIN')
+
+    // Ensure the connection exists
+    const connectionResult = await pool.query('SELECT * FROM connections WHERE id = $1', [connectionId])
+    if (connectionResult.rows.length === 0) {
+      await pool.query('ROLLBACK')
+      return res.status(404).json({ msg: 'Connection not found' })
+    }
+
+    // Build dynamic SET clause
+    const fieldsToUpdate = []
+    const values = []
+    let i = 1
+
+    if (connection_type !== undefined) {
+      fieldsToUpdate.push(`connection_type = $${i++}`)
+      values.push(connection_type)
+    }
+    if (primary_entry_id !== undefined) {
+      fieldsToUpdate.push(`primary_entry_id = $${i++}`)
+      values.push(primary_entry_id)
+    }
+    if (foreign_entry_id !== undefined) {
+      fieldsToUpdate.push(`foreign_entry_id = $${i++}`)
+      values.push(foreign_entry_id)
+    }
+    if (primary_source !== undefined) {
+      fieldsToUpdate.push(`primary_source = $${i++}`)
+      values.push(primary_source)
+    }
+    if (foreign_source !== undefined) {
+      fieldsToUpdate.push(`foreign_source = $${i++}`)
+      values.push(foreign_source)
+    }
+    if (source_type !== undefined) {
+      fieldsToUpdate.push(`source_type = $${i++}`)
+      values.push(source_type)
+    }
+
+    if (!fieldsToUpdate.length) {
+      await pool.query('ROLLBACK')
+      return res.status(400).json({ msg: 'No valid fields provided for update' })
+    }
+
+    values.push(connectionId)
+    const updateQuery = `
+      UPDATE connections
+      SET ${fieldsToUpdate.join(', ')}
+      WHERE id = $${i}
+      RETURNING *
+    `
+    const updatedConnection = await pool.query(updateQuery, values)
+
+    await pool.query('COMMIT')
+    res.json({
+      msg: 'Connection updated successfully',
+      connection: updatedConnection.rows[0],
+    })
+  } catch (err) {
+    await pool.query('ROLLBACK')
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// Route to retrieve all connections for an entry
 router.get('/:entry_id', authorize, async (req, res) => {
   const { entry_id } = req.params
 
   try {
-    // Retrieve all connections where the given entry_id is either primary_entry_id or foreign_entry_id
     const connectionsQuery = `
       SELECT 
-        connections.*, 
-        CASE 
-          WHEN connections.primary_entry_id = $1 THEN foreign_entries.title 
-          ELSE primary_entries.title 
-        END as foreign_entry_title,
+        connections.*,
+        foreign_entries.title  AS foreign_entry_title,
+        primary_entries.title  AS primary_entry_title,
         CASE 
           WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'horizontal' THEN 'sibling'
-          WHEN connections.foreign_entry_id = $1 AND connections.connection_type = 'horizontal' THEN 'sibling'
-          WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'vertical' THEN 'child'
-          WHEN connections.foreign_entry_id = $1 AND connections.connection_type = 'vertical' THEN 'parent'
-        END as connection_type
+          WHEN connections.foreign_entry_id = $1  AND connections.connection_type = 'horizontal' THEN 'sibling'
+          WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'vertical'   THEN 'child'
+          WHEN connections.foreign_entry_id = $1  AND connections.connection_type = 'vertical'   THEN 'parent'
+        END AS connection_type
       FROM connections
-      LEFT JOIN entries as foreign_entries ON connections.foreign_entry_id = foreign_entries.id
-      LEFT JOIN entries as primary_entries ON connections.primary_entry_id = primary_entries.id
-      WHERE primary_entry_id = $1 OR foreign_entry_id = $1
+      LEFT JOIN entries AS foreign_entries  ON connections.foreign_entry_id  = foreign_entries.id
+      LEFT JOIN entries AS primary_entries  ON connections.primary_entry_id  = primary_entries.id
+      WHERE connections.primary_entry_id = $1 OR connections.foreign_entry_id = $1
     `
     const connections = await pool.query(connectionsQuery, [entry_id])
 
-    // Check if any connections are found
-    if (connections.rows.length === 0) {
+    if (!connections.rows.length) {
       return res.status(204).json({ msg: 'No connections found for this entry' })
     }
 
-    // Return the connections along with the title from the corresponding foreign_entry_id and updated type
     res.json({ connections: connections.rows })
   } catch (err) {
     console.error(err.message)
@@ -189,4 +246,21 @@ router.get('/:entry_id', authorize, async (req, res) => {
 module.exports = router
 
 // !! This is my like beginning draft of documentation
-// if the connection in question's primary_entry_id is the same as the entry id passed in the params and it's type is 'horizontal' send back the connection with the type prop 'sibling', if the connection in question's primary_entry_id is the same as the entry id passed in the params and it's type is 'vertical' send back the connection with the type prop 'child', and if the connection in question's foreign_entry_id is the same as the entry id passed in the params and it's type is 'vertical' send back the connection with the type prop 'parent',
+// TODO should we change to master / slave here???
+
+// note -- BELOW IS CREATION ONLY RIGHT NOW
+
+// ** HORIZONTAL / SIBLING CONNECTIONS
+//  if the connection's primary_entry_id is the same as the current_entry_id passed in the params
+//  send back the connection with the type prop 'sibling',
+
+// ** VERTICAL / CHILD & PARENT CONNECTIONS
+//  if the connection's primary_entry_id is the same as the current_entry_id passed in the params
+//  and the foreign_entry_id is of the node (non-current) that is being connected to
+//  send back the connection with the type prop 'child',
+
+//  if the connection's foreign_entry_id is the same as the current_entry_id passed in the params
+//  and the primary_entry_id is of the node (non-current) that is being connected to
+//  send back the connection with the type prop 'parent',
+
+// ** Basically for Vertical connections, Parents must always have the primary_entry_id & children must have

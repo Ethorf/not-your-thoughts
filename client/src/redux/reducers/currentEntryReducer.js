@@ -2,6 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axiosInstance from '@utils/axiosInstance'
 import { ENTRY_TYPES } from '@constants/entryTypes'
 import { SAVE_TYPES } from '@constants/saveTypes'
+import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
+import { deleteConnection } from '@redux/reducers/connectionsReducer'
 
 import { showToast } from '@utils/toast'
 
@@ -87,8 +89,8 @@ export const createNodeEntry = createAsyncThunk(
   }
 )
 
-export const updateNodeEntry = createAsyncThunk(
-  'currentEntryReducer/updateNodeEntry',
+export const saveNodeEntry = createAsyncThunk(
+  'currentEntryReducer/saveNodeEntry',
   async ({ saveType }, { getState, rejectWithValue, dispatch }) => {
     const { AUTO, MANUAL, EXTERNAL_CONNECTION } = SAVE_TYPES
 
@@ -103,11 +105,9 @@ export const updateNodeEntry = createAsyncThunk(
       if (!titleChanged && !contentChanged && saveType !== EXTERNAL_CONNECTION) {
         if (saveType === MANUAL) dispatch(showToast('Nothing to update', 'warn'))
 
-        console.log('No change to content. No update required.')
         return currentState
       }
-      // *** I have no fucking idea why this is happening but passing these as args doesn't work when I trigger
-      // *** this function via keyboard shortcut, using the currentState function has no problem though
+
       const response = await axiosInstance.post('api/entries/update_node_entry', {
         entryId: currentState.entryId,
         content: currentState.content,
@@ -116,11 +116,34 @@ export const updateNodeEntry = createAsyncThunk(
 
       await dispatch(fetchNodeEntriesInfo())
 
+      // Clean up obsolete connections
+
+      const state = getState()
+      const text = (state.currentEntry.content || '').toLowerCase()
+      const allConnections = state.connections.connections
+
+      const connectionsToDelete =
+        allConnections?.filter((conn) => {
+          const { primary_source, source_type } = conn
+          return (
+            (source_type === CONNECTION_SOURCE_TYPES.DIRECT || source_type === CONNECTION_SOURCE_TYPES.SINGLE_WORD) &&
+            primary_source &&
+            !text.includes(primary_source.toLowerCase())
+          )
+        }) || []
+
+      for (const conn of connectionsToDelete) {
+        dispatch(deleteConnection(conn.id))
+      }
+
+      const cleanedConnections = connectionsToDelete.length > 0
+      // const cleanedConnections = true
+
       if (saveType === AUTO) {
-        dispatch(showToast('Node autosaved', 'warn'))
+        dispatch(showToast(cleanedConnections ? 'Node saved and connections cleaned' : 'Node autosaved', 'warn'))
         return ''
       } else {
-        dispatch(showToast('Node updated', 'success'))
+        dispatch(showToast(cleanedConnections ? 'Node autosaved and connections cleaned' : 'Node updated', 'success'))
         return response.data
       }
     } catch (error) {
@@ -337,10 +360,10 @@ const currentEntrySlice = createSlice({
           entryId: action.payload,
         }
       })
-      .addCase(updateNodeEntry.pending, (state) => {
+      .addCase(saveNodeEntry.pending, (state) => {
         return { ...state, entriesLoading: true, entriesSaving: true }
       })
-      .addCase(updateNodeEntry.fulfilled, (state, action) => {
+      .addCase(saveNodeEntry.fulfilled, (state, action) => {
         // Will only receive a payload if not an autosave update
         if (action.payload.content) {
           return {

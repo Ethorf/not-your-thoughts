@@ -5,7 +5,7 @@ import { unwrapResult } from '@reduxjs/toolkit'
 
 // Redux
 import { useDispatch, useSelector } from 'react-redux'
-import { setTitle, updateNodeEntry, setEntryById } from '@redux/reducers/currentEntryReducer'
+import { setTitle, saveNodeEntry, setEntryById } from '@redux/reducers/currentEntryReducer'
 import { openModal } from '@redux/reducers/modalsReducer.js'
 import { fetchConnections, getSelectedText } from '@redux/reducers/connectionsReducer'
 
@@ -54,9 +54,12 @@ const EditNodeEntry = () => {
     dispatch(setTitle(e.target.value))
   }
 
-  const handleSaveNode = useCallback((saveType) => {
-    dispatch(updateNodeEntry({ saveType }))
-  }, [])
+  const handleSaveNode = useCallback(
+    (saveType) => {
+      dispatch(saveNodeEntry({ saveType }))
+    },
+    [dispatch]
+  )
 
   const handleOpenConnectionsWithSelectedText = useCallback(async () => {
     const handleOpenConnectionsModal = async () => {
@@ -97,7 +100,7 @@ const EditNodeEntry = () => {
 
   return (
     <div className={styles.wrapper}>
-      {/* <WritingDataManager entryType={ENTRY_TYPES.NODE} handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} /> */}
+      <WritingDataManager entryType={ENTRY_TYPES.NODE} handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
       <div className={styles.editContainer}>
         <h2>Edit Node</h2>
         <div className={classNames(styles.topContainer, styles.grid4ColumnsCustom)}>

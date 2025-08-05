@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { createWritingData, setTimeElapsed, setWordsAdded } from '@redux/reducers/writingDataReducer'
-import { deleteConnection } from '@redux/reducers/connectionsReducer'
-import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
-
-const { DIRECT, SINGLE_WORD } = CONNECTION_SOURCE_TYPES
 
 const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) => {
   const dispatch = useDispatch()
@@ -24,10 +20,8 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
   const startTimerRef = useRef()
   const stopTimerRef = useRef()
 
-  // selectors
-  const { content, wordCount, entryId, entriesSaving } = useSelector((state) => state.currentEntry)
+  const { wordCount, entryId, entriesSaving } = useSelector((state) => state.currentEntry)
   const { timeElapsed, wordsAdded } = useSelector((state) => state.writingData)
-  const { connections } = useSelector((state) => state.connections)
 
   // update wordsAdded whenever wordCount changes
   useEffect(() => {
@@ -35,22 +29,6 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
     const added = activeWordCount !== null ? wordCountRef.current - activeWordCount : 0
     dispatch(setWordsAdded(added))
   }, [activeWordCount, dispatch, wordCount])
-
-  // helper to delete stale connections
-  const deleteObsoleteConnections = useCallback(() => {
-    const text = (content || '').toLowerCase()
-
-    connections?.forEach((conn) => {
-      const { primary_source, source_type } = conn
-      if (
-        (source_type === DIRECT || source_type === SINGLE_WORD) &&
-        primary_source &&
-        !text.includes(primary_source.toLowerCase())
-      ) {
-        dispatch(deleteConnection(conn))
-      }
-    })
-  }, [connections, content, dispatch])
 
   // startTimer: once per mount
   const startTimer = useCallback(() => {
@@ -79,11 +57,10 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
         setActiveWordCount(null)
       }
       if (autosave) {
-        deleteObsoleteConnections()
         setShouldAutosave(true)
       }
     },
-    [dispatch, entryType, deleteObsoleteConnections]
+    [dispatch, entryType]
   )
 
   // keep refs up to date
