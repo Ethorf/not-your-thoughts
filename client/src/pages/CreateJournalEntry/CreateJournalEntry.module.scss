@@ -16,7 +16,7 @@
   display: flex;
   flex-direction: row;
   position: relative;
-  z-index: $pillars-z-index + 1;
+  z-index: $text-entry-z-index;
   height: 48vh;
   width: 80vw;
 }

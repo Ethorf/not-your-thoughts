@@ -11,6 +11,7 @@
   font-size: 1.2rem;
   display: flex;
   flex-direction: row;
+  cursor: default;
 }
 
 .akasList {
@@ -24,7 +25,6 @@
   padding: 12px;
   min-width: 120px;
   text-align: center;
-  display: flex;
 }
 
 .aka {

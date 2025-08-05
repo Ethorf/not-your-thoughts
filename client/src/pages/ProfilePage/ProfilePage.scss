@@ -5,15 +5,14 @@
 .profile {
   background-color: black;
   color: silver;
+  display: flex;
   flex-direction: column;
   margin-right: 5vw;
   padding-bottom: 10vh;
   margin-left: $not-main-margin-left;
-  height: 100%;
+  height: 100vh;
   width: 100%;
   transition: all 1s;
-
-  @include main-page-global-styles();
 
   &__header {
     font-family: 'Syncopate', sans-serif;
@@ -77,7 +76,6 @@
     }
   }
   &__goal-input {
-    border: 1px solid red;
     margin-left: 3%;
     width: 17%;
     height: 100%;
@@ -99,7 +97,6 @@
     width: 39%;
     justify-content: space-between;
     margin-bottom: 2%;
-    // border: 1px solid red;
   }
   &__edit-container {
     display: flex;

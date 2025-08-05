@@ -1,3 +1,6 @@
+// Font
+$main-text: 'Poppins', sans-serif;
+
 // Colors
 $black-text-color: #323232;
 $white-text-color: #ffffff;
@@ -7,6 +10,7 @@ $silver-faded: rgba(192, 192, 192, 0.5);
 
 // z-index
 $pillars-z-index: 4;
+$text-entry-z-index: $pillars-z-index + 1;
 
 // Borders
 $silver-border-default: 1px solid rgba(192, 192, 192, 0.5);
@@ -20,6 +24,16 @@ $dashboard-nodes-columns: 5% 18% 35% 15% 20%;
 // Transition Time
 $default-transition: all 250ms ease-in-out;
 
+// Main Text and overlay Variables
+$main-text-font-size: 19px;
+$main-text-line-height: 20px;
+$main-text-padding-left: 26px;
+$main-text-padding-bottom: 26px;
+$main-text-padding-right: 46px;
+$main-text-box-sizing: border-box;
+$main-top-offset: 16px;
+
+// MISC
 $divider-color: #e1e1e1;
 $top-margin: 1%;
 $top-margin-not-main: 4.5%;

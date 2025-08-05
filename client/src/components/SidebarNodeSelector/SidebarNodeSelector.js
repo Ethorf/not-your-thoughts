@@ -27,16 +27,14 @@ function SidebarNodeSelector({ className }) {
   const [foundEntry, setFoundEntry] = useState(null)
 
   const handleOnChange = async (v) => {
-    const entry = nodeEntriesInfo.find((x) => x.title.toLowerCase() === v.toLowerCase())
+    const entry = nodeEntriesInfo?.find((x) => x.title.toLowerCase() === v.toLowerCase())
     setFoundEntry(entry)
   }
 
   const handleCreateNodeEntry = async () => {
-    console.log('<<<<<< inputValue >>>>>>>>> is: <<<<<<<<<<<<')
-    console.log(inputValue)
     const newNode = await dispatch(createNodeEntry({ title: inputValue }))
 
-    // history.push(`/edit-node-entry?entryId=${newNode.payload.id}`)
+    history.push(`/edit-node-entry?entryId=${newNode?.payload}`)
     setInputValue('')
     dispatch(toggleSidebar())
   }
@@ -45,11 +43,12 @@ function SidebarNodeSelector({ className }) {
     if (entryTitle) {
       const entry = nodeEntriesInfo.find((x) => x.title.toLowerCase() === entryTitle.toLowerCase())
 
-      history.push(`/edit-node-entry?entryId=${entry.id}`)
+      history.push(`/edit-node-entry?entryId=${entry?.id}`)
       setInputValue('')
     } else {
       handleCreateNodeEntry()
     }
+
     dispatch(toggleSidebar())
   }
 
@@ -67,7 +66,7 @@ function SidebarNodeSelector({ className }) {
           placeholder={'Select node...'}
           inputValue={inputValue}
           setInputValue={setInputValue}
-          options={nodeEntriesInfo.filter((n) => n.id !== entryId).map((x) => x.title)}
+          options={nodeEntriesInfo?.filter((n) => n.id !== entryId).map((x) => x.title)}
           onSubmit={handleOnSubmit}
           className={styles.dropDown}
         />

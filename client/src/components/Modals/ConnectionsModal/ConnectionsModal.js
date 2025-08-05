@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 // Constants
 import { SAVE_TYPES } from '@constants/saveTypes'
 import { MODAL_NAMES } from '@constants/modalNames'
-import { CONNECTION_TYPES } from '@constants/connectionTypes'
+import { CONNECTION_TYPES, FRONT_TO_BACK_CONN_TYPES } from '@constants/connectionTypes'
 import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
 import { CONNECTION_ENTRY_SOURCES } from '@constants/connectionEntrySources'
 import { HORIZONTAL_DIVIDER_HEIGHTS } from '@constants/horizontalDividerHeights'
@@ -25,8 +25,9 @@ import {
   setConnectionTitleInput,
   setConnectionSourceType,
   getSelectedText,
+  updateConnection,
 } from '@redux/reducers/connectionsReducer'
-import { createNodeEntry, fetchEntryById, updateNodeEntry } from '@redux/reducers/currentEntryReducer'
+import { createNodeEntry, fetchEntryById, saveNodeEntry } from '@redux/reducers/currentEntryReducer'
 import { closeModal } from '@redux/reducers/modalsReducer.js'
 
 // Utils
@@ -38,7 +39,7 @@ import { wrapLinkStringInAnchorTag } from '@utils/wrapLinkStringInAnchorTag'
 // Styles
 import styles from './ConnectionsModal.module.scss'
 
-// Constand Destructures
+// Constant Destructures
 const { DIRECT, DESCRIPTIVE, SINGLE_WORD } = CONNECTION_SOURCE_TYPES
 const {
   FRONTEND: { PARENT, EXTERNAL },
@@ -95,7 +96,7 @@ export const ConnectionsModal = () => {
     await dispatch(
       createConnection({
         connection_type: localConnectionType,
-        main_entry_id: entryId,
+        current_entry_id: entryId,
         primary_entry_id: localConnectionType === PARENT ? localForeignEntryId : entryId,
         foreign_entry_id: localConnectionType === PARENT ? entryId : localForeignEntryId,
         primary_source: connectionSourceType === DESCRIPTIVE ? connectionDescription : selectedPrimarySourceText,
@@ -108,7 +109,7 @@ export const ConnectionsModal = () => {
 
   const handleUpdateNodeWithLink = async (content, linkString, link) => {
     await dispatch(
-      updateNodeEntry({
+      saveNodeEntry({
         entryId,
         content: wrapLinkStringInAnchorTag(content, linkString, link),
         title,
@@ -126,7 +127,7 @@ export const ConnectionsModal = () => {
     await dispatch(
       createConnection({
         connection_type: localConnectionType,
-        main_entry_id: entryId,
+        current_entry_id: entryId,
         primary_entry_id: entryId,
         foreign_entry_id: null,
         primary_source: selectedPrimarySourceText,
@@ -152,7 +153,7 @@ export const ConnectionsModal = () => {
       await dispatch(
         createConnection({
           connection_type: localConnectionType,
-          main_entry_id: entryId,
+          current_entry_id: entryId,
           foreign_entry_id: localConnectionType === PARENT ? entryId : newForeignEntryId,
           primary_entry_id: localConnectionType === PARENT ? newForeignEntryId : entryId,
           primary_source: connectionSourceType === DESCRIPTIVE ? connectionDescription : selectedPrimarySourceText,
@@ -170,6 +171,21 @@ export const ConnectionsModal = () => {
 
   const handleEditNodeClick = (c) => {
     dispatch(closeModal())
+  }
+
+  // So this would be
+  const handleEditConnectionType = (e, conn) => {
+    dispatch(
+      updateConnection({
+        connectionId: conn.id,
+        updatedFields: {
+          connection_type: FRONT_TO_BACK_CONN_TYPES[e.target.value],
+          foreign_entry_id: e.target.value === PARENT ? entryId : conn.foreign_entry_id,
+          primary_entry_id: e.target.value === PARENT ? conn.foreign_entry_id : entryId,
+        },
+        current_entry_id: entryId,
+      })
+    )
   }
 
   const highlightedPrimaryContent = highlightMatchingText(content, selectedPrimarySourceText)
@@ -252,7 +268,6 @@ export const ConnectionsModal = () => {
                     <DefaultButton
                       className={styles.getSourceButton}
                       onClick={() => dispatch(getSelectedText(FOREIGN))}
-                      tooltip="cruckky"
                     >
                       Select Text
                     </DefaultButton>
@@ -295,13 +310,19 @@ export const ConnectionsModal = () => {
                         className={styles.connectionText}
                         node={{
                           id: entryId === c.foreign_entry_id ? c.primary_entry_id : c.foreign_entry_id,
-                          title: c.foreign_entry_title,
+                          title: entryId === c.foreign_entry_id ? c.primary_entry_title : c.foreign_entry_title,
                         }}
                         onClick={() => handleEditNodeClick(c)}
                       />
                     )}
                     <div className={styles.connectionLabel}>type:</div>
-                    <div className={styles.connectionText}>{c.connection_type}</div>
+                    <DefaultDropdown
+                      className={styles.createDropdown}
+                      value={c.connection_type}
+                      options={Object.values(CONNECTION_TYPES.FRONTEND)}
+                      onChange={(e) => handleEditConnectionType(e, c)}
+                      tooltip={'Change connection type'}
+                    />
                     <DefaultButton onClick={() => handleDeleteConnection(c.id)}>X</DefaultButton>
                   </div>
                 ))}

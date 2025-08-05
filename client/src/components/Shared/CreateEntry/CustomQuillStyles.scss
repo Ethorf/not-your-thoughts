@@ -1,13 +1,17 @@
+@import '@styles/variables.scss';
+
 .ql-editor {
-  font-family: 'Poppins', sans-serif;
-  font-weight: 200;
-  font-size: 1.2rem;
-  padding: 26px;
-  padding-right: 46px;
-  color: silver;
+  font-family: $main-text;
+  caret-color: $silver-active;
   max-height: 60vh;
-  z-index: 5;
-  position: relative;
+  z-index: 6;
+  pointer-events: auto;
+  box-sizing: $main-text-box-sizing;
+
+  ol li,
+  ul li {
+    font-size: $main-text-font-size;
+  }
 }
 
 .ql-container.ql-snow {
@@ -27,7 +31,6 @@
 .ql-snow.ql-toolbar button:hover .ql-stroke,
 .ql-snow.ql-toolbar button:hover .ql-fill {
   stroke: silver;
-  // fill: silver;
 }
 
 .ql-snow.ql-toolbar button.ql-active .ql-stroke,
@@ -65,5 +68,35 @@
   .ql-toolbar {
     transition: all 500ms;
     opacity: 1;
+  }
+}
+
+.visibleText .ql-editor {
+  color: $silver-default;
+}
+
+.hiddenText .ql-editor {
+  color: transparent;
+  // color: red;
+
+  // Main text Variables
+  padding: 0;
+  margin: 0;
+  box-sizing: $main-text-box-sizing;
+  top: $main-top-offset;
+  transition: all 1s;
+
+  p,
+  li {
+    font-weight: 200;
+    font-size: $main-text-font-size;
+    line-height: $main-text-line-height;
+    padding-left: $main-text-padding-left;
+    padding-top: 0;
+    padding-bottom: $main-text-padding-bottom;
+    padding-right: $main-text-padding-right;
+    box-sizing: $main-text-box-sizing;
+    margin-top: $main-top-offset;
+    transition: all 1s;
   }
 }

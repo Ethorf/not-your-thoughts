@@ -1,128 +1,139 @@
-import React from 'react'
-import { NavLink } from 'react-router-dom'
-import { connect } from 'react-redux'
+import React, { useState, useRef, useEffect } from 'react'
+import { NavLink, useHistory } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
 import { TimelineLite } from 'gsap/all'
+
+// Styles
 import '../../styles/rubberDucky.scss'
 import './navBarSide.scss'
 import arrow from '../../assets/Icons/down-arrow-black-2.png'
 
-import { resetCurrentEntryState } from '@redux/reducers/currentEntryReducer'
+// Components
+import TextButton from '@components/Shared/TextButton/TextButton'
+
+// Rdux
+import { resetCurrentEntryState, createNodeEntry, createJournalEntry } from '@redux/reducers/currentEntryReducer'
 import { logout } from '@redux/actions/authActions'
 
-class NavBarSide extends React.Component {
-  state = {
-    navOpen: false,
-  }
-  navBarContainer = null
-  navBarTween = null
-  linksContainer = null
-  linksTween = null
-  arrowContainer = null
-  arrowTween = null
-  openNav = () => {
-    this.navBarTween.play()
-    this.linksTween.play()
-    this.arrowTween.play()
+const NavBarSide = () => {
+  const [navOpen, setNavOpen] = useState(false)
+  const navBarContainer = useRef(null)
+  const linksContainer = useRef(null)
+  const arrowContainer = useRef(null)
+  const navBarTween = useRef(null)
+  const linksTween = useRef(null)
+  const arrowTween = useRef(null)
 
-    this.setState({
-      navOpen: true,
-    })
-  }
+  const history = useHistory()
+  const dispatch = useDispatch()
+  const mode = useSelector((state) => state.modes.mode)
+  const guestMode = useSelector((state) => state.auth.guestMode)
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated)
 
-  closeNav = () => {
-    this.navBarTween.reverse()
-    this.linksTween.reverse()
-    this.arrowTween.reverse()
-    this.setState({
-      navOpen: false,
-    })
-  }
-  componentDidMount() {
-    this.navBarTween = new TimelineLite({ paused: true }).to(this.navBarContainer, {
+  useEffect(() => {
+    navBarTween.current = new TimelineLite({ paused: true }).to(navBarContainer.current, {
       duration: 0.4,
       x: 45,
     })
 
-    this.linksTween = new TimelineLite({ paused: true }).to(this.linksContainer, { duration: 1, x: 0, opacity: 1 })
-    this.arrowTween = new TimelineLite({ paused: true }).to(this.arrowContainer, {
+    linksTween.current = new TimelineLite({ paused: true }).to(linksContainer.current, {
+      duration: 1,
+      x: 0,
+      opacity: 1,
+    })
+
+    arrowTween.current = new TimelineLite({ paused: true }).to(arrowContainer.current, {
       duration: 1,
     })
-  }
-  render() {
-    return (
-      <div ref={(header) => (this.navBarContainer = header)} className="nav">
-        <button
-          className={this.props.mode === '-.light' ? 'rubberDucky__nav-arrow-container' : 'nav__arrow-container '}
-          onClick={this.state.navOpen ? this.closeNav : this.openNav}
-        >
-          <img
-            ref={(img) => (this.arrowContainer = img)}
-            className={`nav__arrow  ${this.state.navOpen ? 'nav__arrow-rotate' : ''}`}
-            src={arrow}
-            alt="hamburger"
-          />
-        </button>
-        <div className={`nav__links-container${this.props.mode} `} ref={(div) => (this.linksContainer = div)}>
-          <NavLink exact to="/dashboard" activeClassName="nav__active" className={`nav__link${this.props.mode}`}>
-            Dashboard
-          </NavLink>
-          <NavLink
-            exact
-            onClick={this.props.resetCurrentEntryState}
-            to="/create-journal-entry"
-            activeClassName="nav__active"
-            className={`nav__link${this.props.mode}`}
-          >
-            New Journal
-          </NavLink>
-          <NavLink
-            exact
-            onClick={this.props.resetCurrentEntryState}
-            to="/create-node-entry"
-            activeClassName="nav__active"
-            className={`nav__link${this.props.mode}`}
-          >
-            New Node
-          </NavLink>
-          {!this.props.guestMode ? (
-            <>
-              <NavLink exact to="/profile" activeClassName="nav__active" className={`nav__link${this.props.mode}`}>
-                Profile
-              </NavLink>
-              <NavLink exact to="/entries" activeClassName="nav__active" className={`nav__link${this.props.mode}`}>
-                Entries
-              </NavLink>
-            </>
-          ) : null}
-          <NavLink exact to="/resources" activeClassName="nav__active" className={`nav__link${this.props.mode}`}>
-            Resources
-          </NavLink>
-          {!this.props.guestMode ? (
-            <NavLink exact to="/modes" activeClassName="nav__active" className={`nav__link${this.props.mode}`}>
-              Modes
-            </NavLink>
-          ) : null}
+  }, [])
 
-          <NavLink exact to="/about" activeClassName="nav__active" className={`nav__link${this.props.mode}`}>
-            About
-          </NavLink>
-          {this.props.isAuthenticated ? (
-            <button className={`nav__logout-button${this.props.mode}`} onClick={this.props.logout}>
-              Logout
-            </button>
-          ) : (
-            <NavLink exact to="/login" activeClassName="nav__active" className={`nav__link${this.props.mode}`}>
-              Login
-            </NavLink>
-          )}
-        </div>
-      </div>
-    )
+  const openNav = () => {
+    navBarTween.current.play()
+    linksTween.current.play()
+    arrowTween.current.play()
+    setNavOpen(true)
   }
+
+  const closeNav = () => {
+    navBarTween.current.reverse()
+    linksTween.current.reverse()
+    arrowTween.current.reverse()
+    setNavOpen(false)
+  }
+
+  const handleNewNodeEntryClick = async () => {
+    dispatch(resetCurrentEntryState())
+    const newNode = await dispatch(createNodeEntry())
+
+    closeNav()
+
+    history.push(`/edit-node-entry?entryId=${newNode.payload}`)
+  }
+
+  const handleNewJournalEntryClick = async () => {
+    dispatch(resetCurrentEntryState())
+    const newJournal = await dispatch(createJournalEntry())
+
+    closeNav()
+    return history.push(`/create-journal-entry?entryId=${newJournal.payload}`)
+  }
+
+  return (
+    <div ref={navBarContainer} className="nav">
+      <button
+        className={mode === '-.light' ? 'rubberDucky__nav-arrow-container' : 'nav__arrow-container'}
+        onClick={navOpen ? closeNav : openNav}
+      >
+        <img
+          ref={arrowContainer}
+          className={`nav__arrow ${navOpen ? 'nav__arrow-rotate' : ''}`}
+          src={arrow}
+          alt="hamburger"
+        />
+      </button>
+      <div className={`nav__links-container${mode}`} ref={linksContainer}>
+        <NavLink exact to="/dashboard" activeClassName="nav__active" className={`nav__link${mode}`}>
+          Dashboard
+        </NavLink>
+        <TextButton navLink onClick={handleNewJournalEntryClick}>
+          New Journal
+        </TextButton>
+        <TextButton navLink onClick={handleNewNodeEntryClick}>
+          New Node
+        </TextButton>
+        {!guestMode && (
+          <>
+            <NavLink exact to="/profile" activeClassName="nav__active" className={`nav__link${mode}`}>
+              Profile / Stats
+            </NavLink>
+            <NavLink exact to="/entries" activeClassName="nav__active" className={`nav__link${mode}`}>
+              Entries
+            </NavLink>
+          </>
+        )}
+        <NavLink exact to="/resources" activeClassName="nav__active" className={`nav__link${mode}`}>
+          Resources
+        </NavLink>
+        {!guestMode && (
+          <NavLink exact to="/modes" activeClassName="nav__active" className={`nav__link${mode}`}>
+            Modes
+          </NavLink>
+        )}
+        <NavLink exact to="/about" activeClassName="nav__active" className={`nav__link${mode}`}>
+          About
+        </NavLink>
+        {isAuthenticated ? (
+          <button className={`nav__logout-button${mode}`} onClick={() => dispatch(logout())}>
+            Logout
+          </button>
+        ) : (
+          <NavLink exact to="/login" activeClassName="nav__active" className={`nav__link${mode}`}>
+            Login
+          </NavLink>
+        )}
+      </div>
+    </div>
+  )
 }
-const mapStateToProps = (state) => ({
-  mode: state.modes.mode,
-  guestMode: state.auth.guestMode,
-  isAuthenticated: state.auth.isAuthenticated,
-})
-export default connect(mapStateToProps, { logout, resetCurrentEntryState })(NavBarSide)
+
+export default NavBarSide

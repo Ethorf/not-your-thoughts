@@ -28,7 +28,6 @@ export const BaseModalWrapper = ({ children, className, modalName, onOpen }) => 
       }}
       open={isOpen && activeModal === modalName}
       onClose={handleCloseModal}
-      onOpen={() => console.log('coggle boggle')}
       center
     >
       {children}

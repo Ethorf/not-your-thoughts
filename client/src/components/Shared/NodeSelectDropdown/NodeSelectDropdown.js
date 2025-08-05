@@ -29,7 +29,7 @@ function NodeSelectDropdown({ inputValue, setInputValue, className, onSelect, on
   }
 
   const filteredNodeEntriesInfo = filterOptions(
-    nodeEntriesInfo.filter((x) => x.id !== entryId),
+    nodeEntriesInfo.filter((x) => x?.id !== entryId),
     connections
   )
 

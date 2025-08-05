@@ -4,20 +4,20 @@ import { ENTRY_TYPES } from '@constants/entryTypes'
 
 import { showToast } from '@utils/toast'
 
-const { NODE, JOURNAL } = ENTRY_TYPES
-
 const initialState = {
   stats: {
     allEntriesTotalWritingTime: 0,
     allEntriesWritingTimeToday: 0,
     allEntriesTotalWordCount: 0,
     allEntriesWordCountToday: 0,
-    totalNodesWritingTime: 0,
+    nodesTotalWritingTime: 0,
     nodesWritingTimeToday: 0,
-    totalNodeEntriesWordCount: 0,
-    nodeEntriesWordCountToday: 0,
-    totalJournalEntriesWritingTime: 0,
-    journalEntriesWritingTimeToday: 0,
+    nodesTotalWordCount: 0,
+    nodesWordCountToday: 0,
+    journalsTotalWritingTime: 0,
+    journalWritingTimeToday: 0,
+    journalsTotalWordCount: 0,
+    journalWordCountToday: 0,
   },
   timeElapsed: 0,
   wordsAdded: 0,
@@ -25,19 +25,19 @@ const initialState = {
 
 export const createWritingData = createAsyncThunk(
   'writingDataReducer/createWritingData',
-  async (_, { rejectWithValue, dispatch, getState }) => {
+  async ({ entryType = ENTRY_TYPES.NODE }, { rejectWithValue, dispatch, getState }) => {
     try {
       const { timeElapsed, wordsAdded } = getState().writingData
       const { entryId } = getState().currentEntry
 
       const response = await axiosInstance.post('api/writing_data/create_writing_data', {
         entry_id: entryId,
-        entry_type: NODE,
+        entry_type: entryType,
         duration: timeElapsed,
         word_count: wordsAdded,
       })
 
-      console.log('writing data cree rated')
+      console.log('writing data created')
       return response.data
     } catch (error) {
       dispatch(showToast('Error saving writing data', 'error'))

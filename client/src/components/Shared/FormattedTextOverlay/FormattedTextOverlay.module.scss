@@ -1,0 +1,43 @@
+@import '@styles/variables.scss';
+
+.wrapper {
+  position: absolute;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 200;
+  color: silver;
+  z-index: $text-entry-z-index + 1;
+  pointer-events: none;
+  color: silver;
+  transition: all 1s;
+
+  // Main text Variables
+  font-size: $main-text-font-size;
+  line-height: $main-text-line-height;
+  padding: 0;
+  margin: 0;
+  box-sizing: $main-text-box-sizing;
+  top: $main-top-offset;
+
+  p {
+    font-size: $main-text-font-size;
+    line-height: $main-text-line-height;
+    padding-left: $main-text-padding-left;
+    padding-top: 0;
+    padding-bottom: $main-text-padding-bottom;
+    box-sizing: $main-text-box-sizing;
+    margin-top: 0;
+  }
+}
+
+.externalConnection {
+  color: white;
+  text-decoration: underline;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.internalConnection {
+  color: white;
+  cursor: pointer;
+  pointer-events: auto;
+}

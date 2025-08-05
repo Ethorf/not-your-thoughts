@@ -19,10 +19,12 @@ import PromptsDisplay from '@components/PromptsDisplay/PromptsDisplay.js'
 import CreateEntry from '@components/Shared/CreateEntry/CreateEntry'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner.js'
+import WritingDataManager from '@components/Shared/WritingDataManager/WritingDataManager'
 
 // Constants
 import { ENTRY_TYPES } from '@constants/entryTypes'
 import { MODAL_NAMES } from '@constants/modalNames'
+import { SAVE_TYPES } from '@constants/saveTypes'
 
 //Pillars
 import PillarTop from '@components/PillarsComponents/PillarTopComponent.js'
@@ -51,11 +53,17 @@ const CreateJournalEntry = () => {
       dispatch(openModal(MODAL_NAMES.SUCCESS))
       setSuccessModalSeen(true)
     }
-  }, [dispatch, journalConfig, wordCount])
+  }, [dispatch, journalConfig, successModalSeen, wordCount])
 
   return (
     journalConfig && (
       <div className={styles.wrapper}>
+        {wordCount > 0 ? (
+          <WritingDataManager
+            entryType={ENTRY_TYPES.JOURNAL}
+            handleAutosave={() => handleSaveJournal(SAVE_TYPES.AUTO)}
+          />
+        ) : null}
         <ProgressWord />
         <BgImage />
         <div className={styles.headerPromptContainer}>
@@ -68,7 +76,7 @@ const CreateJournalEntry = () => {
             <PillarLeft />
             <div className={styles.innerContainer}>
               <JournalInfoContainer />
-              <CreateEntry type={ENTRY_TYPES.JOURNAL} />
+              <CreateEntry entryType={ENTRY_TYPES.JOURNAL} />
               {entriesLoading ? (
                 <SmallSpinner />
               ) : (

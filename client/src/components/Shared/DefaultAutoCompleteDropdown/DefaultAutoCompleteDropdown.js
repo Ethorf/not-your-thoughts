@@ -35,7 +35,7 @@ const DefaultAutoCompleteDropdown = ({
   }
 
   const filterOptions = (value) => {
-    const filtered = options.filter((option) => option?.toLowerCase().includes(value?.toLowerCase()))
+    const filtered = options?.filter((option) => option?.toLowerCase().includes(value?.toLowerCase()))
     setFilteredOptions(filtered)
   }
 
@@ -48,20 +48,20 @@ const DefaultAutoCompleteDropdown = ({
   }
 
   const handleKeyDown = async (event) => {
-    if (filteredOptions.length > 0) {
+    if (filteredOptions?.length > 0) {
       if (event.key === 'Enter') {
         event.preventDefault()
         const selectedOption = await handleOptionSelect(filteredOptions[highlightedIndex])
         onSubmit && (await onSubmit(selectedOption))
       } else if (event.key === 'ArrowDown') {
         event.preventDefault()
-        setHighlightedIndex((prevIndex) => (prevIndex + 1) % filteredOptions.length)
+        setHighlightedIndex((prevIndex) => (prevIndex + 1) % filteredOptions?.length)
       } else if (event.key === 'ArrowUp') {
         event.preventDefault()
-        setHighlightedIndex((prevIndex) => (prevIndex - 1 + filteredOptions.length) % filteredOptions.length)
+        setHighlightedIndex((prevIndex) => (prevIndex - 1 + filteredOptions?.length) % filteredOptions?.length)
       } else if (event.key === 'Tab') {
         event.preventDefault()
-        setHighlightedIndex((prevIndex) => (prevIndex + 1) % filteredOptions.length)
+        setHighlightedIndex((prevIndex) => (prevIndex + 1) % filteredOptions?.length)
       }
     } else if (event.key === 'Enter') {
       event.preventDefault()
@@ -70,7 +70,7 @@ const DefaultAutoCompleteDropdown = ({
   }
 
   const handleDropdownToggle = () => {
-    if (filteredOptions.length === 0) {
+    if (filteredOptions?.length === 0) {
       filterOptions(inputValue)
     }
     setShowDropdown(!showDropdown)
@@ -134,9 +134,9 @@ const DefaultAutoCompleteDropdown = ({
           ▼
         </TextButton>
       </div>
-      {showDropdown && filteredOptions.length > 0 && (
+      {showDropdown && filteredOptions?.length > 0 && (
         <ul className={classNames(styles.dropdownList)}>
-          {filteredOptions.map((option, index) => (
+          {filteredOptions?.map((option, index) => (
             <TextButton
               className={classNames(styles.option, { [styles.highlightedOption]: index === highlightedIndex })}
               key={index}

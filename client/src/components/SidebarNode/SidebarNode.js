@@ -17,7 +17,8 @@ import { MODAL_NAMES } from '@constants/modalNames.js'
 // Styles
 import styles from './SidebarNode.module.scss'
 
-export const SidebarNode = ({ node: { id, starred, title } }) => {
+export const SidebarNode = ({ node = {} }) => {
+  const { id = null, starred, title } = node
   const dispatch = useDispatch()
 
   const handleOpenAreYouSureModal = async () => {

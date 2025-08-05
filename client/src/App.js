@@ -19,7 +19,6 @@ import NavBarTop from '@components/nav/navBarTop.js'
 import Landing from '@pages/Start/Start.js'
 import Dashboard from '@pages/Dashboard/Dashboard.js'
 import CreateJournalEntry from '@pages/CreateJournalEntry/CreateJournalEntry.js'
-import CreateNodeEntry from '@pages/CreateNodeEntry/CreateNodeEntry.js'
 import EditNodeEntry from '@pages/EditNodeEntry/EditNodeEntry.js'
 import Login from '@pages/LoginPage/LoginPage.js'
 import Register from '@pages/RegisterPage/RegisterPage.js'
@@ -49,7 +48,7 @@ const App = () => {
   }, [])
 
   useEffect(() => {
-    checkServerStatus('http://localhost:8082/api/health', 5000) // Adjust URL and interval as needed
+    checkServerStatus('http://localhost:8084/api/health', 5000) // Adjust URL and interval as needed
   }, [])
 
   const mode = useSelector((state) => state.modes.mode)
@@ -58,7 +57,7 @@ const App = () => {
   return (
     <div className={`App ${mode}`}>
       <ToastContainer />
-      <Tooltip id="main-tooltip" style={{ zIndex: 99999 }} place="right" />
+      <Tooltip id="main-tooltip" style={{ zIndex: 99999, fontSize: '0.6rem' }} place="top" />
       <BrowserRouter>
         <ModalsContainer />
         <NavBarTop />
@@ -88,7 +87,6 @@ const App = () => {
                   <PrivateRoute path="/dashboard" exact component={Dashboard} />
                   <PrivateRoute path="/create-journal-entry" exact component={CreateJournalEntry} />
                   <PrivateRoute path="/profile" exact component={ProfilePage} />
-                  <PrivateRoute path="/create-node-entry" exact component={CreateNodeEntry} />
                   <PrivateRoute path="/edit-node-entry" component={EditNodeEntry} />
                   <PrivateRoute path="/entries" exact component={Entries} />
                   <Route path="/resources" exact>

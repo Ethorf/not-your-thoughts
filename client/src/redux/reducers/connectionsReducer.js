@@ -3,9 +3,12 @@ import axiosInstance from '@utils/axiosInstance'
 import { CONNECTION_TYPES, FRONT_TO_BACK_CONN_TYPES } from '@constants/connectionTypes'
 import { CONNECTION_ENTRY_SOURCES } from '@constants/connectionEntrySources'
 import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
+import { SAVE_TYPES } from '@constants/saveTypes'
 
 import { showToast } from '@utils/toast'
 import { hasOneWord } from '@utils/hasOneWord'
+
+import { saveNodeEntry } from '@redux/reducers/currentEntryReducer'
 
 const {
   FRONTEND: { SIBLING, EXTERNAL },
@@ -28,7 +31,15 @@ const initialState = {
 export const createConnection = createAsyncThunk(
   'connections/create_connection',
   async (
-    { connection_type, main_entry_id, primary_entry_id, foreign_entry_id, primary_source, foreign_source, source_type },
+    {
+      connection_type,
+      current_entry_id,
+      primary_entry_id,
+      foreign_entry_id,
+      primary_source,
+      foreign_source,
+      source_type,
+    },
     { rejectWithValue, dispatch }
   ) => {
     try {
@@ -36,13 +47,13 @@ export const createConnection = createAsyncThunk(
         connection_type: connection_type === EXTERNAL ? connection_type : FRONT_TO_BACK_CONN_TYPES[connection_type],
         primary_entry_id,
         foreign_entry_id,
-        main_entry_id,
+        current_entry_id,
         primary_source,
         foreign_source,
         source_type,
       })
 
-      dispatch(showToast('Connection created!', 'success'))
+      dispatch(saveNodeEntry({ saveType: SAVE_TYPES.MANUAL }))
 
       return response.data
     } catch (error) {
@@ -72,6 +83,22 @@ export const fetchConnections = createAsyncThunk('connections/', async (entry_id
     return rejectWithValue(error.response.data)
   }
 })
+
+export const updateConnection = createAsyncThunk(
+  'connections/update_connection',
+  async ({ connectionId, updatedFields, current_entry_id }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axiosInstance.put(`api/connections/update_connection/${connectionId}`, {
+        ...updatedFields,
+        current_entry_id,
+      })
+      await dispatch(fetchConnections(current_entry_id))
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
 
 const connectionsSlice = createSlice({
   name: 'connections',
@@ -163,6 +190,17 @@ const connectionsSlice = createSlice({
         }
       })
       .addCase(fetchConnections.rejected, (state, action) => {
+        state.connectionsLoading = false
+        state.error = action.payload
+      })
+      .addCase(updateConnection.pending, (state) => {
+        state.connectionsLoading = true
+      })
+      .addCase(updateConnection.fulfilled, (state, action) => {
+        state.connectionsLoading = false
+        state.connections = action.payload.connections
+      })
+      .addCase(updateConnection.rejected, (state, action) => {
         state.connectionsLoading = false
         state.error = action.payload
       })

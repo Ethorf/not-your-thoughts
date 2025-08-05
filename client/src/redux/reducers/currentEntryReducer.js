@@ -2,6 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axiosInstance from '@utils/axiosInstance'
 import { ENTRY_TYPES } from '@constants/entryTypes'
 import { SAVE_TYPES } from '@constants/saveTypes'
+import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
+import { deleteConnection } from '@redux/reducers/connectionsReducer'
 
 import { showToast } from '@utils/toast'
 
@@ -66,20 +68,102 @@ export const deleteAka = createAsyncThunk(
 
 export const createNodeEntry = createAsyncThunk(
   'currentEntryReducer/createNodeEntry',
-  async ({ content, title }, { rejectWithValue, dispatch }) => {
+  async ({ content = '', title = '' } = {}, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axiosInstance.post('api/entries/create_node_entry', {
-        content,
-        title,
-      })
+      // Remove undefined values so they don’t get sent
+      const payload = {}
+      if (content) payload.content = content
+      if (title) payload.title = title
 
-      dispatch(showToast('Node Created', 'success'))
+      const response = await axiosInstance.post('api/entries/create_node_entry', payload)
+
       await dispatch(fetchNodeEntriesInfo())
 
-      return response.data
+      dispatch(showToast('Node Created', 'success'))
+
+      return response.data.id
     } catch (error) {
       dispatch(showToast('Node creation error', 'error'))
+      return rejectWithValue(error.response?.data)
+    }
+  }
+)
+
+export const saveNodeEntry = createAsyncThunk(
+  'currentEntryReducer/saveNodeEntry',
+  async ({ saveType }, { getState, rejectWithValue, dispatch }) => {
+    const { AUTO, MANUAL, EXTERNAL_CONNECTION } = SAVE_TYPES
+
+    try {
+      const currentState = await getState().currentEntry
+      const fetchResponse = await dispatch(fetchEntryById(currentState.entryId))
+      const fetchedEntry = fetchResponse.payload
+
+      const titleChanged = fetchedEntry.title !== currentState.title
+      const contentChanged = fetchedEntry.content[0] !== currentState.content
+
+      if (!titleChanged && !contentChanged && saveType !== EXTERNAL_CONNECTION) {
+        if (saveType === MANUAL) dispatch(showToast('Nothing to update', 'warn'))
+
+        return currentState
+      }
+
+      const response = await axiosInstance.post('api/entries/update_node_entry', {
+        entryId: currentState.entryId,
+        content: currentState.content,
+        title: currentState.title,
+      })
+
+      await dispatch(fetchNodeEntriesInfo())
+
+      // Clean up obsolete connections
+
+      const state = getState()
+      const text = (state.currentEntry.content || '').toLowerCase()
+      const allConnections = state.connections.connections
+
+      const connectionsToDelete =
+        allConnections?.filter((conn) => {
+          const { primary_source, source_type } = conn
+          return (
+            (source_type === CONNECTION_SOURCE_TYPES.DIRECT || source_type === CONNECTION_SOURCE_TYPES.SINGLE_WORD) &&
+            primary_source &&
+            !text.includes(primary_source.toLowerCase())
+          )
+        }) || []
+
+      for (const conn of connectionsToDelete) {
+        dispatch(deleteConnection(conn.id))
+      }
+
+      const cleanedConnections = connectionsToDelete.length > 0
+      // const cleanedConnections = true
+
+      if (saveType === AUTO) {
+        dispatch(showToast(cleanedConnections ? 'Node saved and connections cleaned' : 'Node autosaved', 'warn'))
+        return ''
+      } else {
+        dispatch(showToast(cleanedConnections ? 'Node autosaved and connections cleaned' : 'Node updated', 'success'))
+        return response.data
+      }
+    } catch (error) {
       return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+export const createJournalEntry = createAsyncThunk(
+  'currentEntryReducer/createJournalEntry',
+  async (_, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axiosInstance.post('api/entries/create_journal_entry')
+
+      await dispatch(fetchNodeEntriesInfo())
+
+      return response.data.entry_id
+    } catch (error) {
+      dispatch(showToast('Node creation error', 'error'))
+      return rejectWithValue(error.response?.data)
     }
   }
 )
@@ -101,52 +185,6 @@ export const saveJournalEntry = createAsyncThunk(
       return response.data.entry_id
     } catch (error) {
       dispatch(showToast('Error saving journal entry', 'error'))
-      return rejectWithValue(error.response.data)
-    }
-  }
-)
-
-export const updateNodeEntry = createAsyncThunk(
-  'currentEntryReducer/updateNodeEntry',
-  async ({ saveType }, { getState, rejectWithValue, dispatch }) => {
-    const { AUTO, MANUAL, EXTERNAL_CONNECTION } = SAVE_TYPES
-
-    try {
-      const currentState = await getState().currentEntry
-      const fetchResponse = await dispatch(fetchEntryById(currentState.entryId))
-      const fetchedEntry = fetchResponse.payload
-
-      const titleChanged = fetchedEntry.title !== currentState.title
-      const contentChanged = fetchedEntry.content[0] !== currentState.content
-
-      if (!titleChanged && !contentChanged && saveType !== EXTERNAL_CONNECTION) {
-        if (saveType === MANUAL) dispatch(showToast('Nothing to update', 'warn'))
-
-        console.log('No change to content. No update required.')
-        return currentState
-      }
-      // *** I have no fucking idea why this is happening but passing these as args doesn't work when I trigger
-      // *** this function via keyboard shortcut, using the currentState function has no problem though
-      const response = await axiosInstance.post('api/entries/update_node_entry', {
-        entryId: currentState.entryId,
-        content: currentState.content,
-        title: currentState.title,
-      })
-      // await axiosInstance.post('api/writing_data/create_writing_data', {
-      //   entryId: currentState.entryId,
-      //   content: currentState.content,
-      //   title: currentState.title,
-      // })
-      await dispatch(fetchNodeEntriesInfo())
-
-      if (saveType === AUTO) {
-        dispatch(showToast('Node autosaved', 'warn'))
-        return ''
-      } else {
-        dispatch(showToast('Node updated', 'success'))
-        return response.data
-      }
-    } catch (error) {
       return rejectWithValue(error.response.data)
     }
   }
@@ -295,12 +333,22 @@ const currentEntrySlice = createSlice({
       .addCase(deleteAka.fulfilled, (state, action) => {
         state.akas = action.payload.akas
       })
+      .addCase(createNodeEntry.pending, (state) => {
+        state.entriesLoading = true
+      })
       .addCase(createNodeEntry.fulfilled, (state, action) => {
         state.entriesLoading = false
         state.nodeEntriesInfo.push(action.payload)
       })
-      .addCase(createNodeEntry.pending, (state) => {
+      .addCase(createJournalEntry.pending, (state) => {
         state.entriesLoading = true
+      })
+      .addCase(createJournalEntry.fulfilled, (state, action) => {
+        return {
+          ...state,
+          entriesLoading: false,
+          entryId: action.payload,
+        }
       })
       .addCase(saveJournalEntry.pending, (state) => {
         state.entriesLoading = true
@@ -312,10 +360,10 @@ const currentEntrySlice = createSlice({
           entryId: action.payload,
         }
       })
-      .addCase(updateNodeEntry.pending, (state) => {
+      .addCase(saveNodeEntry.pending, (state) => {
         return { ...state, entriesLoading: true, entriesSaving: true }
       })
-      .addCase(updateNodeEntry.fulfilled, (state, action) => {
+      .addCase(saveNodeEntry.fulfilled, (state, action) => {
         // Will only receive a payload if not an autosave update
         if (action.payload.content) {
           return {
@@ -357,11 +405,30 @@ const currentEntrySlice = createSlice({
           entriesLoading: false,
         }
       })
+      .addCase(fetchNodeEntriesInfo.pending, (state) => {
+        return {
+          ...state,
+          entriesLoading: true,
+        }
+      })
       .addCase(fetchNodeEntriesInfo.fulfilled, (state, action) => {
-        state.nodeEntriesInfo = action.payload
+        return {
+          ...state,
+          nodeEntriesInfo: action.payload,
+          entriesLoading: false,
+        }
+      })
+      .addCase(deleteEntry.pending, (state) => {
+        return {
+          ...state,
+          entriesLoading: true,
+        }
       })
       .addCase(deleteEntry.fulfilled, (state) => {
-        return initialState
+        return {
+          ...state,
+          entriesLoading: false,
+        }
       })
       .addCase(toggleNodeStarred.fulfilled, (state, action) => {
         const { entryId, starred } = action.payload

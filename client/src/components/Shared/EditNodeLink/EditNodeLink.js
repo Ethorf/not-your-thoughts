@@ -15,7 +15,7 @@ const EditNodeLink = ({ className, node, onClick }) => {
   }
 
   const TITLE_ELIPSIS_SPLIT = 17
-  const longerThanElipsis = title.length > TITLE_ELIPSIS_SPLIT
+  const longerThanElipsis = title?.length > TITLE_ELIPSIS_SPLIT
 
   return (
     <TextButton
