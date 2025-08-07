@@ -50,21 +50,21 @@ const server = app.listen(PORT, () => {
   console.log(`It's an ${PORT} type of guy for NYT`)
 
   // Check if backupProcess should run based on process.env.GH_HANDLE
-  if (process.env.GH_HANDLE === 'ethorf') {
-    // Fork a child process to run the backup script
-    console.log('Starting Db backup')
-    const backupProcess = fork(path.join(__dirname, 'utils', 'backupDump.js'))
+  // if (process.env.GH_HANDLE === 'ethorf') {
+  //   // Fork a child process to run the backup script
+  //   console.log('Starting Db backup')
+  //   const backupProcess = fork(path.join(__dirname, 'utils', 'backupDump.js'))
 
-    // Log messages from the backup process
-    backupProcess.on('message', (message) => {
-      console.log(`Backup process: ${message}`)
-    })
+  //   // Log messages from the backup process
+  //   backupProcess.on('message', (message) => {
+  //     console.log(`Backup process: ${message}`)
+  //   })
 
-    // Handle errors from the backup process
-    backupProcess.on('error', (error) => {
-      console.error(`Backup process error: ${error}`)
-    })
-  }
+  //   // Handle errors from the backup process
+  //   backupProcess.on('error', (error) => {
+  //     console.error(`Backup process error: ${error}`)
+  //   })
+  // }
 })
 
 const gracefulShutdown = (signal) => {
