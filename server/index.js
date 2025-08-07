@@ -30,7 +30,7 @@ app.use('/api/entries', require('./routes/entries'))
 app.use('/api/health', require('./routes/health'))
 app.use('/api/prompts', require('./routes/prompts'))
 app.use('/api/user_journal_config', require('./routes/user_journal_config.js'))
-app.use('/api/user_nodes_config.js', require('./routes/user_nodes_config.js'))
+app.use('/api/user_nodes_config', require('./routes/user_nodes_config.js'))
 app.use('/api/writing_data', require('./routes/writing_data.js'))
 
 // Serve static assets in production
