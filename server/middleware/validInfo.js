@@ -1,6 +1,9 @@
 module.exports = function (req, res, next) {
   const { email, name, password } = req.body
 
+  console.log('in validInfo middleware <<<<<< req  >>>>>>>>> is: <<<<<<<<<<<<')
+  console.log(req.body)
+
   function validEmail(userEmail) {
     return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(userEmail)
   }
