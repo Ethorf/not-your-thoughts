@@ -9,18 +9,18 @@
   font-family: 'Syncopate', sans-serif;
   color: white;
 }
-
-.overflowVisible {
-  overflow: visible;
-}
-
-.wrapper {
-  min-width: 47vw;
+.modal {
   min-height: 90vh;
+  min-width: 55vw;
+  width: 60vw;
+}
+.wrapper {
+  display: flex;
+  flex-direction: column;
 }
 
 .horizontalDivider {
-  width: 90%;
+  width: 100%;
 }
 
 .sourceWord {

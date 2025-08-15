@@ -263,4 +263,4 @@ module.exports = router
 //  and the primary_entry_id is of the node (non-current) that is being connected to
 //  send back the connection with the type prop 'parent',
 
-// ** Basically for Vertical connections, Parents must always have the primary_entry_id & children must have
+// ** Basically for Vertical connections, Parents must always have the primary_entry_id & children must have foreign_entry_id
