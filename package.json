@@ -23,6 +23,9 @@
   },
   "homepage": "https://github.com/Ethorf/not-your-thoughts#readme",
   "dependencies": {
-    "bcryptjs": "^2.4.3"
+    "@react-three/drei": "^10.7.3",
+    "@react-three/fiber": "^9.3.0",
+    "bcryptjs": "^2.4.3",
+    "three": "^0.179.1"
   }
 }

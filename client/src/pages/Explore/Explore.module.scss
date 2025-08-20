@@ -1,0 +1,48 @@
+.wrapper {
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.newEntry {
+  display: flex;
+  height: 70px;
+  align-items: center;
+}
+
+.customPromptsList {
+  width: 50%;
+}
+
+.nodesWrapper {
+  width: 70vw;
+  height: 60vw;
+  border: 1px solid white;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.currentEntry {
+  height: 300px;
+  width: 300px;
+  border: 1px solid white;
+  padding: 24px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  background: radial-gradient(circle at 30% 30%, silver, #5c5e66);
+  //   transform: perspective(500px) rotateX(20deg);
+
+  //   * {
+  //     font-size: 12px;
+  //     text-align: center;
+  //     // transform: scaleY(1.3);
+  //   }
+}

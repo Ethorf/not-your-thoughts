@@ -78,12 +78,12 @@
 
 .hiddenText .ql-editor {
   color: transparent;
+  color: red;
 
   // Main text Variables
   padding: 0;
   margin: 0;
   box-sizing: $main-text-box-sizing;
-  top: $main-top-offset;
   transition: all 1s;
 
   p,
@@ -94,9 +94,37 @@
     padding-left: $main-text-padding-left;
     padding-top: 0;
     padding-bottom: $main-text-padding-bottom;
+    padding-bottom: $main-text-padding-bottom;
+
     padding-right: $main-text-padding-right;
     box-sizing: $main-text-box-sizing;
-    margin-top: $main-top-offset;
     transition: all 1s;
   }
+
+  li {
+    padding-left: 0 !important;
+    padding-bottom: $li-padding-bottom;
+  }
+  ul {
+    padding-left: $main-text-padding-left;
+  }
+}
+
+.ql-editor p:empty,
+.ql-editor p > br:only-child,
+.ql-editor li:empty {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  height: 0px;
+}
+/* Collapse Quill’s empty blocks */
+.ql-editor p:has(> br:only-child),
+.ql-editor li:has(> br:only-child),
+.ql-editor li > p:has(> br:only-child) {
+  margin-block: 0 !important;
+  padding-block: 0 !important;
+  line-height: 0 !important;
+  min-height: 0 !important;
 }

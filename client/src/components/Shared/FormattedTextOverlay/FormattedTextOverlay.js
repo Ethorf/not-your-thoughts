@@ -22,7 +22,8 @@ const {
 
 const { DIRECT } = CONNECTION_SOURCE_TYPES
 
-const MAIN_TOP_OFFSET = 16
+// const MAIN_TOP_OFFSET = 16
+const MAIN_TOP_OFFSET = 0
 
 const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
   const [quillEditorScrollTopVal, setQuillEditorScrollTopVal] = useState(0)

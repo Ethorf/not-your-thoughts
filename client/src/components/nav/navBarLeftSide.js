@@ -95,6 +95,9 @@ const NavBarSide = () => {
         <NavLink exact to="/dashboard" activeClassName="nav__active" className={`nav__link${mode}`}>
           Dashboard
         </NavLink>
+        <NavLink exact to="/explore" activeClassName="nav__active" className={`nav__link${mode}`}>
+          Explore
+        </NavLink>
         <TextButton navLink onClick={handleNewJournalEntryClick}>
           New Journal
         </TextButton>

@@ -18,6 +18,7 @@ import NavBarTop from '@components/nav/navBarTop.js'
 //Pages Imports
 import Landing from '@pages/Start/Start.js'
 import Dashboard from '@pages/Dashboard/Dashboard.js'
+import Explore from '@pages/Explore/Explore.js'
 import CreateJournalEntry from '@pages/CreateJournalEntry/CreateJournalEntry.js'
 import EditNodeEntry from '@pages/EditNodeEntry/EditNodeEntry.js'
 import Login from '@pages/LoginPage/LoginPage.js'
@@ -48,7 +49,7 @@ const App = () => {
   }, [])
 
   useEffect(() => {
-    checkServerStatus('http://localhost:8085/api/health', 5000) // Adjust URL and interval as needed
+    checkServerStatus('http://localhost:8086/api/health', 5000) // Adjust URL and interval as needed
   }, [])
 
   const mode = useSelector((state) => state.modes.mode)
@@ -85,6 +86,7 @@ const App = () => {
                     {({ match }) => <Register show={match !== null} />}
                   </Route>
                   <PrivateRoute path="/dashboard" exact component={Dashboard} />
+                  <PrivateRoute path="/explore" exact component={Explore} />
                   <PrivateRoute path="/create-journal-entry" exact component={CreateJournalEntry} />
                   <PrivateRoute path="/profile" exact component={ProfilePage} />
                   <PrivateRoute path="/edit-node-entry" component={EditNodeEntry} />
