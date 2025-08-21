@@ -42,7 +42,7 @@ import styles from './ConnectionsModal.module.scss'
 // Constant Destructures
 const { DIRECT, DESCRIPTIVE, SINGLE_WORD } = CONNECTION_SOURCE_TYPES
 const {
-  FRONTEND: { PARENT, EXTERNAL },
+  FRONTEND: { PARENT, EXTERNAL, CHILD, SIBLING },
 } = CONNECTION_TYPES
 
 const { PRIMARY, FOREIGN } = CONNECTION_ENTRY_SOURCES
@@ -172,16 +172,40 @@ export const ConnectionsModal = () => {
   const handleEditNodeClick = (c) => {
     dispatch(closeModal())
   }
+  const getConnUpdateIds = (conn, connType) => {
+    if (connType === PARENT)
+      return {
+        foreign_entry_id: entryId,
+        primary_entry_id: conn.foreign_entry_id,
+      }
 
-  // So this would be
+    if (connType === CHILD)
+      return {
+        foreign_entry_id: conn.primary_entry_id === entryId ? conn.foreign_entry_id : conn.primary_entry_id,
+        primary_entry_id: entryId,
+      }
+    // Since Sibling's foreign and primaries don't matter, don't change
+    if (connType === SIBLING)
+      return {
+        foreign_entry_id: conn.foreign_entry_id,
+        primary_entry_id: conn.primary_entry_id,
+      }
+    // TODO this else may be a little fucked
+    else
+      return {
+        foreign_entry_id: conn.primary_entry_id,
+        primary_entry_id: entryId,
+      }
+  }
+
   const handleEditConnectionType = (e, conn) => {
     dispatch(
       updateConnection({
         connectionId: conn.id,
         updatedFields: {
           connection_type: FRONT_TO_BACK_CONN_TYPES[e.target.value],
-          foreign_entry_id: e.target.value === PARENT ? entryId : conn.foreign_entry_id,
-          primary_entry_id: e.target.value === PARENT ? conn.foreign_entry_id : entryId,
+          foreign_entry_id: getConnUpdateIds(conn, e.target.value).foreign_entry_id,
+          primary_entry_id: getConnUpdateIds(conn, e.target.value).primary_entry_id,
         },
         current_entry_id: entryId,
       })
@@ -192,7 +216,7 @@ export const ConnectionsModal = () => {
   const highlightedForeignContent = highlightMatchingText(localForeignEntryContent, selectedForeignSourceText)
 
   return (
-    <BaseModalWrapper modalName={MODAL_NAMES.CONNECTIONS} className={styles.overflowVisible} onOpen={handleModalOpen}>
+    <BaseModalWrapper modalName={MODAL_NAMES.CONNECTIONS} className={styles.modal} onOpen={handleModalOpen}>
       <div className={styles.wrapper}>
         <h2 className={styles.titleWrapper}>
           connect <span className={styles.title}>{title}</span> to:

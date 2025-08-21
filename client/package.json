@@ -57,7 +57,7 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:8084",
+  "proxy": "http://localhost:8086",
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",

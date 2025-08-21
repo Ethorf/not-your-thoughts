@@ -77,7 +77,7 @@ export const deleteConnection = createAsyncThunk(
 export const fetchConnections = createAsyncThunk('connections/', async (entry_id, { rejectWithValue }) => {
   try {
     const response = await axiosInstance.get(`api/connections/${entry_id}`)
-
+    console.log('CONNNECTIONIES HET')
     return response.data.connections
   } catch (error) {
     return rejectWithValue(error.response.data)
@@ -92,6 +92,7 @@ export const updateConnection = createAsyncThunk(
         ...updatedFields,
         current_entry_id,
       })
+      // TODO maybe here we just make sure to return all the connections in a single call as well
       await dispatch(fetchConnections(current_entry_id))
       return response.data
     } catch (error) {
@@ -198,7 +199,7 @@ const connectionsSlice = createSlice({
       })
       .addCase(updateConnection.fulfilled, (state, action) => {
         state.connectionsLoading = false
-        state.connections = action.payload.connections
+        // state.connections = action.payload.connections
       })
       .addCase(updateConnection.rejected, (state, action) => {
         state.connectionsLoading = false
