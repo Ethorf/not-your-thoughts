@@ -39,7 +39,7 @@ export const DashboardNodeEntry = ({ node = {} }) => {
         <div>Not yet...</div>
       )}
       <EditNodeLink node={{ id, title }} />
-      <div className={styles.pending}>{pending ? 'Pending' : num_of_words}</div>
+      {pending && <div className={styles.pending}>{pending}</div>}
       <DefaultButton className={styles.deleteButton} onClick={handleOpenAreYouSureModal}>
         Delete
       </DefaultButton>
