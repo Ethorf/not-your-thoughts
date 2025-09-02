@@ -16,8 +16,6 @@
   padding: 0;
   margin: 0;
   box-sizing: $main-text-box-sizing;
-  // top: $main-top-offset;
-  // margin-top: $main-top-offset;
 
   p,
   li,
@@ -30,7 +28,6 @@
     box-sizing: $main-text-box-sizing;
     margin-top: 0;
     margin: 0;
-    // margin-top: $main-top-offset;
   }
 
   p:empty {

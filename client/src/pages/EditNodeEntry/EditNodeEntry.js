@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useCallback } from 'react'
 import classNames from 'classnames'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useHistory } from 'react-router-dom'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 // Redux
@@ -31,6 +31,7 @@ const { PRIMARY } = CONNECTION_ENTRY_SOURCES
 
 const EditNodeEntry = () => {
   const dispatch = useDispatch()
+  const history = useHistory()
   const location = useLocation()
 
   const { connectionsLoading } = useSelector((state) => state.connections)
@@ -125,6 +126,13 @@ const EditNodeEntry = () => {
                 onChange={handleTitleChange}
               />
               <AkasDisplay />
+              <DefaultButton
+                tooltip="Explore nodes"
+                onClick={() => history.push(`/explore`)}
+                className={styles.saveButton}
+              >
+                Explore
+              </DefaultButton>
             </>
           ) : (
             <Spinner />

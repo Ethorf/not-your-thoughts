@@ -298,29 +298,35 @@ router.get('/node_entries_info', authorize, async (req, res) => {
   try {
     const nodeEntriesQuery = await pool.query(
       `SELECT 
-        entries.id, 
-        entries.title, 
-        entries.starred,
-        entries.num_of_words,
-        entries.date_originally_created,
-        ARRAY(
-          SELECT content 
-          FROM entry_contents 
-          WHERE entry_id = entries.id 
-          ORDER BY date_created DESC
-        ) AS content,
-        (SELECT date_created 
-          FROM entry_contents 
-          WHERE entry_id = entries.id 
-          ORDER BY date_created ASC 
-          LIMIT 1) AS date_created,
-        (SELECT date_created 
-          FROM entry_contents 
-          WHERE entry_id = entries.id 
-          ORDER BY date_created DESC 
-          LIMIT 1) AS date_last_modified
-      FROM entries 
-      WHERE user_id = $1 AND type = 'node'`,
+    entries.id, 
+    entries.title, 
+    entries.starred,
+    entries.date_originally_created,
+    ARRAY(
+      SELECT content 
+      FROM entry_contents 
+      WHERE entry_id = entries.id 
+      ORDER BY date_created DESC
+    ) AS content,
+    (SELECT date_created 
+      FROM entry_contents 
+      WHERE entry_id = entries.id 
+      ORDER BY date_created ASC 
+      LIMIT 1) AS date_created,
+    (SELECT date_created 
+      FROM entry_contents 
+      WHERE entry_id = entries.id 
+      ORDER BY date_created DESC 
+      LIMIT 1) AS date_last_modified,
+    -- 👇 aggregate writing data
+    (SELECT COALESCE(SUM(word_count), 0) 
+      FROM entry_writing_data 
+      WHERE entry_id = entries.id) AS wd_word_count,
+    (SELECT COALESCE(SUM(duration), 0) 
+      FROM entry_writing_data 
+      WHERE entry_id = entries.id) AS wd_time_elapsed
+  FROM entries 
+  WHERE user_id = $1 AND type = 'node'`,
       [user_id]
     )
 
@@ -336,7 +342,8 @@ router.get('/node_entries_info', authorize, async (req, res) => {
         id: entry.id,
         title: entry.title,
         starred: entry.starred,
-        wordCount: entry.num_of_words,
+        wdWordCount: entry.wd_word_count, // ✅ now using aggregated value
+        wdTimeElapsed: entry.wd_time_elapsed, // optional, since you have it
         pending: !hasContent,
         date_created: hasContent ? entry.date_created : entry.date_originally_created,
         date_last_modified: hasContent ? entry.date_last_modified : entry.date_originally_created,

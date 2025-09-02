@@ -44,7 +44,7 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-const PORT = process.env.PORT || 8080
+const PORT = process.env.PORT || 8084
 
 const server = app.listen(PORT, () => {
   console.log(`It's an ${PORT} type of guy for NYT`)
