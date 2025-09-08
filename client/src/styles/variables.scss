@@ -11,6 +11,7 @@ $silver-faded: rgba(192, 192, 192, 0.5);
 // z-index
 $pillars-z-index: 4;
 $text-entry-z-index: $pillars-z-index + 1;
+$sidebar-z-index: $pillars-z-index + 2;
 
 // Borders
 $silver-border-default: 1px solid rgba(192, 192, 192, 0.5);
@@ -21,6 +22,7 @@ $default-border-radius: 8px;
 $entries-list-columns: 25% 12% 12% 15% 10% 20%;
 $dashboard-nodes-columns: 5% 18% 40% 15% 20%;
 // $dashboard-nodes-columns: repeat(auto-fit, minmax(16px, max-content));
+
 // Transition Time
 $default-transition: all 250ms ease-in-out;
 

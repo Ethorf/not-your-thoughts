@@ -208,8 +208,7 @@ export const fetchNodeEntriesInfo = createAsyncThunk(
   async (_, { rejectWithValue, dispatch }) => {
     try {
       const response = await axiosInstance.get('api/entries/node_entries_info')
-      console.log('<<<<<<  response.data.nodeEntries >>>>>>>>> is: <<<<<<<<<<<<')
-      console.log(response.data.nodeEntries)
+
       return response.data.nodeEntries
     } catch (error) {
       dispatch(showToast('Error fetching node entries', 'error'))

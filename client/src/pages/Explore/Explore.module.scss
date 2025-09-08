@@ -1,5 +1,6 @@
 .wrapper {
   width: 100vw;
+  height: 100vh;
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -8,7 +9,9 @@
 
 .nodesWrapper {
   width: 70vw;
-  height: 60vw;
+  height: 80vw;
+  border: 1px solid silver;
+  border-radius: 6px;
   display: flex;
   justify-content: center;
   flex-direction: column;
