@@ -52,9 +52,9 @@ const Explore = () => {
   const SPHERE_DIAMETER = 0.5 * 2
   const MIN_SEPARATION = SPHERE_DIAMETER + 0.1
 
-  const SIBLING_DISTANCE_FROM_CENTER_SPHERE = 0.4
+  const SIBLING_DISTANCE_FROM_CENTER_SPHERE = 0.5
   const CHILD_DISTANCE_FROM_CENTER_SPHERE = SIBLING_DISTANCE_FROM_CENTER_SPHERE + 0.6
-  const PARENT_DISTANCE_FROM_CENTER_SPHERE = SIBLING_DISTANCE_FROM_CENTER_SPHERE + 0.5
+  const PARENT_DISTANCE_FROM_CENTER_SPHERE = SIBLING_DISTANCE_FROM_CENTER_SPHERE + 0.7
 
   // Filter connections by type
   const siblings = connections?.filter((c) => c.connection_type === SIBLING) || []
@@ -79,11 +79,11 @@ const Explore = () => {
 
   // Position externals
   externals.forEach((e, i) => {
-    const diagonalIndex = i % 4
+    const diagonalIndex = i % 2
     const ring = Math.floor(i / 4)
     const baseDistance = SPHERE_DIAMETER * 3
     const distance = baseDistance * (1 + ring * 0.4)
-    const offset = ring * 0.8
+    const offset = ring * 0.4
 
     let x = 0,
       y = 0
@@ -116,7 +116,7 @@ const Explore = () => {
 
   // Position parents
   parents.forEach((p, i) => {
-    positions[p.id] = [0, SPHERE_DIAMETER + MIN_SEPARATION * i + 2, 0]
+    positions[p.id] = [0, SPHERE_DIAMETER + MIN_SEPARATION * PARENT_DISTANCE_FROM_CENTER_SPHERE, 0]
   })
 
   // Position children
@@ -174,8 +174,8 @@ const Explore = () => {
           <directionalLight position={[5, 5, 5]} />
 
           <Suspense fallback={null}>
-            {/* Main node */}
-            <group renderOrder={1}>
+            {/* Main node - render on top */}
+            <group>
               <ThreeTextSphere
                 text={extractTextFromHTML(content)}
                 title={title}
@@ -186,58 +186,68 @@ const Explore = () => {
               />
             </group>
 
-            {/* Connection lines to main */}
-            {connections?.map((conn) => {
-              const pos = positions[conn.id]
-              if (!pos) return null
+            {/* Connection lines to main - render first */}
+            <group>
+              {connections?.map((conn) => {
+                const pos = positions[conn.id]
+                if (!pos) return null
 
-              // Calculate line start/end points to avoid overlapping spheres
-              const endPos = new THREE.Vector3(...pos).multiplyScalar(LINE_EXTENSION_FACTOR)
-              const startPos = new THREE.Vector3(...center)
+                // Calculate line start/end points to avoid overlapping spheres
+                const endPos = new THREE.Vector3(...pos).multiplyScalar(LINE_EXTENSION_FACTOR)
+                const startPos = new THREE.Vector3(...center)
 
-              // line geometry from main -> connection
-              const points = [startPos, endPos]
-              const geometry = new THREE.BufferGeometry().setFromPoints(points)
-              const isExternal = conn.connection_type === EXTERNAL
+                // line geometry from main -> connection
+                const points = [startPos, endPos]
+                const geometry = new THREE.BufferGeometry().setFromPoints(points)
+                const isExternal = conn.connection_type === EXTERNAL
 
-              return (
-                <line
-                  key={`line-${conn.id}`}
-                  geometry={geometry}
-                  dashed={isExternal}
-                  onUpdate={(line) => {
-                    if (isExternal && line.computeLineDistances) {
-                      line.computeLineDistances()
-                    }
-                  }}
-                >
-                  {isExternal ? (
-                    <lineDashedMaterial color="white" dashSize={0.3} gapSize={0.2} linewidth={1} />
-                  ) : (
-                    <lineBasicMaterial color="white" linewidth={1} />
-                  )}
-                </line>
-              )
-            })}
+                return (
+                  <line
+                    key={`line-${conn.id}`}
+                    geometry={geometry}
+                    dashed={isExternal}
+                    onUpdate={(line) => {
+                      if (isExternal && line.computeLineDistances) {
+                        line.computeLineDistances()
+                      }
+                    }}
+                    renderOrder={0}
+                  >
+                    {isExternal ? (
+                      <lineDashedMaterial
+                        color="white"
+                        dashSize={0.3}
+                        gapSize={0.2}
+                        linewidth={1}
+                        depthWrite={false}
+                        depthTest={false}
+                      />
+                    ) : (
+                      <lineBasicMaterial color="white" linewidth={1} depthWrite={false} depthTest={false} />
+                    )}
+                  </line>
+                )
+              })}
+            </group>
 
-            {/* Connection spheres + their sub spheres */}
-            {connections?.map((conn) => {
-              const transformed = transformConnection(entryId, conn)
-              const pos = positions[conn.id]
-              if (!pos) return null
+            {/* Connection spheres + their sub spheres - render second */}
+            <group>
+              {connections?.map((conn) => {
+                const transformed = transformConnection(entryId, conn)
+                const pos = positions[conn.id]
+                if (!pos) return null
 
-              const endPos = new THREE.Vector3(...pos).multiplyScalar(LINE_EXTENSION_FACTOR)
+                const endPos = new THREE.Vector3(...pos).multiplyScalar(LINE_EXTENSION_FACTOR)
 
-              const nodeInfo = nodeEntriesInfo.find((n) => n.id === transformed.id)
-              const sphereSize = getScaledSphereSize(
-                DEFAULT_SPHERE_SIZES[SPHERE_TYPES.CONNECTION],
-                nodeInfo?.wdWordCount
-              )
+                const nodeInfo = nodeEntriesInfo.find((n) => n.id === transformed.id)
+                const sphereSize = getScaledSphereSize(
+                  DEFAULT_SPHERE_SIZES[SPHERE_TYPES.CONNECTION],
+                  nodeInfo?.wdWordCount
+                )
 
-              return (
-                <React.Fragment key={conn.id}>
-                  {/* Parent connection sphere */}
-                  <group renderOrder={1}>
+                return (
+                  <React.Fragment key={conn.id}>
+                    {/* PARENT connection sphere */}
                     <ThreeTextSphere
                       conn={conn}
                       connId={transformed.id}
@@ -247,10 +257,10 @@ const Explore = () => {
                       size={sphereSize}
                       onClick={handleConnectionSphereClick}
                     />
-                  </group>
-                </React.Fragment>
-              )
-            })}
+                  </React.Fragment>
+                )
+              })}
+            </group>
           </Suspense>
         </Canvas>
       </div>

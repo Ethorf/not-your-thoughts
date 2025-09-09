@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react'
+import React, { useEffect, useCallback, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import classNames from 'classnames'
 
@@ -16,6 +16,7 @@ import styles from './RightSidebar.module.scss'
 const RightSidebar = () => {
   const dispatch = useDispatch()
   const { sidebarOpen } = useSelector((state) => state.sidebar)
+  const [sortBy, setSortBy] = useState('recent')
 
   const handleToggleSidebar = useCallback(() => {
     dispatch(toggleSidebar())
@@ -56,7 +57,16 @@ const RightSidebar = () => {
         })}
       >
         <SidebarNodeSelector sidebarOpen={sidebarOpen} />
-        <SidebarNodesList />
+        <div className={styles.sortContainer}>
+          <label>
+            Sort:
+            <select className={styles.sortControls} value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="default">Default</option>
+              <option value="recent">Recent</option>
+            </select>
+          </label>
+        </div>
+        <SidebarNodesList sortBy={sortBy} />
       </div>
     </div>
   )

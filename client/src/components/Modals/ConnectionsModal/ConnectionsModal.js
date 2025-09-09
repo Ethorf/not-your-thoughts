@@ -140,7 +140,6 @@ export const ConnectionsModal = () => {
     await resetLocalState()
   }
 
-  // TODO see if we can make this work with our weird async ness
   const handleCreateConnection = async () => {
     if (localConnectionType === EXTERNAL) {
       await onCreateExternalConnection()
@@ -148,7 +147,13 @@ export const ConnectionsModal = () => {
       await onCreateConnection()
     } else {
       const newNode = await dispatch(createNodeEntry({ title: newNodeTitle }))
-      const newForeignEntryId = newNode?.payload?.id ?? null
+      const newForeignEntryId = newNode?.payload ?? null
+
+      if (!newForeignEntryId) {
+        console.error('Failed to create new node - no valid ID returned:', newNode)
+        showToast('Failed to create new node', 'error')
+        return
+      }
 
       await dispatch(
         createConnection({
@@ -161,7 +166,7 @@ export const ConnectionsModal = () => {
           source_type: connectionSourceType,
         })
       )
-      resetLocalState()
+      await resetLocalState()
     }
   }
 

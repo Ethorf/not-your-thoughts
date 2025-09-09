@@ -1,3 +1,4 @@
+import classNames from 'classnames'
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import ReactQuill from 'react-quill'
@@ -49,10 +50,13 @@ const CreateEntry = ({ entryType }) => {
   }
 
   const toolBarModules = {
-    toolbar: [
-      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-    ],
+    toolbar:
+      entryType === JOURNAL
+        ? []
+        : [
+            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+          ],
   }
 
   useEffect(() => {
@@ -90,22 +94,28 @@ const CreateEntry = ({ entryType }) => {
   }, [quillRef])
 
   return (
-    <div className={styles.wrapper}>
-      <TextButton
-        className={styles.toolbarToggleButton}
-        tooltip={'Toggle formatting toolbar'}
-        onClick={() => setToolbarVisible(!toolbarVisible)}
-      >
-        {toolbarVisible ? 'X' : '+'}
-      </TextButton>
+    <div className={classNames(styles.wrapper, entryType === JOURNAL && styles.journalWrapper)}>
+      {entryType === NODE && (
+        <TextButton
+          className={styles.toolbarToggleButton}
+          tooltip={'Toggle formatting toolbar'}
+          onClick={() => setToolbarVisible(!toolbarVisible)}
+        >
+          {toolbarVisible ? 'X' : '+'}
+        </TextButton>
+      )}
       {entriesLoading ? (
         <SmallSpinner />
       ) : (
         <div className={styles.editorContainer}>
           {entryType === NODE ? <FormattedTextOverlay quillRef={quillRef} toolbarVisible={toolbarVisible} /> : null}
           <ReactQuill
-            className={`textArea ${toolbarVisible ? 'toolbar-visible' : 'toolbar-hidden'} ${
-              entryType === JOURNAL ? 'noScroll visibleText' : 'hiddenText'
+            className={`textArea ${
+              entryType === JOURNAL
+                ? 'noScroll visibleText toolbar-hidden'
+                : toolbarVisible
+                ? 'toolbar-visible hiddenText'
+                : 'toolbar-hidden hiddenText'
             }`}
             modules={toolBarModules}
             placeholder={PLACEHOLDER_COPY[entryType]}

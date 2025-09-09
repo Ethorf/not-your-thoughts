@@ -162,7 +162,7 @@ const ThreeTextSphere = ({
           onClick={() => onClick?.(id, conn)}
           rotation={[0, 4.7, 0]}
           position={pos}
-          renderOrder={1}
+          renderOrder={3}
           onPointerOver={() => {
             setLocalHovered(true)
             localTooltipTimeout.current = setTimeout(() => setLocalTooltip(true), 600)
@@ -180,7 +180,7 @@ const ThreeTextSphere = ({
         </mesh>
 
         {/* Halo */}
-        <mesh ref={haloRef} position={pos} renderOrder={1}>
+        <mesh ref={haloRef} position={pos} renderOrder={3}>
           {localTooltip && <Html className={styles.tooltip}>{getTooltipText(title)}</Html>}
           <sphereGeometry args={[size, 64, 64]} />
           <meshBasicMaterial color="white" transparent side={THREE.BackSide} opacity={0.2} />
@@ -231,8 +231,8 @@ const ThreeTextSphere = ({
 
         return (
           <group key={sub.id}>
-            <line geometry={geometry}>
-              <lineBasicMaterial color="white" linewidth={0.8} />
+            <line geometry={geometry} renderOrder={0}>
+              <lineBasicMaterial color="white" linewidth={0.8} depthWrite={false} depthTest={false} />
             </line>
             <SphereWithEffects
               id={sub.id}
