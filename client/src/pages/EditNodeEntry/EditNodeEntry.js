@@ -9,6 +9,9 @@ import { setTitle, saveNodeEntry, setEntryById } from '@redux/reducers/currentEn
 import { openModal } from '@redux/reducers/modalsReducer.js'
 import { fetchConnections, getSelectedText } from '@redux/reducers/connectionsReducer'
 
+// Utils
+import axiosInstance from '@utils/axiosInstance'
+
 // Constants
 import { SAVE_TYPES } from '@constants/saveTypes'
 import { MODAL_NAMES } from '@constants/modalNames.js'
@@ -82,6 +85,20 @@ const EditNodeEntry = () => {
     }
   }, [dispatch, entryId])
 
+  const handleTestEntryContents = useCallback(async () => {
+    if (!entryId) {
+      console.log('No entryId available')
+      return
+    }
+
+    try {
+      const response = await axiosInstance.get(`/api/entries/entry_contents/${entryId}`)
+      console.log('Entry Contents Data:', response.data)
+    } catch (error) {
+      console.error('Failed to fetch entry contents:', error)
+    }
+  }, [entryId])
+
   useEffect(() => {
     const handleShortcuts = async (e) => {
       if (e.ctrlKey && e.metaKey && e.key === 'c') {
@@ -132,6 +149,14 @@ const EditNodeEntry = () => {
                 className={styles.saveButton}
               >
                 Explore
+              </DefaultButton>
+
+              <DefaultButton
+                tooltip="View entry history and changes"
+                onClick={() => history.push('/history')}
+                className={styles.saveButton}
+              >
+                History
               </DefaultButton>
             </>
           ) : (

@@ -565,6 +565,149 @@ router.post('/toggle_starred', authorize, async (req, res) => {
   }
 })
 
+// Route to fetch all entry contents for a specific entry ID
+router.get('/entry_contents/:entryId', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+  const { entryId } = req.params
+  const uniquenessThreshold = 3 // Minimum character difference between contents
+
+  try {
+    // First verify the entry belongs to the user
+    const entryCheck = await pool.query('SELECT id FROM entries WHERE id = $1 AND user_id = $2', [entryId, user_id])
+
+    if (entryCheck.rows.length === 0) {
+      return res.status(404).json({ message: 'Entry not found or access denied' })
+    }
+
+    // Fetch all entry contents for the entry ID
+    const entryContents = await pool.query(
+      `SELECT 
+        id,
+        content,
+        date_created,
+        entry_id
+      FROM entry_contents 
+      WHERE entry_id = $1 
+      ORDER BY date_created DESC`,
+      [entryId]
+    )
+
+    // Filter contents based on uniqueness threshold
+    const uniqueContents = filterUniqueContents(entryContents.rows, uniquenessThreshold)
+
+    console.log(
+      `Fetched ${entryContents.rows.length} entry contents, ${uniqueContents.length} unique for entry ${entryId}`
+    )
+    return res.json({
+      entryId,
+      contents: uniqueContents,
+      count: uniqueContents.length,
+      totalFetched: entryContents.rows.length,
+      uniquenessThreshold,
+    })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// Helper function to calculate character difference between two strings
+function calculateCharacterDifference(str1, str2) {
+  if (!str1 || !str2) return Math.max(str1?.length || 0, str2?.length || 0)
+
+  const len1 = str1.length
+  const len2 = str2.length
+
+  // If lengths are very different, return the difference
+  if (Math.abs(len1 - len2) >= 3) return Math.abs(len1 - len2)
+
+  // Calculate Levenshtein distance for character-level differences
+  const matrix = Array(len2 + 1)
+    .fill(null)
+    .map(() => Array(len1 + 1).fill(null))
+
+  for (let i = 0; i <= len1; i++) matrix[0][i] = i
+  for (let j = 0; j <= len2; j++) matrix[j][0] = j
+
+  for (let j = 1; j <= len2; j++) {
+    for (let i = 1; i <= len1; i++) {
+      const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1
+      matrix[j][i] = Math.min(
+        matrix[j][i - 1] + 1, // deletion
+        matrix[j - 1][i] + 1, // insertion
+        matrix[j - 1][i - 1] + indicator // substitution
+      )
+    }
+  }
+
+  return matrix[len2][len1]
+}
+
+// Helper function to filter contents based on uniqueness threshold
+function filterUniqueContents(contents, threshold) {
+  if (contents.length === 0) return contents
+
+  const uniqueContents = [contents[0]] // Always include the first (most recent) content
+
+  for (let i = 1; i < contents.length; i++) {
+    const currentContent = contents[i]
+    let isUnique = true
+
+    // Check if current content is sufficiently different from all previously selected unique contents
+    for (const uniqueContent of uniqueContents) {
+      const difference = calculateCharacterDifference(currentContent.content, uniqueContent.content)
+      if (difference < threshold) {
+        isUnique = false
+        break
+      }
+    }
+
+    if (isUnique) {
+      uniqueContents.push(currentContent)
+    }
+  }
+
+  // Filter out any remaining exact duplicates (0 character difference)
+  const finalContents = []
+  for (let i = 0; i < uniqueContents.length; i++) {
+    const currentContent = uniqueContents[i]
+    let isExactDuplicate = false
+
+    // Check if this content is an exact duplicate of any previous content
+    for (let j = 0; j < finalContents.length; j++) {
+      if (currentContent.content === finalContents[j].content) {
+        isExactDuplicate = true
+        break
+      }
+    }
+
+    if (!isExactDuplicate) {
+      finalContents.push(currentContent)
+    }
+  }
+
+  // Final pass: remove any versions that have no meaningful changes from the previous version
+  const meaningfulContents = []
+  for (let i = 0; i < finalContents.length; i++) {
+    const currentContent = finalContents[i]
+
+    if (i === 0) {
+      // Always include the first (most recent) version
+      meaningfulContents.push(currentContent)
+    } else {
+      // Check if this version has meaningful changes from the previous one
+      const previousContent = finalContents[i - 1]
+      const difference = calculateCharacterDifference(currentContent.content, previousContent.content)
+
+      if (difference >= threshold) {
+        meaningfulContents.push(currentContent)
+      }
+    }
+  }
+
+  return meaningfulContents
+}
+
 // POST /entries/batch_create
 // Batch create user journal entries
 
