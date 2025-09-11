@@ -1,15 +1,11 @@
-import React, { useRef, useMemo, useState, useEffect } from 'react'
+import React, { useRef, useMemo, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import * as THREE from 'three'
-import { useDispatch } from 'react-redux'
 
 // Constants
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
 import { DEFAULT_SPHERE_SIZES } from '@constants/spheres'
-
-// Redux
-import { fetchConnectionsDirect } from '@redux/reducers/connectionsReducer'
 
 // Utils
 import { transformConnection } from '@utils/transformConnection'
@@ -29,10 +25,8 @@ const ThreeTextSphere = ({
   position = [0, 0, 0],
   sphereType,
   size = DEFAULT_SPHERE_SIZES.MAIN,
+  subConnections = [],
 }) => {
-  const dispatch = useDispatch()
-  const [subConnections, setSubConnections] = useState(null)
-
   const initialSphereSize = size ?? DEFAULT_SPHERE_SIZES[sphereType]
 
   // Create a canvas texture for the main sphere with text + title
@@ -98,14 +92,7 @@ const ThreeTextSphere = ({
     return conn.connection_type === EXTERNAL ? `Follow ${title} link` : `Explore ${title}'s connections`
   }
 
-  // Fetch one level of sub-connections
-  useEffect(() => {
-    const fetchSubs = async () => {
-      const result = await dispatch(fetchConnectionsDirect(connId)).unwrap()
-      setSubConnections(result)
-    }
-    if (connId) fetchSubs()
-  }, [connId, dispatch])
+  // Sub-connections are now passed as props from parent component
 
   const ORBITAL_RADIUS = size * 3
 
@@ -188,8 +175,7 @@ const ThreeTextSphere = ({
       </group>
     )
   }
-  console.log('<<<<<< conn >>>>>>>>> is: <<<<<<<<<<<<')
-  console.log(conn)
+
   return (
     <>
       {/* Main sphere */}

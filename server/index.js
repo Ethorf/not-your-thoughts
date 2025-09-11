@@ -72,6 +72,33 @@ const server = app.listen(PORT, () => {
   //   })
   // }
 })
+const gracefulShutdownOld = (signal) => {
+  console.log(`Received ${signal}. Shutting down gracefully...`)
+
+  const retryInterval = 5000 // Retry every 5 seconds
+  const maxRetries = 12 // Try for 1 minute
+
+  let attempt = 0
+
+  const tryReconnect = async () => {
+    if (attempt < maxRetries) {
+      attempt += 1
+      try {
+        await pool.connect()
+        console.log('Reconnected to the database. Resuming operations...')
+        return
+      } catch (error) {
+        console.log(`Retrying to connect to the database... (Attempt ${attempt}/${maxRetries})`)
+        setTimeout(tryReconnect, retryInterval)
+      }
+    } else {
+      console.error('Max retries reached. Forcing shutdown...')
+      process.exit(1)
+    }
+  }
+
+  tryReconnect()
+}
 
 const gracefulShutdown = (signal) => {
   console.log(`Received ${signal}. Shutting down gracefully...`)
@@ -103,8 +130,11 @@ const gracefulShutdown = (signal) => {
   }, 30000)
 }
 
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
-process.on('SIGINT', () => gracefulShutdown('SIGINT'))
+// Use different shutdown strategies based on environment
+const shutdownHandler = process.env.NODE_ENV === 'production' ? gracefulShutdownOld : gracefulShutdown
+
+process.on('SIGTERM', () => shutdownHandler('SIGTERM'))
+process.on('SIGINT', () => shutdownHandler('SIGINT'))
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
@@ -118,7 +148,7 @@ process.on('uncaughtException', (err) => {
 
   // Only shutdown for truly fatal errors
   console.error('Fatal error - shutting down:', err)
-  gracefulShutdown('uncaughtException')
+  shutdownHandler('uncaughtException')
 })
 
 // Handle unhandled rejections
@@ -133,5 +163,5 @@ process.on('unhandledRejection', (err) => {
 
   // Only shutdown for truly fatal errors
   console.error('Fatal error - shutting down:', err)
-  gracefulShutdown('unhandledRejection')
+  shutdownHandler('unhandledRejection')
 })

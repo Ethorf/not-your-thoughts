@@ -7,6 +7,16 @@
   align-items: center;
 }
 
+.loadingIndicator {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 10px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 .nodesWrapper {
   width: 70vw;
   height: 80vw;

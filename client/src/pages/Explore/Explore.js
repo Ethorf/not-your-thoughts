@@ -1,6 +1,6 @@
-import React, { Suspense, useEffect } from 'react'
+import React, { Suspense, useEffect, useMemo, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useHistory } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom'
 import classNames from 'classnames'
 import { Canvas } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -10,7 +10,7 @@ import ThreeTextSphere from '@components/ThreeTextSphere/ThreeTextSphere.js'
 
 // Redux
 import { setEntryById } from '@redux/reducers/currentEntryReducer'
-import { fetchConnections } from '@redux/reducers/connectionsReducer'
+import { fetchConnections, fetchConnectionsDirect } from '@redux/reducers/connectionsReducer'
 
 // Styles
 import styles from './Explore.module.scss'
@@ -30,10 +30,150 @@ const {
 const Explore = () => {
   const nodeEntriesInfo = useNodeEntriesInfo()
   const history = useHistory()
+  const location = useLocation()
   const dispatch = useDispatch()
 
   const { content, title, entryId } = useSelector((state) => state.currentEntry)
   const { connections } = useSelector((state) => state.connections)
+
+  // State for all visible connections (main + sub-connections)
+  const [allVisibleConnections, setAllVisibleConnections] = useState({})
+  const [subConnectionsMap, setSubConnectionsMap] = useState({})
+  const [isLoadingConnections, setIsLoadingConnections] = useState(false)
+  const [connectionCache, setConnectionCache] = useState({})
+
+  // Deduplication helper function
+  const deduplicateConnections = useCallback(
+    (connections, seenIds = new Set(), seenTitles = new Set()) => {
+      const unique = []
+
+      connections?.forEach((conn) => {
+        const transformed = transformConnection(entryId, conn)
+        const id = transformed.id
+        const title = transformed.title?.toLowerCase().trim()
+
+        // Skip if we've already seen this ID or title
+        if (seenIds.has(id) || (title && seenTitles.has(title))) {
+          return
+        }
+
+        // Add to unique list and mark as seen
+        unique.push(conn)
+        seenIds.add(id)
+        if (title) {
+          seenTitles.add(title)
+        }
+      })
+
+      return { unique, seenIds, seenTitles }
+    },
+    [entryId]
+  )
+
+  // Optimized connection fetching with caching and parallel processing
+  const fetchAllConnections = useCallback(async () => {
+    if (!entryId || !connections) return
+
+    setIsLoadingConnections(true)
+    const seenIds = new Set()
+    const seenTitles = new Set()
+    const allConnections = {}
+    const subConnections = {}
+
+    // Start with main connections
+    const mainResult = deduplicateConnections(connections, seenIds, seenTitles)
+    mainResult.unique.forEach((conn) => {
+      allConnections[conn.id] = conn
+    })
+
+    // Filter out external connections and check cache
+    const internalConnections = mainResult.unique.filter((conn) => conn.connection_type !== EXTERNAL)
+    const uncachedConnections = internalConnections.filter((conn) => !connectionCache[conn.id])
+    const cachedConnections = internalConnections.filter((conn) => connectionCache[conn.id])
+
+    // Process cached connections immediately
+    cachedConnections.forEach((conn) => {
+      const cachedSubs = connectionCache[conn.id]
+      const subDeduped = deduplicateConnections(cachedSubs, seenIds, seenTitles)
+
+      subDeduped.unique.forEach((subConn) => {
+        allConnections[subConn.id] = subConn
+      })
+      subConnections[conn.id] = subDeduped.unique
+    })
+
+    // Fetch uncached connections in parallel with batching
+    if (uncachedConnections.length > 0) {
+      const BATCH_SIZE = 5 // Process 5 connections at a time
+      const batches = []
+
+      for (let i = 0; i < uncachedConnections.length; i += BATCH_SIZE) {
+        const batch = uncachedConnections.slice(i, i + BATCH_SIZE)
+        batches.push(batch)
+      }
+
+      // Process batches sequentially but connections within each batch in parallel
+      for (const batch of batches) {
+        const batchPromises = batch.map(async (conn) => {
+          try {
+            const subResult = await dispatch(fetchConnectionsDirect(conn.id)).unwrap()
+            const subDeduped = deduplicateConnections(subResult, seenIds, seenTitles)
+
+            // Add sub-connections to main list
+            subDeduped.unique.forEach((subConn) => {
+              allConnections[subConn.id] = subConn
+            })
+
+            // Store sub-connections for this parent
+            subConnections[conn.id] = subDeduped.unique
+
+            // Cache the result
+            setConnectionCache((prev) => ({
+              ...prev,
+              [conn.id]: subResult,
+            }))
+          } catch (error) {
+            console.error(`Error fetching sub-connections for ${conn.id}:`, error)
+          }
+        })
+
+        await Promise.all(batchPromises)
+      }
+    }
+
+    setAllVisibleConnections(allConnections)
+    setSubConnectionsMap(subConnections)
+    setIsLoadingConnections(false)
+  }, [entryId, connections, dispatch, deduplicateConnections, connectionCache])
+
+  // Debounced connection fetching to prevent excessive re-fetches
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchAllConnections()
+    }, 300) // 300ms debounce
+
+    return () => clearTimeout(timeoutId)
+  }, [entryId, connections, fetchAllConnections])
+
+  // Get main connections (direct connections to center sphere)
+  const mainConnections = useMemo(() => {
+    return connections?.filter((conn) => allVisibleConnections[conn.id]) || []
+  }, [connections, allVisibleConnections])
+
+  // **** Handle query parameters for entryId
+  // useEffect(() => {
+  //   const urlParams = new URLSearchParams(location.search)
+  //   const queryEntryId = urlParams.get('entryId')
+
+  //   if (queryEntryId && queryEntryId !== entryId) {
+  //     // If there's a query param entryId and it's different from current, set it
+  //     dispatch(setEntryById(queryEntryId))
+  //   } else if (!queryEntryId && entryId) {
+  //     // If there's no query param but we have an entryId, add it to the URL
+  //     const newUrl = `${location.pathname}?entryId=${entryId}`
+  //     history.replace(newUrl)
+  //   }
+  // }, [location.search, entryId, dispatch, history, location.pathname])
 
   const handleMainNodeClick = async () => {
     history.push(`/edit-node-entry?entryId=${entryId}`)
@@ -113,6 +253,9 @@ const Explore = () => {
       window.open(conn.foreign_source, '_blank')
     } else {
       await dispatch(setEntryById(id))
+      // Update the query parameter when switching to a different entry
+      const newUrl = `${location.pathname}?entryId=${id}`
+      history.replace(newUrl)
     }
   }
 
@@ -144,6 +287,7 @@ const Explore = () => {
   return (
     <div className={classNames(styles.wrapper, sharedStyles.flexColumnCenter)}>
       <h1>Explore</h1>
+      {isLoadingConnections && <div className={styles.loadingIndicator}>Loading connections...</div>}
       <div className={styles.nodesWrapper}>
         <Canvas camera={{ position: [0, 0, 8] }}>
           <ambientLight />
@@ -164,7 +308,7 @@ const Explore = () => {
 
             {/* Connection lines to main - render first */}
             <group>
-              {connections?.map((conn) => {
+              {mainConnections?.map((conn) => {
                 const pos = positions[conn.id]
                 if (!pos) return null
 
@@ -209,7 +353,7 @@ const Explore = () => {
 
             {/* Connection spheres + their sub spheres - render second */}
             <group>
-              {connections?.map((conn) => {
+              {mainConnections?.map((conn) => {
                 const transformed = transformConnection(entryId, conn)
                 const pos = positions[conn.id]
                 if (!pos) return null
@@ -234,7 +378,8 @@ const Explore = () => {
                       position={endPos}
                       sphereType={SPHERE_TYPES.CONNECTION}
                       size={sphereSize}
-                      onClick={handleConnectionSphereClick}
+                      onClick={() => handleConnectionSphereClick(transformed.id, conn)}
+                      subConnections={subConnectionsMap[conn.id] || []}
                     />
                   </React.Fragment>
                 )
