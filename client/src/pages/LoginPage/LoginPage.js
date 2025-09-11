@@ -12,7 +12,7 @@ import { login, toggleGuestMode } from '@redux/actions/authActions.js'
 
 import { showToast } from '@utils/toast.js'
 
-import sharedStyles from '@styles/shared.module.scss'
+import sharedStyles from '@styles/sharedClassnames.module.scss'
 import styles from './LoginPage.module.scss'
 import './LoginPage-RegisterPage.scss'
 

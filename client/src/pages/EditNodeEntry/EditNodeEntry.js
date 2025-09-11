@@ -9,9 +9,6 @@ import { setTitle, saveNodeEntry, setEntryById } from '@redux/reducers/currentEn
 import { openModal } from '@redux/reducers/modalsReducer.js'
 import { fetchConnections, getSelectedText } from '@redux/reducers/connectionsReducer'
 
-// Utils
-import axiosInstance from '@utils/axiosInstance'
-
 // Constants
 import { SAVE_TYPES } from '@constants/saveTypes'
 import { MODAL_NAMES } from '@constants/modalNames.js'
@@ -29,6 +26,7 @@ import Spinner from '@components/Shared/Spinner/Spinner'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 
 import styles from './EditNodeEntry.module.scss'
+import sharedStyles from '@styles/sharedClassnames.module.scss'
 
 const { PRIMARY } = CONNECTION_ENTRY_SOURCES
 
@@ -85,20 +83,6 @@ const EditNodeEntry = () => {
     }
   }, [dispatch, entryId])
 
-  const handleTestEntryContents = useCallback(async () => {
-    if (!entryId) {
-      console.log('No entryId available')
-      return
-    }
-
-    try {
-      const response = await axiosInstance.get(`/api/entries/entry_contents/${entryId}`)
-      console.log('Entry Contents Data:', response.data)
-    } catch (error) {
-      console.error('Failed to fetch entry contents:', error)
-    }
-  }, [entryId])
-
   useEffect(() => {
     const handleShortcuts = async (e) => {
       if (e.ctrlKey && e.metaKey && e.key === 'c') {
@@ -121,7 +105,7 @@ const EditNodeEntry = () => {
       <WritingDataManager entryType={ENTRY_TYPES.NODE} handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
       <div className={styles.editContainer}>
         <h2>Edit Node</h2>
-        <div className={classNames(styles.topContainer, styles.grid4ColumnsCustom)}>
+        <div className={classNames(styles.topContainer, styles.grid3Columns)}>
           {content || title ? (
             <>
               <div className={styles.connectStarContainer}>
@@ -135,29 +119,23 @@ const EditNodeEntry = () => {
                 <StarButton id={entryId} initialStarred={starred} />
               </div>
               <DefaultInput
-                className={classNames(styles.titleInput, styles.flexCenter, {
+                className={classNames(styles.titleInput, sharedStyles.flexCenter, {
                   [styles.titleInputNoBorder]: title.length,
                 })}
                 placeholder={'Enter Title'}
                 value={title}
                 onChange={handleTitleChange}
               />
-              <AkasDisplay />
-              <DefaultButton
-                tooltip="Explore nodes"
-                onClick={() => history.push(`/explore`)}
-                className={styles.saveButton}
-              >
-                Explore
-              </DefaultButton>
-
-              <DefaultButton
-                tooltip="View entry history and changes"
-                onClick={() => history.push('/history')}
-                className={styles.saveButton}
-              >
-                History
-              </DefaultButton>
+              <span className={sharedStyles.flexSpaceBetween}>
+                <AkasDisplay />
+                <DefaultButton
+                  tooltip="Explore nodes"
+                  onClick={() => history.push(`/explore`)}
+                  className={styles.saveButton}
+                >
+                  Explore
+                </DefaultButton>
+              </span>
             </>
           ) : (
             <Spinner />
@@ -165,9 +143,17 @@ const EditNodeEntry = () => {
         </div>
         {!connectionsLoading ? <CreateEntry entryType={ENTRY_TYPES.NODE} /> : null}
         <div className={styles.grid3Columns}>
-          <span className={styles.flexStart}>Words: {wordCount}</span>
-          <span />
-          <span className={styles.flexEnd}>
+          <span className={sharedStyles.flexStart}>
+            <DefaultButton
+              tooltip="View entry history and changes"
+              onClick={() => history.push('/history')}
+              className={styles.saveButton}
+            >
+              History
+            </DefaultButton>
+          </span>
+          <span className={sharedStyles.flexCenter}>Words: {wordCount}</span>
+          <span className={sharedStyles.flexEnd}>
             {entriesLoading ? (
               <SmallSpinner />
             ) : (

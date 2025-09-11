@@ -15,7 +15,7 @@ import Spinner from '@components/Shared/Spinner/Spinner'
 
 // Styles
 import styles from './History.module.scss'
-import sharedStyles from '@styles/shared.module.scss'
+import sharedStyles from '@styles/sharedClassnames.module.scss'
 
 const History = () => {
   const dispatch = useDispatch()

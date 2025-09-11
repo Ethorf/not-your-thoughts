@@ -55,7 +55,7 @@ export const DashboardNodeEntry = ({ node = {} }) => {
         Explore
       </DefaultButton>
       <DefaultButton className={styles.deleteButton} onClick={handleOpenAreYouSureModal}>
-        Delete
+        X
       </DefaultButton>
     </li>
   )

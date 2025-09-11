@@ -14,7 +14,7 @@ import { fetchConnections } from '@redux/reducers/connectionsReducer'
 
 // Styles
 import styles from './Explore.module.scss'
-import sharedStyles from '@styles/shared.module.scss'
+import sharedStyles from '@styles/sharedClassnames.module.scss'
 
 // Constants
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
@@ -48,6 +48,7 @@ const Explore = () => {
   const center = [0, 0, 0]
   const positions = {}
   const LINE_EXTENSION_FACTOR = 1.5
+  const EXTERNAL_DISTANCE_FACTOR = 1.8 // Controls both external sphere distance and line length
 
   const SPHERE_DIAMETER = 0.5 * 2
   const MIN_SEPARATION = SPHERE_DIAMETER + 0.1
@@ -77,39 +78,14 @@ const Explore = () => {
     positions[s.id] = scaleFromOrigin([x, y, 0], OUTER_FACTOR)
   })
 
-  // Position externals
+  // Position externals - closer to pointing directly up
   externals.forEach((e, i) => {
-    const diagonalIndex = i % 2
-    const ring = Math.floor(i / 4)
-    const baseDistance = SPHERE_DIAMETER * 3
-    const distance = baseDistance * (1 + ring * 0.4)
-    const offset = ring * 0.4
+    const baseVerticalDistance = SPHERE_DIAMETER * 2.5 // Distance above center
+    const horizontalOffset = (i % 2 === 0 ? -1 : 1) * SPHERE_DIAMETER * 0.8 // Small left/right offset
+    const verticalOffset = Math.floor(i / 2) * SPHERE_DIAMETER * 0.6 // Stack vertically
 
-    let x = 0,
-      y = 0
-    switch (diagonalIndex) {
-      case 0:
-        x = -distance - offset
-        y = distance + offset
-        break
-      case 1:
-        x = distance + offset
-        y = distance + offset
-        break
-      case 2:
-        x = distance + offset
-        y = -distance - offset
-        break
-      case 3:
-        x = -distance - offset
-        y = -distance - offset
-        break
-      default:
-        // Default case for any unexpected values
-        x = distance
-        y = distance
-        break
-    }
+    const x = horizontalOffset
+    const y = baseVerticalDistance + verticalOffset
 
     positions[e.id] = [x, y, 0]
   })
@@ -193,13 +169,14 @@ const Explore = () => {
                 if (!pos) return null
 
                 // Calculate line start/end points to avoid overlapping spheres
-                const endPos = new THREE.Vector3(...pos).multiplyScalar(LINE_EXTENSION_FACTOR)
+                const isExternal = conn.connection_type === EXTERNAL
+                const extensionFactor = isExternal ? EXTERNAL_DISTANCE_FACTOR : LINE_EXTENSION_FACTOR
+                const endPos = new THREE.Vector3(...pos).multiplyScalar(extensionFactor)
                 const startPos = new THREE.Vector3(...center)
 
                 // line geometry from main -> connection
                 const points = [startPos, endPos]
                 const geometry = new THREE.BufferGeometry().setFromPoints(points)
-                const isExternal = conn.connection_type === EXTERNAL
 
                 return (
                   <line
@@ -237,7 +214,9 @@ const Explore = () => {
                 const pos = positions[conn.id]
                 if (!pos) return null
 
-                const endPos = new THREE.Vector3(...pos).multiplyScalar(LINE_EXTENSION_FACTOR)
+                const isExternal = conn.connection_type === EXTERNAL
+                const extensionFactor = isExternal ? EXTERNAL_DISTANCE_FACTOR : LINE_EXTENSION_FACTOR
+                const endPos = new THREE.Vector3(...pos).multiplyScalar(extensionFactor)
 
                 const nodeInfo = nodeEntriesInfo.find((n) => n.id === transformed.id)
                 const sphereSize = getScaledSphereSize(

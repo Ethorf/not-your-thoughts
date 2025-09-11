@@ -86,8 +86,8 @@ const ThreeTextSphere = ({
     }
 
     const tex = new THREE.CanvasTexture(canvas)
-    tex.wrapS = THREE.RepeatWrapping
-    tex.wrapT = THREE.RepeatWrapping
+    tex.wrapS = THREE.ClampToEdgeWrapping
+    tex.wrapT = THREE.ClampToEdgeWrapping
     return tex
   }, [text, title])
 
@@ -138,8 +138,8 @@ const ThreeTextSphere = ({
       }
 
       const tex = new THREE.CanvasTexture(canvas)
-      tex.wrapS = THREE.RepeatWrapping
-      tex.wrapT = THREE.RepeatWrapping
+      tex.wrapS = THREE.ClampToEdgeWrapping
+      tex.wrapT = THREE.ClampToEdgeWrapping
       return tex
     }, [title, useMainTexture])
 

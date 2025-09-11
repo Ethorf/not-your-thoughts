@@ -25,7 +25,8 @@ export const NodesDashboardList = () => {
 
   return (
     <>
-      <div>
+      <div className={styles.topContainer}>
+        <h3>Nodes</h3>
         <label>
           Sort:
           <select className={styles.sortControls} value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
