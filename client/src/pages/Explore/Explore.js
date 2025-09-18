@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useMemo, useState, useCallback } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useHistory, useLocation } from 'react-router-dom'
 import classNames from 'classnames'
@@ -10,7 +10,7 @@ import ThreeTextSphere from '@components/ThreeTextSphere/ThreeTextSphere.js'
 
 // Redux
 import { setEntryById } from '@redux/reducers/currentEntryReducer'
-import { fetchConnections, fetchConnectionsDirect } from '@redux/reducers/connectionsReducer'
+import { fetchConnections } from '@redux/reducers/connectionsReducer'
 
 // Styles
 import styles from './Explore.module.scss'
@@ -22,6 +22,8 @@ import { SPHERE_TYPES, DEFAULT_SPHERE_SIZES } from '@constants/spheres'
 
 // Utils
 import { transformConnection } from '@utils/transformConnection'
+import extractTextFromHTML from '@utils/extractTextFromHTML'
+import calculateSpherePositions from '@utils/calculateSpherePositions'
 
 const {
   FRONTEND: { PARENT, EXTERNAL, CHILD, SIBLING },
@@ -36,129 +38,16 @@ const Explore = () => {
   const { content, title, entryId } = useSelector((state) => state.currentEntry)
   const { connections } = useSelector((state) => state.connections)
 
-  // State for all visible connections (main + sub-connections)
-  const [allVisibleConnections, setAllVisibleConnections] = useState({})
-  const [subConnectionsMap, setSubConnectionsMap] = useState({})
-  const [isLoadingConnections, setIsLoadingConnections] = useState(false)
-  const [connectionCache, setConnectionCache] = useState({})
+  // *** May not actually need this right now, I think I'm just going to start with filtering the main entryId
+  const [seenNodeIds, setSeenNodeIds] = useState([entryId])
 
-  // Deduplication helper function
-  const deduplicateConnections = useCallback(
-    (connections, seenIds = new Set(), seenTitles = new Set()) => {
-      const unique = []
-
-      connections?.forEach((conn) => {
-        const transformed = transformConnection(entryId, conn)
-        const id = transformed.id
-        const title = transformed.title?.toLowerCase().trim()
-
-        // Skip if we've already seen this ID or title
-        if (seenIds.has(id) || (title && seenTitles.has(title))) {
-          return
-        }
-
-        // Add to unique list and mark as seen
-        unique.push(conn)
-        seenIds.add(id)
-        if (title) {
-          seenTitles.add(title)
-        }
-      })
-
-      return { unique, seenIds, seenTitles }
-    },
-    [entryId]
-  )
-
-  // Optimized connection fetching with caching and parallel processing
-  const fetchAllConnections = useCallback(async () => {
-    if (!entryId || !connections) return
-
-    setIsLoadingConnections(true)
-    const seenIds = new Set()
-    const seenTitles = new Set()
-    const allConnections = {}
-    const subConnections = {}
-
-    // Start with main connections
-    const mainResult = deduplicateConnections(connections, seenIds, seenTitles)
-    mainResult.unique.forEach((conn) => {
-      allConnections[conn.id] = conn
-    })
-
-    // Filter out external connections and check cache
-    const internalConnections = mainResult.unique.filter((conn) => conn.connection_type !== EXTERNAL)
-    const uncachedConnections = internalConnections.filter((conn) => !connectionCache[conn.id])
-    const cachedConnections = internalConnections.filter((conn) => connectionCache[conn.id])
-
-    // Process cached connections immediately
-    cachedConnections.forEach((conn) => {
-      const cachedSubs = connectionCache[conn.id]
-      const subDeduped = deduplicateConnections(cachedSubs, seenIds, seenTitles)
-
-      subDeduped.unique.forEach((subConn) => {
-        allConnections[subConn.id] = subConn
-      })
-      subConnections[conn.id] = subDeduped.unique
-    })
-
-    // Fetch uncached connections in parallel with batching
-    if (uncachedConnections.length > 0) {
-      const BATCH_SIZE = 5 // Process 5 connections at a time
-      const batches = []
-
-      for (let i = 0; i < uncachedConnections.length; i += BATCH_SIZE) {
-        const batch = uncachedConnections.slice(i, i + BATCH_SIZE)
-        batches.push(batch)
-      }
-
-      // Process batches sequentially but connections within each batch in parallel
-      for (const batch of batches) {
-        const batchPromises = batch.map(async (conn) => {
-          try {
-            const subResult = await dispatch(fetchConnectionsDirect(conn.id)).unwrap()
-            const subDeduped = deduplicateConnections(subResult, seenIds, seenTitles)
-
-            // Add sub-connections to main list
-            subDeduped.unique.forEach((subConn) => {
-              allConnections[subConn.id] = subConn
-            })
-
-            // Store sub-connections for this parent
-            subConnections[conn.id] = subDeduped.unique
-
-            // Cache the result
-            setConnectionCache((prev) => ({
-              ...prev,
-              [conn.id]: subResult,
-            }))
-          } catch (error) {
-            console.error(`Error fetching sub-connections for ${conn.id}:`, error)
-          }
-        })
-
-        await Promise.all(batchPromises)
-      }
-    }
-
-    setAllVisibleConnections(allConnections)
-    setSubConnectionsMap(subConnections)
-    setIsLoadingConnections(false)
-  }, [entryId, connections, dispatch, deduplicateConnections, connectionCache])
-
-  // Debounced connection fetching to prevent excessive re-fetches
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      fetchAllConnections()
-    }, 300) // 300ms debounce
-
-    return () => clearTimeout(timeoutId)
-  }, [entryId, connections, fetchAllConnections])
-
-  // Get main connections (direct connections to center sphere)
-  const mainConnections = useMemo(() => {
-    return connections?.filter((conn) => allVisibleConnections[conn.id]) || []
-  }, [connections, allVisibleConnections])
+  // --- Positioning logic ---
+  const { positions, center, lineExtensionFactor, externalDistanceFactor } = calculateSpherePositions(connections, {
+    PARENT,
+    EXTERNAL,
+    CHILD,
+    SIBLING,
+  })
 
   // **** Handle query parameters for entryId
   // useEffect(() => {
@@ -178,69 +67,6 @@ const Explore = () => {
   const handleMainNodeClick = async () => {
     history.push(`/edit-node-entry?entryId=${entryId}`)
   }
-
-  function extractTextFromHTML(htmlString) {
-    const doc = new DOMParser().parseFromString(htmlString, 'text/html')
-    return doc.body.textContent || ''
-  }
-
-  // --- Positioning logic ---
-  const center = [0, 0, 0]
-  const positions = {}
-  const LINE_EXTENSION_FACTOR = 1.5
-  const EXTERNAL_DISTANCE_FACTOR = 1.8 // Controls both external sphere distance and line length
-
-  const SPHERE_DIAMETER = 0.5 * 2
-  const MIN_SEPARATION = SPHERE_DIAMETER + 0.1
-
-  const SIBLING_DISTANCE_FROM_CENTER_SPHERE = 0.5
-  const CHILD_DISTANCE_FROM_CENTER_SPHERE = SIBLING_DISTANCE_FROM_CENTER_SPHERE + 0.6
-  const PARENT_DISTANCE_FROM_CENTER_SPHERE = SIBLING_DISTANCE_FROM_CENTER_SPHERE + 0.7
-
-  // Filter connections by type
-  const siblings = connections?.filter((c) => c.connection_type === SIBLING) || []
-  const parents = connections?.filter((c) => c.connection_type === PARENT) || []
-  const children = connections?.filter((c) => c.connection_type === CHILD) || []
-  const externals = connections?.filter((c) => c.connection_type === EXTERNAL) || []
-
-  const OUTER_FACTOR = 1.1
-  const scaleFromOrigin = (pos, factor) => {
-    const v = new THREE.Vector3(...pos)
-    return v.multiplyScalar(factor).toArray()
-  }
-
-  // Position siblings
-  siblings.forEach((s, i) => {
-    // Alternate left and right sides
-    const side = i % 2 === 0 ? -1 : 1
-    const x = side * (SPHERE_DIAMETER + SIBLING_DISTANCE_FROM_CENTER_SPHERE)
-    const y = Math.floor(i / 2) * MIN_SEPARATION * (i % 2 === 0 ? 1 : -1)
-    positions[s.id] = scaleFromOrigin([x, y, 0], OUTER_FACTOR)
-  })
-
-  // Position externals - closer to pointing directly up
-  externals.forEach((e, i) => {
-    const baseVerticalDistance = SPHERE_DIAMETER * 2.5 // Distance above center
-    const horizontalOffset = (i % 2 === 0 ? -1 : 1) * SPHERE_DIAMETER * 0.8 // Small left/right offset
-    const verticalOffset = Math.floor(i / 2) * SPHERE_DIAMETER * 0.6 // Stack vertically
-
-    const x = horizontalOffset
-    const y = baseVerticalDistance + verticalOffset
-
-    positions[e.id] = [x, y, 0]
-  })
-
-  // Position parents
-  parents.forEach((p, i) => {
-    positions[p.id] = [0, SPHERE_DIAMETER + MIN_SEPARATION * PARENT_DISTANCE_FROM_CENTER_SPHERE, 0]
-  })
-
-  // Position children
-  children.forEach((c, i) => {
-    const x = (i - (children.length - 1) / 2) * MIN_SEPARATION
-    const y = -2
-    positions[c.id] = scaleFromOrigin([x, y, 0], CHILD_DISTANCE_FROM_CENTER_SPHERE)
-  })
 
   useEffect(() => {
     if (entryId) {
@@ -287,7 +113,6 @@ const Explore = () => {
   return (
     <div className={classNames(styles.wrapper, sharedStyles.flexColumnCenter)}>
       <h1>Explore</h1>
-      {isLoadingConnections && <div className={styles.loadingIndicator}>Loading connections...</div>}
       <div className={styles.nodesWrapper}>
         <Canvas camera={{ position: [0, 0, 8] }}>
           <ambientLight />
@@ -306,15 +131,15 @@ const Explore = () => {
               />
             </group>
 
-            {/* Connection lines to main - render first */}
+            {/* LINES Connection to main - render first */}
             <group>
-              {mainConnections?.map((conn) => {
+              {connections?.map((conn) => {
                 const pos = positions[conn.id]
                 if (!pos) return null
 
                 // Calculate line start/end points to avoid overlapping spheres
                 const isExternal = conn.connection_type === EXTERNAL
-                const extensionFactor = isExternal ? EXTERNAL_DISTANCE_FACTOR : LINE_EXTENSION_FACTOR
+                const extensionFactor = isExternal ? externalDistanceFactor : lineExtensionFactor
                 const endPos = new THREE.Vector3(...pos).multiplyScalar(extensionFactor)
                 const startPos = new THREE.Vector3(...center)
 
@@ -351,15 +176,15 @@ const Explore = () => {
               })}
             </group>
 
-            {/* Connection spheres + their sub spheres - render second */}
+            {/* CONNECTION SPHERES + their sub spheres - render second */}
             <group>
-              {mainConnections?.map((conn) => {
+              {connections?.map((conn) => {
                 const transformed = transformConnection(entryId, conn)
                 const pos = positions[conn.id]
                 if (!pos) return null
 
                 const isExternal = conn.connection_type === EXTERNAL
-                const extensionFactor = isExternal ? EXTERNAL_DISTANCE_FACTOR : LINE_EXTENSION_FACTOR
+                const extensionFactor = isExternal ? externalDistanceFactor : lineExtensionFactor
                 const endPos = new THREE.Vector3(...pos).multiplyScalar(extensionFactor)
 
                 const nodeInfo = nodeEntriesInfo.find((n) => n.id === transformed.id)
@@ -379,7 +204,6 @@ const Explore = () => {
                       sphereType={SPHERE_TYPES.CONNECTION}
                       size={sphereSize}
                       onClick={() => handleConnectionSphereClick(transformed.id, conn)}
-                      subConnections={subConnectionsMap[conn.id] || []}
                     />
                   </React.Fragment>
                 )

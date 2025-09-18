@@ -2,8 +2,7 @@ import { CONNECTION_TYPES } from '@constants/connectionTypes'
 
 export const transformConnection = (currentEntryId, conn) => {
   if (!conn) return
-  console.log('<<<<<< conn >>>>>>>>> is: <<<<<<<<<<<<')
-  console.log(conn)
+
   if (conn.connection_type === CONNECTION_TYPES.FRONTEND.EXTERNAL) {
     return { title: conn.primary_source, id: conn.primary_entry_id }
   }

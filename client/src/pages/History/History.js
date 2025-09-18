@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import classNames from 'classnames'
 
-// Redux
-import { setEntryById } from '@redux/reducers/currentEntryReducer'
+// Redux - setEntryById not used in this component
 
 // Utils
 import axiosInstance from '@utils/axiosInstance'
+import extractTextFromHTML from '@utils/extractTextFromHTML'
 
 // Components
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
@@ -18,11 +18,9 @@ import styles from './History.module.scss'
 import sharedStyles from '@styles/sharedClassnames.module.scss'
 
 const History = () => {
-  const dispatch = useDispatch()
   const history = useHistory()
   const { entryId, title } = useSelector((state) => state.currentEntry)
 
-  const [entryContents, setEntryContents] = useState([])
   const [filteredContents, setFilteredContents] = useState([])
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -35,7 +33,7 @@ const History = () => {
     return temp.textContent || temp.innerText || ''
   }
 
-  const calculateCharacterDifference = (str1, str2) => {
+  const calculateCharacterDifference = useCallback((str1, str2) => {
     if (!str1 || !str2) return Math.max(str1?.length || 0, str2?.length || 0)
 
     const text1 = stripHtml(str1)
@@ -59,27 +57,30 @@ const History = () => {
       }
     }
     return matrix[text2.length][text1.length]
-  }
+  }, [])
 
-  const filterContentsWithChanges = (contents) => {
-    if (contents.length === 0) return contents
+  const filterContentsWithChanges = useCallback(
+    (contents) => {
+      if (contents.length === 0) return contents
 
-    const filtered = [contents[0]] // Always include the first (most recent) content
-    const threshold = 3 // Minimum character difference
+      const filtered = [contents[0]] // Always include the first (most recent) content
+      const threshold = 3 // Minimum character difference
 
-    for (let i = 1; i < contents.length; i++) {
-      const currentContent = contents[i]
-      const previousContent = contents[i - 1]
+      for (let i = 1; i < contents.length; i++) {
+        const currentContent = contents[i]
+        const previousContent = contents[i - 1]
 
-      const difference = calculateCharacterDifference(currentContent.content, previousContent.content)
+        const difference = calculateCharacterDifference(currentContent.content, previousContent.content)
 
-      if (difference >= threshold) {
-        filtered.push(currentContent)
+        if (difference >= threshold) {
+          filtered.push(currentContent)
+        }
       }
-    }
 
-    return filtered
-  }
+      return filtered
+    },
+    [calculateCharacterDifference]
+  )
 
   const fetchEntryContents = useCallback(async () => {
     if (!entryId) return
@@ -92,7 +93,6 @@ const History = () => {
       const allContents = response.data.contents
       const filtered = filterContentsWithChanges(allContents)
 
-      setEntryContents(allContents)
       setFilteredContents(filtered)
       setSelectedIndex(0) // Start with the most recent
     } catch (err) {
@@ -101,7 +101,7 @@ const History = () => {
     } finally {
       setLoading(false)
     }
-  }, [entryId])
+  }, [entryId, filterContentsWithChanges])
 
   useEffect(() => {
     fetchEntryContents()
@@ -149,7 +149,7 @@ const History = () => {
     const oldWords = oldTextContent.split(/\s+/).filter((word) => word.length > 0)
     const newWords = newTextContent.split(/\s+/).filter((word) => word.length > 0)
 
-    // Use a simple LCS (Longest Common Subsequence) algorithm
+    // Use a smarter LCS algorithm that handles word extensions better
     const lcs = (arr1, arr2) => {
       const m = arr1.length
       const n = arr2.length
@@ -195,7 +195,31 @@ const History = () => {
         j--
       }
 
-      return result
+      // Post-process to handle word extensions better
+      const processedResult = []
+      for (let k = 0; k < result.length; k++) {
+        const current = result[k]
+        const next = result[k + 1]
+
+        // Check if this is a case where a word is being extended
+        if (current.type === 'remove' && next && next.type === 'add') {
+          const removedWord = current.text
+          const addedWord = next.text
+
+          // Check if the added word starts with the removed word (extension case)
+          if (addedWord.startsWith(removedWord) && removedWord.length > 0) {
+            // Mark the common prefix as equal, and the suffix as added
+            processedResult.push({ type: 'equal', text: removedWord })
+            processedResult.push({ type: 'add', text: addedWord.substring(removedWord.length) })
+            k++ // Skip the next item since we processed it
+            continue
+          }
+        }
+
+        processedResult.push(current)
+      }
+
+      return processedResult
     }
 
     return lcs(oldWords, newWords)
@@ -203,6 +227,11 @@ const History = () => {
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString()
+  }
+
+  const getVersionPreview = (content) => {
+    const textContent = extractTextFromHTML(content)
+    return textContent.substring(0, 100) + (textContent.length > 100 ? '...' : '')
   }
 
   if (loading) {
@@ -238,7 +267,9 @@ const History = () => {
   return (
     <div className={classNames(styles.wrapper, sharedStyles.flexColumnCenter)}>
       <div className={styles.header}>
-        <h1>History: {title}</h1>
+        <h1>
+          <span className={styles.historyTitle}>History:</span> {title}
+        </h1>
         <DefaultButton onClick={handleBackToEdit}>Back to Edit</DefaultButton>
       </div>
 
@@ -258,23 +289,21 @@ const History = () => {
                   <span className={styles.versionNumber}>v{filteredContents.length - index}</span>
                   <span className={styles.versionDate}>{formatDate(content.date_created)}</span>
                 </div>
-                <div
-                  className={styles.versionPreview}
-                  dangerouslySetInnerHTML={{
-                    __html: content.content.substring(0, 100) + (content.content.length > 100 ? '...' : ''),
-                  }}
-                />
+                <div className={styles.versionPreview}>{getVersionPreview(content.content)}</div>
               </button>
             ))}
           </div>
         </div>
+        {/* DIFF ZONE */}
 
         <div className={styles.diffContainer}>
           <h3>
-            Changes from v{filteredContents.length - selectedIndex - 1} to v{filteredContents.length - selectedIndex}
-            {selectedIndex === filteredContents.length - 1 && ' (Initial Version)'}
+            {selectedIndex === filteredContents.length - 1
+              ? 'Initial Version'
+              : `Changes from v${filteredContents.length - selectedIndex - 1} to v${
+                  filteredContents.length - selectedIndex
+                }`}
           </h3>
-
           <div className={styles.diffContent}>
             {diffData &&
               diffData.diff.map((part, index) => (
@@ -286,7 +315,7 @@ const History = () => {
                     [styles.equal]: part.type === 'equal',
                   })}
                 >
-                  {part.text}
+                  {extractTextFromHTML(part.text)}
                   {index < diffData.diff.length - 1 && ' '}
                 </span>
               ))}

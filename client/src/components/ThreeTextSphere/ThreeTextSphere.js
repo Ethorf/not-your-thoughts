@@ -1,11 +1,15 @@
-import React, { useRef, useMemo, useState } from 'react'
+import React, { useRef, useMemo, useState, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import * as THREE from 'three'
+import { useDispatch, useSelector } from 'react-redux'
 
 // Constants
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
 import { DEFAULT_SPHERE_SIZES } from '@constants/spheres'
+
+// Redux
+import { fetchConnectionsDirect } from '@redux/reducers/connectionsReducer'
 
 // Utils
 import { transformConnection } from '@utils/transformConnection'
@@ -25,9 +29,11 @@ const ThreeTextSphere = ({
   position = [0, 0, 0],
   sphereType,
   size = DEFAULT_SPHERE_SIZES.MAIN,
-  subConnections = [],
 }) => {
+  const dispatch = useDispatch()
+  const [subConnections, setSubConnections] = useState(null)
   const initialSphereSize = size ?? DEFAULT_SPHERE_SIZES[sphereType]
+  const { entryId: currentEntryId } = useSelector((state) => state.currentEntry)
 
   // Create a canvas texture for the main sphere with text + title
   const mainTexture = useMemo(() => {
@@ -92,7 +98,14 @@ const ThreeTextSphere = ({
     return conn.connection_type === EXTERNAL ? `Follow ${title} link` : `Explore ${title}'s connections`
   }
 
-  // Sub-connections are now passed as props from parent component
+  // Fetch one level of sub-connections
+  useEffect(() => {
+    const fetchSubs = async () => {
+      const result = await dispatch(fetchConnectionsDirect(connId)).unwrap()
+      setSubConnections(result)
+    }
+    if (connId) fetchSubs()
+  }, [connId, dispatch])
 
   const ORBITAL_RADIUS = size * 3
 
@@ -190,48 +203,50 @@ const ThreeTextSphere = ({
 
       {/* Sub-connections with orbital lines */}
       {conn?.connection_type !== EXTERNAL &&
-        subConnections?.map((sub, i) => {
-          // Create orbital position around the main sphere
-          const angle = (i / subConnections.length) * Math.PI * 2 // Distribute evenly around circle
+        subConnections
+          ?.filter((conn) => conn.foreign_entry_id !== currentEntryId && conn.primary_entry_id !== currentEntryId)
+          .map((sub, i) => {
+            // Create orbital position around the main sphere
+            const angle = (i / subConnections.length) * Math.PI * 2 // Distribute evenly around circle
 
-          // Compute direction vector from origin -> this sphere
-          const direction = new THREE.Vector3(...position).normalize()
+            // Compute direction vector from origin -> this sphere
+            const direction = new THREE.Vector3(...position).normalize()
 
-          // Create a perpendicular vector to the direction for orbital plane
-          const up = new THREE.Vector3(0, 1, 0)
-          const right = new THREE.Vector3().crossVectors(direction, up).normalize()
-          const forward = new THREE.Vector3().crossVectors(right, direction).normalize()
+            // Create a perpendicular vector to the direction for orbital plane
+            const up = new THREE.Vector3(0, 1, 0)
+            const right = new THREE.Vector3().crossVectors(direction, up).normalize()
+            const forward = new THREE.Vector3().crossVectors(right, direction).normalize()
 
-          // Calculate orbital position
-          const orbitalOffset = new THREE.Vector3()
-            .addScaledVector(right, Math.cos(angle) * ORBITAL_RADIUS)
-            .addScaledVector(forward, Math.sin(angle) * ORBITAL_RADIUS)
-            // Add additional offset in the direction away from origin to ensure no overlap
-            .addScaledVector(direction, ORBITAL_RADIUS * 0.3)
+            // Calculate orbital position
+            const orbitalOffset = new THREE.Vector3()
+              .addScaledVector(right, Math.cos(angle) * ORBITAL_RADIUS)
+              .addScaledVector(forward, Math.sin(angle) * ORBITAL_RADIUS)
+              // Add additional offset in the direction away from origin to ensure no overlap
+              .addScaledVector(direction, ORBITAL_RADIUS * 0.3)
 
-          const newPos = new THREE.Vector3(...position).add(orbitalOffset).toArray()
+            const newPos = new THREE.Vector3(...position).add(orbitalOffset).toArray()
 
-          // line geometry from parent -> sub
-          const points = [new THREE.Vector3(...position), new THREE.Vector3(...newPos)]
-          const geometry = new THREE.BufferGeometry().setFromPoints(points)
+            // line geometry from parent -> sub
+            const points = [new THREE.Vector3(...position), new THREE.Vector3(...newPos)]
+            const geometry = new THREE.BufferGeometry().setFromPoints(points)
 
-          const transformed = transformConnection(connId, sub)
+            const transformed = transformConnection(connId, sub)
 
-          return (
-            <group key={sub.id}>
-              <line geometry={geometry} renderOrder={0}>
-                <lineBasicMaterial color="white" linewidth={0.8} depthWrite={false} depthTest={false} />
-              </line>
-              <SphereWithEffects
-                id={sub.id}
-                pos={newPos}
-                title={transformed.title}
-                size={initialSphereSize * 0.7}
-                conn={sub}
-              />
-            </group>
-          )
-        })}
+            return (
+              <group key={sub.id}>
+                <line geometry={geometry} renderOrder={0}>
+                  <lineBasicMaterial color="white" linewidth={0.8} depthWrite={false} depthTest={false} />
+                </line>
+                <SphereWithEffects
+                  id={sub.id}
+                  pos={newPos}
+                  title={transformed.title}
+                  size={initialSphereSize * 0.7}
+                  conn={sub}
+                />
+              </group>
+            )
+          })}
     </>
   )
 }

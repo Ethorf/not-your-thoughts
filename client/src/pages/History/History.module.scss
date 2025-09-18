@@ -7,6 +7,12 @@
   color: $silver-default;
 }
 
+.historyTitle {
+  font-family: 'Poppins', sans-serif;
+  text-transform: uppercase;
+  font-size: 1.4rem;
+}
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -212,14 +218,12 @@
   &.added {
     background: rgba(0, 255, 0, 0.2);
     color: #90ee90;
-    padding: 2px 4px;
     border-radius: 3px;
   }
 
   &.removed {
     background: rgba(255, 0, 0, 0.2);
     color: #ffb6c1;
-    padding: 2px 4px;
     border-radius: 3px;
     text-decoration: line-through;
   }
