@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useHistory, useLocation } from 'react-router-dom'
 import classNames from 'classnames'
@@ -39,7 +39,7 @@ const Explore = () => {
   const { connections } = useSelector((state) => state.connections)
 
   // *** May not actually need this right now, I think I'm just going to start with filtering the main entryId
-  const [seenNodeIds, setSeenNodeIds] = useState([entryId])
+  // const [seenNodeIds, setSeenNodeIds] = useState([entryId])
 
   // --- Positioning logic ---
   const { positions, center, lineExtensionFactor, externalDistanceFactor } = calculateSpherePositions(connections, {
@@ -128,6 +128,7 @@ const Explore = () => {
                 sphereType={SPHERE_TYPES.MAIN}
                 size={DEFAULT_SPHERE_SIZES[SPHERE_TYPES.MAIN]}
                 onClick={handleMainNodeClick}
+                rotation={[0, 4.7, 0]}
               />
             </group>
 

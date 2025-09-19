@@ -20,6 +20,86 @@ const {
   FRONTEND: { EXTERNAL },
 } = CONNECTION_TYPES
 
+// Reusable sphere with hover halo + tooltip
+const SphereWithEffects = ({ id, pos, title, size, conn, mainTexture, onClick, getTooltipText }) => {
+  const [localHovered, setLocalHovered] = useState(false)
+  const [localTooltip, setLocalTooltip] = useState(false)
+  const localTooltipTimeout = useRef(null)
+  const sphereRef = useRef()
+  const haloRef = useRef()
+
+  // Create individual texture for this sphere (unless using main texture)
+  const sphereTexture = useMemo(() => {
+    if (mainTexture) return mainTexture
+
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    canvas.width = 1024
+    canvas.height = 512
+
+    ctx.fillStyle = 'black'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    if (title) {
+      ctx.font = 'bold 28px Syncopate'
+      ctx.fillStyle = 'white'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(title, canvas.width / 2, canvas.height / 2)
+    }
+
+    const tex = new THREE.CanvasTexture(canvas)
+    tex.wrapS = THREE.ClampToEdgeWrapping
+    tex.wrapT = THREE.ClampToEdgeWrapping
+    return tex
+  }, [title, mainTexture])
+
+  // hover animation
+  useFrame(() => {
+    if (!sphereRef.current || !haloRef.current) return
+    const targetScale = localHovered ? 1.1 : 1
+    sphereRef.current.scale.lerp(new THREE.Vector3(size * targetScale, size * targetScale, size * targetScale), 0.08)
+    haloRef.current.material.opacity += ((localHovered ? 1 : 0.2) - haloRef.current.material.opacity) * 0.08
+    haloRef.current.scale.lerp(
+      new THREE.Vector3(size * targetScale * 1.05, size * targetScale * 1.05, size * targetScale * 1.05),
+      0.08
+    )
+  })
+
+  return (
+    <group>
+      <mesh
+        ref={sphereRef}
+        onClick={() => onClick?.(id, conn)}
+        rotation={[0, 4.7, 0]}
+        position={pos}
+        renderOrder={3}
+        onPointerOver={() => {
+          setLocalHovered(true)
+          localTooltipTimeout.current = setTimeout(() => setLocalTooltip(true), 600)
+          document.body.style.cursor = 'pointer'
+        }}
+        onPointerOut={() => {
+          setLocalHovered(false)
+          setLocalTooltip(false)
+          if (localTooltipTimeout.current) clearTimeout(localTooltipTimeout.current)
+          document.body.style.cursor = 'default'
+        }}
+      >
+        <sphereGeometry args={[size, 64, 64]} />
+        <meshStandardMaterial map={sphereTexture} />
+      </mesh>
+
+      {/* Halo */}
+      <mesh ref={haloRef} position={pos} renderOrder={3}>
+        {localTooltip && <Html className={styles.tooltip}>{getTooltipText(title)}</Html>}
+        <sphereGeometry args={[size, 64, 64]} />
+        <meshBasicMaterial color="white" transparent side={THREE.BackSide} opacity={0.2} />
+      </mesh>
+    </group>
+  )
+}
+
 const ThreeTextSphere = ({
   conn,
   connId,
@@ -28,6 +108,7 @@ const ThreeTextSphere = ({
   onClick,
   position = [0, 0, 0],
   sphereType,
+  rotation = [0, 4.7, 0],
   size = DEFAULT_SPHERE_SIZES.MAIN,
 }) => {
   const dispatch = useDispatch()
@@ -109,86 +190,6 @@ const ThreeTextSphere = ({
 
   const ORBITAL_RADIUS = size * 3
 
-  // Reusable sphere with hover halo + tooltip
-  const SphereWithEffects = ({ id, pos, title, size, conn, useMainTexture = false }) => {
-    const [localHovered, setLocalHovered] = useState(false)
-    const [localTooltip, setLocalTooltip] = useState(false)
-    const localTooltipTimeout = useRef(null)
-    const sphereRef = useRef()
-    const haloRef = useRef()
-
-    // Create individual texture for this sphere (unless using main texture)
-    const sphereTexture = useMemo(() => {
-      if (useMainTexture) return mainTexture
-
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')
-      canvas.width = 1024
-      canvas.height = 512
-
-      ctx.fillStyle = 'black'
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-      if (title) {
-        ctx.font = 'bold 28px Syncopate'
-        ctx.fillStyle = 'white'
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillText(title, canvas.width / 2, canvas.height / 2)
-      }
-
-      const tex = new THREE.CanvasTexture(canvas)
-      tex.wrapS = THREE.ClampToEdgeWrapping
-      tex.wrapT = THREE.ClampToEdgeWrapping
-      return tex
-    }, [title, useMainTexture])
-
-    // hover animation
-    useFrame(() => {
-      if (!sphereRef.current || !haloRef.current) return
-      const targetScale = localHovered ? 1.1 : 1
-      sphereRef.current.scale.lerp(new THREE.Vector3(size * targetScale, size * targetScale, size * targetScale), 0.08)
-      haloRef.current.material.opacity += ((localHovered ? 1 : 0.2) - haloRef.current.material.opacity) * 0.08
-      haloRef.current.scale.lerp(
-        new THREE.Vector3(size * targetScale * 1.05, size * targetScale * 1.05, size * targetScale * 1.05),
-        0.08
-      )
-    })
-
-    return (
-      <group>
-        <mesh
-          ref={sphereRef}
-          onClick={() => onClick?.(id, conn)}
-          rotation={[0, 4.7, 0]}
-          position={pos}
-          renderOrder={3}
-          onPointerOver={() => {
-            setLocalHovered(true)
-            localTooltipTimeout.current = setTimeout(() => setLocalTooltip(true), 600)
-            document.body.style.cursor = 'pointer'
-          }}
-          onPointerOut={() => {
-            setLocalHovered(false)
-            setLocalTooltip(false)
-            if (localTooltipTimeout.current) clearTimeout(localTooltipTimeout.current)
-            document.body.style.cursor = 'default'
-          }}
-        >
-          <sphereGeometry args={[size, 64, 64]} />
-          <meshStandardMaterial map={sphereTexture} />
-        </mesh>
-
-        {/* Halo */}
-        <mesh ref={haloRef} position={pos} renderOrder={3}>
-          {localTooltip && <Html className={styles.tooltip}>{getTooltipText(title)}</Html>}
-          <sphereGeometry args={[size, 64, 64]} />
-          <meshBasicMaterial color="white" transparent side={THREE.BackSide} opacity={0.2} />
-        </mesh>
-      </group>
-    )
-  }
-
   return (
     <>
       {/* Main sphere */}
@@ -197,8 +198,10 @@ const ThreeTextSphere = ({
         pos={position}
         title={title}
         size={initialSphereSize}
+        getTooltipText={getTooltipText}
         conn={conn}
-        useMainTexture={true}
+        mainTexture={mainTexture}
+        onClick={onClick}
       />
 
       {/* Sub-connections with orbital lines */}
@@ -243,6 +246,8 @@ const ThreeTextSphere = ({
                   title={transformed.title}
                   size={initialSphereSize * 0.7}
                   conn={sub}
+                  onClick={onClick}
+                  getTooltipText={getTooltipText}
                 />
               </group>
             )
