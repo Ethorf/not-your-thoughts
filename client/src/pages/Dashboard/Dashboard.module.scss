@@ -6,6 +6,22 @@
   align-items: center;
 }
 
+.searchSection {
+  margin: 20px 0;
+  width: 70%;
+  text-align: center;
+
+  h2 {
+    margin-bottom: 10px;
+    color: #333;
+  }
+}
+
+.searchComponent {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
 .newEntry {
   display: flex;
   height: 70px;

@@ -22,4 +22,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.searchContainer {
+  flex: 1;
+  max-width: 300px;
+  min-width: 200px;
+}
+
+.searchComponent {
+  width: 100%;
 }

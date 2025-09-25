@@ -40,7 +40,6 @@ const Dashboard = () => {
         <DefaultButton onClick={handleNewNodeEntryClick}>Node</DefaultButton>
         <DefaultButton onClick={handleNewJournalEntryClick}>Journal</DefaultButton>
       </div>
-
       <div className={styles.customPromptsList}>
         <NodesDashboardList />
       </div>

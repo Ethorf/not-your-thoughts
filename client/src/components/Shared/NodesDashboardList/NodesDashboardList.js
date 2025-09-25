@@ -1,32 +1,50 @@
 import React, { useState, useMemo } from 'react'
 import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
 import { DashboardNodeEntry } from '@components/DashboardNodeEntry/DashboardNodeEntry'
+import NodeSearch from '@components/Shared/NodeSearch/NodeSearch'
 import styles from './NodesDashboardList.module.scss'
 
 export const NodesDashboardList = () => {
   const nodeEntriesInfo = useNodeEntriesInfo()
   const [sortBy, setSortBy] = useState('recent')
+  const [searchFilter, setSearchFilter] = useState('')
 
-  const sortedNodes = useMemo(() => {
-    const copy = [...nodeEntriesInfo]
+  const filteredAndSortedNodes = useMemo(() => {
+    let filtered = [...nodeEntriesInfo]
 
-    if (sortBy === 'recent') {
-      return copy.sort((a, b) => new Date(b.date_last_modified) - new Date(a.date_last_modified))
+    // Apply search filter if provided
+    if (searchFilter.trim()) {
+      const term = searchFilter.toLowerCase()
+      filtered = filtered.filter(
+        (node) => node.title?.toLowerCase().includes(term) || node.content?.toLowerCase().includes(term)
+      )
     }
 
-    return copy.sort((a, b) => {
+    if (sortBy === 'recent') {
+      return filtered.sort((a, b) => new Date(b.date_last_modified) - new Date(a.date_last_modified))
+    }
+
+    return filtered.sort((a, b) => {
       if (a.starred && !b.starred) return -1
       if (!a.starred && b.starred) return 1
       if (a.pending && !b.pending) return -1
       if (!a.pending && b.pending) return 1
       return new Date(b.date_last_modified) - new Date(a.date_last_modified)
     })
-  }, [nodeEntriesInfo, sortBy])
+  }, [nodeEntriesInfo, sortBy, searchFilter])
 
   return (
     <>
       <div className={styles.topContainer}>
         <h3>Nodes</h3>
+        <div className={styles.searchContainer}>
+          <NodeSearch
+            mode="filter"
+            onFilterChange={setSearchFilter}
+            placeholder="Search nodes..."
+            className={styles.searchComponent}
+          />
+        </div>
         <label>
           Sort:
           <select className={styles.sortControls} value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
@@ -36,12 +54,14 @@ export const NodesDashboardList = () => {
         </label>
       </div>
 
-      {sortedNodes.length ? (
+      {filteredAndSortedNodes.length ? (
         <ul className={styles.wrapper}>
-          {sortedNodes.map((node) => (
+          {filteredAndSortedNodes.map((node) => (
             <DashboardNodeEntry key={node.id} nodeEntriesInfo={nodeEntriesInfo} node={node} />
           ))}
         </ul>
+      ) : searchFilter.trim() ? (
+        <h3>No nodes found matching "{searchFilter}"</h3>
       ) : (
         <h3>No nodes created yet...</h3>
       )}

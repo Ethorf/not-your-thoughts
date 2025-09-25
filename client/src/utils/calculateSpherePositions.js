@@ -7,7 +7,10 @@ const SIBLING_DISTANCE_FROM_CENTER_SPHERE = 0.5
 const CHILD_DISTANCE_FROM_CENTER_SPHERE = SIBLING_DISTANCE_FROM_CENTER_SPHERE + 0.6
 const PARENT_DISTANCE_FROM_CENTER_SPHERE = SIBLING_DISTANCE_FROM_CENTER_SPHERE + 0.7
 const OUTER_FACTOR = 1.1
-
+const HORIZONTAL_ROTATION = {
+  [-1]: 5,
+  1: 4.4,
+}
 // Line extension factors
 const LINE_EXTENSION_FACTOR = 1.5
 const EXTERNAL_DISTANCE_FACTOR = 1.8 // Controls both external sphere distance and line length
@@ -24,6 +27,10 @@ const CENTER = [0, 0, 0]
 const calculateSpherePositions = (connections, connectionTypes) => {
   const { PARENT, EXTERNAL, CHILD, SIBLING } = connectionTypes
   const positions = {}
+  const horizontalRotation = {}
+  const verticalRotation = {}
+  const subConnectionVerticalOffset = {}
+  const subConnectionHorizontalOffset = {}
 
   // Helper function to scale position from origin
   const scaleFromOrigin = (pos, factor) => {
@@ -43,6 +50,17 @@ const calculateSpherePositions = (connections, connectionTypes) => {
     const side = i % 2 === 0 ? -1 : 1
     const x = side * (SPHERE_DIAMETER + SIBLING_DISTANCE_FROM_CENTER_SPHERE)
     const y = Math.floor(i / 2) * MIN_SEPARATION * (i % 2 === 0 ? 1 : -1)
+
+    // Set horizontal rotation based on side
+    horizontalRotation[s.id] = HORIZONTAL_ROTATION[side]
+
+    // Siblings are at the same level as center, no vertical rotation
+    verticalRotation[s.id] = 0
+
+    // Siblings can have sub-connections above or below (default behavior)
+    subConnectionVerticalOffset[s.id] = 0
+    subConnectionHorizontalOffset[s.id] = 0
+
     positions[s.id] = scaleFromOrigin([x, y, 0], OUTER_FACTOR)
   })
 
@@ -55,11 +73,32 @@ const calculateSpherePositions = (connections, connectionTypes) => {
     const x = horizontalOffset
     const y = baseVerticalDistance + verticalOffset
 
+    // Set horizontal rotation based on side for externals
+    const side = i % 2 === 0 ? -1 : 1
+    horizontalRotation[e.id] = HORIZONTAL_ROTATION[side]
+
+    // Externals are above center, positive vertical rotation
+    verticalRotation[e.id] = 0.3
+
+    // Externals can have sub-connections above or below (default behavior)
+    subConnectionVerticalOffset[e.id] = 0
+    subConnectionHorizontalOffset[e.id] = 0
+
     positions[e.id] = [x, y, 0]
   })
 
   // Position parents
   parents.forEach((p, i) => {
+    // Parents are above center, use default rotation
+    horizontalRotation[p.id] = 4.7
+
+    // Parents are above center, positive vertical rotation
+    verticalRotation[p.id] = 0.3
+
+    // Parent sub-connections should appear below the parent sphere, alternating left and right
+    subConnectionVerticalOffset[p.id] = -1.5 // Negative offset to place sub-connections below
+    subConnectionHorizontalOffset[p.id] = i % 2 === 0 ? -1.2 : 1.2 // Alternate left (-1.2) and right (1.2)
+
     positions[p.id] = [0, SPHERE_DIAMETER + MIN_SEPARATION * PARENT_DISTANCE_FROM_CENTER_SPHERE, 0]
   })
 
@@ -67,11 +106,42 @@ const calculateSpherePositions = (connections, connectionTypes) => {
   children.forEach((c, i) => {
     const x = (i - (children.length - 1) / 2) * MIN_SEPARATION
     const y = -2
+
+    // Children below center, use default rotation
+    horizontalRotation[c.id] = 4.7
+
+    // Children are below center, negative vertical rotation
+    verticalRotation[c.id] = -0.3
+
+    // Children can have sub-connections above or below (default behavior)
+    subConnectionVerticalOffset[c.id] = 0
+    subConnectionHorizontalOffset[c.id] = 0
+
     positions[c.id] = scaleFromOrigin([x, y, 0], CHILD_DISTANCE_FROM_CENTER_SPHERE)
+  })
+
+  // Ensure all connections have rotation values (default case)
+  connections?.forEach((conn) => {
+    if (!horizontalRotation[conn.id]) {
+      horizontalRotation[conn.id] = 4.7 // Default horizontal rotation
+    }
+    if (!verticalRotation[conn.id]) {
+      verticalRotation[conn.id] = 0 // Default vertical rotation
+    }
+    if (!subConnectionVerticalOffset[conn.id]) {
+      subConnectionVerticalOffset[conn.id] = 0 // Default vertical offset for sub-connections
+    }
+    if (!subConnectionHorizontalOffset[conn.id]) {
+      subConnectionHorizontalOffset[conn.id] = 0 // Default horizontal offset for sub-connections
+    }
   })
 
   return {
     positions,
+    horizontalRotation,
+    verticalRotation,
+    subConnectionVerticalOffset,
+    subConnectionHorizontalOffset,
     center: CENTER,
     lineExtensionFactor: LINE_EXTENSION_FACTOR,
     externalDistanceFactor: EXTERNAL_DISTANCE_FACTOR,

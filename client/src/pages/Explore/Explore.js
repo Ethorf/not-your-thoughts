@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react'
+import React, { Suspense, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useHistory, useLocation } from 'react-router-dom'
 import classNames from 'classnames'
@@ -6,7 +6,9 @@ import { Canvas } from '@react-three/fiber'
 import * as THREE from 'three'
 
 import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
-import ThreeTextSphere from '@components/ThreeTextSphere/ThreeTextSphere.js'
+import ConnectionSpheres from '@components/Spheres/ConnectionSpheres.js'
+import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
+import NodeSearch from '@components/Shared/NodeSearch/NodeSearch'
 
 // Redux
 import { setEntryById } from '@redux/reducers/currentEntryReducer'
@@ -42,12 +44,78 @@ const Explore = () => {
   // const [seenNodeIds, setSeenNodeIds] = useState([entryId])
 
   // --- Positioning logic ---
-  const { positions, center, lineExtensionFactor, externalDistanceFactor } = calculateSpherePositions(connections, {
+  const {
+    positions,
+    center,
+    lineExtensionFactor,
+    externalDistanceFactor,
+    horizontalRotation,
+    verticalRotation,
+    subConnectionVerticalOffset,
+    subConnectionHorizontalOffset,
+  } = calculateSpherePositions(connections, {
     PARENT,
     EXTERNAL,
     CHILD,
     SIBLING,
   })
+
+  // Create main sphere texture with text + title
+  const mainTexture = useMemo(() => {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    canvas.width = 1024
+    canvas.height = 512
+
+    ctx.fillStyle = 'black'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    if (content) {
+      const text = extractTextFromHTML(content)
+      ctx.fillStyle = 'silver'
+      ctx.font = '12px Syncopate'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+
+      const words = text.split(' ')
+      let line = ''
+      const maxWidth = canvas.width - 100
+      const lines = []
+
+      for (let i = 0; i < words.length; i++) {
+        const testLine = line + words[i] + ' '
+        const metrics = ctx.measureText(testLine)
+        if (metrics.width > maxWidth && i > 0) {
+          lines.push(line.trim())
+          line = words[i] + ' '
+        } else {
+          line = testLine
+        }
+      }
+      lines.push(line.trim())
+
+      const lineHeight = 40
+      let y = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2
+
+      lines.forEach((l) => {
+        ctx.fillText(l, canvas.width / 2, y)
+        y += lineHeight
+      })
+    }
+
+    if (title) {
+      ctx.font = 'bold 28px Syncopate'
+      ctx.fillStyle = 'white'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(title, canvas.width / 2, canvas.height / 2)
+    }
+
+    const tex = new THREE.CanvasTexture(canvas)
+    tex.wrapS = THREE.ClampToEdgeWrapping
+    tex.wrapT = THREE.ClampToEdgeWrapping
+    return tex
+  }, [content, title])
 
   // **** Handle query parameters for entryId
   // useEffect(() => {
@@ -102,7 +170,10 @@ const Explore = () => {
   }
 
   useEffect(() => {
-    if (!entryId && Array.isArray(nodeEntriesInfo)) {
+    // Set most recent node entry if no entryId OR if current entryId is not a Node type
+    const shouldSetMostRecent = !entryId || (entryId && !nodeEntriesInfo?.some((node) => node.id === entryId))
+
+    if (shouldSetMostRecent && Array.isArray(nodeEntriesInfo)) {
       const mostRecent = getMostRecentlyModifiedItem(nodeEntriesInfo)
       if (mostRecent?.id) {
         dispatch(setEntryById(mostRecent.id))
@@ -113,20 +184,26 @@ const Explore = () => {
   return (
     <div className={classNames(styles.wrapper, sharedStyles.flexColumnCenter)}>
       <h1>Explore</h1>
+
+      <div className={styles.searchSection}>
+        <NodeSearch mode="navigate" placeholder="Search to explore..." className={styles.searchComponent} />
+      </div>
+
       <div className={styles.nodesWrapper}>
         <Canvas camera={{ position: [0, 0, 8] }}>
           <ambientLight />
           <directionalLight position={[5, 5, 5]} />
 
           <Suspense fallback={null}>
-            {/* Main node - render on top */}
             <group>
-              <ThreeTextSphere
-                text={extractTextFromHTML(content)}
-                title={title}
-                position={center}
-                sphereType={SPHERE_TYPES.MAIN}
+              {/* Main Node sphere */}
+              <SphereWithEffects
+                id={entryId}
+                pos={center}
+                title={null}
                 size={DEFAULT_SPHERE_SIZES[SPHERE_TYPES.MAIN]}
+                conn={null}
+                mainTexture={mainTexture}
                 onClick={handleMainNodeClick}
                 rotation={[0, 4.7, 0]}
               />
@@ -144,36 +221,46 @@ const Explore = () => {
                 const endPos = new THREE.Vector3(...pos).multiplyScalar(extensionFactor)
                 const startPos = new THREE.Vector3(...center)
 
-                // line geometry from main -> connection
+                // Use different geometry based on connection type
                 const points = [startPos, endPos]
-                const geometry = new THREE.BufferGeometry().setFromPoints(points)
 
-                return (
-                  <line
-                    key={`line-${conn.id}`}
-                    geometry={geometry}
-                    dashed={isExternal}
-                    onUpdate={(line) => {
-                      if (isExternal && line.computeLineDistances) {
-                        line.computeLineDistances()
-                      }
-                    }}
-                    renderOrder={0}
-                  >
-                    {isExternal ? (
+                if (isExternal) {
+                  // Use regular line geometry for external connections (dashed)
+                  const geometry = new THREE.BufferGeometry().setFromPoints(points)
+
+                  return (
+                    <line
+                      key={`line-${conn.id}`}
+                      geometry={geometry}
+                      dashed={true}
+                      onUpdate={(line) => {
+                        if (line.computeLineDistances) {
+                          line.computeLineDistances()
+                        }
+                      }}
+                      renderOrder={0}
+                    >
                       <lineDashedMaterial
                         color="white"
-                        dashSize={0.3}
+                        dashSize={0.5}
                         gapSize={0.2}
                         linewidth={1}
                         depthWrite={false}
                         depthTest={false}
                       />
-                    ) : (
-                      <lineBasicMaterial color="white" linewidth={1} depthWrite={false} depthTest={false} />
-                    )}
-                  </line>
-                )
+                    </line>
+                  )
+                } else {
+                  // Use tube geometry for internal connections (solid)
+                  const curve = new THREE.CatmullRomCurve3(points)
+                  const geometry = new THREE.TubeGeometry(curve, 8, 0.02, 4, false)
+
+                  return (
+                    <mesh key={`line-${conn.id}`} geometry={geometry} renderOrder={0}>
+                      <meshBasicMaterial color="white" depthWrite={false} depthTest={false} />
+                    </mesh>
+                  )
+                }
               })}
             </group>
 
@@ -182,6 +269,8 @@ const Explore = () => {
               {connections?.map((conn) => {
                 const transformed = transformConnection(entryId, conn)
                 const pos = positions[conn.id]
+                const hRotation = horizontalRotation[conn.id]
+                const vRotation = verticalRotation[conn.id]
                 if (!pos) return null
 
                 const isExternal = conn.connection_type === EXTERNAL
@@ -196,15 +285,27 @@ const Explore = () => {
 
                 return (
                   <React.Fragment key={conn.id}>
-                    {/* PARENT connection sphere */}
-                    <ThreeTextSphere
+                    {/* Connected Node Spheres */}
+                    <SphereWithEffects
+                      id={transformed.id}
+                      pos={endPos}
+                      title={transformed.title}
+                      size={sphereSize}
+                      conn={conn}
+                      onClick={() => handleConnectionSphereClick(transformed.id, conn)}
+                      rotation={[vRotation, hRotation, 0]}
+                    />
+
+                    {/* Sub-connections for this sphere */}
+                    <ConnectionSpheres
                       conn={conn}
                       connId={transformed.id}
-                      title={transformed.title}
                       position={endPos}
-                      sphereType={SPHERE_TYPES.CONNECTION}
                       size={sphereSize}
-                      onClick={() => handleConnectionSphereClick(transformed.id, conn)}
+                      handleConnectionSphereClick={handleConnectionSphereClick}
+                      rotation={[vRotation, hRotation, 0]}
+                      verticalOffset={subConnectionVerticalOffset[conn.id] || 0}
+                      horizontalOffset={subConnectionHorizontalOffset[conn.id] || 0}
                     />
                   </React.Fragment>
                 )
