@@ -107,6 +107,39 @@ router.post('/update_node_entry', authorize, async (req, res) => {
   }
 })
 
+// post /entries/update_node_top_level
+// Update the is_top_level field for a node entry
+router.post('/update_node_top_level', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+  const { entryId, isTopLevel } = req.body
+
+  try {
+    // Check if entryId and isTopLevel are provided
+    if (!entryId || typeof isTopLevel !== 'boolean') {
+      return res.status(400).json({ message: 'entryId and isTopLevel (boolean) are required' })
+    }
+
+    // Update the is_top_level field
+    const updatedEntry = await pool.query(
+      'UPDATE entries SET is_top_level = $1 WHERE id = $2 AND user_id = $3 RETURNING id, is_top_level',
+      [isTopLevel, entryId, user_id]
+    )
+
+    if (updatedEntry.rows.length === 0) {
+      return res.status(404).json({ message: 'Entry not found or access denied' })
+    }
+
+    console.log('Node top level status updated successfully!')
+    return res.json({
+      entryId: updatedEntry.rows[0].id,
+      isTopLevel: updatedEntry.rows[0].is_top_level,
+    })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
 router.post('/create_journal_entry', authorize, async (req, res) => {
   const { id: user_id } = req.user
   const type = 'journal'
@@ -301,6 +334,7 @@ router.get('/node_entries_info', authorize, async (req, res) => {
     entries.id, 
     entries.title, 
     entries.starred,
+    entries.is_top_level,
     entries.date_originally_created,
     ARRAY(
       SELECT content 
@@ -342,6 +376,7 @@ router.get('/node_entries_info', authorize, async (req, res) => {
         id: entry.id,
         title: entry.title,
         starred: entry.starred,
+        isTopLevel: entry.is_top_level,
         wdWordCount: entry.wd_word_count, // ✅ now using aggregated value
         wdTimeElapsed: entry.wd_time_elapsed, // optional, since you have it
         pending: !hasContent,

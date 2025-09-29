@@ -70,6 +70,7 @@ const NodeSearch = ({
   const handleKeyDown = (e) => {
     if (!isOpen || filteredNodes.length === 0) return
 
+    // eslint-disable-next-line default-case
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault()
@@ -121,19 +122,16 @@ const NodeSearch = ({
 
   return (
     <div className={classNames(styles.nodeSearch, className)}>
-      <div className={styles.inputContainer}>
-        <input
-          ref={inputRef}
-          type="text"
-          value={searchTerm}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          onFocus={() => setIsOpen(searchTerm.length > 0 && mode !== 'filter')}
-          placeholder={placeholder}
-          className={styles.searchInput}
-        />
-        <div className={styles.searchIcon}>🔍</div>
-      </div>
+      <input
+        ref={inputRef}
+        type="text"
+        value={searchTerm}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        onFocus={() => setIsOpen(searchTerm.length > 0 && mode !== 'filter')}
+        placeholder={placeholder}
+        className={styles.searchInput}
+      />
 
       {isOpen && showResults && filteredNodes.length > 0 && mode !== 'filter' && (
         <div ref={resultsRef} className={styles.results}>

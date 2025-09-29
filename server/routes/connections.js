@@ -34,6 +34,22 @@ router.post('/create_connection', authorize, async (req, res) => {
       return res.status(400).json({ msg: 'Connection already exists' })
     }
 
+    // Check if trying to create parent connection for top-level node
+    if (connection_type === 'parent') {
+      const topLevelCheckQuery = `
+        SELECT is_top_level FROM entries 
+        WHERE id = $1 AND user_id = $2
+      `
+      const topLevelCheck = await pool.query(topLevelCheckQuery, [foreign_entry_id, req.user.id])
+
+      if (topLevelCheck.rows.length > 0 && topLevelCheck.rows[0].is_top_level) {
+        await pool.query('ROLLBACK')
+        return res.status(400).json({
+          msg: 'Cannot create parent connections for top-level nodes',
+        })
+      }
+    }
+
     // Insert new connection
     const newConnectionQuery = `
       INSERT INTO connections 

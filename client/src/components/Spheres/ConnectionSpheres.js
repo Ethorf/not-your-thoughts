@@ -16,7 +16,7 @@ import { transformConnection } from '@utils/transformConnection'
 import SphereWithEffects from './SphereWithEffects'
 
 const {
-  FRONTEND: { EXTERNAL },
+  FRONTEND: { EXTERNAL, PARENT },
 } = CONNECTION_TYPES
 
 const ConnectionSpheres = ({
@@ -68,11 +68,28 @@ const ConnectionSpheres = ({
               .addScaledVector(forward, Math.sin(angle) * ORBITAL_RADIUS)
               // Add additional offset in the direction away from origin to ensure no overlap
               .addScaledVector(direction, ORBITAL_RADIUS * 0.3)
-              // Apply vertical offset (for parent spheres, this will be negative to place sub-connections below)
+              // Apply vertical offset based on connection type
               .addScaledVector(up, verticalOffset)
 
+            // If the main connection is a PARENT type and this sub-connection is also a PARENT type,
+            // render it directly above the main sphere
+            if (conn?.connection_type === PARENT && sub.connection_type === PARENT) {
+              // Place directly vertical above with no horizontal offset
+              // Use a longer distance for better visual separation
+              const verticalDistance = size * 2.5
+              orbitalOffset = new THREE.Vector3().addScaledVector(up, verticalDistance)
+              console.log('Parent-to-parent positioning:', {
+                connType: conn?.connection_type,
+                subType: sub.connection_type,
+                verticalDistance,
+                newPos: new THREE.Vector3(...position).add(orbitalOffset).toArray(),
+              })
+            }
+            const isParentToParent = conn?.connection_type === PARENT && sub.connection_type === PARENT
+
             // For parent spheres, apply horizontal offset to create left/right alternating pattern
-            if (horizontalOffset !== 0) {
+            // But NOT for parent-to-parent connections which should be directly above
+            if (horizontalOffset !== 0 && !isParentToParent) {
               // Create a world-space right vector for horizontal offset
               const worldRight = new THREE.Vector3(1, 0, 0)
               orbitalOffset.addScaledVector(worldRight, horizontalOffset)
@@ -83,14 +100,17 @@ const ConnectionSpheres = ({
             // line geometry from parent -> sub
             const points = [new THREE.Vector3(...position), new THREE.Vector3(...newPos)]
             const curve = new THREE.CatmullRomCurve3(points)
-            const geometry = new THREE.TubeGeometry(curve, 8, 0.008, 4, false) // radius = 0.02 for thicker line
+
+            // For parent-to-parent connections, use a shorter line radius
+            const lineRadius = 0.008 // Thicker line for parent-to-parent
+            const geometry = new THREE.TubeGeometry(curve, 8, lineRadius, 4, false)
 
             const transformed = transformConnection(connId, sub)
 
             return (
               <group key={sub.id}>
                 <mesh geometry={geometry} renderOrder={0}>
-                  <meshBasicMaterial color="gray" depthWrite={false} depthTest={false} />
+                  <meshBasicMaterial color={'gray'} depthWrite={false} depthTest={false} />
                 </mesh>
                 <SphereWithEffects
                   id={sub.id}

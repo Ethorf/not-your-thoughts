@@ -4,12 +4,6 @@
   max-width: 400px;
 }
 
-.inputContainer {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
 .searchInput {
   width: 100%;
   padding: 12px 40px 12px 16px;
@@ -19,6 +13,7 @@
   background: black;
   color: white;
   transition: all 0.2s ease;
+  text-align: center;
 
   &:focus {
     outline: none;

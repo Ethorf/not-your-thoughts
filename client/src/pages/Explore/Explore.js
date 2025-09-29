@@ -186,7 +186,7 @@ const Explore = () => {
       <h1>Explore</h1>
 
       <div className={styles.searchSection}>
-        <NodeSearch mode="navigate" placeholder="Search to explore..." className={styles.searchComponent} />
+        {/* <NodeSearch mode="navigate" placeholder="Search to explore..." className={styles.searchComponent} /> */}
       </div>
 
       <div className={styles.nodesWrapper}>
@@ -200,9 +200,8 @@ const Explore = () => {
               <SphereWithEffects
                 id={entryId}
                 pos={center}
-                title={null}
+                title={title}
                 size={DEFAULT_SPHERE_SIZES[SPHERE_TYPES.MAIN]}
-                conn={null}
                 mainTexture={mainTexture}
                 onClick={handleMainNodeClick}
                 rotation={[0, 4.7, 0]}

@@ -47,6 +47,7 @@ export const DashboardNodeEntry = ({ node = {} }) => {
       )}
       <EditNodeLink node={{ id, title }} />
       {pending && <div className={styles.pending}>{pending}</div>}
+      <span className={styles.flexEnd}></span>
       <DefaultButton
         className={styles.exploreButton}
         onClick={handleExploreNode}

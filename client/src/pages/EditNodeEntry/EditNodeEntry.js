@@ -5,7 +5,7 @@ import { unwrapResult } from '@reduxjs/toolkit'
 
 // Redux
 import { useDispatch, useSelector } from 'react-redux'
-import { setTitle, saveNodeEntry, setEntryById } from '@redux/reducers/currentEntryReducer'
+import { setTitle, saveNodeEntry, setEntryById, updateNodeTopLevel } from '@redux/reducers/currentEntryReducer'
 import { openModal } from '@redux/reducers/modalsReducer.js'
 import { fetchConnections, getSelectedText } from '@redux/reducers/connectionsReducer'
 
@@ -24,6 +24,7 @@ import DefaultInput from '@components/Shared/DefaultInput/DefaultInput'
 import WritingDataManager from '@components/Shared/WritingDataManager/WritingDataManager'
 import Spinner from '@components/Shared/Spinner/Spinner'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
+import ConnectionLines from '@components/Shared/ConnectionLines/ConnectionLines'
 
 import styles from './EditNodeEntry.module.scss'
 import sharedStyles from '@styles/sharedClassnames.module.scss'
@@ -36,7 +37,9 @@ const EditNodeEntry = () => {
   const location = useLocation()
 
   const { connectionsLoading } = useSelector((state) => state.connections)
-  const { wordCount, entryId, content, title, starred, entriesLoading } = useSelector((state) => state.currentEntry)
+  const { wordCount, entryId, content, title, starred, isTopLevel, entriesLoading } = useSelector(
+    (state) => state.currentEntry
+  )
   const params = useMemo(() => new URLSearchParams(location.search), [location.search])
 
   useEffect(() => {
@@ -55,6 +58,12 @@ const EditNodeEntry = () => {
   const handleTitleChange = (e) => {
     dispatch(setTitle(e.target.value))
   }
+
+  const handleToggleTopLevel = useCallback(() => {
+    if (entryId) {
+      dispatch(updateNodeTopLevel({ entryId, isTopLevel: !isTopLevel }))
+    }
+  }, [dispatch, entryId, isTopLevel])
 
   const handleSaveNode = useCallback(
     (saveType) => {
@@ -104,7 +113,6 @@ const EditNodeEntry = () => {
     <div className={styles.wrapper}>
       <WritingDataManager entryType={ENTRY_TYPES.NODE} handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
       <div className={styles.editContainer}>
-        <h2>Edit Node</h2>
         <div className={classNames(styles.topContainer, styles.grid3Columns)}>
           {content || title ? (
             <>
@@ -115,6 +123,15 @@ const EditNodeEntry = () => {
                   className={styles.saveButton}
                 >
                   Connect
+                </DefaultButton>
+                <DefaultButton
+                  tooltip={isTopLevel ? 'Remove top-level status' : 'Set as top-level node'}
+                  onClick={handleToggleTopLevel}
+                  className={classNames(styles.saveButton, {
+                    [styles.topLevelActive]: isTopLevel,
+                  })}
+                >
+                  {isTopLevel ? 'Top Level ✓' : 'Top Level'}
                 </DefaultButton>
                 <StarButton id={entryId} initialStarred={starred} />
               </div>
@@ -141,7 +158,12 @@ const EditNodeEntry = () => {
             <Spinner />
           )}
         </div>
-        {!connectionsLoading ? <CreateEntry entryType={ENTRY_TYPES.NODE} /> : null}
+        {!connectionsLoading ? (
+          <div className={styles.connectionLinesWrapper}>
+            <ConnectionLines entryId={entryId} />
+            <CreateEntry entryType={ENTRY_TYPES.NODE} />
+          </div>
+        ) : null}
         <div className={styles.grid3Columns}>
           <span className={sharedStyles.flexStart}>
             <DefaultButton

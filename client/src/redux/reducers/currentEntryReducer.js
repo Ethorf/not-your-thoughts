@@ -25,6 +25,7 @@ const initialState = {
   content: '',
   nodeEntriesInfo: [],
   starred: false,
+  isTopLevel: false,
 }
 
 export const addAka = createAsyncThunk(
@@ -233,9 +234,21 @@ export const setEntryById = createAsyncThunk(
         title,
         wdWordCount,
         wdTimeElapsed,
+        isTopLevel,
       } = response.data
 
-      return { wdWordCount, wdTimeElapsed, content: content[0], connections, date, entryId, wordCount, starred, title }
+      return {
+        wdWordCount,
+        wdTimeElapsed,
+        content: content[0],
+        connections,
+        date,
+        entryId,
+        wordCount,
+        starred,
+        title,
+        isTopLevel,
+      }
     } catch (error) {
       return rejectWithValue(error.response.data)
     }
@@ -276,6 +289,25 @@ export const toggleNodeStarred = createAsyncThunk(
       return response.data
     } catch (error) {
       dispatch(showToast('Error updating starred status', 'error'))
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+export const updateNodeTopLevel = createAsyncThunk(
+  'currentEntryReducer/updateNodeTopLevel',
+  async ({ entryId, isTopLevel }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axiosInstance.post('api/entries/update_node_top_level', {
+        entryId,
+        isTopLevel,
+      })
+
+      await dispatch(fetchNodeEntriesInfo())
+
+      return response.data
+    } catch (error) {
+      dispatch(showToast('Error updating top level status', 'error'))
       return rejectWithValue(error.response.data)
     }
   }
@@ -435,6 +467,12 @@ const currentEntrySlice = createSlice({
         const { entryId, starred } = action.payload
         if (state.entryId === entryId) {
           state.starred = starred
+        }
+      })
+      .addCase(updateNodeTopLevel.fulfilled, (state, action) => {
+        const { entryId, isTopLevel } = action.payload
+        if (state.entryId === entryId) {
+          state.isTopLevel = isTopLevel
         }
       })
   },
