@@ -3,6 +3,63 @@ const router = express.Router()
 const pool = require('../config/neonDb')
 const authorize = require('../middleware/authorize')
 
+// Route to get all connections for all nodes (for Global view)
+router.get('/all_connections', authorize, async (req, res) => {
+  try {
+    const userId = req.user.id
+
+    const query = `
+      SELECT c.id, c.connection_type, c.primary_entry_id as entry_id, c.foreign_entry_id,
+             c.primary_source, c.foreign_source, c.source_type
+      FROM connections c
+      INNER JOIN entries e ON (c.primary_entry_id = e.id OR c.foreign_entry_id = e.id)
+      WHERE e.user_id = $1 AND e.type = 'node'
+      ORDER BY c.date_created DESC
+    `
+
+    const result = await pool.query(query, [userId])
+
+    res.json({ connections: result.rows })
+  } catch (error) {
+    console.error('Error fetching all connections:', error.message)
+    res.status(500).json({ msg: 'Server error fetching connections' })
+  }
+})
+
+// Route to retrieve all connections for an entry
+router.get('/:entry_id', authorize, async (req, res) => {
+  const { entry_id } = req.params
+
+  try {
+    const connectionsQuery = `
+      SELECT 
+        connections.*,
+        foreign_entries.title  AS foreign_entry_title,
+        primary_entries.title  AS primary_entry_title,
+        CASE 
+          WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'horizontal' THEN 'sibling'
+          WHEN connections.foreign_entry_id = $1  AND connections.connection_type = 'horizontal' THEN 'sibling'
+          WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'vertical'   THEN 'child'
+          WHEN connections.foreign_entry_id = $1  AND connections.connection_type = 'vertical'   THEN 'parent'
+        END AS connection_type
+      FROM connections
+      LEFT JOIN entries AS foreign_entries  ON connections.foreign_entry_id  = foreign_entries.id
+      LEFT JOIN entries AS primary_entries  ON connections.primary_entry_id  = primary_entries.id
+      WHERE connections.primary_entry_id = $1 OR connections.foreign_entry_id = $1
+    `
+    const connections = await pool.query(connectionsQuery, [entry_id])
+
+    if (!connections.rows.length) {
+      return res.status(204).json({ msg: 'No connections found for this entry' })
+    }
+
+    res.json({ connections: connections.rows })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
 // Route to create a connection
 router.post('/create_connection', authorize, async (req, res) => {
   const {
@@ -220,40 +277,6 @@ router.put('/update_connection/:connectionId', authorize, async (req, res) => {
     })
   } catch (err) {
     await pool.query('ROLLBACK')
-    console.error(err.message)
-    res.status(500).send('Server error')
-  }
-})
-
-// Route to retrieve all connections for an entry
-router.get('/:entry_id', authorize, async (req, res) => {
-  const { entry_id } = req.params
-
-  try {
-    const connectionsQuery = `
-      SELECT 
-        connections.*,
-        foreign_entries.title  AS foreign_entry_title,
-        primary_entries.title  AS primary_entry_title,
-        CASE 
-          WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'horizontal' THEN 'sibling'
-          WHEN connections.foreign_entry_id = $1  AND connections.connection_type = 'horizontal' THEN 'sibling'
-          WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'vertical'   THEN 'child'
-          WHEN connections.foreign_entry_id = $1  AND connections.connection_type = 'vertical'   THEN 'parent'
-        END AS connection_type
-      FROM connections
-      LEFT JOIN entries AS foreign_entries  ON connections.foreign_entry_id  = foreign_entries.id
-      LEFT JOIN entries AS primary_entries  ON connections.primary_entry_id  = primary_entries.id
-      WHERE connections.primary_entry_id = $1 OR connections.foreign_entry_id = $1
-    `
-    const connections = await pool.query(connectionsQuery, [entry_id])
-
-    if (!connections.rows.length) {
-      return res.status(204).json({ msg: 'No connections found for this entry' })
-    }
-
-    res.json({ connections: connections.rows })
-  } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
   }

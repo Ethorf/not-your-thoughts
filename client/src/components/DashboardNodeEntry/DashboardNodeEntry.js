@@ -1,6 +1,7 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
+import classNames from 'classnames'
 
 // Components
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
@@ -46,8 +47,11 @@ export const DashboardNodeEntry = ({ node = {} }) => {
         <div>Not yet...</div>
       )}
       <EditNodeLink node={{ id, title }} />
-      {pending && <div className={styles.pending}>{pending}</div>}
-      <span className={styles.flexEnd}></span>
+      {pending ? (
+        <div className={classNames(styles.pending, styles.flexEnd)}>{pending}</div>
+      ) : (
+        <span className={styles.flexEnd} />
+      )}
       <DefaultButton
         className={styles.exploreButton}
         onClick={handleExploreNode}

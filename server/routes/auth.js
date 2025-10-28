@@ -64,8 +64,6 @@ router.post('/login', validInfo, async (req, res) => {
   const lowerCaseEmail = email.toLowerCase()
   try {
     const user = await pool.query('SELECT * FROM users WHERE email = $1', [lowerCaseEmail])
-    console.log('<<<<<< user >>>>>>>>> is: <<<<<<<<<<<<')
-    console.log(user)
     if (user.rows.length === 0) {
       return res.status(401).json('Invalid Credential')
     }

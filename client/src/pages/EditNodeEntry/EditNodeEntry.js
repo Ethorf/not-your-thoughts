@@ -22,7 +22,6 @@ import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import StarButton from '@components/Shared/StarButton/StarButton'
 import DefaultInput from '@components/Shared/DefaultInput/DefaultInput'
 import WritingDataManager from '@components/Shared/WritingDataManager/WritingDataManager'
-import Spinner from '@components/Shared/Spinner/Spinner'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import ConnectionLines from '@components/Shared/ConnectionLines/ConnectionLines'
 
@@ -37,9 +36,7 @@ const EditNodeEntry = () => {
   const location = useLocation()
 
   const { connectionsLoading } = useSelector((state) => state.connections)
-  const { wordCount, entryId, content, title, starred, isTopLevel, entriesLoading } = useSelector(
-    (state) => state.currentEntry
-  )
+  const { wordCount, entryId, title, starred, isTopLevel, entriesLoading } = useSelector((state) => state.currentEntry)
   const params = useMemo(() => new URLSearchParams(location.search), [location.search])
 
   useEffect(() => {
@@ -114,49 +111,46 @@ const EditNodeEntry = () => {
       <WritingDataManager entryType={ENTRY_TYPES.NODE} handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
       <div className={styles.editContainer}>
         <div className={classNames(styles.topContainer, styles.grid3Columns)}>
-          {content || title ? (
-            <>
-              <div className={styles.connectStarContainer}>
-                <DefaultButton
-                  tooltip="Open connections menu"
-                  onClick={handleOpenConnectionsWithSelectedText}
-                  className={styles.saveButton}
-                >
-                  Connect
-                </DefaultButton>
-                <DefaultButton
-                  tooltip={isTopLevel ? 'Remove top-level status' : 'Set as top-level node'}
-                  onClick={handleToggleTopLevel}
-                  className={classNames(styles.saveButton, {
-                    [styles.topLevelActive]: isTopLevel,
-                  })}
-                >
-                  {isTopLevel ? 'Top Level ✓' : 'Top Level'}
-                </DefaultButton>
-                <StarButton id={entryId} initialStarred={starred} />
-              </div>
-              <DefaultInput
-                className={classNames(styles.titleInput, sharedStyles.flexCenter, {
-                  [styles.titleInputNoBorder]: title.length,
+          {/* {content || title ? ( */}
+          <>
+            <div className={styles.connectStarContainer}>
+              <DefaultButton
+                tooltip="Open connections menu"
+                onClick={handleOpenConnectionsWithSelectedText}
+                className={styles.saveButton}
+              >
+                Connect
+              </DefaultButton>
+              <DefaultButton
+                tooltip={isTopLevel ? 'Remove top-level status' : 'Set as top-level node'}
+                onClick={handleToggleTopLevel}
+                className={classNames(styles.saveButton, {
+                  [styles.topLevelActive]: isTopLevel,
                 })}
-                placeholder={'Enter Title'}
-                value={title}
-                onChange={handleTitleChange}
-              />
-              <span className={sharedStyles.flexSpaceBetween}>
-                <AkasDisplay />
-                <DefaultButton
-                  tooltip="Explore nodes"
-                  onClick={() => history.push(`/explore`)}
-                  className={styles.saveButton}
-                >
-                  Explore
-                </DefaultButton>
-              </span>
-            </>
-          ) : (
-            <Spinner />
-          )}
+              >
+                {isTopLevel ? 'Top Level ✓' : 'Top Level'}
+              </DefaultButton>
+              <StarButton id={entryId} initialStarred={starred} />
+            </div>
+            <DefaultInput
+              className={classNames(styles.titleInput, sharedStyles.flexCenter, {
+                [styles.titleInputNoBorder]: title.length,
+              })}
+              placeholder={'Enter Title'}
+              value={title}
+              onChange={handleTitleChange}
+            />
+            <span className={sharedStyles.flexSpaceBetween}>
+              <AkasDisplay />
+              <DefaultButton
+                tooltip="Explore nodes"
+                onClick={() => history.push(`/explore`)}
+                className={styles.saveButton}
+              >
+                Explore
+              </DefaultButton>
+            </span>
+          </>
         </div>
         {!connectionsLoading ? (
           <div className={styles.connectionLinesWrapper}>

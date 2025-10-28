@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState, useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { transformConnection } from '@utils/transformConnection'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
@@ -11,10 +11,26 @@ const { PARENT, CHILD, SIBLING, EXTERNAL } = CONNECTION_TYPES.FRONTEND
 const ConnectionLines = ({ entryId }) => {
   const { connections } = useSelector((state) => state.connections)
   const dispatch = useDispatch()
+  const [tooltip, setTooltip] = useState({ visible: false, content: '', x: 0, y: 0 })
 
   const handleConnectionLineClick = async (id) => {
     await dispatch(setEntryById(id))
   }
+
+  const handleMouseEnter = useCallback((content) => {
+    return (e) => {
+      setTooltip({
+        visible: true,
+        content,
+        x: e.clientX,
+        y: e.clientY + 10,
+      })
+    }
+  }, [])
+
+  const handleMouseLeave = useCallback(() => {
+    setTooltip({ visible: false, content: '', x: 0, y: 0 })
+  }, [])
   // Group connections by type for rendering lines
   const connectionLines = useMemo(() => {
     if (!connections || !entryId) return { parents: [], children: [], siblings: [], externals: [] }
@@ -43,7 +59,7 @@ const ConnectionLines = ({ entryId }) => {
   if (!connections || connections.length === 0) {
     return null
   }
-  console.log(connectionLines)
+
   return (
     <div className={styles.connectionLinesWrapper}>
       {/* Parent connections - top */}
@@ -52,11 +68,12 @@ const ConnectionLines = ({ entryId }) => {
           key={`parent-${parent.id}`}
           onClick={() => handleConnectionLineClick(parent.id)}
           className={styles.connectionLine}
+          onMouseEnter={handleMouseEnter(`Edit Parent Node: ${parent.title}`)}
+          onMouseLeave={handleMouseLeave}
           style={{
             '--line-angle': `${-45 + index * 30}deg`,
             '--line-delay': `${index * 0.1}s`,
           }}
-          title={`Parent: ${parent.title}`}
         />
       ))}
 
@@ -74,11 +91,12 @@ const ConnectionLines = ({ entryId }) => {
             key={`sibling-${sibling.id}`}
             onClick={() => handleConnectionLineClick(sibling.id)}
             className={styles.connectionLine}
+            onMouseEnter={handleMouseEnter(`Edit Sibling Node: ${sibling.title}`)}
+            onMouseLeave={handleMouseLeave}
             style={{
               '--line-angle': calculateSiblingAngle(index),
               '--line-delay': `${index * 0.1}s`,
             }}
-            title={`Sibling: ${sibling.title}`}
           />
         )
       })}
@@ -100,11 +118,12 @@ const ConnectionLines = ({ entryId }) => {
             key={`child-${child.id}`}
             onClick={() => handleConnectionLineClick(child.id)}
             className={styles.connectionLine}
+            onMouseEnter={handleMouseEnter(`Edit Child Node: ${child.title}`)}
+            onMouseLeave={handleMouseLeave}
             style={{
               '--line-angle': `${calculateChildAngle(nonZeroIndex)}`,
               '--line-delay': `${nonZeroIndex * 0.1}s`,
             }}
-            title={`Child: ${child.title}`}
           />
         )
       })}
@@ -114,13 +133,27 @@ const ConnectionLines = ({ entryId }) => {
         <div
           key={`external-${external.id}`}
           className={`${styles.connectionLine} ${styles.externalLine}`}
+          onMouseEnter={handleMouseEnter(`Edit External Node: ${external.title}`)}
+          onMouseLeave={handleMouseLeave}
           style={{
             '--line-angle': `${120 + index * 20}deg`,
             '--line-delay': `${index * 0.1}s`,
           }}
-          title={`External: ${external.title}`}
         />
       ))}
+
+      {/* Custom cursor-following tooltip */}
+      {tooltip.visible && (
+        <div
+          className={styles.customTooltip}
+          style={{
+            left: tooltip.x + 10,
+            top: tooltip.y + 20,
+          }}
+        >
+          {tooltip.content}
+        </div>
+      )}
     </div>
   )
 }

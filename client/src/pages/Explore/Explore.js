@@ -9,6 +9,8 @@ import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
 import ConnectionSpheres from '@components/Spheres/ConnectionSpheres.js'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 import NodeSearch from '@components/Shared/NodeSearch/NodeSearch'
+import TextButton from '@components/Shared/TextButton/TextButton'
+import GlobalView from './GlobalView/GlobalView'
 
 // Redux
 import { setEntryById } from '@redux/reducers/currentEntryReducer'
@@ -39,6 +41,10 @@ const Explore = () => {
 
   const { content, title, entryId } = useSelector((state) => state.currentEntry)
   const { connections } = useSelector((state) => state.connections)
+
+  // Check for global view query param
+  const urlParams = new URLSearchParams(location.search)
+  const isGlobalView = urlParams.get('view') === 'global'
 
   // *** May not actually need this right now, I think I'm just going to start with filtering the main entryId
   // const [seenNodeIds, setSeenNodeIds] = useState([entryId])
@@ -181,9 +187,31 @@ const Explore = () => {
     }
   }, [dispatch, entryId, nodeEntriesInfo])
 
+  // Render global view if requested
+  if (isGlobalView) {
+    return <GlobalView />
+  }
+
   return (
     <div className={classNames(styles.wrapper, sharedStyles.flexColumnCenter)}>
       <h1>Explore</h1>
+
+      <div className={styles.viewToggle}>
+        <TextButton
+          className={classNames(styles.toggleButton, { [styles.active]: !isGlobalView })}
+          onClick={() => history.push('/explore')}
+          tooltip="Switch to Local View"
+        >
+          Local View
+        </TextButton>
+        <TextButton
+          className={classNames(styles.toggleButton, { [styles.active]: isGlobalView })}
+          onClick={() => history.push('/explore?view=global')}
+          tooltip="Switch to Global View"
+        >
+          Global View
+        </TextButton>
+      </div>
 
       <div className={styles.searchSection}>
         {/* <NodeSearch mode="navigate" placeholder="Search to explore..." className={styles.searchComponent} /> */}

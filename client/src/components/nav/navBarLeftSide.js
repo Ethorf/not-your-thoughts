@@ -1,72 +1,39 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import { NavLink, useHistory } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
-import { TimelineLite } from 'gsap/all'
+import classNames from 'classnames'
 
 // Styles
 import '../../styles/rubberDucky.scss'
-import './navBarSide.scss'
+import styles from './NavBarLeftSide.module.scss'
 import arrow from '../../assets/Icons/down-arrow-black-2.png'
 
 // Components
 import TextButton from '@components/Shared/TextButton/TextButton'
 
-// Rdux
+// Redux
 import { resetCurrentEntryState, createNodeEntry, createJournalEntry } from '@redux/reducers/currentEntryReducer'
 import { logout } from '@redux/actions/authActions'
+import { toggleLeftSidebar } from '@redux/reducers/leftSidebarReducer'
 
-const NavBarSide = () => {
-  const [navOpen, setNavOpen] = useState(false)
-  const navBarContainer = useRef(null)
-  const linksContainer = useRef(null)
-  const arrowContainer = useRef(null)
-  const navBarTween = useRef(null)
-  const linksTween = useRef(null)
-  const arrowTween = useRef(null)
-
-  const history = useHistory()
+const NavBarLeftSide = () => {
   const dispatch = useDispatch()
+  const { leftSidebarOpen } = useSelector((state) => state.leftSidebar)
   const mode = useSelector((state) => state.modes.mode)
   const guestMode = useSelector((state) => state.auth.guestMode)
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated)
 
-  useEffect(() => {
-    navBarTween.current = new TimelineLite({ paused: true }).to(navBarContainer.current, {
-      duration: 0.4,
-      x: 45,
-    })
+  const history = useHistory()
 
-    linksTween.current = new TimelineLite({ paused: true }).to(linksContainer.current, {
-      duration: 1,
-      x: 0,
-      opacity: 1,
-    })
-
-    arrowTween.current = new TimelineLite({ paused: true }).to(arrowContainer.current, {
-      duration: 1,
-    })
-  }, [])
-
-  const openNav = () => {
-    navBarTween.current.play()
-    linksTween.current.play()
-    arrowTween.current.play()
-    setNavOpen(true)
-  }
-
-  const closeNav = () => {
-    navBarTween.current.reverse()
-    linksTween.current.reverse()
-    arrowTween.current.reverse()
-    setNavOpen(false)
-  }
+  const handleToggleSidebar = useCallback(() => {
+    dispatch(toggleLeftSidebar())
+  }, [dispatch])
 
   const handleNewNodeEntryClick = async () => {
     dispatch(resetCurrentEntryState())
     const newNode = await dispatch(createNodeEntry())
 
-    closeNav()
-
+    dispatch(toggleLeftSidebar())
     history.push(`/edit-node-entry?entryId=${newNode.payload}`)
   }
 
@@ -74,28 +41,42 @@ const NavBarSide = () => {
     dispatch(resetCurrentEntryState())
     const newJournal = await dispatch(createJournalEntry())
 
-    closeNav()
+    dispatch(toggleLeftSidebar())
     return history.push(`/create-journal-entry?entryId=${newJournal.payload}`)
   }
 
   return (
-    <div ref={navBarContainer} className="nav">
-      <button
-        className={mode === '-.light' ? 'rubberDucky__nav-arrow-container' : 'nav__arrow-container'}
-        onClick={navOpen ? closeNav : openNav}
-      >
+    <div
+      className={classNames(styles.wrapper, {
+        [styles.sidebarOpen]: leftSidebarOpen,
+      })}
+    >
+      <button className={styles.arrowContainer} onClick={handleToggleSidebar}>
         <img
-          ref={arrowContainer}
-          className={`nav__arrow ${navOpen ? 'nav__arrow-rotate' : ''}`}
+          className={classNames(styles.arrow, { [styles.arrowRotate]: leftSidebarOpen })}
           src={arrow}
           alt="hamburger"
         />
       </button>
-      <div className={`nav__links-container${mode}`} ref={linksContainer}>
-        <NavLink exact to="/dashboard" activeClassName="nav__active" className={`nav__link${mode}`}>
+      <div
+        className={classNames(styles.sidebarContainer, {
+          [styles.sidebarOpen]: leftSidebarOpen,
+        })}
+      >
+        <NavLink
+          exact
+          to="/dashboard"
+          activeClassName={styles.active}
+          className={mode === '-.light' ? styles.linkLight : styles.link}
+        >
           Dashboard
         </NavLink>
-        <NavLink exact to="/explore" activeClassName="nav__active" className={`nav__link${mode}`}>
+        <NavLink
+          exact
+          to="/explore"
+          activeClassName={styles.active}
+          className={mode === '-.light' ? styles.linkLight : styles.link}
+        >
           Explore
         </NavLink>
         <TextButton navLink onClick={handleNewJournalEntryClick}>
@@ -106,31 +87,64 @@ const NavBarSide = () => {
         </TextButton>
         {!guestMode && (
           <>
-            <NavLink exact to="/profile" activeClassName="nav__active" className={`nav__link${mode}`}>
+            <NavLink
+              exact
+              to="/profile"
+              activeClassName={styles.active}
+              className={mode === '-.light' ? styles.linkLight : styles.link}
+            >
               Profile / Stats
             </NavLink>
-            <NavLink exact to="/entries" activeClassName="nav__active" className={`nav__link${mode}`}>
+            <NavLink
+              exact
+              to="/entries"
+              activeClassName={styles.active}
+              className={mode === '-.light' ? styles.linkLight : styles.link}
+            >
               Entries
             </NavLink>
           </>
         )}
-        <NavLink exact to="/resources" activeClassName="nav__active" className={`nav__link${mode}`}>
+        <NavLink
+          exact
+          to="/resources"
+          activeClassName={styles.active}
+          className={mode === '-.light' ? styles.linkLight : styles.link}
+        >
           Resources
         </NavLink>
         {!guestMode && (
-          <NavLink exact to="/modes" activeClassName="nav__active" className={`nav__link${mode}`}>
+          <NavLink
+            exact
+            to="/modes"
+            activeClassName={styles.active}
+            className={mode === '-.light' ? styles.linkLight : styles.link}
+          >
             Modes
           </NavLink>
         )}
-        <NavLink exact to="/about" activeClassName="nav__active" className={`nav__link${mode}`}>
+        <NavLink
+          exact
+          to="/about"
+          activeClassName={styles.active}
+          className={mode === '-.light' ? styles.linkLight : styles.link}
+        >
           About
         </NavLink>
         {isAuthenticated ? (
-          <button className={`nav__logout-button${mode}`} onClick={() => dispatch(logout())}>
+          <button
+            className={mode === '-.light' ? styles.logoutButtonLight : styles.logoutButton}
+            onClick={() => dispatch(logout())}
+          >
             Logout
           </button>
         ) : (
-          <NavLink exact to="/login" activeClassName="nav__active" className={`nav__link${mode}`}>
+          <NavLink
+            exact
+            to="/login"
+            activeClassName={styles.active}
+            className={mode === '-.light' ? styles.linkLight : styles.link}
+          >
             Login
           </NavLink>
         )}
@@ -139,4 +153,4 @@ const NavBarSide = () => {
   )
 }
 
-export default NavBarSide
+export default NavBarLeftSide

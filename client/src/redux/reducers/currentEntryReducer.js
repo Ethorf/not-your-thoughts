@@ -119,26 +119,26 @@ export const saveNodeEntry = createAsyncThunk(
 
       // Clean up obsolete connections
 
-      const state = getState()
-      const text = (state.currentEntry.content || '').toLowerCase()
-      const allConnections = state.connections.connections
+      // const state = getState()
+      // const text = (state.currentEntry.content || '').toLowerCase()
+      // const allConnections = state.connections.connections
 
-      const connectionsToDelete =
-        allConnections?.filter((conn) => {
-          const { primary_source, source_type } = conn
-          return (
-            (source_type === CONNECTION_SOURCE_TYPES.DIRECT || source_type === CONNECTION_SOURCE_TYPES.SINGLE_WORD) &&
-            primary_source &&
-            !text.includes(primary_source.toLowerCase())
-          )
-        }) || []
+      // const connectionsToDelete =
+      //   allConnections?.filter((conn) => {
+      //     const { primary_source, source_type } = conn
+      //     return (
+      //       (source_type === CONNECTION_SOURCE_TYPES.DIRECT || source_type === CONNECTION_SOURCE_TYPES.SINGLE_WORD) &&
+      //       primary_source &&
+      //       !text.includes(primary_source.toLowerCase())
+      //     )
+      //   }) || []
 
-      for (const conn of connectionsToDelete) {
-        dispatch(deleteConnection(conn.id))
-      }
+      // for (const conn of connectionsToDelete) {
+      //   dispatch(deleteConnection(conn.id))
+      // }
 
-      const cleanedConnections = connectionsToDelete.length > 0
-      // const cleanedConnections = true
+      // const cleanedConnections = connectionsToDelete.length > 0
+      const cleanedConnections = false
 
       if (saveType === AUTO) {
         dispatch(showToast(cleanedConnections ? 'Node saved and connections cleaned' : 'Node autosaved', 'warn'))

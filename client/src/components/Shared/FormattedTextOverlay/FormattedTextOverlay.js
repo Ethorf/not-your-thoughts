@@ -72,6 +72,7 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
             onClick={() => handleRedirectToNode(foreign_entry_id)}
             role="button"
             tabIndex={0}
+            style={{ color: 'blue' }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleRedirectToNode(foreign_entry_id)
             }}
@@ -239,7 +240,7 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
     const rootChildren = Array.from(doc.body.childNodes)
 
     return rootChildren.map((node, i) => transformNode(node, i))
-  }, [content, formatRules, allTitles, dispatch, entryId, nodeEntriesInfo, connections]) // connections needed for async loading fix
+  }, [content, formatRules, allTitles, dispatch, entryId, nodeEntriesInfo, connections])
 
   const initialTopValue = toolbarVisible ? 41 + MAIN_TOP_OFFSET : MAIN_TOP_OFFSET
 

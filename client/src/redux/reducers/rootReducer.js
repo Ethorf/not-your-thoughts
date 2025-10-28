@@ -7,6 +7,7 @@ import connectionsReducer from './connectionsReducer'
 import currentEntryReducer from './currentEntryReducer'
 import customPromptsReducer from './customPromptsReducer'
 import journalEntriesReducer from './journalEntriesReducer'
+import leftSidebarReducer from './leftSidebarReducer'
 import modalsReducer from './modalsReducer'
 import modesReducer from './modesReducer'
 import nodeEntriesReducer from './nodeEntriesReducer'
@@ -22,6 +23,7 @@ export default combineReducers({
   currentEntry: currentEntryReducer,
   customPrompts: customPromptsReducer,
   journalEntries: journalEntriesReducer,
+  leftSidebar: leftSidebarReducer,
   modals: modalsReducer,
   modes: modesReducer,
   nodeEntries: nodeEntriesReducer,

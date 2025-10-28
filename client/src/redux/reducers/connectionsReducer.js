@@ -19,6 +19,7 @@ const { DIRECT, SINGLE_WORD, DESCRIPTIVE } = CONNECTION_SOURCE_TYPES
 
 const initialState = {
   connections: [],
+  allConnections: [], // All connections across all nodes for Global view
   connectionsLoading: false,
   connectionSourceType: DIRECT,
   connectionTitleInput: '',
@@ -84,12 +85,25 @@ export const fetchConnections = createAsyncThunk('connections/', async (entry_id
   }
 })
 
+export const fetchAllConnections = createAsyncThunk(
+  'connections/fetchAllConnections',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get('api/connections/all_connections')
+      return response.data.connections
+    } catch (error) {
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
+
 export const fetchConnectionsDirect = createAsyncThunk(
   'connections/fetchConnectionsDirect',
   async (entry_id, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(`api/connections/${entry_id}`)
-      // 🔥 only return the data, no reducer touches state
+      console.log('<<<<<< response.data >>>>>>>>> is: <<<<<<<<<<<<')
+      console.log(response.data)
       return response.data.connections
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message)
@@ -216,6 +230,17 @@ const connectionsSlice = createSlice({
         // state.connections = action.payload.connections
       })
       .addCase(updateConnection.rejected, (state, action) => {
+        state.connectionsLoading = false
+        state.error = action.payload
+      })
+      .addCase(fetchAllConnections.pending, (state) => {
+        state.connectionsLoading = true
+      })
+      .addCase(fetchAllConnections.fulfilled, (state, action) => {
+        state.allConnections = action.payload
+        state.connectionsLoading = false
+      })
+      .addCase(fetchAllConnections.rejected, (state, action) => {
         state.connectionsLoading = false
         state.error = action.payload
       })

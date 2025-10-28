@@ -247,7 +247,13 @@ router.get('/journal_entries', authorize, async (req, res) => {
           FROM entry_contents 
           WHERE entry_id = entries.id 
           ORDER BY date_created DESC 
-          LIMIT 1) AS date_last_modified
+          LIMIT 1) AS date_last_modified,
+        (SELECT COALESCE(SUM(word_count), 0) 
+          FROM entry_writing_data 
+          WHERE entry_id = entries.id) AS wd_word_count,
+        (SELECT COALESCE(SUM(duration), 0) 
+          FROM entry_writing_data 
+          WHERE entry_id = entries.id) AS wd_time_elapsed
       FROM 
         entries 
       WHERE 
@@ -261,8 +267,9 @@ router.get('/journal_entries', authorize, async (req, res) => {
       return res.status(404).json({ msg: 'No journal entries found for this user' })
     }
 
-    // If journal entries are found, return them
-
+    // If journal entries are found, return them with writing data
+    console.log('<<<<<< allJournalEntries >>>>>>>>> is: <<<<<<<<<<<<')
+    console.log(allJournalEntries.rows[200])
     res.json({ entries: allJournalEntries.rows })
   } catch (err) {
     console.error(err.message)
@@ -270,7 +277,7 @@ router.get('/journal_entries', authorize, async (req, res) => {
   }
 })
 
-// Route to retrieve all journal entries for a user
+// Route to retrieve all node entries for a user
 router.get('/node_entries', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
@@ -352,7 +359,7 @@ router.get('/node_entries_info', authorize, async (req, res) => {
       WHERE entry_id = entries.id 
       ORDER BY date_created DESC 
       LIMIT 1) AS date_last_modified,
-    -- 👇 aggregate writing data
+    --  aggregate writing data
     (SELECT COALESCE(SUM(word_count), 0) 
       FROM entry_writing_data 
       WHERE entry_id = entries.id) AS wd_word_count,
