@@ -21,7 +21,7 @@ import { SPHERE_TYPES, DEFAULT_SPHERE_SIZES } from '@constants/spheres'
 
 // Utils
 import extractTextFromHTML from '@utils/extractTextFromHTML'
-import placeNodesInCluster from '@utils/calculateGlobalClusterPositions'
+import calculateGlobalClusterPositions, { positionNodeConnections } from '@utils/calculateGlobalClusterPositions'
 
 // Poisson-ish distribution for cluster placement on sphere
 const generateClusterPositions = (numClusters, radius = 3) => {
@@ -189,6 +189,7 @@ const GlobalView = () => {
   const { entryId } = useSelector((state) => state.currentEntry)
   const [cameraRotation, setCameraRotation] = useState({ azimuth: 0, polar: 0 })
   const [nodePositions, setNodePositions] = useState([])
+  const [allConnectionsMap, setAllConnectionsMap] = useState(new Map()) // Map of nodeId -> Set of connected node IDs
   const controlsRef = useRef()
 
   // Fetch all connections on mount
@@ -222,19 +223,7 @@ const GlobalView = () => {
       return { clusters: [], adjacency: new Map() }
     }
 
-    // ** DEBUG: Filter to only node 1412 and its connections
-    const targetNodeId = 1412
-    const filteredConnections = allConnections.filter(
-      (conn) => conn.entry_id === targetNodeId || conn.foreign_entry_id === targetNodeId
-    )
-    const connectedNodeIds = new Set([targetNodeId])
-    filteredConnections.forEach((conn) => {
-      connectedNodeIds.add(conn.entry_id)
-      connectedNodeIds.add(conn.foreign_entry_id)
-    })
-    const filteredNodes = nodeEntriesInfo.filter((node) => connectedNodeIds.has(node.id))
-
-    const { clusters, adjacency } = buildClusters(filteredNodes, filteredConnections)
+    const { clusters, adjacency } = buildClusters(nodeEntriesInfo, allConnections)
 
     return { clusters, adjacency }
   }, [nodeEntriesInfo, allConnections])
@@ -246,47 +235,147 @@ const GlobalView = () => {
         return
       }
 
-      // ** DEBUG: Filter to only node 1412 and its connections
-      const targetNodeId = 1412
-      const filteredConnections = allConnections.filter(
-        (conn) => conn.entry_id === targetNodeId || conn.foreign_entry_id === targetNodeId
-      )
-      const connectedNodeIds = new Set([targetNodeId])
-      filteredConnections.forEach((conn) => {
-        connectedNodeIds.add(conn.entry_id)
-        connectedNodeIds.add(conn.foreign_entry_id)
-      })
-      const filteredNodes = nodeEntriesInfo.filter((node) => connectedNodeIds.has(node.id))
-
-      // Find which cluster contains the main node
+      // Find which cluster contains node 990 (the main cluster)
+      const targetNodeId = 990
       const mainNodeClusterIndex = clusters.findIndex((cluster) => cluster.includes(targetNodeId))
 
-      // Generate positions for non-main clusters
-      const otherClustersCount = clusters.length - 1
-      const clusterPositions = generateClusterPositions(otherClustersCount)
-
-      const allNodePositions = []
-      let otherClusterIndex = 0
-
-      for (const [clusterIndex, cluster] of clusters.entries()) {
-        let clusterCenter
-
-        // If this is the main node's cluster, position it at the equator
-        if (clusterIndex === mainNodeClusterIndex) {
-          const radius = 3
-          // Place at equator (y = 0) at x = radius, z = 0
-          clusterCenter = new THREE.Vector3(radius, 0, 0)
-        } else {
-          // Use generated position for other clusters
-          clusterCenter = clusterPositions[otherClusterIndex]
-          otherClusterIndex++
-        }
-
-        const positions = await placeNodesInCluster(cluster, clusterCenter, filteredNodes, dispatch)
-        allNodePositions.push(...positions)
+      // Only process the cluster containing node 990
+      if (mainNodeClusterIndex === -1) {
+        console.warn('Node 990 not found in any cluster')
+        return
       }
 
+      const allNodePositions = []
+      const mainCluster = clusters[mainNodeClusterIndex]
+
+      // Position the main cluster (containing node 990) at the equator
+      const radius = 3
+      const clusterCenter = new THREE.Vector3(radius, 0, 0)
+
+      // Validate clusterCenter before calling
+      if (!clusterCenter || !(clusterCenter instanceof THREE.Vector3)) {
+        console.warn('Invalid clusterCenter for main cluster')
+        return
+      }
+
+      const positions = await calculateGlobalClusterPositions(mainCluster, clusterCenter, nodeEntriesInfo, dispatch)
+
+      // Track all connections for line drawing
+      const connectionsMap = new Map() // Map of nodeId -> Set of connected node IDs
+
+      // Track seen node IDs and positions to prevent duplicates and overlaps
+      const seenNodeIds = new Set()
+      const existingPositions = new Map() // Map of nodeId -> position
+      const minDistance = 0.4 // Minimum distance between spheres to prevent overlap
+
+      // Helper function to check if a position is too close to existing positions
+      const isTooClose = (newPos) => {
+        for (const existingPos of existingPositions.values()) {
+          if (newPos.distanceTo(existingPos) < minDistance) {
+            return true
+          }
+        }
+        return false
+      }
+
+      // Helper function to find a non-overlapping position near the desired position
+      const findNonOverlappingPosition = (desiredPos, maxAttempts = 10) => {
+        if (!isTooClose(desiredPos)) {
+          return desiredPos
+        }
+
+        // Try to find a nearby position that doesn't overlap
+        const radius = clusterCenter.length()
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          // Generate a small random offset
+          const offset = new THREE.Vector3(
+            (Math.random() - 0.5) * 0.3,
+            (Math.random() - 0.5) * 0.3,
+            (Math.random() - 0.5) * 0.3
+          )
+          const candidatePos = desiredPos.clone().add(offset).normalize().multiplyScalar(radius)
+
+          if (!isTooClose(candidatePos)) {
+            return candidatePos
+          }
+        }
+
+        // If we can't find a non-overlapping position, return the original (they'll overlap but at least won't crash)
+        return desiredPos
+      }
+
+      // Add initial positions, preserving center node (990) at clusterCenter
+      const centerNodeId = targetNodeId
+      positions.forEach(({ node, position }) => {
+        // Always keep center node at exact cluster center
+        if (node.id === centerNodeId) {
+          seenNodeIds.add(node.id)
+          existingPositions.set(node.id, clusterCenter)
+          allNodePositions.push({ node, position: clusterCenter })
+        } else {
+          // Check for overlaps with other nodes
+          const finalPosition = findNonOverlappingPosition(position)
+          seenNodeIds.add(node.id)
+          existingPositions.set(node.id, finalPosition)
+          allNodePositions.push({ node, position: finalPosition })
+        }
+      })
+
+      // Expand sub-connections: for each node (excluding 990), position its connections
+      const nodesToExpand = positions.map(({ node }) => node).filter((node) => node.id !== targetNodeId)
+
+      // Helper function to add connection to map (bidirectional)
+      const addConnection = (nodeId1, nodeId2) => {
+        if (!connectionsMap.has(nodeId1)) {
+          connectionsMap.set(nodeId1, new Set())
+        }
+        if (!connectionsMap.has(nodeId2)) {
+          connectionsMap.set(nodeId2, new Set())
+        }
+        connectionsMap.get(nodeId1).add(nodeId2)
+        connectionsMap.get(nodeId2).add(nodeId1)
+      }
+
+      // Track connections from main node (990)
+      const mainNodePositions = positions.filter(({ node }) => node.id !== centerNodeId)
+      mainNodePositions.forEach(({ node }) => {
+        addConnection(targetNodeId, node.id)
+      })
+
+      // Position connections for each node with smaller scale to prevent overlaps
+      for (const nodeToExpand of nodesToExpand) {
+        const nodePosition = existingPositions.get(nodeToExpand.id)
+
+        if (!nodePosition) continue
+
+        const subPositions = await positionNodeConnections(
+          nodeToExpand.id,
+          nodePosition,
+          nodeEntriesInfo,
+          dispatch,
+          0.15 // Smaller scale for sub-connections to reduce overlap
+        )
+
+        // Track connections for this node
+        subPositions.forEach(({ node }) => {
+          addConnection(nodeToExpand.id, node.id)
+        })
+
+        // Only add nodes we haven't seen yet and check for overlaps
+        subPositions.forEach(({ node, position }) => {
+          if (!seenNodeIds.has(node.id)) {
+            const finalPosition = findNonOverlappingPosition(position)
+            seenNodeIds.add(node.id)
+            existingPositions.set(node.id, finalPosition)
+            allNodePositions.push({ node, position: finalPosition })
+          }
+        })
+      }
+
+      console.log('<<<<<< allNodePositions >>>>>>>>> is: <<<<<<<<<<<<')
+      console.log(allNodePositions)
       setNodePositions(allNodePositions)
+      setAllConnectionsMap(connectionsMap)
     }
 
     positionNodes()
@@ -416,31 +505,42 @@ const GlobalView = () => {
           <Suspense fallback={null}>
             <CameraController nodePositions={nodePositions} entryId={entryId} controlsRef={controlsRef} />
 
-            {/* Globe sphere with gradient */}
             <GradientGlobe />
 
-            {/* Simple connection lines - DEBUG: only for node 1412 */}
+            {/* Connection lines for all nodes */}
             {(() => {
-              const targetNodeId = 1412
-              const targetNode = nodePositions.find(({ node }) => node.id === targetNodeId)
-              if (!targetNode) return null
+              const lines = []
+              const drawnConnections = new Set() // Track already drawn connections to avoid duplicates
 
-              const neighbors = adjacency.get(targetNodeId) || []
-              return neighbors.map((neighborId) => {
-                const neighborNode = nodePositions.find(({ node }) => node.id === neighborId)
-                if (!neighborNode) return null
+              nodePositions.forEach(({ node, position: posA }) => {
+                const connectedNodes = allConnectionsMap.get(node.id) || new Set()
 
-                const posA = targetNode.position
-                const posB = neighborNode.position
-                const points = [new THREE.Vector3(posA.x, posA.y, posA.z), new THREE.Vector3(posB.x, posB.y, posB.z)]
-                const geometry = new THREE.BufferGeometry().setFromPoints(points)
+                connectedNodes.forEach((connectedNodeId) => {
+                  // Create unique key for connection (bidirectional, so use sorted IDs)
+                  const connectionKey = [node.id, connectedNodeId].sort().join('-')
 
-                return (
-                  <line key={`line-${targetNodeId}-${neighborId}`} geometry={geometry}>
-                    <lineBasicMaterial color="white" />
-                  </line>
-                )
+                  if (drawnConnections.has(connectionKey)) {
+                    return // Already drew this line
+                  }
+
+                  drawnConnections.add(connectionKey)
+
+                  const connectedNode = nodePositions.find(({ node: n }) => n.id === connectedNodeId)
+                  if (!connectedNode) return
+
+                  const posB = connectedNode.position
+                  const points = [new THREE.Vector3(posA.x, posA.y, posA.z), new THREE.Vector3(posB.x, posB.y, posB.z)]
+                  const geometry = new THREE.BufferGeometry().setFromPoints(points)
+
+                  lines.push(
+                    <line key={connectionKey} geometry={geometry}>
+                      <lineBasicMaterial color="white" />
+                    </line>
+                  )
+                })
               })
+
+              return lines
             })()}
 
             {/* Nodes */}
