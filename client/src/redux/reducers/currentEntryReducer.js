@@ -26,6 +26,7 @@ const initialState = {
   nodeEntriesInfo: [],
   starred: false,
   isTopLevel: false,
+  isPrivate: false,
 }
 
 export const addAka = createAsyncThunk(
@@ -235,6 +236,7 @@ export const setEntryById = createAsyncThunk(
         wdWordCount,
         wdTimeElapsed,
         isTopLevel,
+        is_private: isPrivate,
       } = response.data
 
       return {
@@ -248,6 +250,7 @@ export const setEntryById = createAsyncThunk(
         starred,
         title,
         isTopLevel,
+        isPrivate: isPrivate || false,
       }
     } catch (error) {
       return rejectWithValue(error.response.data)
@@ -308,6 +311,22 @@ export const updateNodeTopLevel = createAsyncThunk(
       return response.data
     } catch (error) {
       dispatch(showToast('Error updating top level status', 'error'))
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+export const toggleEntryIsPrivate = createAsyncThunk(
+  'currentEntryReducer/toggleEntryIsPrivate',
+  async ({ entryId }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axiosInstance.post('api/entries/toggle_is_private', { entryId })
+
+      await dispatch(fetchNodeEntriesInfo())
+
+      return response.data
+    } catch (error) {
+      dispatch(showToast('Error updating privacy status', 'error'))
       return rejectWithValue(error.response.data)
     }
   }
@@ -473,6 +492,12 @@ const currentEntrySlice = createSlice({
         const { entryId, isTopLevel } = action.payload
         if (state.entryId === entryId) {
           state.isTopLevel = isTopLevel
+        }
+      })
+      .addCase(toggleEntryIsPrivate.fulfilled, (state, action) => {
+        const { entryId, isPrivate } = action.payload
+        if (state.entryId === entryId) {
+          state.isPrivate = isPrivate
         }
       })
   },

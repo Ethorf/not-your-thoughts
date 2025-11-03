@@ -5,7 +5,13 @@ import { unwrapResult } from '@reduxjs/toolkit'
 
 // Redux
 import { useDispatch, useSelector } from 'react-redux'
-import { setTitle, saveNodeEntry, setEntryById, updateNodeTopLevel } from '@redux/reducers/currentEntryReducer'
+import {
+  setTitle,
+  saveNodeEntry,
+  setEntryById,
+  updateNodeTopLevel,
+  toggleEntryIsPrivate,
+} from '@redux/reducers/currentEntryReducer'
 import { openModal } from '@redux/reducers/modalsReducer.js'
 import { fetchConnections, getSelectedText } from '@redux/reducers/connectionsReducer'
 
@@ -36,7 +42,9 @@ const EditNodeEntry = () => {
   const location = useLocation()
 
   const { connectionsLoading } = useSelector((state) => state.connections)
-  const { wordCount, entryId, title, starred, isTopLevel, entriesLoading } = useSelector((state) => state.currentEntry)
+  const { wordCount, entryId, title, starred, isTopLevel, isPrivate, entriesLoading } = useSelector(
+    (state) => state.currentEntry
+  )
   const params = useMemo(() => new URLSearchParams(location.search), [location.search])
 
   useEffect(() => {
@@ -61,6 +69,12 @@ const EditNodeEntry = () => {
       dispatch(updateNodeTopLevel({ entryId, isTopLevel: !isTopLevel }))
     }
   }, [dispatch, entryId, isTopLevel])
+
+  const handleToggleIsPrivate = useCallback(() => {
+    if (entryId) {
+      dispatch(toggleEntryIsPrivate({ entryId }))
+    }
+  }, [dispatch, entryId])
 
   const handleSaveNode = useCallback(
     (saveType) => {
@@ -129,6 +143,15 @@ const EditNodeEntry = () => {
                 })}
               >
                 {isTopLevel ? 'Top Level ✓' : 'Top Level'}
+              </DefaultButton>
+              <DefaultButton
+                tooltip={isPrivate ? 'Make entry public' : 'Make entry private'}
+                onClick={handleToggleIsPrivate}
+                className={classNames(styles.saveButton, {
+                  [styles.topLevelActive]: isPrivate,
+                })}
+              >
+                {isPrivate ? 'Private ✓' : 'Private'}
               </DefaultButton>
               <StarButton id={entryId} initialStarred={starred} />
             </div>

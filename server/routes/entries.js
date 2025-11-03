@@ -20,10 +20,10 @@ router.post('/create_node_entry', authorize, async (req, res) => {
       }
     }
 
-    // Insert entry into entries table
+    // Insert entry into entries table (is_private defaults to false for nodes)
     let newEntry = await pool.query(
-      'INSERT INTO entries (user_id, type, title, content_ids) VALUES ($1, $2, $3, $4) RETURNING id',
-      [user_id, type, title, []]
+      'INSERT INTO entries (user_id, type, title, content_ids, is_private) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+      [user_id, type, title, [], false]
     )
 
     const entry_id = newEntry.rows[0].id
@@ -145,10 +145,10 @@ router.post('/create_journal_entry', authorize, async (req, res) => {
   const type = 'journal'
 
   try {
-    // Insert a new journal entry with default values
+    // Insert a new journal entry with default values (is_private defaults to true for journals)
     const newEntry = await pool.query(
-      'INSERT INTO entries (user_id, type, total_time_taken, wpm, num_of_words, content_ids) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-      [user_id, type, 0, 0, 0, []]
+      'INSERT INTO entries (user_id, type, total_time_taken, wpm, num_of_words, content_ids, is_private) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+      [user_id, type, 0, 0, 0, [], true]
     )
 
     const entry_id = newEntry.rows[0].id
@@ -188,10 +188,10 @@ router.post('/save_journal_entry', authorize, async (req, res) => {
         entryId,
       ])
     } else {
-      // Insert new entry into entries table
+      // Insert new entry into entries table (is_private defaults to true for journals)
       const newEntry = await pool.query(
-        'INSERT INTO entries (user_id, type, total_time_taken, wpm, num_of_words, content_ids) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-        [user_id, type, total_time_taken, wpm, num_of_words, []]
+        'INSERT INTO entries (user_id, type, total_time_taken, wpm, num_of_words, content_ids, is_private) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+        [user_id, type, total_time_taken, wpm, num_of_words, [], true]
       )
       entry_id = newEntry.rows[0].id
     }
@@ -384,6 +384,7 @@ router.get('/node_entries_info', authorize, async (req, res) => {
         title: entry.title,
         starred: entry.starred,
         isTopLevel: entry.is_top_level,
+        isPrivate: entry.is_private || false,
         wdWordCount: entry.wd_word_count, // ✅ now using aggregated value
         wdTimeElapsed: entry.wd_time_elapsed, // optional, since you have it
         pending: !hasContent,
@@ -607,6 +608,44 @@ router.post('/toggle_starred', authorize, async (req, res) => {
   }
 })
 
+// Route to toggle the is_private value of an entry
+router.post('/toggle_is_private', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+  const { entryId } = req.body
+
+  try {
+    // Check if entryId and user_id are provided
+    if (!entryId || !user_id) {
+      return res.status(400).json({ message: 'entryId and user_id are required' })
+    }
+
+    // Retrieve the current is_private status of the entry
+    const entry = await pool.query('SELECT is_private FROM entries WHERE id = $1 AND user_id = $2', [entryId, user_id])
+
+    // Check if the entry exists
+    if (entry.rows.length === 0) {
+      return res.status(404).json({ message: 'Entry not found' })
+    }
+
+    // Toggle the is_private status
+    const currentIsPrivateStatus = entry.rows[0].is_private || false
+    const newIsPrivateStatus = !currentIsPrivateStatus
+
+    // Update the entry's is_private status
+    await pool.query('UPDATE entries SET is_private = $1 WHERE id = $2 AND user_id = $3', [
+      newIsPrivateStatus,
+      entryId,
+      user_id,
+    ])
+
+    console.log(`Entry ${entryId} is_private status updated successfully!`)
+    return res.json({ entryId, isPrivate: newIsPrivateStatus })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
 // Route to fetch all entry contents for a specific entry ID
 router.get('/entry_contents/:entryId', authorize, async (req, res) => {
   const { id: user_id } = req.user
@@ -809,10 +848,10 @@ async function processEntryChunk(chunk, user_id) {
     const wordsPerMinute = parseInt(wpm?.['$numberInt'] || 0)
     const totalTimeTaken = parseInt(timeElapsed?.['$numberInt'] || 0)
 
-    // Insert new entry into entries table
+    // Insert new entry into entries table (is_private defaults to true for journals)
     const newEntry = await pool.query(
-      'INSERT INTO entries (user_id, type, num_of_words, wpm, total_time_taken) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-      [user_id, type, numWords, wordsPerMinute, totalTimeTaken]
+      'INSERT INTO entries (user_id, type, num_of_words, wpm, total_time_taken, is_private) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+      [user_id, type, numWords, wordsPerMinute, totalTimeTaken, true]
     )
     const entry_id = newEntry.rows[0].id
 
