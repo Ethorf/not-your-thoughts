@@ -22,6 +22,8 @@ import { SPHERE_TYPES, DEFAULT_SPHERE_SIZES } from '@constants/spheres'
 // Utils
 import extractTextFromHTML from '@utils/extractTextFromHTML'
 import calculateGlobalClusterPositions, { positionNodeConnections } from '@utils/calculateGlobalClusterPositions'
+import { resolvePositionOriginal } from '@utils/resolvePositionOriginal'
+import { resolvePositionWithOverlapPrevention } from '@utils/resolvePositionWithOverlapPrevention'
 
 // Poisson-ish distribution for cluster placement on sphere
 const generateClusterPositions = (numClusters, radius = 3) => {
@@ -263,46 +265,11 @@ const GlobalView = () => {
       // Track all connections for line drawing
       const connectionsMap = new Map() // Map of nodeId -> Set of connected node IDs
 
-      // Track seen node IDs and positions to prevent duplicates and overlaps
+      // Track seen node IDs and positions
       const seenNodeIds = new Set()
       const existingPositions = new Map() // Map of nodeId -> position
-      const minDistance = 0.4 // Minimum distance between spheres to prevent overlap
-
-      // Helper function to check if a position is too close to existing positions
-      const isTooClose = (newPos) => {
-        for (const existingPos of existingPositions.values()) {
-          if (newPos.distanceTo(existingPos) < minDistance) {
-            return true
-          }
-        }
-        return false
-      }
-
-      // Helper function to find a non-overlapping position near the desired position
-      const findNonOverlappingPosition = (desiredPos, maxAttempts = 10) => {
-        if (!isTooClose(desiredPos)) {
-          return desiredPos
-        }
-
-        // Try to find a nearby position that doesn't overlap
-        const radius = clusterCenter.length()
-        for (let attempt = 0; attempt < maxAttempts; attempt++) {
-          // Generate a small random offset
-          const offset = new THREE.Vector3(
-            (Math.random() - 0.5) * 0.3,
-            (Math.random() - 0.5) * 0.3,
-            (Math.random() - 0.5) * 0.3
-          )
-          const candidatePos = desiredPos.clone().add(offset).normalize().multiplyScalar(radius)
-
-          if (!isTooClose(candidatePos)) {
-            return candidatePos
-          }
-        }
-
-        // If we can't find a non-overlapping position, return the original (they'll overlap but at least won't crash)
-        return desiredPos
-      }
+      const firstOrderNodeIds = new Set() // Track 1st order connections (direct to 990)
+      const minDistance = 0.4 // Minimum distance to check for overlaps
 
       // Add initial positions, preserving center node (990) at clusterCenter
       const centerNodeId = targetNodeId
@@ -313,11 +280,11 @@ const GlobalView = () => {
           existingPositions.set(node.id, clusterCenter)
           allNodePositions.push({ node, position: clusterCenter })
         } else {
-          // Check for overlaps with other nodes
-          const finalPosition = findNonOverlappingPosition(position)
+          // Mark as 1st order connection
+          firstOrderNodeIds.add(node.id)
           seenNodeIds.add(node.id)
-          existingPositions.set(node.id, finalPosition)
-          allNodePositions.push({ node, position: finalPosition })
+          existingPositions.set(node.id, position)
+          allNodePositions.push({ node, position })
         }
       })
 
@@ -342,18 +309,28 @@ const GlobalView = () => {
         addConnection(targetNodeId, node.id)
       })
 
+      // Compute a stable left/right basis from the main cluster center
+      const mainNormal = clusterCenter.clone().normalize()
+      const northPole = new THREE.Vector3(0, 1, 0)
+      const mainTangent1 = new THREE.Vector3().crossVectors(northPole, mainNormal).normalize() // left/right axis
+
       // Position connections for each node with smaller scale to prevent overlaps
       for (const nodeToExpand of nodesToExpand) {
         const nodePosition = existingPositions.get(nodeToExpand.id)
 
         if (!nodePosition) continue
 
+        // Determine which side (left/right) this node is on relative to the main center
+        const deltaFromCenter = nodePosition.clone().sub(clusterCenter)
+        const biasSignX = Math.sign(deltaFromCenter.dot(mainTangent1)) || 1
+
         const subPositions = await positionNodeConnections(
           nodeToExpand.id,
           nodePosition,
           nodeEntriesInfo,
           dispatch,
-          0.15 // Smaller scale for sub-connections to reduce overlap
+          0.25, // Increased scale for sub-connections to add more spacing
+          { biasSignX, suppressFirstChildBias: true }
         )
 
         // Track connections for this node
@@ -361,10 +338,25 @@ const GlobalView = () => {
           addConnection(nodeToExpand.id, node.id)
         })
 
-        // Only add nodes we haven't seen yet and check for overlaps
+        // Only add nodes we haven't seen yet
+        // Check if nodeToExpand is 1st order to determine if these are 2nd order connections
+        const isSecondOrder = firstOrderNodeIds.has(nodeToExpand.id)
+        const isWestOfMain = biasSignX < 0
+
         subPositions.forEach(({ node, position }) => {
           if (!seenNodeIds.has(node.id)) {
-            const finalPosition = findNonOverlappingPosition(position)
+            // Use overlap prevention for 2nd order connections, original positioning for others
+            const finalPosition = isSecondOrder
+              ? resolvePositionWithOverlapPrevention(
+                  position,
+                  nodePosition,
+                  isWestOfMain,
+                  clusterCenter,
+                  existingPositions.values(),
+                  minDistance
+                )
+              : resolvePositionOriginal(position)
+
             seenNodeIds.add(node.id)
             existingPositions.set(node.id, finalPosition)
             allNodePositions.push({ node, position: finalPosition })
@@ -372,8 +364,6 @@ const GlobalView = () => {
         })
       }
 
-      console.log('<<<<<< allNodePositions >>>>>>>>> is: <<<<<<<<<<<<')
-      console.log(allNodePositions)
       setNodePositions(allNodePositions)
       setAllConnectionsMap(connectionsMap)
     }

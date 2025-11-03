@@ -17,7 +17,14 @@ const {
  * @param {number} positionScale - Scale factor for positioning (default 0.2)
  * @returns {Array} - Array of { node, position } objects
  */
-export const positionNodeConnections = async (nodeId, nodePosition, nodeEntries, dispatch, positionScale = 0.2) => {
+export const positionNodeConnections = async (
+  nodeId,
+  nodePosition,
+  nodeEntries,
+  dispatch,
+  positionScale = 0.2,
+  options = {}
+) => {
   // Validate nodePosition
   if (!nodePosition || !(nodePosition instanceof THREE.Vector3) || nodePosition.length() === 0) {
     return []
@@ -42,6 +49,7 @@ export const positionNodeConnections = async (nodeId, nodePosition, nodeEntries,
   const localPositions = calculateSpherePositions(allConnections, { PARENT, EXTERNAL, CHILD, SIBLING })
 
   // Map each connection to its node and project local position onto sphere
+  let firstChildHandled = false
   allConnections.forEach((conn) => {
     const localPos = localPositions.positions[conn.id]
     if (!localPos) return
@@ -60,8 +68,19 @@ export const positionNodeConnections = async (nodeId, nodePosition, nodeEntries,
     // Convert local 2D position to 3D position on sphere surface
     const [localX, localY] = localPos
 
+    // Apply side bias if provided to keep siblings on the same lateral side
+    const baseBias =
+      typeof options.biasSignX === 'number' && options.biasSignX !== 0 ? Math.sign(options.biasSignX) : null
+    const isChildConn = conn.connection_type === CHILD
+    const suppressFirstChildBias = !!options.suppressFirstChildBias
+    const effectiveBias = suppressFirstChildBias && isChildConn && !firstChildHandled ? null : baseBias
+    if (suppressFirstChildBias && isChildConn && !firstChildHandled) {
+      firstChildHandled = true
+    }
+    const biasedLocalX = effectiveBias ? Math.abs(localX) * effectiveBias : localX
+
     // Scale down the local positions
-    const scaledX = localX * positionScale
+    const scaledX = biasedLocalX * positionScale
     const scaledY = localY * positionScale
 
     // Project onto sphere using local coordinate system
@@ -73,7 +92,22 @@ export const positionNodeConnections = async (nodeId, nodePosition, nodeEntries,
     // Normalize and scale to sphere radius
     worldPos.normalize().multiplyScalar(nodePosition.length())
 
-    positions.push({ node, position: worldPos })
+    // For 2nd order children, increase distance from parent along the radial direction (without affecting lateral position)
+    const isSecondOrderChild = suppressFirstChildBias && isChildConn
+    if (isSecondOrderChild) {
+      const childDistanceMultiplier = 1.3 // Increase distance for 2nd order children (>1.0 = further away)
+      // Calculate direction from parent to child (radial direction on sphere surface)
+      const parentToChild = worldPos.clone().sub(nodePosition)
+      const currentDistance = parentToChild.length()
+      // Move child further from parent along the same direction, maintaining lateral position
+      const radialDirection = parentToChild.normalize()
+      const additionalOffset = radialDirection.multiplyScalar(currentDistance * (childDistanceMultiplier - 1.0))
+      worldPos.add(additionalOffset)
+      // Renormalize to stay on sphere surface
+      worldPos.normalize().multiplyScalar(nodePosition.length())
+    }
+
+    positions.push({ node, position: worldPos, connectionType: conn.connection_type })
   })
 
   return positions
