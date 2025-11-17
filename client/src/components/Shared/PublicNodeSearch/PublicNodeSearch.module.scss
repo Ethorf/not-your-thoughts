@@ -1,0 +1,134 @@
+@import '@styles/variables';
+
+.nodeSearch {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.collapsible {
+    width: auto;
+  }
+}
+
+.searchIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(192, 192, 192, 0.1);
+  border: none;
+  color: $silver-active;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+  padding: 0;
+
+  &:hover {
+    background: rgba(192, 192, 192, 0.2);
+    transform: scale(1.1);
+  }
+
+  &:focus {
+    outline: 2px solid $silver-active;
+    outline-offset: 2px;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.searchContainer {
+  width: 0;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+
+  &.expanded {
+    width: 400px;
+    max-width: 400px;
+    opacity: 1;
+    margin-left: 10px;
+  }
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: #ccc;
+  font-size: 14px;
+  font-family: 'Syncopate', sans-serif;
+  transition: all 0.3s ease;
+  min-width: 300px;
+
+  &:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: white;
+  }
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+.results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 5px;
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.resultItem {
+  padding: 12px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+
+  &:hover,
+  &.selected {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.nodeTitle {
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.nodePreview {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.noResults {
+  padding: 15px;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  font-size: 14px;
+}
+

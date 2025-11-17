@@ -41,6 +41,9 @@ class NavBarTop extends React.Component {
           } `}
           ref={(div) => (this.linksContainer = div)}
         >
+          <NavLink exact to="/" activeClassName="navTop__active" className={`navTop__link ${this.props.mode}`}>
+            Home
+          </NavLink>
           <NavLink exact to="/main" activeClassName="navTop__active" className={`navTop__link ${this.props.mode}`}>
             Main
           </NavLink>

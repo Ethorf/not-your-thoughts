@@ -1,21 +1,20 @@
 import React, { useMemo, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { useSelector, useDispatch } from 'react-redux'
+import { useHistory } from 'react-router-dom'
 import { transformConnection } from '@utils/transformConnection'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
-import styles from './ConnectionLines.module.scss'
-
-import { setEntryById } from '@redux/reducers/currentEntryReducer'
+import styles from './PublicConnectionLines.module.scss'
 
 const { PARENT, CHILD, SIBLING, EXTERNAL } = CONNECTION_TYPES.FRONTEND
 
-const ConnectionLines = ({ entryId }) => {
-  const { connections } = useSelector((state) => state.connections)
-  const dispatch = useDispatch()
+const PublicConnectionLines = ({ entryId, userId, connections = [] }) => {
+  const history = useHistory()
   const [tooltip, setTooltip] = useState({ visible: false, content: '', x: 0, y: 0 })
 
-  const handleConnectionLineClick = async (id) => {
-    await dispatch(setEntryById(id))
+  const handleConnectionLineClick = (id) => {
+    if (userId && id) {
+      history.push(`/show-node-entry?userId=${userId}&entryId=${id}`)
+    }
   }
 
   const handleMouseEnter = useCallback((content) => {
@@ -32,9 +31,12 @@ const ConnectionLines = ({ entryId }) => {
   const handleMouseLeave = useCallback(() => {
     setTooltip({ visible: false, content: '', x: 0, y: 0 })
   }, [])
+
   // Group connections by type for rendering lines
   const connectionLines = useMemo(() => {
-    if (!connections || !entryId) return { parents: [], children: [], siblings: [], externals: [] }
+    if (!connections || !entryId || connections.length === 0) {
+      return { parents: [], children: [], siblings: [], externals: [] }
+    }
 
     const grouped = connections.reduce((acc, conn) => {
       const transformed = transformConnection(entryId, conn)
@@ -69,7 +71,7 @@ const ConnectionLines = ({ entryId }) => {
           key={`parent-${parent.id}`}
           onClick={() => handleConnectionLineClick(parent.id)}
           className={styles.connectionLine}
-          onMouseEnter={handleMouseEnter(`Edit Parent Node: ${parent.title}`)}
+          onMouseEnter={handleMouseEnter(`View Parent Node: ${parent.title}`)}
           onMouseLeave={handleMouseLeave}
           style={{
             '--line-angle': `${-45 + index * 30}deg`,
@@ -92,7 +94,7 @@ const ConnectionLines = ({ entryId }) => {
             key={`sibling-${sibling.id}`}
             onClick={() => handleConnectionLineClick(sibling.id)}
             className={styles.connectionLine}
-            onMouseEnter={handleMouseEnter(`Edit Sibling Node: ${sibling.title}`)}
+            onMouseEnter={handleMouseEnter(`View Sibling Node: ${sibling.title}`)}
             onMouseLeave={handleMouseLeave}
             style={{
               '--line-angle': calculateSiblingAngle(index),
@@ -119,7 +121,7 @@ const ConnectionLines = ({ entryId }) => {
             key={`child-${child.id}`}
             onClick={() => handleConnectionLineClick(child.id)}
             className={styles.connectionLine}
-            onMouseEnter={handleMouseEnter(`Edit Child Node: ${child.title}`)}
+            onMouseEnter={handleMouseEnter(`View Child Node: ${child.title}`)}
             onMouseLeave={handleMouseLeave}
             style={{
               '--line-angle': `${calculateChildAngle(nonZeroIndex)}`,
@@ -136,6 +138,11 @@ const ConnectionLines = ({ entryId }) => {
           className={`${styles.connectionLine} ${styles.externalLine}`}
           onMouseEnter={handleMouseEnter(`External Link: ${external.title}`)}
           onMouseLeave={handleMouseLeave}
+          onClick={() => {
+            if (external.url) {
+              window.open(external.url, '_blank', 'noopener,noreferrer')
+            }
+          }}
           style={{
             '--line-angle': `${120 + index * 20}deg`,
             '--line-delay': `${index * 0.1}s`,
@@ -162,4 +169,5 @@ const ConnectionLines = ({ entryId }) => {
   )
 }
 
-export default ConnectionLines
+export default PublicConnectionLines
+

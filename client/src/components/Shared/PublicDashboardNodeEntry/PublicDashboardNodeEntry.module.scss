@@ -1,0 +1,70 @@
+@import '@styles/variables.scss';
+
+.wrapper {
+  display: grid;
+  grid-template-columns: 10% 1fr 12% 12% 10% 12%;
+  align-items: center;
+  gap: 12px;
+  min-width: 0; // Allow grid to shrink below content size
+}
+
+.date {
+  color: $silver-faded;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.titleButton {
+  font-size: 1.1rem;
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+  position: relative;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow: visible;
+
+  &.read {
+    opacity: 0.7;
+  }
+}
+
+.readIndicator {
+  color: $silver-active;
+  font-size: 0.85rem;
+  font-weight: bold;
+  white-space: nowrap;
+
+  &.updated {
+    color: #90ee90;
+  }
+
+  &.read {
+    color: $silver-active;
+  }
+}
+
+.updated {
+  opacity: 1;
+}
+
+.wordCount,
+.connectionCount {
+  color: $silver-faded;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.exploreButton {
+  font-size: 0.8rem;
+}
+
+.pending {
+  text-transform: uppercase;
+  color: $silver-active;
+  width: fit-content;
+}
+
+.flexEnd {
+  flex: 1;
+}

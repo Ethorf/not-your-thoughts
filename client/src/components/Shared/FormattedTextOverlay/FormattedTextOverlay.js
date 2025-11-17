@@ -62,7 +62,7 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
             {primary_source}
           </a>
         )
-      } else if (connection_type === SIBLING && foreign_entry_id) {
+      } else if (connection_type === SIBLING && foreign_entry_id && foreign_entry_id !== entryId) {
         rules[primary_source] = (
           <span
             key={primary_source}
@@ -72,7 +72,7 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
             onClick={() => handleRedirectToNode(foreign_entry_id)}
             role="button"
             tabIndex={0}
-            style={{ color: 'blue' }}
+            style={{ color: 'white' }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleRedirectToNode(foreign_entry_id)
             }}
@@ -242,7 +242,7 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
     return rootChildren.map((node, i) => transformNode(node, i))
   }, [content, formatRules, allTitles, dispatch, entryId, nodeEntriesInfo, connections])
 
-  const initialTopValue = toolbarVisible ? 41 + MAIN_TOP_OFFSET : MAIN_TOP_OFFSET
+  const initialTopValue = toolbarVisible ? 51 + MAIN_TOP_OFFSET : MAIN_TOP_OFFSET
 
   // Mostly event listeners and scroll stuff
   useEffect(() => {

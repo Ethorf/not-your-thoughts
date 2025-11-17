@@ -2,40 +2,90 @@
 
 .wrapper {
   position: absolute;
-  font-family: 'Poppins', sans-serif;
+  font-family: $main-text;
   font-weight: 200;
   color: silver;
   z-index: $text-entry-z-index + 1;
   pointer-events: none;
-  color: silver;
   transition: all 1s;
+  width: 100%;
+  left: 0;
+  right: 0;
 
   // Main text Variables
   font-size: $main-text-font-size;
   line-height: $main-text-line-height;
-  padding: 0;
+  padding: 0 !important;
   margin: 0;
   box-sizing: $main-text-box-sizing;
 
-  p,
-  li,
-  ul {
+  p {
+    font-weight: 200;
     font-size: $main-text-font-size;
     line-height: $main-text-line-height;
     padding-left: $main-text-padding-left;
     padding-top: 0;
     padding-bottom: $main-text-padding-bottom;
+    padding-right: $main-text-padding-right;
     box-sizing: $main-text-box-sizing;
     margin-top: 0;
     margin: 0;
+    transition: all 1s;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
-  p:empty {
-    padding: 0;
-  }
   li {
+    font-weight: 200;
+    font-size: $main-text-font-size;
+    line-height: $main-text-line-height;
     padding-left: 0;
+    padding-top: 0;
     padding-bottom: $li-padding-bottom;
+    padding-right: 92px;
+    box-sizing: $main-text-box-sizing;
+    margin-top: 0;
+    margin: 0;
+    transition: all 1s;
+
+    &::marker {
+      padding-left: $main-text-padding-left;
+    }
+  }
+
+  ul,
+  ol {
+    padding-left: $main-text-padding-left;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin: 0;
+    list-style-position: inside;
+  }
+
+  ol li,
+  ul li {
+    font-size: $main-text-font-size;
+  }
+
+  p:empty,
+  p > br:only-child,
+  li:empty {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    height: 0px;
+  }
+
+  /* Collapse empty blocks with only line breaks */
+  p:has(> br:only-child),
+  li:has(> br:only-child),
+  li > p:has(> br:only-child) {
+    margin-block: 0 !important;
+    padding-block: 0 !important;
+    line-height: 0 !important;
+    min-height: 0 !important;
   }
 }
 

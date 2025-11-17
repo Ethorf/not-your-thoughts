@@ -11,12 +11,15 @@ dotenv.config({ path: envPath })
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false, // Adjust SSL options based on your environment
+  max: Number(process.env.DB_MAX_CONNECTIONS || 10),
+  idleTimeoutMillis: Number(process.env.DB_IDLE_TIMEOUT_MS || 30_000),
+  connectionTimeoutMillis: Number(process.env.DB_CONNECTION_TIMEOUT_MS || 10_000),
+  keepAlive: true,
 })
 
-// Handle pool connection errors
+// Handle pool connection errors without forcing a process exit.
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err)
-  process.exit(-1) // Exit the Node.js process on critical error
+  console.error('Unexpected error on idle PostgreSQL client:', err.message)
 })
 
 // Establish a database connection with retry logic
@@ -29,7 +32,8 @@ const connectWithRetry = async () => {
   while (attempt < maxRetries) {
     attempt += 1
     try {
-      await pool.connect()
+      const client = await pool.connect()
+      client.release()
       console.log('Connected to NYT NeonDB PostgreSQL database')
       return
     } catch (error) {

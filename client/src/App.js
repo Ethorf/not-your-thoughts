@@ -29,6 +29,9 @@ import Modes from '@pages/ModesPage/ModesPage.js'
 import About from '@pages/AboutPage/About.js'
 import Entries from '@pages/EntriesPage/EntriesPage.js'
 import History from '@pages/History/History.js'
+import ViewNetwork from '@pages/ViewNetwork/ViewNetwork.js'
+import PublicNodeEntry from '@pages/PublicNodeEntry/PublicNodeEntry.js'
+import PublicDashboard from '@pages/PublicDashboard/PublicDashboard.js'
 
 //Redux
 import store from './redux/store/index'
@@ -102,6 +105,9 @@ const App = () => {
                   <Route path="/about" exact>
                     {({ match }) => <About show={match !== null} />}
                   </Route>
+                  <Route path="/view-network" exact component={ViewNetwork} />
+                  <Route path="/show-node-entry" exact component={PublicNodeEntry} />
+                  <Route path="/public-dashboard" exact component={PublicDashboard} />
                 </Switch>
               </CSSTransition>
             </TransitionGroup>

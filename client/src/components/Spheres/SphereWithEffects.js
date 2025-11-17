@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo, useCallback } from 'react'
+import React, { useRef, useState, useMemo, useCallback, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import * as THREE from 'three'
@@ -12,9 +12,20 @@ const {
   FRONTEND: { EXTERNAL },
 } = CONNECTION_TYPES
 
-const SphereWithEffects = ({ id, pos, title, size, conn, mainTexture, onClick, rotation = [0, 4.7, 0] }) => {
+const SphereWithEffects = ({
+  id,
+  pos,
+  title,
+  size,
+  conn,
+  mainTexture,
+  onClick,
+  rotation = [0, 4.7, 0],
+  nodeStatus = null,
+}) => {
   const [localHovered, setLocalHovered] = useState(false)
   const [localTooltip, setLocalTooltip] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
   const localTooltipTimeout = useRef(null)
   const sphereRef = useRef()
   const haloRef = useRef()
@@ -113,12 +124,48 @@ const SphereWithEffects = ({ id, pos, title, size, conn, mainTexture, onClick, r
     onClick?.(id, conn)
   }, [onClick, id, conn])
 
+  // Set mounted state when refs are available and DOM is ready
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const checkMounted = () => {
+      if (sphereRef.current && haloRef.current && document.body) {
+        setIsMounted(true)
+      }
+    }
+
+    // Check immediately
+    checkMounted()
+
+    // Also check after a short delay to ensure DOM is ready
+    const timeout = setTimeout(checkMounted, 100)
+
+    return () => clearTimeout(timeout)
+  }, [])
+
+  // Determine halo color and opacity based on node status
+  const haloColor = useMemo(() => {
+    if (nodeStatus === 'unread' || nodeStatus === 'updated') {
+      return 'white'
+    }
+    return 'silver'
+  }, [nodeStatus])
+
+  const baseHaloOpacity = useMemo(() => {
+    if (nodeStatus === 'unread' || nodeStatus === 'updated') {
+      return 1 // More visible white border for unread/updated
+    }
+    return 0.2 // Subtle silver border for read nodes
+  }, [nodeStatus])
+
   // hover animation
   useFrame(() => {
     if (!sphereRef.current || !haloRef.current) return
     const targetScale = localHovered ? 1.1 : 1
     sphereRef.current.scale.lerp(new THREE.Vector3(size * targetScale, size * targetScale, size * targetScale), 0.08)
-    haloRef.current.material.opacity += ((localHovered ? 1 : 0.2) - haloRef.current.material.opacity) * 0.08
+    const targetOpacity = localHovered ? 1 : baseHaloOpacity
+    haloRef.current.material.opacity += (targetOpacity - haloRef.current.material.opacity) * 0.08
+    haloRef.current.material.color.set(haloColor)
     haloRef.current.scale.lerp(
       new THREE.Vector3(size * targetScale * 1.05, size * targetScale * 1.05, size * targetScale * 1.05),
       0.08
@@ -142,9 +189,13 @@ const SphereWithEffects = ({ id, pos, title, size, conn, mainTexture, onClick, r
 
       {/* Halo */}
       <mesh ref={haloRef} position={pos} renderOrder={3}>
-        {localTooltip && <Html className={styles.tooltip}>{getTooltipText(title)}</Html>}
+        {localTooltip && isMounted && typeof window !== 'undefined' && (
+          <Html className={styles.tooltip} center>
+            {getTooltipText(title)}
+          </Html>
+        )}
         <sphereGeometry args={[size, 64, 64]} />
-        <meshBasicMaterial color="white" transparent side={THREE.BackSide} opacity={0.2} />
+        <meshBasicMaterial color={haloColor} transparent side={THREE.BackSide} opacity={baseHaloOpacity} />
       </mesh>
     </group>
   )

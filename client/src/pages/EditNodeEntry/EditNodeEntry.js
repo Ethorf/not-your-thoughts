@@ -45,6 +45,7 @@ const EditNodeEntry = () => {
   const { wordCount, entryId, title, starred, isTopLevel, isPrivate, entriesLoading } = useSelector(
     (state) => state.currentEntry
   )
+  const { user, isAuthenticated } = useSelector((state) => state.auth)
   const params = useMemo(() => new URLSearchParams(location.search), [location.search])
 
   useEffect(() => {
@@ -125,7 +126,6 @@ const EditNodeEntry = () => {
       <WritingDataManager entryType={ENTRY_TYPES.NODE} handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
       <div className={styles.editContainer}>
         <div className={classNames(styles.topContainer, styles.grid3Columns)}>
-          {/* {content || title ? ( */}
           <>
             <div className={styles.connectStarContainer}>
               <DefaultButton
@@ -136,18 +136,9 @@ const EditNodeEntry = () => {
                 Connect
               </DefaultButton>
               <DefaultButton
-                tooltip={isTopLevel ? 'Remove top-level status' : 'Set as top-level node'}
-                onClick={handleToggleTopLevel}
-                className={classNames(styles.saveButton, {
-                  [styles.topLevelActive]: isTopLevel,
-                })}
-              >
-                {isTopLevel ? 'Top Level ✓' : 'Top Level'}
-              </DefaultButton>
-              <DefaultButton
                 tooltip={isPrivate ? 'Make entry public' : 'Make entry private'}
                 onClick={handleToggleIsPrivate}
-                className={classNames(styles.saveButton, {
+                className={classNames({
                   [styles.topLevelActive]: isPrivate,
                 })}
               >
@@ -165,13 +156,24 @@ const EditNodeEntry = () => {
             />
             <span className={sharedStyles.flexSpaceBetween}>
               <AkasDisplay />
-              <DefaultButton
-                tooltip="Explore nodes"
-                onClick={() => history.push(`/explore`)}
-                className={styles.saveButton}
-              >
-                Explore
-              </DefaultButton>
+              <div className={styles.rightButtons}>
+                {isAuthenticated && user?.id && (
+                  <DefaultButton
+                    tooltip="View public mode"
+                    onClick={() => history.push(`/show-node-entry?userId=${user.id}&entryId=${entryId}`)}
+                    className={styles.saveButton}
+                  >
+                    Public Mode
+                  </DefaultButton>
+                )}
+                <DefaultButton
+                  tooltip="Explore nodes"
+                  onClick={() => history.push(`/explore`)}
+                  className={styles.saveButton}
+                >
+                  Explore
+                </DefaultButton>
+              </div>
             </span>
           </>
         </div>
@@ -189,6 +191,15 @@ const EditNodeEntry = () => {
               className={styles.saveButton}
             >
               History
+            </DefaultButton>
+            <DefaultButton
+              tooltip={isTopLevel ? 'Remove top-level status' : 'Set as top-level node'}
+              onClick={handleToggleTopLevel}
+              className={classNames(styles.topLevelButton, {
+                [styles.topLevelActive]: isTopLevel,
+              })}
+            >
+              {isTopLevel ? 'Top Level ✓' : 'Top Level'}
             </DefaultButton>
           </span>
           <span className={sharedStyles.flexCenter}>Words: {wordCount}</span>

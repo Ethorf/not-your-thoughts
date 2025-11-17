@@ -1,0 +1,43 @@
+@import '@styles/variables';
+
+.wrapper {
+  padding: 0;
+  overflow: auto;
+  overflow-x: hidden;
+  max-height: 72vh;
+}
+
+.sortControls {
+  background: black;
+  font-family: 'Syncopate', sans-serif;
+  border: 2px solid rgba(192, 192, 192, 0.8);
+  border-radius: 12px;
+  padding: 8px 12px;
+  color: rgba(192, 192, 192, 0.8);
+  text-transform: uppercase;
+  outline: none;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+.topContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+  width: 100%;
+  min-width: 0; // Allow flex items to shrink
+  padding-right: 0;
+}
+
+.searchContainer {
+  flex: 1 1 auto;
+  max-width: 350px;
+  min-width: 0; // Allow shrinking, but can grow up to max-width
+}
+
+.searchComponent {
+  width: 100%;
+}

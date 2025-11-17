@@ -1,0 +1,138 @@
+@import '@styles/variables';
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 60px;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.searchSection {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.searchComponent {
+  max-width: 400px;
+  width: 100%;
+}
+
+.topContainer {
+  display: flex;
+  align-items: center;
+  position: relative;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 800px;
+  z-index: $text-entry-z-index;
+  padding-bottom: 16px;
+}
+
+.rightButtons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.editButton {
+  font-size: 0.8rem;
+}
+
+.networkButton {
+  font-size: 0.8rem;
+}
+
+.historyButton {
+  font-size: 0.8rem;
+  min-width: 100px;
+}
+
+.title {
+  font-size: 1.8rem;
+  text-transform: uppercase;
+  background-color: black;
+  padding: 8px 16px;
+  border-radius: 4px;
+  color: silver;
+  position: relative;
+}
+
+.readIndicator {
+  margin-left: 8px;
+  color: $silver-active;
+  font-size: 1.2rem;
+  font-weight: bold;
+
+  &.updated {
+    color: #90ee90;
+    font-size: 1.4rem;
+  }
+}
+
+.connectionLinesWrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  z-index: 1;
+  background-color: black;
+  flex: 1;
+}
+
+.contentArea {
+  position: relative;
+  width: 800px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.content {
+  width: 100%;
+  max-width: 800px;
+  max-height: 70vh;
+  overflow-y: auto;
+  color: silver;
+  font-size: 1rem;
+  min-height: 15vh;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  border: 1px solid rgba(192, 192, 192, 0.5);
+  padding: 28px;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  background-color: black;
+  z-index: 2;
+  box-sizing: border-box;
+  margin-bottom: 100px;
+}
+
+.grid3Columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 100%;
+  min-height: 72px;
+}
+
+.loading,
+.error {
+  padding: 40px;
+  color: silver;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.error {
+  color: #ff6b6b;
+}

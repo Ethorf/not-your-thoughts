@@ -35,15 +35,35 @@
   align-items: center;
   width: 100%;
   z-index: $text-entry-z-index;
+
+  &.grid3Columns {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 16px;
+  }
 }
 .saveButton {
   margin-top: 8px;
 }
 
+.rightButtons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.topLevelButton {
+  font-size: 0.7rem;
+}
+
 .titleInput {
-  min-width: 200px;
+  width: 100%;
+  max-width: 200px;
   font-size: 1.5rem;
   text-transform: uppercase;
+  margin: 0 auto;
+  display: block;
 }
 
 .titleInputNoBorder {

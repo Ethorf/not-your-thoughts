@@ -27,6 +27,8 @@ const initialState = {
   starred: false,
   isTopLevel: false,
   isPrivate: false,
+  entryContents: [],
+  entryContentsLoading: false,
 }
 
 export const addAka = createAsyncThunk(
@@ -332,6 +334,56 @@ export const toggleEntryIsPrivate = createAsyncThunk(
   }
 )
 
+export const fetchPublicEntry = createAsyncThunk(
+  'currentEntryReducer/fetchPublicEntry',
+  async ({ entryId, userId }, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/entries/public/entry/${entryId}?userId=${userId}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch entry')
+      }
+      const data = await response.json()
+      return data
+    } catch (error) {
+      return rejectWithValue({ message: error.message || 'Failed to fetch entry' })
+    }
+  }
+)
+
+export const fetchPublicNodeEntriesInfo = createAsyncThunk(
+  'currentEntryReducer/fetchPublicNodeEntriesInfo',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/entries/public/node_entries_info/${userId}`)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ msg: 'Failed to fetch nodes' }))
+        throw new Error(errorData.msg || 'Failed to fetch nodes')
+      }
+      const data = await response.json()
+      return data.nodeEntries || []
+    } catch (error) {
+      return rejectWithValue({ message: error.message || 'Failed to fetch nodes' })
+    }
+  }
+)
+
+export const fetchPublicEntryContents = createAsyncThunk(
+  'currentEntryReducer/fetchPublicEntryContents',
+  async ({ entryId, userId }, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/entries/public/entry_contents/${entryId}?userId=${userId}`)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Failed to fetch entry contents' }))
+        throw new Error(errorData.message || 'Failed to fetch entry contents')
+      }
+      const data = await response.json()
+      return data.contents || []
+    } catch (error) {
+      return rejectWithValue({ message: error.message || 'Failed to fetch entry contents' })
+    }
+  }
+)
+
 const currentEntrySlice = createSlice({
   name: 'currentEntryReducer',
   initialState,
@@ -499,6 +551,70 @@ const currentEntrySlice = createSlice({
         if (state.entryId === entryId) {
           state.isPrivate = isPrivate
         }
+      })
+      .addCase(fetchPublicEntry.pending, (state, action) => {
+        const requestedEntryId = action.meta.arg?.entryId
+        // Only set loading if we're fetching a different entry than what's currently loaded
+        const needsLoading = !state.entryId || state.entryId !== requestedEntryId || !state.title || !state.content
+        return {
+          ...state,
+          entriesLoading: needsLoading,
+          entryContents: needsLoading ? [] : state.entryContents, // Only clear if actually loading new entry
+        }
+      })
+      .addCase(fetchPublicEntry.fulfilled, (state, action) => {
+        const {
+          content,
+          id: entryId,
+          num_of_words: wordCount,
+          title,
+        } = action.payload
+
+        return {
+          ...state,
+          entryId,
+          title,
+          content: content && content[0] ? content[0] : '',
+          wordCount,
+          entriesLoading: false,
+        }
+      })
+      .addCase(fetchPublicEntry.rejected, (state) => {
+        return {
+          ...state,
+          entriesLoading: false,
+        }
+      })
+      .addCase(fetchPublicNodeEntriesInfo.pending, (state) => {
+        // Only set loading if we don't already have nodeEntriesInfo
+        return {
+          ...state,
+          entriesLoading: !state.nodeEntriesInfo || state.nodeEntriesInfo.length === 0,
+        }
+      })
+      .addCase(fetchPublicNodeEntriesInfo.fulfilled, (state, action) => {
+        return {
+          ...state,
+          nodeEntriesInfo: action.payload,
+          entriesLoading: false,
+        }
+      })
+      .addCase(fetchPublicNodeEntriesInfo.rejected, (state) => {
+        return {
+          ...state,
+          entriesLoading: false,
+        }
+      })
+      .addCase(fetchPublicEntryContents.pending, (state) => {
+        state.entryContentsLoading = true
+      })
+      .addCase(fetchPublicEntryContents.fulfilled, (state, action) => {
+        state.entryContents = action.payload
+        state.entryContentsLoading = false
+      })
+      .addCase(fetchPublicEntryContents.rejected, (state) => {
+        state.entryContentsLoading = false
+        state.entryContents = []
       })
   },
 })

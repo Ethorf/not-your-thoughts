@@ -13,6 +13,11 @@
   ul li {
     font-size: $main-text-font-size;
   }
+
+  ol,
+  ul {
+    list-style-position: inside !important;
+  }
 }
 
 .ql-container.ql-snow {
@@ -69,6 +74,7 @@
   .ql-toolbar {
     transition: all 500ms;
     opacity: 1;
+    margin-bottom: 10px;
   }
 }
 
@@ -97,14 +103,32 @@
     padding-right: $main-text-padding-right;
     box-sizing: $main-text-box-sizing;
     transition: all 1s;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   li {
-    padding-left: 0 !important;
     padding-bottom: $li-padding-bottom;
+    position: relative;
+    padding-left: 30px !important; // Space for marker (::before) - adjust based on marker width
+
+    &::before {
+      position: absolute;
+      left: $main-text-padding-left;
+      width: auto;
+      // white-space: nowrap;
+    }
   }
-  ul {
-    padding-left: $main-text-padding-left;
+
+  // Adjust padding for ordered lists which may have wider markers
+  ol li {
+    padding-left: 16px !important; // More space for numbers like "10. ", "100. "
+  }
+  ul,
+  ol {
+    padding-left: $main-text-padding-left + 2;
+    padding-right: 0;
+    margin: 0;
   }
 }
 

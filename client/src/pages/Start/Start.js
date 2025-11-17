@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, createRef } from 'react'
-import { Link } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { gsap } from 'gsap'
 import { CSSPlugin } from 'gsap/CSSPlugin'
@@ -10,6 +10,7 @@ import { You } from '../../components/svgs/you.js'
 import { Are } from '../../components/svgs/are.js'
 import { RachelDoodle1 } from '../../components/svgs/rachel-doodle-1.js'
 import { RachelDoodle2 } from '../../components/svgs/rachel-doodle-2.js'
+import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 
 //Misc Imports
 import bgOverlayTextureWhite from '../../assets/Background-Images/background-texture-bigPan-white-blur.png'
@@ -18,6 +19,7 @@ import './Start.scss'
 gsap.registerPlugin(CSSPlugin)
 
 const Landing = ({ toggleGuestMode }) => {
+  const history = useHistory()
   let allContainer = useRef(null)
   let youareContainer = useRef(null)
   let notContainer = useRef(null)
@@ -27,6 +29,7 @@ const Landing = ({ toggleGuestMode }) => {
   let loginButtonContainer = useRef(null)
   let registerButtonContainer = useRef(null)
   let guestModeButtonContainer = useRef(null)
+  let browseNetworksButtonContainer = useRef(null)
   let bgImgContainer = useRef(null)
   let lengthRef = createRef()
   const [pathLength, setPathLength] = useState()
@@ -121,10 +124,17 @@ const Landing = ({ toggleGuestMode }) => {
       ease: 'slow(0.7, 0.7, false)',
       opacity: 1,
     })
+    let browseNetworksButtonTween = new TimelineLite({ paused: true }).to(browseNetworksButtonContainer, {
+      duration: 3,
+      y: -1,
+      ease: 'slow(0.7, 0.7, false)',
+      opacity: 1,
+    })
     setTimeout(() => {
       loginButtonTween.play()
       registerButtonTween.play()
       guestModeButtonTween.play()
+      browseNetworksButtonTween.play()
     }, 4000)
     let allTween = new TimelineLite({ paused: true }).to(allContainer, {
       duration: 3.5,
@@ -152,7 +162,7 @@ const Landing = ({ toggleGuestMode }) => {
         className="landing__bg-img"
         src={bgOverlayTextureWhite}
         alt="background"
-      ></img>
+      />
 
       <h2 ref={(img) => (youareContainer = img)} className="landing__you-are">
         <You />
@@ -180,21 +190,29 @@ const Landing = ({ toggleGuestMode }) => {
         <RachelDoodle2 />
       </div>
       <div className="landing__all-buttons-container">
-        <Link ref={(button) => (loginButtonContainer = button)} to="/login" className="landing__login-button">
+        <DefaultButton
+          ref={(button) => (loginButtonContainer = button)}
+          onClick={() => history.push('/login')}
+          className="landing__login-button"
+        >
           Login
-        </Link>
+        </DefaultButton>
 
-        <Link ref={(button) => (registerButtonContainer = button)} to="/register" className="landing__register-button">
-          Register
-        </Link>
-        <Link
-          onClick={toggleGuestMode}
-          ref={(button) => (guestModeButtonContainer = button)}
-          to="/main"
+        <DefaultButton
+          ref={(button) => (registerButtonContainer = button)}
+          onClick={() => history.push('/register')}
           className="landing__register-button"
         >
-          Guest
-        </Link>
+          Register
+        </DefaultButton>
+        <DefaultButton
+          ref={(button) => (browseNetworksButtonContainer = button)}
+          onClick={() => history.push('/public-dashboard?userId=4fd36f0e-9159-4561-af4e-e5841994c873')}
+          className="landing__register-button"
+          style={{ marginTop: '10px' }}
+        >
+          Browse Networks
+        </DefaultButton>
       </div>
     </div>
   )

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { NavLink, useHistory } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import classNames from 'classnames'
@@ -22,7 +22,7 @@ const NavBarLeftSide = () => {
   const mode = useSelector((state) => state.modes.mode)
   const guestMode = useSelector((state) => state.auth.guestMode)
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated)
-
+  const user = useSelector((state) => state.auth.user)
   const history = useHistory()
 
   const handleToggleSidebar = useCallback(() => {
@@ -45,6 +45,16 @@ const NavBarLeftSide = () => {
     return history.push(`/create-journal-entry?entryId=${newJournal.payload}`)
   }
 
+  useEffect(() => {
+    if (leftSidebarOpen) {
+      const timer = setTimeout(() => {
+        dispatch(toggleLeftSidebar())
+      }, 3000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [leftSidebarOpen, dispatch])
+
   return (
     <div
       className={classNames(styles.wrapper, {
@@ -65,36 +75,44 @@ const NavBarLeftSide = () => {
       >
         <NavLink
           exact
-          to="/dashboard"
+          to="/"
           activeClassName={styles.active}
           className={mode === '-.light' ? styles.linkLight : styles.link}
         >
-          Dashboard
+          Home
         </NavLink>
-        <NavLink
-          exact
-          to="/explore"
-          activeClassName={styles.active}
-          className={mode === '-.light' ? styles.linkLight : styles.link}
+        {!guestMode && user ? (
+          <NavLink
+            exact
+            to="/dashboard"
+            activeClassName={styles.active}
+            className={mode === '-.light' ? styles.linkLight : styles.link}
+          >
+            Dashboard
+          </NavLink>
+        ) : null}
+        <TextButton
+          navLink
+          onClick={() => history.push('/public-dashboard?userId=4fd36f0e-9159-4561-af4e-e5841994c873')}
         >
-          Explore
-        </NavLink>
-        <TextButton navLink onClick={handleNewJournalEntryClick}>
-          New Journal
+          Browse {user && 'Public'} Networks
         </TextButton>
-        <TextButton navLink onClick={handleNewNodeEntryClick}>
-          New Node
-        </TextButton>
-        {!guestMode && (
+        {!guestMode && user && (
           <>
             <NavLink
               exact
-              to="/profile"
+              to="/explore"
               activeClassName={styles.active}
               className={mode === '-.light' ? styles.linkLight : styles.link}
             >
-              Profile / Stats
+              Explore
             </NavLink>
+            <TextButton navLink onClick={handleNewJournalEntryClick}>
+              New Journal
+            </TextButton>
+            <TextButton navLink onClick={handleNewNodeEntryClick}>
+              New Node
+            </TextButton>
             <NavLink
               exact
               to="/entries"
@@ -113,7 +131,7 @@ const NavBarLeftSide = () => {
         >
           Resources
         </NavLink>
-        {!guestMode && (
+        {!guestMode && user && (
           <NavLink
             exact
             to="/modes"
@@ -133,8 +151,12 @@ const NavBarLeftSide = () => {
         </NavLink>
         {isAuthenticated ? (
           <button
+            type="button"
             className={mode === '-.light' ? styles.logoutButtonLight : styles.logoutButton}
-            onClick={() => dispatch(logout())}
+            onClick={() => {
+              dispatch(logout())
+              history.push('/')
+            }}
           >
             Logout
           </button>

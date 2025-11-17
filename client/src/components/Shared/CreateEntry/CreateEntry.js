@@ -13,6 +13,7 @@ import FormattedTextOverlay from '@components/Shared/FormattedTextOverlay/Format
 // Redux
 import { setContent, setWordCount, setCharCount } from '@redux/reducers/currentEntryReducer'
 import { ENTRY_TYPES } from '@constants/entryTypes'
+import calculateWordCount from '@utils/calculateWordCount'
 
 // Styles
 import styles from './CreateEntry.module.scss'
@@ -30,9 +31,14 @@ const CreateEntry = ({ entryType }) => {
   const [toolbarVisible, setToolbarVisible] = useState(false)
 
   const setTotalWordCount = useCallback(() => {
-    const wordsAmount = content?.split(/\s+/).filter((word) => word?.length > 0)
-    wordsAmount?.length && dispatch(setWordCount(wordsAmount.length))
-    content?.length && dispatch(setCharCount(content.length))
+    const totalWords = calculateWordCount(content)
+    dispatch(setWordCount(totalWords))
+
+    if (typeof content === 'string') {
+      dispatch(setCharCount(content.length))
+    } else {
+      dispatch(setCharCount(0))
+    }
   }, [content, dispatch])
 
   const handleContentChange = (e) => {

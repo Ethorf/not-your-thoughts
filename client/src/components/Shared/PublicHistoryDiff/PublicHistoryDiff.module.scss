@@ -1,0 +1,28 @@
+@import '@styles/variables.scss';
+
+.diffContent {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.diffPart {
+  &.added {
+    background: rgba(0, 255, 0, 0.2);
+    color: #90ee90;
+    border-radius: 3px;
+  }
+
+  &.removed {
+    background: rgba(255, 0, 0, 0.2);
+    color: #ffb6c1;
+    border-radius: 3px;
+    text-decoration: line-through;
+  }
+
+  &.equal {
+    color: $silver-default;
+  }
+}
+

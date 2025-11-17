@@ -97,6 +97,26 @@ export const fetchAllConnections = createAsyncThunk(
   }
 )
 
+export const fetchPublicConnections = createAsyncThunk(
+  'connections/fetchPublicConnections',
+  async ({ entryId, userId }, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/connections/public/${entryId}?userId=${userId}`)
+      if (!response.ok) {
+        if (response.status === 204) {
+          // No connections found - this is okay
+          return []
+        }
+        throw new Error('Failed to fetch connections')
+      }
+      const data = await response.json()
+      return data.connections || []
+    } catch (error) {
+      return rejectWithValue({ message: error.message || 'Failed to fetch connections' })
+    }
+  }
+)
+
 export const fetchConnectionsDirect = createAsyncThunk(
   'connections/fetchConnectionsDirect',
   async (entry_id, { rejectWithValue }) => {
@@ -243,6 +263,22 @@ const connectionsSlice = createSlice({
       .addCase(fetchAllConnections.rejected, (state, action) => {
         state.connectionsLoading = false
         state.error = action.payload
+      })
+      .addCase(fetchPublicConnections.pending, (state) => {
+        state.connectionsLoading = true
+      })
+      .addCase(fetchPublicConnections.fulfilled, (state, action) => {
+        return {
+          ...state,
+          connections: action.payload,
+          connectionsLoading: false,
+        }
+      })
+      .addCase(fetchPublicConnections.rejected, (state, action) => {
+        state.connectionsLoading = false
+        state.error = action.payload
+        // Set connections to empty array on error instead of undefined
+        state.connections = []
       })
   },
 })

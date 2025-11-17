@@ -282,6 +282,70 @@ router.put('/update_connection/:connectionId', authorize, async (req, res) => {
   }
 })
 
+// Public route to retrieve connections for a public entry (no auth required)
+router.get('/public/:entry_id', async (req, res) => {
+  const { entry_id } = req.params
+  const { userId } = req.query
+
+  if (!userId) {
+    return res.status(400).json({ msg: 'userId query parameter is required' })
+  }
+
+  try {
+    // First verify the entry exists, is public, and belongs to the specified user
+    const entryCheck = await pool.query(
+      `SELECT id FROM entries 
+       WHERE id = $1 
+       AND user_id = $2 
+       AND type = 'node' 
+       AND (is_private = false OR is_private IS NULL)`,
+      [entry_id, userId]
+    )
+
+    if (entryCheck.rows.length === 0) {
+      return res.status(404).json({ msg: 'Entry not found or is private' })
+    }
+
+    // Get connections, but only include connections to public entries
+    const connectionsQuery = `
+      SELECT 
+        connections.*,
+        foreign_entries.title  AS foreign_entry_title,
+        primary_entries.title  AS primary_entry_title,
+        CASE 
+          WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'horizontal' THEN 'sibling'
+          WHEN connections.foreign_entry_id = $1  AND connections.connection_type = 'horizontal' THEN 'sibling'
+          WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'vertical'   THEN 'child'
+          WHEN connections.foreign_entry_id = $1  AND connections.connection_type = 'vertical'   THEN 'parent'
+        END AS connection_type
+      FROM connections
+      LEFT JOIN entries AS foreign_entries  ON connections.foreign_entry_id  = foreign_entries.id
+      LEFT JOIN entries AS primary_entries  ON connections.primary_entry_id  = primary_entries.id
+      WHERE (connections.primary_entry_id = $1 OR connections.foreign_entry_id = $1)
+      AND (
+        (connections.primary_entry_id = $1 AND (foreign_entries.is_private = false OR foreign_entries.is_private IS NULL))
+        OR
+        (connections.foreign_entry_id = $1 AND (primary_entries.is_private = false OR primary_entries.is_private IS NULL))
+      )
+      AND (
+        (foreign_entries.user_id = $2 OR foreign_entries.user_id IS NULL)
+        AND
+        (primary_entries.user_id = $2 OR primary_entries.user_id IS NULL)
+      )
+    `
+    const connections = await pool.query(connectionsQuery, [entry_id, userId])
+
+    if (!connections.rows.length) {
+      return res.status(204).json({ msg: 'No public connections found for this entry' })
+    }
+
+    res.json({ connections: connections.rows })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
 module.exports = router
 
 // !! This is my like beginning draft of documentation

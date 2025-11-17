@@ -1,0 +1,130 @@
+@import '@styles/variables.scss';
+
+.helpButton {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(192, 192, 192, 0.1);
+  border: 1px solid $silver-faded;
+  color: $silver-active;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+  z-index: 1000;
+
+  &:hover {
+    background: rgba(192, 192, 192, 0.2);
+    border-color: $silver-active;
+    transform: scale(1.1);
+  }
+
+  &:focus {
+    outline: 2px solid $silver-active;
+    outline-offset: 2px;
+  }
+}
+
+.questionMark {
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.modal {
+  background: black;
+  border: 1px solid white;
+  border-radius: 6px;
+  color: $silver-active;
+  padding: 0;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  font-family: 'Syncopate', sans-serif;
+}
+
+.overlay {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.modalCloseButton {
+  fill: $silver-faded;
+  transition: all 250ms ease-in-out;
+
+  &:hover {
+    fill: white;
+    transition: all 250ms ease-in-out;
+  }
+}
+
+.content {
+  padding: 32px;
+  font-family: 'Syncopate', sans-serif;
+}
+
+.title {
+  color: white;
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.section {
+  margin-bottom: 24px;
+
+  &:last-of-type {
+    margin-bottom: 32px;
+  }
+}
+
+.sectionTitle {
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.text {
+  color: $silver-active;
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.highlight {
+  color: $silver-active;
+  font-size: 16px;
+  line-height: 1.6;
+  padding: 12px;
+  background: rgba(192, 192, 192, 0.1);
+  border-left: 3px solid $silver-active;
+  margin-top: 12px;
+
+  strong {
+    color: white;
+  }
+}
+
+.list {
+  color: $silver-active;
+  font-size: 16px;
+  line-height: 1.8;
+  margin-left: 20px;
+  padding-left: 0;
+
+  li {
+    margin-bottom: 8px;
+  }
+}
+
+.gotItButton {
+  width: 100%;
+  margin-top: 16px;
+}
+

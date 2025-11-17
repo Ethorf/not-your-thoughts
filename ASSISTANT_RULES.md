@@ -50,6 +50,56 @@
 - [ ] Remove unused React hooks or effects
 - [ ] Check for unused props in components
 
+### **Component Usage Rules:**
+
+- [ ] **ALWAYS search for existing components before implementing new ones**
+- [ ] **Use `codebase_search` tool to find similar components that already exist**
+- [ ] **Check the `@components/Shared` directory for reusable components**
+- [ ] **Only create new components when no suitable existing component is found**
+- [ ] **Prefer adapting existing components over creating duplicates**
+- [ ] **ALWAYS use custom components instead of basic semantic HTML tags**
+- [ ] **Use `DefaultButton` instead of `<button>` tags**
+- [ ] **Use `DefaultInput` instead of `<input>` tags**
+- [ ] **Use `TextButton` instead of clickable text spans/divs**
+- [ ] **Use `DefaultDropdown` instead of `<select>` tags**
+- [ ] **Check for other custom components in `@components/Shared` before using native HTML elements**
+- [ ] **When creating new components, prefer using existing custom components over basic HTML tags**
+- [ ] **Only use basic HTML tags (`<div>`, `<span>`, `<p>`, etc.) when no custom component exists for that purpose**
+- [ ] **ALWAYS use `SmallSpinner` component instead of plain text "Loading..." states**
+- [ ] **Replace all loading text states with `<SmallSpinner />` component for consistent UI**
+- [ ] **ALWAYS use Redux for API logic and state management when possible**
+- [ ] **Create Redux async thunks for all API calls instead of using fetch/axios directly in components**
+- [ ] **Store API response data in Redux state rather than component local state**
+- [ ] **Use `useSelector` to read data from Redux instead of maintaining duplicate local state**
+- [ ] **Only use local component state for UI-specific concerns (e.g., expanded/collapsed, form inputs)**
+
+### **Tooltip Guidelines:**
+
+- [ ] **Do NOT add tooltips to plain text elements** that would just repeat the same text
+- [ ] **Do NOT add tooltips to static labels** or content without interactive functionality
+- [ ] **Only add tooltips to**:
+  - [ ] Buttons with functionality that needs explanation
+  - [ ] Links with actions that require clarification
+  - [ ] Interactive elements where the purpose isn't immediately clear
+  - [ ] Icons or symbols that need context
+- [ ] **Tooltips should provide additional context**, not repeat visible text
+- [ ] **Example of what NOT to do**:
+  ```jsx
+  <div data-tooltip-id="main-tooltip" data-tooltip-content="word count">
+    {wordCount} words
+  </div>
+  ```
+- [ ] **Example of what TO do**:
+  ```jsx
+  <button
+    data-tooltip-id="main-tooltip"
+    data-tooltip-content="Click to export word count data"
+    onClick={handleExport}
+  >
+    Export
+  </button>
+  ```
+
 ### **CSS/SCSS:**
 
 - [ ] Remove unused class definitions
