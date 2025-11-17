@@ -1,0 +1,52 @@
+# Coding Rules for Not Your Thoughts Project
+
+## Code Quality Rules
+
+### 1. No Unused Variables
+
+- Always check for unused variables when suggesting changes
+- Remove any unused imports, variables, or functions
+- Use linter to identify unused code
+
+### 2. No IIFEs in JSX
+
+- Never use Immediately Invoked Function Expressions (IIFEs) in JSX
+- Extract complex logic into separate functions
+- Keep JSX clean and readable
+- Example of what NOT to do:
+  ```jsx
+  <div>
+    {(() => {
+      const result = someComplexLogic()
+      return result
+    })()}
+  </div>
+  ```
+- Example of what TO do:
+  ```jsx
+  const getResult = () => {
+    const result = someComplexLogic()
+    return result
+  }
+  ;<div>{getResult()}</div>
+  ```
+
+### 3. Function Extraction
+
+- Extract reusable logic into utility functions
+- Create helper functions for complex calculations
+- Use descriptive function names
+- Keep functions focused on single responsibilities
+
+### 4. Performance Considerations
+
+- Avoid calling expensive functions multiple times in render
+- Use useMemo or useCallback when appropriate
+- Extract calculations outside of JSX when possible
+
+### 5. Code Organization
+
+- Group related functions together
+- Place utility functions near the top of components
+- Use consistent naming conventions
+- Add JSDoc comments for complex functions

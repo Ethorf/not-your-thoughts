@@ -1,0 +1,35 @@
+@import '@styles/variables';
+
+.wrapper {
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 {
+  color: silver;
+  margin-bottom: 30px;
+  font-size: 2rem;
+}
+
+.nodesSection {
+  width: 85%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0 20px; // Add padding to prevent edge cutoff
+  box-sizing: border-box;
+}
+
+.loading,
+.error {
+  padding: 40px;
+  color: silver;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.error {
+  color: #ff6b6b;
+}

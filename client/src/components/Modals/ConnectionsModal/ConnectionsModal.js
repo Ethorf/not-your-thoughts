@@ -60,7 +60,7 @@ export const ConnectionsModal = () => {
     selectedPrimarySourceText,
     selectedForeignSourceText,
   } = useSelector((state) => state.connections)
-  const { content, entryId, title } = useSelector((state) => state.currentEntry)
+  const { content, entryId, title, isTopLevel } = useSelector((state) => state.currentEntry)
 
   const [localForeignEntryId, setLocalForeignEntryId] = useState(null)
   const [localForeignEntryContent, setLocalForeignEntryContent] = useState(null)
@@ -77,6 +77,13 @@ export const ConnectionsModal = () => {
     setExternalLinkInput(null)
     setConnectionDescription('')
   }
+
+  // Reset connection type if it's PARENT and node is top-level
+  useEffect(() => {
+    if (isTopLevel && localConnectionType === PARENT) {
+      setLocalConnectionType(SIBLING) // Default to sibling if parent is not available
+    }
+  }, [isTopLevel, localConnectionType])
 
   const handleModalOpen = async () => {
     await resetLocalState()
@@ -140,7 +147,6 @@ export const ConnectionsModal = () => {
     await resetLocalState()
   }
 
-  // TODO see if we can make this work with our weird async ness
   const handleCreateConnection = async () => {
     if (localConnectionType === EXTERNAL) {
       await onCreateExternalConnection()
@@ -148,7 +154,13 @@ export const ConnectionsModal = () => {
       await onCreateConnection()
     } else {
       const newNode = await dispatch(createNodeEntry({ title: newNodeTitle }))
-      const newForeignEntryId = newNode?.payload?.id ?? null
+      const newForeignEntryId = newNode?.payload ?? null
+
+      if (!newForeignEntryId) {
+        console.error('Failed to create new node - no valid ID returned:', newNode)
+        showToast('Failed to create new node', 'error')
+        return
+      }
 
       await dispatch(
         createConnection({
@@ -161,7 +173,7 @@ export const ConnectionsModal = () => {
           source_type: connectionSourceType,
         })
       )
-      resetLocalState()
+      await resetLocalState()
     }
   }
 
@@ -215,6 +227,11 @@ export const ConnectionsModal = () => {
   const highlightedPrimaryContent = highlightMatchingText(content, selectedPrimarySourceText)
   const highlightedForeignContent = highlightMatchingText(localForeignEntryContent, selectedForeignSourceText)
 
+  // Filter connection types based on isTopLevel status
+  const availableConnectionTypes = isTopLevel
+    ? Object.values(CONNECTION_TYPES.FRONTEND).filter((type) => type !== PARENT)
+    : Object.values(CONNECTION_TYPES.FRONTEND)
+
   return (
     <BaseModalWrapper modalName={MODAL_NAMES.CONNECTIONS} className={styles.modal} onOpen={handleModalOpen}>
       <div className={styles.wrapper}>
@@ -226,7 +243,7 @@ export const ConnectionsModal = () => {
           <DefaultDropdown
             className={styles.createDropdown}
             value={localConnectionType}
-            options={Object.values(CONNECTION_TYPES.FRONTEND)}
+            options={availableConnectionTypes}
             onChange={(e) => setLocalConnectionType(e.target.value)}
             tooltip={'Change connection type'}
           />

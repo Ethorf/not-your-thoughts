@@ -1,0 +1,147 @@
+@import '@styles/mixins.scss';
+@import '@styles/variables.scss';
+@import '@styles/base.scss';
+
+.wrapper {
+  transition: 1s all;
+  position: fixed;
+  left: -95px;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Poppins', sans-serif;
+  width: auto;
+  height: 100%;
+  font-size: 1.3rem;
+  z-index: 10;
+
+  &.sidebarOpen {
+    left: 0;
+    visibility: visible;
+  }
+}
+
+.arrowContainer {
+  margin-top: 20px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+
+.arrow {
+  color: silver;
+  background-color: transparent;
+  opacity: 1;
+  outline: none;
+  height: 30px;
+  width: 30px;
+  left: -55px;
+  transition: all 1.5s;
+  transform: rotate(0deg);
+
+  &:focus {
+    border: none;
+    outline: none;
+  }
+
+  &:hover {
+    content: url('../../assets/Icons/down-arrow-white-2.png');
+    transition: all 0.5s;
+    cursor: pointer;
+  }
+
+  &.arrowRotate {
+    transform: rotate(180deg);
+    transition: all 1.5s;
+  }
+}
+
+.sidebarContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  opacity: 0;
+  transition: all 1s ease-in-out;
+  width: 100%;
+  padding: 10px;
+  max-height: 85vh;
+  background: transparent;
+  visibility: hidden;
+  pointer-events: none;
+
+  &.sidebarOpen {
+    opacity: 1;
+    transition: all 1s ease-in-out;
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
+
+.link {
+  text-decoration: none;
+  color: silver;
+  transition: all 0.7s;
+  margin-bottom: 4px;
+  width: 200px;
+  text-align: left;
+  font-size: 20px;
+  margin-left: 0;
+  padding-left: 0;
+
+  &:hover {
+    transition: all 0.7s;
+    color: white;
+  }
+}
+
+.linkLight {
+  text-decoration: none;
+  color: black;
+  transition: all 0.7s;
+  margin-bottom: 8px;
+
+  &:hover {
+    transition: all 0.7s;
+    color: white;
+    text-shadow: 1px 1px 1px black;
+  }
+}
+
+.active {
+  display: list-item;
+  list-style-position: outside;
+}
+
+.logoutButton {
+  width: 200%;
+  color: silver;
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  text-align: left;
+  font-size: 1.4rem;
+  margin-bottom: 8px;
+  outline: none;
+
+  &:hover {
+    transition: all 0.7s;
+    color: white;
+  }
+}
+
+.logoutButtonLight {
+  width: 200%;
+  color: black;
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  text-align: left;
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+  outline: none;
+
+  &:hover {
+    transition: all 0.7s;
+    color: white;
+    text-shadow: 1px 1px 1px black;
+  }
+}

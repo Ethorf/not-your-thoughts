@@ -10,7 +10,7 @@ import { useSelector, connect } from 'react-redux'
 import './App.scss'
 
 // Components
-import NavBarSide from '@components/nav/navBarLeftSide.js'
+import NavBarLeftSide from '@components/nav/NavBarLeftSide.js'
 import RightSidebar from '@components/RightSidebar/RightSidebar.js'
 
 import NavBarTop from '@components/nav/navBarTop.js'
@@ -28,6 +28,10 @@ import Resources from '@pages/ResourcesPage/ResourcesPage.js'
 import Modes from '@pages/ModesPage/ModesPage.js'
 import About from '@pages/AboutPage/About.js'
 import Entries from '@pages/EntriesPage/EntriesPage.js'
+import History from '@pages/History/History.js'
+import ViewNetwork from '@pages/ViewNetwork/ViewNetwork.js'
+import PublicNodeEntry from '@pages/PublicNodeEntry/PublicNodeEntry.js'
+import PublicDashboard from '@pages/PublicDashboard/PublicDashboard.js'
 
 //Redux
 import store from './redux/store/index'
@@ -62,7 +66,7 @@ const App = () => {
       <BrowserRouter>
         <ModalsContainer />
         <NavBarTop />
-        <NavBarSide />
+        <NavBarLeftSide />
 
         {user && <RightSidebar />}
         <Route
@@ -90,6 +94,7 @@ const App = () => {
                   <PrivateRoute path="/create-journal-entry" exact component={CreateJournalEntry} />
                   <PrivateRoute path="/profile" exact component={ProfilePage} />
                   <PrivateRoute path="/edit-node-entry" component={EditNodeEntry} />
+                  <PrivateRoute path="/history" exact component={History} />
                   <PrivateRoute path="/entries" exact component={Entries} />
                   <Route path="/resources" exact>
                     {({ match }) => <Resources show={match !== null} />}
@@ -100,6 +105,9 @@ const App = () => {
                   <Route path="/about" exact>
                     {({ match }) => <About show={match !== null} />}
                   </Route>
+                  <Route path="/view-network" exact component={ViewNetwork} />
+                  <Route path="/show-node-entry" exact component={PublicNodeEntry} />
+                  <Route path="/public-dashboard" exact component={PublicDashboard} />
                 </Switch>
               </CSSTransition>
             </TransitionGroup>

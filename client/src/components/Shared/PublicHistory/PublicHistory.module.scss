@@ -1,0 +1,75 @@
+@import '@styles/variables.scss';
+
+.wrapper {
+  position: absolute;
+  left: -320px;
+  top: 0;
+  width: 300px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  z-index: 3;
+}
+
+.versionList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.versionButton {
+  background: black;
+  border: $silver-border-default;
+  border-radius: $default-border-radius;
+  padding: 12px;
+  color: $silver-default;
+  cursor: pointer;
+  text-align: left;
+  transition: $default-transition;
+  font-family: 'Poppins', sans-serif;
+
+  &:hover {
+    border-color: $silver-active;
+    background: rgba(192, 192, 192, 0.1);
+  }
+
+  &.selected {
+    border-color: $silver-active;
+    background: rgba(192, 192, 192, 0.15);
+  }
+}
+
+.versionInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.versionNumber {
+  font-weight: bold;
+  color: $silver-active;
+  font-size: 0.9rem;
+}
+
+.versionDate {
+  font-size: 0.8rem;
+  color: $silver-faded;
+}
+
+.versionPreview {
+  font-size: 0.85rem;
+  color: $silver-faded;
+  line-height: 1.4;
+}
+
+.emptyMessage {
+  color: $silver-faded;
+  font-style: italic;
+  padding: 20px;
+  text-align: center;
+}
+

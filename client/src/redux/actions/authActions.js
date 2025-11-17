@@ -99,6 +99,7 @@ export const toggleGuestMode = () => (dispatch) => {
 
 // Logout / Clear Profile
 export const logout = () => (dispatch) => {
+  setAuthToken(null)
   dispatch({ type: LOGOUT })
 }
 

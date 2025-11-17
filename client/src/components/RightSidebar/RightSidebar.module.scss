@@ -12,7 +12,7 @@
   width: 375px;
   height: 100%;
   font-size: 1.3rem;
-  z-index: $pillars-z-index + 2;
+  z-index: $sidebar-z-index;
 
   &.sidebarOpen {
     right: 0;
@@ -76,4 +76,29 @@
     background: black;
     visibility: visible;
   }
+}
+
+.sortContainer {
+  padding-top: 8px;
+  font-size: 0.9rem;
+
+  label {
+    color: $silver-default;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.sortControls {
+  background: black;
+  font-family: 'Syncopate', sans-serif;
+  border: 2px solid rgba(192, 192, 192, 0.8);
+  border-radius: 8px;
+  padding: 4px 8px;
+  color: rgba(192, 192, 192, 0.8);
+  text-transform: uppercase;
+  outline: none;
+  cursor: pointer;
+  font-size: 0.8rem;
 }

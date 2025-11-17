@@ -62,12 +62,30 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
             {primary_source}
           </a>
         )
-      } else if (connection_type === SIBLING && foreign_entry_id) {
+      } else if (connection_type === SIBLING && foreign_entry_id && foreign_entry_id !== entryId) {
         rules[primary_source] = (
           <span
             key={primary_source}
             data-tooltip-id="main-tooltip"
             data-tooltip-content="Internal connection"
+            className={styles.internalConnection}
+            onClick={() => handleRedirectToNode(foreign_entry_id)}
+            role="button"
+            tabIndex={0}
+            style={{ color: 'white' }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleRedirectToNode(foreign_entry_id)
+            }}
+          >
+            {primary_source}
+          </span>
+        )
+      } else if ((connection_type === 'child' || connection_type === 'parent') && foreign_entry_id) {
+        rules[primary_source] = (
+          <span
+            key={primary_source}
+            data-tooltip-id="main-tooltip"
+            data-tooltip-content={`${connection_type} connection`}
             className={styles.internalConnection}
             onClick={() => handleRedirectToNode(foreign_entry_id)}
             role="button"
@@ -143,6 +161,7 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
               })
             )
           } else if (allTitles.includes(word.toLowerCase())) {
+            // Show ShinyText for nodes that don't have connections (when formatKeys is empty or ruleKey not found)
             parts.push(
               <ShinyText
                 key={`${word}-${paragraphIndex}-${match.index}`}
@@ -221,9 +240,9 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
     const rootChildren = Array.from(doc.body.childNodes)
 
     return rootChildren.map((node, i) => transformNode(node, i))
-  }, [content, formatRules, allTitles, dispatch, entryId, nodeEntriesInfo])
+  }, [content, formatRules, allTitles, dispatch, entryId, nodeEntriesInfo, connections])
 
-  const initialTopValue = toolbarVisible ? 41 + MAIN_TOP_OFFSET : MAIN_TOP_OFFSET
+  const initialTopValue = toolbarVisible ? 51 + MAIN_TOP_OFFSET : MAIN_TOP_OFFSET
 
   // Mostly event listeners and scroll stuff
   useEffect(() => {

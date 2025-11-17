@@ -4,6 +4,19 @@ const router = express.Router()
 const pool = require('../config/neonDb')
 const authorize = require('../middleware/authorize')
 
+const calculateWordCountFromContent = (content) => {
+  if (!content || typeof content !== 'string') {
+    return 0
+  }
+
+  const trimmed = content.trim()
+  if (!trimmed) {
+    return 0
+  }
+
+  return trimmed.split(/\s+/).filter(Boolean).length
+}
+
 // post /entries/add_node_entry
 // Add a new node entry
 router.post('/create_node_entry', authorize, async (req, res) => {
@@ -20,10 +33,10 @@ router.post('/create_node_entry', authorize, async (req, res) => {
       }
     }
 
-    // Insert entry into entries table
+    // Insert entry into entries table (is_private defaults to false for nodes)
     let newEntry = await pool.query(
-      'INSERT INTO entries (user_id, type, title, content_ids) VALUES ($1, $2, $3, $4) RETURNING id',
-      [user_id, type, title, []]
+      'INSERT INTO entries (user_id, type, title, content_ids, is_private) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+      [user_id, type, title, [], false]
     )
 
     const entry_id = newEntry.rows[0].id
@@ -107,15 +120,48 @@ router.post('/update_node_entry', authorize, async (req, res) => {
   }
 })
 
+// post /entries/update_node_top_level
+// Update the is_top_level field for a node entry
+router.post('/update_node_top_level', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+  const { entryId, isTopLevel } = req.body
+
+  try {
+    // Check if entryId and isTopLevel are provided
+    if (!entryId || typeof isTopLevel !== 'boolean') {
+      return res.status(400).json({ message: 'entryId and isTopLevel (boolean) are required' })
+    }
+
+    // Update the is_top_level field
+    const updatedEntry = await pool.query(
+      'UPDATE entries SET is_top_level = $1 WHERE id = $2 AND user_id = $3 RETURNING id, is_top_level',
+      [isTopLevel, entryId, user_id]
+    )
+
+    if (updatedEntry.rows.length === 0) {
+      return res.status(404).json({ message: 'Entry not found or access denied' })
+    }
+
+    console.log('Node top level status updated successfully!')
+    return res.json({
+      entryId: updatedEntry.rows[0].id,
+      isTopLevel: updatedEntry.rows[0].is_top_level,
+    })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
 router.post('/create_journal_entry', authorize, async (req, res) => {
   const { id: user_id } = req.user
   const type = 'journal'
 
   try {
-    // Insert a new journal entry with default values
+    // Insert a new journal entry with default values (is_private defaults to true for journals)
     const newEntry = await pool.query(
-      'INSERT INTO entries (user_id, type, total_time_taken, wpm, num_of_words, content_ids) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-      [user_id, type, 0, 0, 0, []]
+      'INSERT INTO entries (user_id, type, total_time_taken, wpm, num_of_words, content_ids, is_private) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+      [user_id, type, 0, 0, 0, [], true]
     )
 
     const entry_id = newEntry.rows[0].id
@@ -155,10 +201,10 @@ router.post('/save_journal_entry', authorize, async (req, res) => {
         entryId,
       ])
     } else {
-      // Insert new entry into entries table
+      // Insert new entry into entries table (is_private defaults to true for journals)
       const newEntry = await pool.query(
-        'INSERT INTO entries (user_id, type, total_time_taken, wpm, num_of_words, content_ids) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-        [user_id, type, total_time_taken, wpm, num_of_words, []]
+        'INSERT INTO entries (user_id, type, total_time_taken, wpm, num_of_words, content_ids, is_private) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+        [user_id, type, total_time_taken, wpm, num_of_words, [], true]
       )
       entry_id = newEntry.rows[0].id
     }
@@ -214,7 +260,13 @@ router.get('/journal_entries', authorize, async (req, res) => {
           FROM entry_contents 
           WHERE entry_id = entries.id 
           ORDER BY date_created DESC 
-          LIMIT 1) AS date_last_modified
+          LIMIT 1) AS date_last_modified,
+        (SELECT COALESCE(SUM(word_count), 0) 
+          FROM entry_writing_data 
+          WHERE entry_id = entries.id) AS wd_word_count,
+        (SELECT COALESCE(SUM(duration), 0) 
+          FROM entry_writing_data 
+          WHERE entry_id = entries.id) AS wd_time_elapsed
       FROM 
         entries 
       WHERE 
@@ -228,8 +280,9 @@ router.get('/journal_entries', authorize, async (req, res) => {
       return res.status(404).json({ msg: 'No journal entries found for this user' })
     }
 
-    // If journal entries are found, return them
-
+    // If journal entries are found, return them with writing data
+    console.log('<<<<<< allJournalEntries >>>>>>>>> is: <<<<<<<<<<<<')
+    console.log(allJournalEntries.rows[200])
     res.json({ entries: allJournalEntries.rows })
   } catch (err) {
     console.error(err.message)
@@ -237,7 +290,7 @@ router.get('/journal_entries', authorize, async (req, res) => {
   }
 })
 
-// Route to retrieve all journal entries for a user
+// Route to retrieve all node entries for a user
 router.get('/node_entries', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
@@ -298,29 +351,36 @@ router.get('/node_entries_info', authorize, async (req, res) => {
   try {
     const nodeEntriesQuery = await pool.query(
       `SELECT 
-        entries.id, 
-        entries.title, 
-        entries.starred,
-        entries.num_of_words,
-        entries.date_originally_created,
-        ARRAY(
-          SELECT content 
-          FROM entry_contents 
-          WHERE entry_id = entries.id 
-          ORDER BY date_created DESC
-        ) AS content,
-        (SELECT date_created 
-          FROM entry_contents 
-          WHERE entry_id = entries.id 
-          ORDER BY date_created ASC 
-          LIMIT 1) AS date_created,
-        (SELECT date_created 
-          FROM entry_contents 
-          WHERE entry_id = entries.id 
-          ORDER BY date_created DESC 
-          LIMIT 1) AS date_last_modified
-      FROM entries 
-      WHERE user_id = $1 AND type = 'node'`,
+    entries.id, 
+    entries.title, 
+    entries.starred,
+    entries.is_top_level,
+    entries.date_originally_created,
+    ARRAY(
+      SELECT content 
+      FROM entry_contents 
+      WHERE entry_id = entries.id 
+      ORDER BY date_created DESC
+    ) AS content,
+    (SELECT date_created 
+      FROM entry_contents 
+      WHERE entry_id = entries.id 
+      ORDER BY date_created ASC 
+      LIMIT 1) AS date_created,
+    (SELECT date_created 
+      FROM entry_contents 
+      WHERE entry_id = entries.id 
+      ORDER BY date_created DESC 
+      LIMIT 1) AS date_last_modified,
+    --  aggregate writing data
+    (SELECT COALESCE(SUM(word_count), 0) 
+      FROM entry_writing_data 
+      WHERE entry_id = entries.id) AS wd_word_count,
+    (SELECT COALESCE(SUM(duration), 0) 
+      FROM entry_writing_data 
+      WHERE entry_id = entries.id) AS wd_time_elapsed
+  FROM entries 
+  WHERE user_id = $1 AND type = 'node'`,
       [user_id]
     )
 
@@ -331,12 +391,25 @@ router.get('/node_entries_info', authorize, async (req, res) => {
     }
 
     const processedEntries = nodeEntries.map((entry) => {
-      const hasContent = entry.content && entry.content.length > 0
+      const contentArray = Array.isArray(entry.content) ? entry.content : []
+      const hasContent = contentArray.length > 0
+      const latestContent = hasContent
+        ? contentArray.find((item) => typeof item === 'string' && item.trim()) || contentArray[0] || ''
+        : ''
+      const calculatedWordCount = calculateWordCountFromContent(latestContent)
+      const aggregatedWordCount = Number(entry.wd_word_count) || 0
+      const wordCount = calculatedWordCount > 0 ? calculatedWordCount : aggregatedWordCount
+
       return {
         id: entry.id,
         title: entry.title,
         starred: entry.starred,
-        wordCount: entry.num_of_words,
+        isTopLevel: entry.is_top_level,
+        isPrivate: entry.is_private || false,
+        wordCount,
+        calculatedWordCount,
+        wdWordCount: aggregatedWordCount, // ✅ aggregated writing data fallback
+        wdTimeElapsed: entry.wd_time_elapsed, // optional, since you have it
         pending: !hasContent,
         date_created: hasContent ? entry.date_created : entry.date_originally_created,
         date_last_modified: hasContent ? entry.date_last_modified : entry.date_originally_created,
@@ -558,6 +631,187 @@ router.post('/toggle_starred', authorize, async (req, res) => {
   }
 })
 
+// Route to toggle the is_private value of an entry
+router.post('/toggle_is_private', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+  const { entryId } = req.body
+
+  try {
+    // Check if entryId and user_id are provided
+    if (!entryId || !user_id) {
+      return res.status(400).json({ message: 'entryId and user_id are required' })
+    }
+
+    // Retrieve the current is_private status of the entry
+    const entry = await pool.query('SELECT is_private FROM entries WHERE id = $1 AND user_id = $2', [entryId, user_id])
+
+    // Check if the entry exists
+    if (entry.rows.length === 0) {
+      return res.status(404).json({ message: 'Entry not found' })
+    }
+
+    // Toggle the is_private status
+    const currentIsPrivateStatus = entry.rows[0].is_private || false
+    const newIsPrivateStatus = !currentIsPrivateStatus
+
+    // Update the entry's is_private status
+    await pool.query('UPDATE entries SET is_private = $1 WHERE id = $2 AND user_id = $3', [
+      newIsPrivateStatus,
+      entryId,
+      user_id,
+    ])
+
+    console.log(`Entry ${entryId} is_private status updated successfully!`)
+    return res.json({ entryId, isPrivate: newIsPrivateStatus })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// Route to fetch all entry contents for a specific entry ID
+router.get('/entry_contents/:entryId', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+  const { entryId } = req.params
+  const uniquenessThreshold = 3 // Minimum character difference between contents
+
+  try {
+    // First verify the entry belongs to the user
+    const entryCheck = await pool.query('SELECT id FROM entries WHERE id = $1 AND user_id = $2', [entryId, user_id])
+
+    if (entryCheck.rows.length === 0) {
+      return res.status(404).json({ message: 'Entry not found or access denied' })
+    }
+
+    // Fetch all entry contents for the entry ID
+    const entryContents = await pool.query(
+      `SELECT 
+        id,
+        content,
+        date_created,
+        entry_id
+      FROM entry_contents 
+      WHERE entry_id = $1 
+      ORDER BY date_created DESC`,
+      [entryId]
+    )
+
+    // Filter contents based on uniqueness threshold
+    const uniqueContents = filterUniqueContents(entryContents.rows, uniquenessThreshold)
+
+    console.log(
+      `Fetched ${entryContents.rows.length} entry contents, ${uniqueContents.length} unique for entry ${entryId}`
+    )
+    return res.json({
+      entryId,
+      contents: uniqueContents,
+      count: uniqueContents.length,
+      totalFetched: entryContents.rows.length,
+      uniquenessThreshold,
+    })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// Helper function to calculate character difference between two strings
+function calculateCharacterDifference(str1, str2) {
+  if (!str1 || !str2) return Math.max(str1?.length || 0, str2?.length || 0)
+
+  const len1 = str1.length
+  const len2 = str2.length
+
+  // If lengths are very different, return the difference
+  if (Math.abs(len1 - len2) >= 3) return Math.abs(len1 - len2)
+
+  // Calculate Levenshtein distance for character-level differences
+  const matrix = Array(len2 + 1)
+    .fill(null)
+    .map(() => Array(len1 + 1).fill(null))
+
+  for (let i = 0; i <= len1; i++) matrix[0][i] = i
+  for (let j = 0; j <= len2; j++) matrix[j][0] = j
+
+  for (let j = 1; j <= len2; j++) {
+    for (let i = 1; i <= len1; i++) {
+      const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1
+      matrix[j][i] = Math.min(
+        matrix[j][i - 1] + 1, // deletion
+        matrix[j - 1][i] + 1, // insertion
+        matrix[j - 1][i - 1] + indicator // substitution
+      )
+    }
+  }
+
+  return matrix[len2][len1]
+}
+
+// Helper function to filter contents based on uniqueness threshold
+function filterUniqueContents(contents, threshold) {
+  if (contents.length === 0) return contents
+
+  const uniqueContents = [contents[0]] // Always include the first (most recent) content
+
+  for (let i = 1; i < contents.length; i++) {
+    const currentContent = contents[i]
+    let isUnique = true
+
+    // Check if current content is sufficiently different from all previously selected unique contents
+    for (const uniqueContent of uniqueContents) {
+      const difference = calculateCharacterDifference(currentContent.content, uniqueContent.content)
+      if (difference < threshold) {
+        isUnique = false
+        break
+      }
+    }
+
+    if (isUnique) {
+      uniqueContents.push(currentContent)
+    }
+  }
+
+  // Filter out any remaining exact duplicates (0 character difference)
+  const finalContents = []
+  for (let i = 0; i < uniqueContents.length; i++) {
+    const currentContent = uniqueContents[i]
+    let isExactDuplicate = false
+
+    // Check if this content is an exact duplicate of any previous content
+    for (let j = 0; j < finalContents.length; j++) {
+      if (currentContent.content === finalContents[j].content) {
+        isExactDuplicate = true
+        break
+      }
+    }
+
+    if (!isExactDuplicate) {
+      finalContents.push(currentContent)
+    }
+  }
+
+  // Final pass: remove any versions that have no meaningful changes from the previous version
+  const meaningfulContents = []
+  for (let i = 0; i < finalContents.length; i++) {
+    const currentContent = finalContents[i]
+
+    if (i === 0) {
+      // Always include the first (most recent) version
+      meaningfulContents.push(currentContent)
+    } else {
+      // Check if this version has meaningful changes from the previous one
+      const previousContent = finalContents[i - 1]
+      const difference = calculateCharacterDifference(currentContent.content, previousContent.content)
+
+      if (difference >= threshold) {
+        meaningfulContents.push(currentContent)
+      }
+    }
+  }
+
+  return meaningfulContents
+}
+
 // POST /entries/batch_create
 // Batch create user journal entries
 
@@ -617,10 +871,10 @@ async function processEntryChunk(chunk, user_id) {
     const wordsPerMinute = parseInt(wpm?.['$numberInt'] || 0)
     const totalTimeTaken = parseInt(timeElapsed?.['$numberInt'] || 0)
 
-    // Insert new entry into entries table
+    // Insert new entry into entries table (is_private defaults to true for journals)
     const newEntry = await pool.query(
-      'INSERT INTO entries (user_id, type, num_of_words, wpm, total_time_taken) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-      [user_id, type, numWords, wordsPerMinute, totalTimeTaken]
+      'INSERT INTO entries (user_id, type, num_of_words, wpm, total_time_taken, is_private) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+      [user_id, type, numWords, wordsPerMinute, totalTimeTaken, true]
     )
     const entry_id = newEntry.rows[0].id
 
@@ -652,5 +906,227 @@ function preprocessDate(dateString) {
 
   return withoutTime.trim()
 }
+
+// Public route to get public node entries for a specific user (no auth required)
+router.get('/public/node_entries_info/:userId', async (req, res) => {
+  const { userId } = req.params
+
+  try {
+    const nodeEntriesQuery = await pool.query(
+      `SELECT 
+    entries.id, 
+    entries.title, 
+    entries.starred,
+    entries.is_top_level,
+    entries.date_originally_created,
+    ARRAY(
+      SELECT content 
+      FROM entry_contents 
+      WHERE entry_id = entries.id 
+      ORDER BY date_created DESC
+    ) AS content,
+    (SELECT date_created 
+      FROM entry_contents 
+      WHERE entry_id = entries.id 
+      ORDER BY date_created ASC 
+      LIMIT 1) AS date_created,
+    (SELECT date_created 
+      FROM entry_contents 
+      WHERE entry_id = entries.id 
+      ORDER BY date_created DESC 
+      LIMIT 1) AS date_last_modified,
+    --  aggregate writing data
+    (SELECT COALESCE(SUM(word_count), 0) 
+      FROM entry_writing_data 
+      WHERE entry_id = entries.id) AS wd_word_count,
+    (SELECT COALESCE(SUM(duration), 0) 
+      FROM entry_writing_data 
+      WHERE entry_id = entries.id) AS wd_time_elapsed,
+    -- connection count (only count connections to public entries)
+    (SELECT COUNT(*) 
+      FROM connections c
+      LEFT JOIN entries AS foreign_entries ON c.foreign_entry_id = foreign_entries.id
+      LEFT JOIN entries AS primary_entries ON c.primary_entry_id = primary_entries.id
+      WHERE (c.primary_entry_id = entries.id OR c.foreign_entry_id = entries.id)
+      AND (
+        (c.primary_entry_id = entries.id AND (foreign_entries.is_private = false OR foreign_entries.is_private IS NULL) AND (foreign_entries.user_id = $1 OR foreign_entries.user_id IS NULL))
+        OR
+        (c.foreign_entry_id = entries.id AND (primary_entries.is_private = false OR primary_entries.is_private IS NULL) AND (primary_entries.user_id = $1 OR primary_entries.user_id IS NULL))
+      )
+    ) AS connection_count
+  FROM entries 
+  WHERE user_id = $1 AND type = 'node' AND (is_private = false OR is_private IS NULL)`,
+      [userId]
+    )
+
+    const nodeEntries = nodeEntriesQuery.rows
+
+    if (nodeEntries.length === 0) {
+      return res.status(404).json({ msg: 'No public node entries found for this user' })
+    }
+
+    const processedEntries = nodeEntries.map((entry) => {
+      const contentArray = Array.isArray(entry.content) ? entry.content : []
+      const hasContent = contentArray.length > 0
+      const latestContent = hasContent
+        ? contentArray.find((item) => typeof item === 'string' && item.trim()) || contentArray[0] || ''
+        : ''
+      const calculatedWordCount = calculateWordCountFromContent(latestContent)
+      const aggregatedWordCount = Number(entry.wd_word_count) || 0
+      const wordCount = calculatedWordCount > 0 ? calculatedWordCount : aggregatedWordCount
+
+      return {
+        id: entry.id,
+        title: entry.title,
+        starred: entry.starred,
+        isTopLevel: entry.is_top_level,
+        isPrivate: entry.is_private || false,
+        wordCount,
+        calculatedWordCount,
+        wdWordCount: aggregatedWordCount,
+        wdTimeElapsed: entry.wd_time_elapsed,
+        connectionCount: parseInt(entry.connection_count) || 0,
+        pending: !hasContent,
+        date_created: hasContent ? entry.date_created : entry.date_originally_created,
+        date_last_modified: hasContent ? entry.date_last_modified : entry.date_originally_created,
+      }
+    })
+
+    res.json({ nodeEntries: processedEntries })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// Public route to get entry contents (history) for a public entry (no auth required)
+router.get('/public/entry_contents/:entryId', async (req, res) => {
+  const { entryId } = req.params
+  const { userId } = req.query
+  const uniquenessThreshold = 3 // Minimum character difference between contents
+
+  if (!userId) {
+    return res.status(400).json({ msg: 'userId query parameter is required' })
+  }
+
+  try {
+    // First verify the entry is public and belongs to the user
+    const entryCheck = await pool.query(
+      `SELECT id FROM entries 
+       WHERE id = $1 
+       AND user_id = $2 
+       AND type = 'node' 
+       AND (is_private = false OR is_private IS NULL)`,
+      [entryId, userId]
+    )
+
+    if (entryCheck.rows.length === 0) {
+      return res.status(404).json({ message: 'Entry not found or is private' })
+    }
+
+    // Fetch all entry contents for the entry ID
+    const entryContents = await pool.query(
+      `SELECT 
+        id,
+        content,
+        date_created,
+        entry_id
+      FROM entry_contents 
+      WHERE entry_id = $1 
+      ORDER BY date_created DESC`,
+      [entryId]
+    )
+
+    // Filter contents based on uniqueness threshold
+    const uniqueContents = filterUniqueContents(entryContents.rows, uniquenessThreshold)
+
+    console.log(
+      `Fetched ${entryContents.rows.length} entry contents, ${uniqueContents.length} unique for public entry ${entryId}`
+    )
+    return res.json({
+      entryId,
+      contents: uniqueContents,
+      count: uniqueContents.length,
+      totalFetched: entryContents.rows.length,
+      uniquenessThreshold,
+    })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// Public route to get a single public entry (no auth required)
+router.get('/public/entry/:entryId', async (req, res) => {
+  const { entryId } = req.params
+  const { userId } = req.query
+
+  if (!userId) {
+    return res.status(400).json({ msg: 'userId query parameter is required' })
+  }
+
+  try {
+    // Retrieve the entry with the provided entryId
+    const entryQuery = `
+      SELECT 
+        entries.*, 
+        ARRAY(
+          SELECT content 
+          FROM entry_contents 
+          WHERE entry_id = $1 
+          ORDER BY date_created DESC
+        ) AS content,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = $1 
+          ORDER BY date_created ASC 
+          LIMIT 1) AS date_created,
+        (SELECT date_created 
+          FROM entry_contents 
+          WHERE entry_id = $1 
+          ORDER BY date_created DESC 
+          LIMIT 1) AS date_last_updated
+      FROM 
+        entries 
+      WHERE 
+        id = $1 
+        AND user_id = $2
+        AND type = 'node'
+        AND (is_private = false OR is_private IS NULL)
+    `
+    const entryResult = await pool.query(entryQuery, [entryId, userId])
+
+    // Check if the entry is found
+    if (entryResult.rows.length === 0) {
+      return res.status(404).json({ msg: 'Entry not found or is private' })
+    }
+
+    const entryData = entryResult.rows[0]
+
+    // Calculate wdTimeElapsed and wdWordCount
+    const writingDataQuery = `
+      SELECT 
+        COALESCE(SUM(duration), 0) AS wd_time_elapsed,
+        COALESCE(SUM(word_count), 0) AS wd_word_count
+      FROM 
+        entry_writing_data 
+      WHERE 
+        entry_id = $1
+    `
+    const writingDataResult = await pool.query(writingDataQuery, [entryId])
+
+    const { wd_time_elapsed: wdTimeElapsed, wd_word_count: wdWordCount } = writingDataResult.rows[0]
+
+    // Include wdTimeElapsed and wdWordCount in the response
+    res.json({
+      ...entryData,
+      wdTimeElapsed,
+      wdWordCount,
+    })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
 
 module.exports = router

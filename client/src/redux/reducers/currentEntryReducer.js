@@ -25,6 +25,10 @@ const initialState = {
   content: '',
   nodeEntriesInfo: [],
   starred: false,
+  isTopLevel: false,
+  isPrivate: false,
+  entryContents: [],
+  entryContentsLoading: false,
 }
 
 export const addAka = createAsyncThunk(
@@ -118,26 +122,26 @@ export const saveNodeEntry = createAsyncThunk(
 
       // Clean up obsolete connections
 
-      const state = getState()
-      const text = (state.currentEntry.content || '').toLowerCase()
-      const allConnections = state.connections.connections
+      // const state = getState()
+      // const text = (state.currentEntry.content || '').toLowerCase()
+      // const allConnections = state.connections.connections
 
-      const connectionsToDelete =
-        allConnections?.filter((conn) => {
-          const { primary_source, source_type } = conn
-          return (
-            (source_type === CONNECTION_SOURCE_TYPES.DIRECT || source_type === CONNECTION_SOURCE_TYPES.SINGLE_WORD) &&
-            primary_source &&
-            !text.includes(primary_source.toLowerCase())
-          )
-        }) || []
+      // const connectionsToDelete =
+      //   allConnections?.filter((conn) => {
+      //     const { primary_source, source_type } = conn
+      //     return (
+      //       (source_type === CONNECTION_SOURCE_TYPES.DIRECT || source_type === CONNECTION_SOURCE_TYPES.SINGLE_WORD) &&
+      //       primary_source &&
+      //       !text.includes(primary_source.toLowerCase())
+      //     )
+      //   }) || []
 
-      for (const conn of connectionsToDelete) {
-        dispatch(deleteConnection(conn.id))
-      }
+      // for (const conn of connectionsToDelete) {
+      //   dispatch(deleteConnection(conn.id))
+      // }
 
-      const cleanedConnections = connectionsToDelete.length > 0
-      // const cleanedConnections = true
+      // const cleanedConnections = connectionsToDelete.length > 0
+      const cleanedConnections = false
 
       if (saveType === AUTO) {
         dispatch(showToast(cleanedConnections ? 'Node saved and connections cleaned' : 'Node autosaved', 'warn'))
@@ -208,6 +212,7 @@ export const fetchNodeEntriesInfo = createAsyncThunk(
   async (_, { rejectWithValue, dispatch }) => {
     try {
       const response = await axiosInstance.get('api/entries/node_entries_info')
+
       return response.data.nodeEntries
     } catch (error) {
       dispatch(showToast('Error fetching node entries', 'error'))
@@ -232,9 +237,23 @@ export const setEntryById = createAsyncThunk(
         title,
         wdWordCount,
         wdTimeElapsed,
+        isTopLevel,
+        is_private: isPrivate,
       } = response.data
 
-      return { wdWordCount, wdTimeElapsed, content: content[0], connections, date, entryId, wordCount, starred, title }
+      return {
+        wdWordCount,
+        wdTimeElapsed,
+        content: content[0],
+        connections,
+        date,
+        entryId,
+        wordCount,
+        starred,
+        title,
+        isTopLevel,
+        isPrivate: isPrivate || false,
+      }
     } catch (error) {
       return rejectWithValue(error.response.data)
     }
@@ -276,6 +295,91 @@ export const toggleNodeStarred = createAsyncThunk(
     } catch (error) {
       dispatch(showToast('Error updating starred status', 'error'))
       return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+export const updateNodeTopLevel = createAsyncThunk(
+  'currentEntryReducer/updateNodeTopLevel',
+  async ({ entryId, isTopLevel }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axiosInstance.post('api/entries/update_node_top_level', {
+        entryId,
+        isTopLevel,
+      })
+
+      await dispatch(fetchNodeEntriesInfo())
+
+      return response.data
+    } catch (error) {
+      dispatch(showToast('Error updating top level status', 'error'))
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+export const toggleEntryIsPrivate = createAsyncThunk(
+  'currentEntryReducer/toggleEntryIsPrivate',
+  async ({ entryId }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axiosInstance.post('api/entries/toggle_is_private', { entryId })
+
+      await dispatch(fetchNodeEntriesInfo())
+
+      return response.data
+    } catch (error) {
+      dispatch(showToast('Error updating privacy status', 'error'))
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+export const fetchPublicEntry = createAsyncThunk(
+  'currentEntryReducer/fetchPublicEntry',
+  async ({ entryId, userId }, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/entries/public/entry/${entryId}?userId=${userId}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch entry')
+      }
+      const data = await response.json()
+      return data
+    } catch (error) {
+      return rejectWithValue({ message: error.message || 'Failed to fetch entry' })
+    }
+  }
+)
+
+export const fetchPublicNodeEntriesInfo = createAsyncThunk(
+  'currentEntryReducer/fetchPublicNodeEntriesInfo',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/entries/public/node_entries_info/${userId}`)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ msg: 'Failed to fetch nodes' }))
+        throw new Error(errorData.msg || 'Failed to fetch nodes')
+      }
+      const data = await response.json()
+      return data.nodeEntries || []
+    } catch (error) {
+      return rejectWithValue({ message: error.message || 'Failed to fetch nodes' })
+    }
+  }
+)
+
+export const fetchPublicEntryContents = createAsyncThunk(
+  'currentEntryReducer/fetchPublicEntryContents',
+  async ({ entryId, userId }, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/entries/public/entry_contents/${entryId}?userId=${userId}`)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Failed to fetch entry contents' }))
+        throw new Error(errorData.message || 'Failed to fetch entry contents')
+      }
+      const data = await response.json()
+      return data.contents || []
+    } catch (error) {
+      return rejectWithValue({ message: error.message || 'Failed to fetch entry contents' })
     }
   }
 )
@@ -435,6 +539,82 @@ const currentEntrySlice = createSlice({
         if (state.entryId === entryId) {
           state.starred = starred
         }
+      })
+      .addCase(updateNodeTopLevel.fulfilled, (state, action) => {
+        const { entryId, isTopLevel } = action.payload
+        if (state.entryId === entryId) {
+          state.isTopLevel = isTopLevel
+        }
+      })
+      .addCase(toggleEntryIsPrivate.fulfilled, (state, action) => {
+        const { entryId, isPrivate } = action.payload
+        if (state.entryId === entryId) {
+          state.isPrivate = isPrivate
+        }
+      })
+      .addCase(fetchPublicEntry.pending, (state, action) => {
+        const requestedEntryId = action.meta.arg?.entryId
+        // Only set loading if we're fetching a different entry than what's currently loaded
+        const needsLoading = !state.entryId || state.entryId !== requestedEntryId || !state.title || !state.content
+        return {
+          ...state,
+          entriesLoading: needsLoading,
+          entryContents: needsLoading ? [] : state.entryContents, // Only clear if actually loading new entry
+        }
+      })
+      .addCase(fetchPublicEntry.fulfilled, (state, action) => {
+        const {
+          content,
+          id: entryId,
+          num_of_words: wordCount,
+          title,
+        } = action.payload
+
+        return {
+          ...state,
+          entryId,
+          title,
+          content: content && content[0] ? content[0] : '',
+          wordCount,
+          entriesLoading: false,
+        }
+      })
+      .addCase(fetchPublicEntry.rejected, (state) => {
+        return {
+          ...state,
+          entriesLoading: false,
+        }
+      })
+      .addCase(fetchPublicNodeEntriesInfo.pending, (state) => {
+        // Only set loading if we don't already have nodeEntriesInfo
+        return {
+          ...state,
+          entriesLoading: !state.nodeEntriesInfo || state.nodeEntriesInfo.length === 0,
+        }
+      })
+      .addCase(fetchPublicNodeEntriesInfo.fulfilled, (state, action) => {
+        return {
+          ...state,
+          nodeEntriesInfo: action.payload,
+          entriesLoading: false,
+        }
+      })
+      .addCase(fetchPublicNodeEntriesInfo.rejected, (state) => {
+        return {
+          ...state,
+          entriesLoading: false,
+        }
+      })
+      .addCase(fetchPublicEntryContents.pending, (state) => {
+        state.entryContentsLoading = true
+      })
+      .addCase(fetchPublicEntryContents.fulfilled, (state, action) => {
+        state.entryContents = action.payload
+        state.entryContentsLoading = false
+      })
+      .addCase(fetchPublicEntryContents.rejected, (state) => {
+        state.entryContentsLoading = false
+        state.entryContents = []
       })
   },
 })

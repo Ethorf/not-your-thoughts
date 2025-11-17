@@ -46,6 +46,12 @@ if (process.env.NODE_ENV === 'production') {
 
 const PORT = process.env.PORT || 8086
 
+// Handle database pool errors without crashing
+pool.on('error', (err) => {
+  console.error('Database pool error (non-fatal):', err.message)
+  // Don't exit - let the pool handle reconnection
+})
+
 const server = app.listen(PORT, () => {
   console.log(`It's an ${PORT} type of guy for NYT`)
 
@@ -66,8 +72,7 @@ const server = app.listen(PORT, () => {
   //   })
   // }
 })
-
-const gracefulShutdown = (signal) => {
+const gracefulShutdownOld = (signal) => {
   console.log(`Received ${signal}. Shutting down gracefully...`)
 
   const retryInterval = 5000 // Retry every 5 seconds
@@ -95,17 +100,68 @@ const gracefulShutdown = (signal) => {
   tryReconnect()
 }
 
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
-process.on('SIGINT', () => gracefulShutdown('SIGINT'))
+const gracefulShutdown = (signal) => {
+  console.log(`Received ${signal}. Shutting down gracefully...`)
+
+  // Close the HTTP server
+  server.close((err) => {
+    if (err) {
+      console.error('Error closing server:', err)
+      process.exit(1)
+    }
+    console.log('HTTP server closed.')
+
+    // Close database connections
+    pool.end((err) => {
+      if (err) {
+        console.error('Error closing database pool:', err)
+        process.exit(1)
+      }
+      console.log('Database connections closed.')
+      console.log('Graceful shutdown complete.')
+      process.exit(0)
+    })
+  })
+
+  // Force shutdown after 30 seconds if graceful shutdown fails
+  setTimeout(() => {
+    console.error('Could not close connections in time, forcefully shutting down')
+    process.exit(1)
+  }, 30000)
+}
+
+// Use different shutdown strategies based on environment
+const shutdownHandler = process.env.NODE_ENV === 'production' ? gracefulShutdownOld : gracefulShutdown
+
+process.on('SIGTERM', () => shutdownHandler('SIGTERM'))
+process.on('SIGINT', () => shutdownHandler('SIGINT'))
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
-  console.error('Uncaught exception', err)
-  gracefulShutdown('uncaughtException')
+  console.error('Uncaught exception:', err.message)
+
+  // Don't shutdown for database timeout errors - they're recoverable
+  if (err.code === 'ETIMEDOUT' || err.code === 'ECONNRESET' || err.message.includes('idle client')) {
+    console.log('Database connection error - continuing operation (pool will handle reconnection)')
+    return
+  }
+
+  // Only shutdown for truly fatal errors
+  console.error('Fatal error - shutting down:', err)
+  shutdownHandler('uncaughtException')
 })
 
 // Handle unhandled rejections
 process.on('unhandledRejection', (err) => {
-  console.error('Unhandled rejection', err)
-  gracefulShutdown('unhandledRejection')
+  console.error('Unhandled rejection:', err.message)
+
+  // Don't shutdown for database timeout errors - they're recoverable
+  if (err.code === 'ETIMEDOUT' || err.code === 'ECONNRESET' || err.message.includes('idle client')) {
+    console.log('Database connection error - continuing operation (pool will handle reconnection)')
+    return
+  }
+
+  // Only shutdown for truly fatal errors
+  console.error('Fatal error - shutting down:', err)
+  shutdownHandler('unhandledRejection')
 })

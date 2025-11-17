@@ -1,0 +1,40 @@
+.title {
+  font-size: 2.5rem;
+  font-family: 'Syncopate', sans-serif;
+}
+
+.wrapper {
+  width: 100vw;
+}
+
+.flexColumnCenter {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Flex utility classes */
+.flexCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flexSpaceBetween {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flexStart {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.flexEnd {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}

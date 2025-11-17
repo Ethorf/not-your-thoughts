@@ -1,14 +1,24 @@
+@import '@styles/variables';
+
 .wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding-top: 60px;
 }
 
 .connectStarContainer {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
+}
+
+.topLevelActive {
+  background-color: rgba(192, 192, 192, 0.2) !important;
+  border-color: rgba(192, 192, 192, 0.8) !important;
+  color: white !important;
 }
 
 .editContainer {
@@ -24,16 +34,36 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  z-index: 6;
+  z-index: $text-entry-z-index;
+
+  &.grid3Columns {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 16px;
+  }
 }
 .saveButton {
   margin-top: 8px;
 }
 
+.rightButtons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.topLevelButton {
+  font-size: 0.7rem;
+}
+
 .titleInput {
-  min-width: 200px;
+  width: 100%;
+  max-width: 200px;
   font-size: 1.5rem;
   text-transform: uppercase;
+  margin: 0 auto;
+  display: block;
 }
 
 .titleInputNoBorder {
@@ -53,27 +83,13 @@
   min-height: 72px;
 }
 
-.grid4ColumnsCustom {
-  display: grid;
-  grid-template-columns: 25% 35% 3% 25%;
+// Connection lines wrapper
+.connectionLinesWrapper {
+  position: relative;
   width: 100%;
-  min-height: 72px;
-}
-
-.flexCenter {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.flexStart {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.flexEnd {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
+  z-index: 1;
+  background-color: black;
 }

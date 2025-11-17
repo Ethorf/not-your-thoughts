@@ -19,6 +19,7 @@ const { DIRECT, SINGLE_WORD, DESCRIPTIVE } = CONNECTION_SOURCE_TYPES
 
 const initialState = {
   connections: [],
+  allConnections: [], // All connections across all nodes for Global view
   connectionsLoading: false,
   connectionSourceType: DIRECT,
   connectionTitleInput: '',
@@ -77,12 +78,58 @@ export const deleteConnection = createAsyncThunk(
 export const fetchConnections = createAsyncThunk('connections/', async (entry_id, { rejectWithValue }) => {
   try {
     const response = await axiosInstance.get(`api/connections/${entry_id}`)
-    console.log('CONNNECTIONIES HET')
+
     return response.data.connections
   } catch (error) {
     return rejectWithValue(error.response.data)
   }
 })
+
+export const fetchAllConnections = createAsyncThunk(
+  'connections/fetchAllConnections',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get('api/connections/all_connections')
+      return response.data.connections
+    } catch (error) {
+      return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+export const fetchPublicConnections = createAsyncThunk(
+  'connections/fetchPublicConnections',
+  async ({ entryId, userId }, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/connections/public/${entryId}?userId=${userId}`)
+      if (!response.ok) {
+        if (response.status === 204) {
+          // No connections found - this is okay
+          return []
+        }
+        throw new Error('Failed to fetch connections')
+      }
+      const data = await response.json()
+      return data.connections || []
+    } catch (error) {
+      return rejectWithValue({ message: error.message || 'Failed to fetch connections' })
+    }
+  }
+)
+
+export const fetchConnectionsDirect = createAsyncThunk(
+  'connections/fetchConnectionsDirect',
+  async (entry_id, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`api/connections/${entry_id}`)
+      console.log('<<<<<< response.data >>>>>>>>> is: <<<<<<<<<<<<')
+      console.log(response.data)
+      return response.data.connections
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message)
+    }
+  }
+)
 
 export const updateConnection = createAsyncThunk(
   'connections/update_connection',
@@ -199,11 +246,39 @@ const connectionsSlice = createSlice({
       })
       .addCase(updateConnection.fulfilled, (state, action) => {
         state.connectionsLoading = false
+        // **** HMM this broke some stuff but maybe it was being used for connections modal
         // state.connections = action.payload.connections
       })
       .addCase(updateConnection.rejected, (state, action) => {
         state.connectionsLoading = false
         state.error = action.payload
+      })
+      .addCase(fetchAllConnections.pending, (state) => {
+        state.connectionsLoading = true
+      })
+      .addCase(fetchAllConnections.fulfilled, (state, action) => {
+        state.allConnections = action.payload
+        state.connectionsLoading = false
+      })
+      .addCase(fetchAllConnections.rejected, (state, action) => {
+        state.connectionsLoading = false
+        state.error = action.payload
+      })
+      .addCase(fetchPublicConnections.pending, (state) => {
+        state.connectionsLoading = true
+      })
+      .addCase(fetchPublicConnections.fulfilled, (state, action) => {
+        return {
+          ...state,
+          connections: action.payload,
+          connectionsLoading: false,
+        }
+      })
+      .addCase(fetchPublicConnections.rejected, (state, action) => {
+        state.connectionsLoading = false
+        state.error = action.payload
+        // Set connections to empty array on error instead of undefined
+        state.connections = []
       })
   },
 })

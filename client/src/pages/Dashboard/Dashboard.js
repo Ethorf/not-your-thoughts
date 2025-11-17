@@ -8,7 +8,7 @@ import { resetCurrentEntryState, createNodeEntry, createJournalEntry } from '@re
 
 // Styles
 import styles from './Dashboard.module.scss'
-import sharedStyles from '@styles/shared.module.scss'
+import sharedStyles from '@styles/sharedClassnames.module.scss'
 
 // Components
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
@@ -40,7 +40,6 @@ const Dashboard = () => {
         <DefaultButton onClick={handleNewNodeEntryClick}>Node</DefaultButton>
         <DefaultButton onClick={handleNewJournalEntryClick}>Journal</DefaultButton>
       </div>
-      <h3>Nodes</h3>
       <div className={styles.customPromptsList}>
         <NodesDashboardList />
       </div>

@@ -1,5 +1,7 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
+import { useHistory } from 'react-router-dom'
+import classNames from 'classnames'
 
 // Components
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
@@ -20,12 +22,18 @@ import { MODAL_NAMES } from '@constants/modalNames.js'
 import styles from './DashboardNodeEntry.module.scss'
 
 export const DashboardNodeEntry = ({ node = {} }) => {
-  const { id = null, starred, title, pending, date_last_modified, num_of_words } = node
+  const { id = null, starred, title, pending, date_last_modified } = node
   const dispatch = useDispatch()
+  const history = useHistory()
 
   const handleOpenAreYouSureModal = async () => {
     await dispatch(setEntryById(id))
     await dispatch(openModal(MODAL_NAMES.ARE_YOU_SURE))
+  }
+
+  const handleExploreNode = async () => {
+    await dispatch(setEntryById(id))
+    history.push('/explore')
   }
 
   return (
@@ -39,9 +47,20 @@ export const DashboardNodeEntry = ({ node = {} }) => {
         <div>Not yet...</div>
       )}
       <EditNodeLink node={{ id, title }} />
-      <div className={styles.pending}>{pending ? 'Pending' : num_of_words}</div>
+      {pending ? (
+        <div className={classNames(styles.pending, styles.flexEnd)}>{pending}</div>
+      ) : (
+        <span className={styles.flexEnd} />
+      )}
+      <DefaultButton
+        className={styles.exploreButton}
+        onClick={handleExploreNode}
+        tooltip="Explore this node's connections"
+      >
+        Explore
+      </DefaultButton>
       <DefaultButton className={styles.deleteButton} onClick={handleOpenAreYouSureModal}>
-        Delete
+        X
       </DefaultButton>
     </li>
   )
