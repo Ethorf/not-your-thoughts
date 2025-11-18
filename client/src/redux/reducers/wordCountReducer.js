@@ -45,6 +45,7 @@ function wordCountReducer(state = initialState, action) {
 					goalIsEditable: false
 				};
 			}
+			break
 
 		default:
 			return state;

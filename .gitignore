@@ -21,6 +21,9 @@
 .env.test.local
 .env.production.local
 
+# IDE/Editor
+.cursor/mcp.json
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
