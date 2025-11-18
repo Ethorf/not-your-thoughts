@@ -39,11 +39,12 @@ const ConnectionLines = ({ entryId }) => {
     const grouped = connections.reduce((acc, conn) => {
       const transformed = transformConnection(entryId, conn)
       const type = transformed.connection_type || conn.connection_type
+      const url = conn.foreign_source
 
       if (!acc[type]) {
         acc[type] = []
       }
-      acc[type].push(transformed)
+      acc[type].push({ ...transformed, url })
       return acc
     }, {})
 
@@ -133,6 +134,9 @@ const ConnectionLines = ({ entryId }) => {
       {connectionLines.externals.map((external, index) => (
         <div
           key={`external-${external.id}`}
+          onClick={() => {
+            window.open(external.url, '_blank')
+          }}
           className={`${styles.connectionLine} ${styles.externalLine}`}
           onMouseEnter={handleMouseEnter(`External Link: ${external.title}`)}
           onMouseLeave={handleMouseLeave}

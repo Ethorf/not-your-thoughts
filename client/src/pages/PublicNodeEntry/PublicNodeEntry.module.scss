@@ -106,7 +106,6 @@
   font-size: 1rem;
   min-height: 15vh;
   line-height: 1.6;
-  white-space: pre-wrap;
   word-wrap: break-word;
   border: 1px solid rgba(192, 192, 192, 0.5);
   padding: 28px;
@@ -116,6 +115,11 @@
   z-index: 2;
   box-sizing: border-box;
   margin-bottom: 100px;
+}
+
+.formattedContentWrapper {
+  position: relative !important;
+  pointer-events: auto;
 }
 
 .grid3Columns {

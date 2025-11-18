@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import { useLocation, useHistory } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import classNames from 'classnames'
-import extractTextFromHTML from '@utils/extractTextFromHTML'
 import PublicConnectionLines from '@components/Shared/PublicConnectionLines/PublicConnectionLines'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
@@ -11,12 +10,13 @@ import PublicHistoryDiff from '@components/Shared/PublicHistoryDiff/PublicHistor
 import PublicLegend from '@components/Shared/PublicLegend/PublicLegend'
 import PublicNodeSearch from '@components/Shared/PublicNodeSearch/PublicNodeSearch'
 import { markNodeAsRead, getNodeStatus } from '@utils/nodeReadStatus'
+import styles from './PublicNodeEntry.module.scss'
+import formattedTextStyles from '@components/Shared/FormattedTextOverlay/FormattedTextOverlay.module.scss'
 
 // Redux
 import { fetchPublicEntry, fetchPublicNodeEntriesInfo } from '@redux/reducers/currentEntryReducer'
 import { fetchPublicConnections } from '@redux/reducers/connectionsReducer'
 
-import styles from './PublicNodeEntry.module.scss'
 import sharedStyles from '@styles/sharedClassnames.module.scss'
 
 const PublicNodeEntry = () => {
@@ -123,6 +123,79 @@ const PublicNodeEntry = () => {
     }
   }
 
+  // Parse HTML content similar to FormattedTextOverlay but without connection functionality
+  const parsedContent = useMemo(() => {
+    if (!content) return null
+
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(content, 'text/html')
+
+    const transformNode = (node, paragraphIndex) => {
+      if (!node) return null
+
+      // TEXT NODE
+      if (node.nodeType === Node.TEXT_NODE && node.textContent) {
+        return node.textContent
+      }
+
+      // ELEMENT NODE
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const children = safeTransformChildren(node.childNodes, paragraphIndex)
+
+        if (!node.tagName) return children
+
+        switch (node.tagName.toLowerCase()) {
+          case 'strong':
+            return <strong key={`${paragraphIndex}-${Math.random()}`}>{children}</strong>
+          case 'em':
+            return <em key={`${paragraphIndex}-${Math.random()}`}>{children}</em>
+          case 'u':
+            return <u key={`${paragraphIndex}-${Math.random()}`}>{children}</u>
+          case 's':
+          case 'del':
+            return <s key={`${paragraphIndex}-${Math.random()}`}>{children}</s>
+          case 'ul':
+            return <ul key={`${paragraphIndex}-${Math.random()}`}>{children}</ul>
+          case 'ol':
+            return <ol key={`${paragraphIndex}-${Math.random()}`}>{children}</ol>
+          case 'li':
+            return <li key={`${paragraphIndex}-${Math.random()}`}>{children}</li>
+          case 'p':
+            return <p key={`${paragraphIndex}-${Math.random()}`}>{children}</p>
+          default:
+            return children
+        }
+      }
+
+      return null
+    }
+
+    const safeTransformChildren = (childNodes, paragraphIndex) => {
+      const result = []
+
+      if (!childNodes || !childNodes.length) return result
+
+      for (const child of childNodes) {
+        try {
+          const transformed = transformNode(child, paragraphIndex)
+          if (Array.isArray(transformed)) {
+            result.push(...transformed)
+          } else if (transformed != null) {
+            result.push(transformed)
+          }
+        } catch (e) {
+          console.warn('Error transforming child node:', e, child)
+        }
+      }
+
+      return result
+    }
+
+    const rootChildren = Array.from(doc.body.childNodes)
+
+    return rootChildren.map((node, i) => transformNode(node, i))
+  }, [content])
+
   if (!entryIdParam || !userIdParam) {
     return (
       <div className={styles.wrapper}>
@@ -226,8 +299,10 @@ const PublicNodeEntry = () => {
                   }
                   selectedVersionIndex={selectedVersionIndex}
                 />
-              ) : content ? (
-                extractTextFromHTML(content)
+              ) : parsedContent ? (
+                <div className={classNames(formattedTextStyles.wrapper, styles.formattedContentWrapper)}>
+                  {parsedContent}
+                </div>
               ) : (
                 'No content yet...'
               )}
