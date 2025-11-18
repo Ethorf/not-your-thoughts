@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axiosInstance from '@utils/axiosInstance'
 
-import { showToast } from '@utils/toast'
+// import { showToast } from '@utils/toast' // Unused
 
 const initialState = {
   category: '',

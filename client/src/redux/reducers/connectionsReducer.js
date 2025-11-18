@@ -5,7 +5,7 @@ import { CONNECTION_ENTRY_SOURCES } from '@constants/connectionEntrySources'
 import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
 import { SAVE_TYPES } from '@constants/saveTypes'
 
-import { showToast } from '@utils/toast'
+// import { showToast } from '@utils/toast' // Unused
 import { hasOneWord } from '@utils/hasOneWord'
 
 import { saveNodeEntry } from '@redux/reducers/currentEntryReducer'
@@ -15,7 +15,7 @@ const {
 } = CONNECTION_TYPES
 
 const { PRIMARY, FOREIGN } = CONNECTION_ENTRY_SOURCES
-const { DIRECT, SINGLE_WORD, DESCRIPTIVE } = CONNECTION_SOURCE_TYPES
+const { DIRECT, SINGLE_WORD } = CONNECTION_SOURCE_TYPES // DESCRIPTIVE unused
 
 const initialState = {
   connections: [],

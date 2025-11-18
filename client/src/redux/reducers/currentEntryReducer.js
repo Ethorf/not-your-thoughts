@@ -2,8 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axiosInstance from '@utils/axiosInstance'
 import { ENTRY_TYPES } from '@constants/entryTypes'
 import { SAVE_TYPES } from '@constants/saveTypes'
-import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
-import { deleteConnection } from '@redux/reducers/connectionsReducer'
+// import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes' // Unused - only used in commented code
+// import { deleteConnection } from '@redux/reducers/connectionsReducer' // Unused - only used in commented code
 
 import { showToast } from '@utils/toast'
 
