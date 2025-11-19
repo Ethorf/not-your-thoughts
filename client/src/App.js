@@ -10,10 +10,10 @@ import { useSelector, connect } from 'react-redux'
 import './App.scss'
 
 // Components
-import NavBarLeftSide from '@components/nav/NavBarLeftSide.js'
+import NavBarLeftSide from '@components/nav/NavBarLeftSide'
 import RightSidebar from '@components/RightSidebar/RightSidebar.js'
 
-import NavBarTop from '@components/nav/navBarTop.js'
+import NavBarTop from '@components/nav/navBarTop'
 
 //Pages Imports
 import Landing from '@pages/Start/Start.js'
