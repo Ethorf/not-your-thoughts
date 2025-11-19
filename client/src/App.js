@@ -10,7 +10,7 @@ import { useSelector, connect } from 'react-redux'
 import './App.scss'
 
 // Components
-import NavBarLeftSide from '@components/nav/NavBarLeftSide'
+import LeftMainNavigation from '@components/nav/LeftMainNavigation'
 import RightSidebar from '@components/RightSidebar/RightSidebar.js'
 
 import NavBarTop from '@components/nav/navBarTop'
@@ -66,7 +66,7 @@ const App = () => {
       <BrowserRouter>
         <ModalsContainer />
         <NavBarTop />
-        <NavBarLeftSide />
+        <LeftMainNavigation />
 
         {user && <RightSidebar />}
         <Route
