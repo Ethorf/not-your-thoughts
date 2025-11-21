@@ -61,11 +61,12 @@ const PublicHistoryDiff = ({ currentContent, previousContent, selectedVersionInd
         }
       }
 
-      // Add remaining elements
+      // Add remaining elements from old text (removals)
       while (i > 0) {
         result.unshift({ type: 'remove', text: arr1[i - 1] })
         i--
       }
+      // Add remaining elements from new text (additions - this handles additions at the end)
       while (j > 0) {
         result.unshift({ type: 'add', text: arr2[j - 1] })
         j--

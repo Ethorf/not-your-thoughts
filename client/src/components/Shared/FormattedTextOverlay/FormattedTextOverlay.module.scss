@@ -11,6 +11,7 @@
   width: 100%;
   left: 0;
   right: 0;
+  cursor: default; // Default cursor for text content
 
   // Main text Variables
   font-size: $main-text-font-size;
@@ -33,34 +34,67 @@
     transition: all 1s;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    cursor: default; // Default cursor for text
   }
 
   li {
     font-weight: 200;
     font-size: $main-text-font-size;
     line-height: $main-text-line-height;
-    padding-left: 0;
     padding-top: 0;
     padding-bottom: $li-padding-bottom;
-    padding-right: 92px;
+    padding-right: $main-text-padding-right;
     box-sizing: $main-text-box-sizing;
     margin-top: 0;
     margin: 0;
     transition: all 1s;
+    cursor: default; // Default cursor for text
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    position: relative;
+    padding-left: 30px !important; // Space for marker (::before) - matches Quill
+  }
 
-    &::marker {
-      padding-left: $main-text-padding-left;
-    }
+  // Adjust padding for ordered lists which may have wider markers - matches Quill
+  ol li {
+    padding-left: 16px !important; // More space for numbers like "10. ", "100. "
   }
 
   ul,
   ol {
-    padding-left: $main-text-padding-left;
+    padding-left: $main-text-padding-left + 2; // Matches Quill
     padding-right: 0;
     padding-top: 0;
     padding-bottom: 0;
     margin: 0;
-    list-style-position: inside;
+    list-style: none; // Remove default markers - we use ::before instead
+  }
+
+  // Add bullet marker via ::before for unordered lists - matches Quill
+  ul > li::before {
+    content: '•';
+    color: silver;
+    position: absolute;
+    left: $main-text-padding-left;
+    width: auto;
+    // white-space: nowrap;
+  }
+
+  // Add number marker via ::before using CSS counter for ordered lists - matches Quill
+  ol {
+    counter-reset: list-counter; // Initialize counter
+
+    & > li {
+      counter-increment: list-counter;
+
+      &::before {
+        content: counter(list-counter) '.';
+        color: silver;
+        position: absolute;
+        left: -3px;
+        width: auto;
+      }
+    }
   }
 
   ol li,

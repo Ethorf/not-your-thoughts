@@ -10,11 +10,16 @@ import PublicHistoryDiff from '@components/Shared/PublicHistoryDiff/PublicHistor
 import PublicLegend from '@components/Shared/PublicLegend/PublicLegend'
 import PublicNodeSearch from '@components/Shared/PublicNodeSearch/PublicNodeSearch'
 import { markNodeAsRead, getNodeStatus } from '@utils/nodeReadStatus'
+import { createFormatRules, formatContentWithConnections } from '@utils/formatContentWithConnections'
 import styles from './PublicNodeEntry.module.scss'
 import formattedTextStyles from '@components/Shared/FormattedTextOverlay/FormattedTextOverlay.module.scss'
 
 // Redux
-import { fetchPublicEntry, fetchPublicNodeEntriesInfo } from '@redux/reducers/currentEntryReducer'
+import {
+  fetchPublicEntry,
+  fetchPublicNodeEntriesInfo,
+  fetchPublicEntryContents,
+} from '@redux/reducers/currentEntryReducer'
 import { fetchPublicConnections } from '@redux/reducers/connectionsReducer'
 
 import sharedStyles from '@styles/sharedClassnames.module.scss'
@@ -50,10 +55,70 @@ const PublicNodeEntry = () => {
     }
   }, [isHistoryExpanded])
 
-  const handleVersionSelect = useCallback((selectedContent, index) => {
-    setDisplayContent(selectedContent)
-    setSelectedVersionIndex(index)
-  }, [])
+  // Get filtered contents to properly find previous version for diff
+  const filteredEntryContents = useMemo(() => {
+    if (entryContents.length === 0) return []
+
+    const stripHtml = (html) => {
+      if (!html || typeof html !== 'string') return ''
+      const temp = document.createElement('div')
+      temp.innerHTML = html
+      return temp.textContent || temp.innerText || ''
+    }
+
+    const calculateCharacterDifference = (content1, content2) => {
+      if (!content1 || !content2) return Math.max(content1?.length || 0, content2?.length || 0)
+      const text1 = stripHtml(content1)
+      const text2 = stripHtml(content2)
+
+      // Simple Levenshtein distance calculation
+      const matrix = []
+      for (let i = 0; i <= text2.length; i++) {
+        matrix[i] = [i]
+      }
+      for (let j = 0; j <= text1.length; j++) {
+        matrix[0][j] = j
+      }
+      for (let i = 1; i <= text2.length; i++) {
+        for (let j = 1; j <= text1.length; j++) {
+          if (text2.charAt(i - 1) === text1.charAt(j - 1)) {
+            matrix[i][j] = matrix[i - 1][j - 1]
+          } else {
+            matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j] + 1)
+          }
+        }
+      }
+      return matrix[text2.length][text1.length]
+    }
+
+    const filtered = [entryContents[0]] // Always include the first (most recent) content
+    const threshold = 3 // Minimum character difference
+
+    for (let i = 1; i < entryContents.length; i++) {
+      const currentContent = entryContents[i]
+      const previousContent = entryContents[i - 1]
+
+      const difference = calculateCharacterDifference(currentContent.content, previousContent.content)
+
+      if (difference >= threshold) {
+        filtered.push(currentContent)
+      }
+    }
+
+    return filtered
+  }, [entryContents])
+
+  const handleVersionSelect = useCallback(
+    (selectedContent, originalIndex) => {
+      setDisplayContent(selectedContent)
+      // Find the index in the filtered list
+      const filteredIndex = filteredEntryContents.findIndex(
+        (content) => content.id === entryContents[originalIndex]?.id
+      )
+      setSelectedVersionIndex(filteredIndex >= 0 ? filteredIndex : originalIndex)
+    },
+    [filteredEntryContents, entryContents]
+  )
 
   // Fetch node entries info for search
   useEffect(() => {
@@ -105,11 +170,27 @@ const PublicNodeEntry = () => {
           console.error('Error fetching connections:', err)
           // Don't fail the whole component if connections fail
         })
+
+        // Fetch history in the background (don't wait for it)
+        dispatch(fetchPublicEntryContents({ entryId: entryIdParam, userId: userIdParam })).catch((err) => {
+          console.error('Error fetching entry contents:', err)
+          // Don't fail the whole component if history fails
+        })
       })
       .catch((err) => {
         console.error('Error fetching entry:', err)
       })
   }, [dispatch, entryIdParam, userIdParam, entryId, title, content])
+
+  // Also fetch history if entry is already loaded but we don't have history yet
+  useEffect(() => {
+    if (entryId === entryIdParam && entryId && userIdParam && entryContents.length === 0) {
+      // Fetch history in background if entry is loaded but history isn't
+      dispatch(fetchPublicEntryContents({ entryId: entryIdParam, userId: userIdParam })).catch((err) => {
+        console.error('Error fetching entry contents:', err)
+      })
+    }
+  }, [entryId, entryIdParam, userIdParam, entryContents.length, dispatch])
 
   const handleExploreNetwork = () => {
     if (entryId && userIdParam) {
@@ -123,78 +204,54 @@ const PublicNodeEntry = () => {
     }
   }
 
-  // Parse HTML content similar to FormattedTextOverlay but without connection functionality
+  // Get all titles for highlighting (excluding current entry)
+  const allTitles = useMemo(
+    () => nodeEntriesInfo?.map((x) => x?.title?.toLowerCase()).filter((t) => t !== title?.toLowerCase()) ?? [],
+    [title, nodeEntriesInfo]
+  )
+
+  // Handle clicking on internal connections - navigate to node
+  const handleInternalConnectionClick = useCallback(
+    (nodeId) => {
+      if (nodeId && userIdParam) {
+        history.push(`/show-node-entry?userId=${userIdParam}&entryId=${nodeId}`)
+      }
+    },
+    [history, userIdParam]
+  )
+
+  // Handle clicking on external connections - open in new tab
+  const handleExternalConnectionClick = useCallback((url) => {
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer')
+    }
+  }, [])
+
+  // Handle clicking on unconnected nodes - navigate to node
+  const handleUnconnectedNodeClick = useCallback(
+    (nodeId) => {
+      if (nodeId && userIdParam) {
+        history.push(`/show-node-entry?userId=${userIdParam}&entryId=${nodeId}`)
+      }
+    },
+    [history, userIdParam]
+  )
+
+  // Create format rules from connections
+  const formatRules = useMemo(() => {
+    return createFormatRules(
+      connections,
+      entryId,
+      handleInternalConnectionClick,
+      handleExternalConnectionClick,
+      formattedTextStyles
+    )
+  }, [connections, entryId, handleInternalConnectionClick, handleExternalConnectionClick])
+
+  // Parse HTML content with connection highlighting (same as FormattedTextOverlay)
   const parsedContent = useMemo(() => {
-    if (!content) return null
-
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(content, 'text/html')
-
-    const transformNode = (node, paragraphIndex) => {
-      if (!node) return null
-
-      // TEXT NODE
-      if (node.nodeType === Node.TEXT_NODE && node.textContent) {
-        return node.textContent
-      }
-
-      // ELEMENT NODE
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        const children = safeTransformChildren(node.childNodes, paragraphIndex)
-
-        if (!node.tagName) return children
-
-        switch (node.tagName.toLowerCase()) {
-          case 'strong':
-            return <strong key={`${paragraphIndex}-${Math.random()}`}>{children}</strong>
-          case 'em':
-            return <em key={`${paragraphIndex}-${Math.random()}`}>{children}</em>
-          case 'u':
-            return <u key={`${paragraphIndex}-${Math.random()}`}>{children}</u>
-          case 's':
-          case 'del':
-            return <s key={`${paragraphIndex}-${Math.random()}`}>{children}</s>
-          case 'ul':
-            return <ul key={`${paragraphIndex}-${Math.random()}`}>{children}</ul>
-          case 'ol':
-            return <ol key={`${paragraphIndex}-${Math.random()}`}>{children}</ol>
-          case 'li':
-            return <li key={`${paragraphIndex}-${Math.random()}`}>{children}</li>
-          case 'p':
-            return <p key={`${paragraphIndex}-${Math.random()}`}>{children}</p>
-          default:
-            return children
-        }
-      }
-
-      return null
-    }
-
-    const safeTransformChildren = (childNodes, paragraphIndex) => {
-      const result = []
-
-      if (!childNodes || !childNodes.length) return result
-
-      for (const child of childNodes) {
-        try {
-          const transformed = transformNode(child, paragraphIndex)
-          if (Array.isArray(transformed)) {
-            result.push(...transformed)
-          } else if (transformed != null) {
-            result.push(transformed)
-          }
-        } catch (e) {
-          console.warn('Error transforming child node:', e, child)
-        }
-      }
-
-      return result
-    }
-
-    const rootChildren = Array.from(doc.body.childNodes)
-
-    return rootChildren.map((node, i) => transformNode(node, i))
-  }, [content])
+    return formatContentWithConnections(content, formatRules, allTitles, handleUnconnectedNodeClick, nodeEntriesInfo)
+  }, [content, formatRules, allTitles, handleUnconnectedNodeClick, nodeEntriesInfo])
 
   if (!entryIdParam || !userIdParam) {
     return (
@@ -293,8 +350,8 @@ const PublicNodeEntry = () => {
                 <PublicHistoryDiff
                   currentContent={displayContent}
                   previousContent={
-                    selectedVersionIndex < entryContents.length - 1
-                      ? entryContents[selectedVersionIndex + 1]?.content || ''
+                    selectedVersionIndex < filteredEntryContents.length - 1
+                      ? filteredEntryContents[selectedVersionIndex + 1]?.content || ''
                       : ''
                   }
                   selectedVersionIndex={selectedVersionIndex}

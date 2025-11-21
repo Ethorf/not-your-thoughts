@@ -556,10 +556,13 @@ const currentEntrySlice = createSlice({
         const requestedEntryId = action.meta.arg?.entryId
         // Only set loading if we're fetching a different entry than what's currently loaded
         const needsLoading = !state.entryId || state.entryId !== requestedEntryId || !state.title || !state.content
-        return {
-          ...state,
-          entriesLoading: needsLoading,
-          entryContents: needsLoading ? [] : state.entryContents, // Only clear if actually loading new entry
+        // Clear entryContents if we're switching to a different entry
+        const switchingEntries = state.entryId && state.entryId !== requestedEntryId
+        
+        state.entriesLoading = needsLoading
+        // Clear if loading new entry or switching entries
+        if (needsLoading || switchingEntries) {
+          state.entryContents = []
         }
       })
       .addCase(fetchPublicEntry.fulfilled, (state, action) => {

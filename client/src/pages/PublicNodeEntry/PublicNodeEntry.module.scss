@@ -5,7 +5,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding-top: 60px;
   height: 100vh;
   overflow: hidden;
 }
@@ -114,12 +113,26 @@
   background-color: black;
   z-index: 2;
   box-sizing: border-box;
-  margin-bottom: 100px;
+  cursor: default; // Default cursor for text content
 }
 
 .formattedContentWrapper {
   position: relative !important;
   pointer-events: auto;
+  cursor: default; // Default cursor, only links will have pointer
+
+  // Ensure only clickable connections have pointer cursor
+  p,
+  li,
+  ul,
+  ol,
+  strong,
+  em,
+  u,
+  s,
+  del {
+    cursor: default;
+  }
 }
 
 .grid3Columns {
