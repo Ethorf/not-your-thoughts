@@ -41,11 +41,12 @@ const PublicConnectionLines = ({ entryId, userId, connections = [] }) => {
     const grouped = connections.reduce((acc, conn) => {
       const transformed = transformConnection(entryId, conn)
       const type = transformed.connection_type || conn.connection_type
+      const url = conn.foreign_source
 
       if (!acc[type]) {
         acc[type] = []
       }
-      acc[type].push(transformed)
+      acc[type].push({ ...transformed, url })
       return acc
     }, {})
 
@@ -170,4 +171,3 @@ const PublicConnectionLines = ({ entryId, userId, connections = [] }) => {
 }
 
 export default PublicConnectionLines
-

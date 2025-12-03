@@ -1,14 +1,12 @@
 @import '@styles/variables.scss';
 
 .wrapper {
-  position: absolute;
-  left: -320px;
   top: 0;
-  width: 300px;
   max-height: 70vh;
   display: flex;
   flex-direction: column;
   z-index: 3;
+  width: 20%;
 }
 
 .versionList {
@@ -56,7 +54,7 @@
 }
 
 .versionDate {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: $silver-faded;
 }
 
@@ -72,4 +70,3 @@
   padding: 20px;
   text-align: center;
 }
-

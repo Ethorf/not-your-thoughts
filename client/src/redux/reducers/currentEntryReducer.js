@@ -425,6 +425,13 @@ const currentEntrySlice = createSlice({
       state.wpm = action.payload
     },
     resetCurrentEntryState: () => initialState,
+    resetJournalEntryDraft: (state) => {
+      return {
+        ...initialState,
+        nodeEntriesInfo: state.nodeEntriesInfo,
+        type: JOURNAL,
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -624,6 +631,7 @@ const currentEntrySlice = createSlice({
 
 export const {
   resetCurrentEntryState,
+  resetJournalEntryDraft,
   setAkas,
   setEntryId,
   setWordCount,

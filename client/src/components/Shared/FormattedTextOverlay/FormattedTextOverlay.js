@@ -27,7 +27,7 @@ const MAIN_TOP_OFFSET = 0
 
 const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
   const [quillEditorScrollTopVal, setQuillEditorScrollTopVal] = useState(0)
-  const [hasScrollbar, setHasScrollbar] = useState(false)
+  const [scrollbarWidth, setScrollbarWidth] = useState(0)
 
   const { connections } = useSelector((state) => state.connections)
   const { content, entryId, title: currentTitle } = useSelector((state) => state.currentEntry)
@@ -91,7 +91,11 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
 
     const update = () => {
       setQuillEditorScrollTopVal(root.scrollTop)
-      setHasScrollbar(root.scrollHeight > root.clientHeight)
+
+      // Calculate scrollbar width by comparing offsetWidth (includes scrollbar) with clientWidth (excludes scrollbar)
+      const hasVerticalScrollbar = root.scrollHeight > root.clientHeight
+      const scrollbarWidthValue = hasVerticalScrollbar ? root.offsetWidth - root.clientWidth : 0
+      setScrollbarWidth(scrollbarWidthValue)
     }
 
     const rafUpdate = () => {
@@ -124,7 +128,7 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
       className={styles.wrapper}
       style={{
         top: `${initialTopValue - quillEditorScrollTopVal}px`,
-        paddingRight: `${hasScrollbar ? 46 + 12 : 46}px`,
+        paddingRight: `${scrollbarWidth}px`,
       }}
     >
       {formattedContent}

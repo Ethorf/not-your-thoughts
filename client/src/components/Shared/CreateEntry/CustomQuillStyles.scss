@@ -85,6 +85,7 @@
 .hiddenText .ql-editor {
   color: transparent;
   color: red;
+  // color: blue;
 
   // Main text Variables
   padding: 0;
@@ -99,6 +100,7 @@
     line-height: $main-text-line-height;
     padding-left: $main-text-padding-left;
     padding-top: 0;
+    // padding-top: 10px;
     padding-bottom: $main-text-padding-bottom;
     padding-right: $main-text-padding-right;
     box-sizing: $main-text-box-sizing;

@@ -16,7 +16,9 @@
   // Main text Variables
   font-size: $main-text-font-size;
   line-height: $main-text-line-height;
-  padding: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 0 !important; // for scrollbar padding-right
+  padding-top: 0 !important;
   margin: 0;
   box-sizing: $main-text-box-sizing;
 

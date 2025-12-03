@@ -87,25 +87,33 @@
   transition: all 0.3s ease;
 }
 
-// External lines - dashed style
+// External lines - dashed style with gradient background
 .externalLine::before {
-  background: repeating-linear-gradient(
-    90deg,
-    rgba(192, 192, 192, 0.8) 0px,
-    rgba(192, 192, 192, 0.8) 2px,
-    transparent 8px,
-    transparent 16px
-  ) !important;
+  background: linear-gradient(
+    rgba(192, 192, 192, 0.1) 0%,
+    rgba(192, 192, 192, 0.2) 30%,
+    rgba(192, 192, 192, 0.6) 45%,
+    rgba(192, 192, 192, 1) 50%,
+    rgba(192, 192, 192, 0.6) 65%,
+    rgba(192, 192, 192, 0.2) 70%,
+    rgba(192, 192, 192, 0.1) 100%
+  );
+  mask-image: repeating-linear-gradient(to right, transparent 0, transparent 8px, black 8px, black 16px);
+  -webkit-mask-image: repeating-linear-gradient(to right, transparent 0, transparent 8px, black 8px, black 16px);
 }
 
 .externalLine:hover::before {
-  background: repeating-linear-gradient(
-    90deg,
-    rgba(192, 192, 192, 1) 0px,
-    rgba(192, 192, 192, 1) 8px,
-    transparent 8px,
-    transparent 16px
-  ) !important;
+  background: linear-gradient(
+    rgba(255, 254, 254, 0.1) 0%,
+    rgba(255, 254, 254, 0.2) 20%,
+    rgba(255, 254, 254, 0.6) 40%,
+    rgb(255, 254, 254) 50%,
+    rgba(255, 254, 254, 0.6) 60%,
+    rgba(255, 254, 254, 0.2) 80%,
+    rgba(255, 254, 254, 0.1) 100%
+  );
+  mask-image: repeating-linear-gradient(to right, transparent 0, transparent 8px, black 8px, black 16px);
+  -webkit-mask-image: repeating-linear-gradient(to right, transparent 0, transparent 8px, black 8px, black 16px);
 }
 
 // Animation for lines appearing

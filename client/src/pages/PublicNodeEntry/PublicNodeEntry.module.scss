@@ -1,12 +1,10 @@
 @import '@styles/variables';
+$content-section-width: 80vw;
 
 .wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .searchSection {
@@ -25,16 +23,27 @@
   max-width: 400px;
   width: 100%;
 }
-
+.contentContainer {
+  position: fixed;
+  top: 15vh;
+  left: 0;
+  right: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: $text-entry-z-index;
+  pointer-events: none;
+}
 .topContainer {
   display: flex;
   align-items: center;
   position: relative;
   justify-content: space-between;
   width: 100%;
-  max-width: 800px;
+  max-width: $content-section-width;
   z-index: $text-entry-z-index;
-  padding-bottom: 16px;
+  padding-bottom: 12px;
 }
 
 .rightButtons {
@@ -78,32 +87,46 @@
   }
 }
 
+.contentContainer > * {
+  pointer-events: auto;
+}
+
 .connectionLinesWrapper {
-  position: relative;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  position: fixed;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: $content-section-width;
+  height: 100vh;
   z-index: 1;
-  background-color: black;
-  flex: 1;
+  pointer-events: none;
+  overflow: visible;
 }
 
 .contentArea {
   position: relative;
-  width: 800px;
-  max-width: 800px;
+  width: $content-section-width;
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
   margin: 0 auto;
+  transition: gap 0.3s ease;
+  transform-origin: top center;
+}
+
+.contentArea.historyExpanded {
+  gap: 10px;
 }
 
 .content {
+  flex: 1 1 100%;
   width: 100%;
-  max-width: 800px;
-  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(70vh - 100px);
   overflow-y: auto;
+  overflow-x: hidden;
   color: silver;
   font-size: 1rem;
-  min-height: 15vh;
   line-height: 1.6;
   word-wrap: break-word;
   border: 1px solid rgba(192, 192, 192, 0.5);
@@ -114,6 +137,12 @@
   z-index: 2;
   box-sizing: border-box;
   cursor: default; // Default cursor for text content
+}
+
+.contentWithHistory {
+  flex: 1 1 1;
+  min-width: 0;
+  width: auto;
 }
 
 .formattedContentWrapper {

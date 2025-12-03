@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react'
+import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { useLocation, useHistory } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import classNames from 'classnames'
@@ -45,6 +45,9 @@ const PublicNodeEntry = () => {
   const [selectedVersionIndex, setSelectedVersionIndex] = useState(null)
   const [status, setStatus] = useState('unread')
   const { entryContents } = useSelector((state) => state.currentEntry)
+  const contentContainerRef = useRef(null)
+  const formattedContentWrapperRef = useRef(null)
+  const [connectionLinesTop, setConnectionLinesTop] = useState(null)
 
   const handleToggleHistory = useCallback(() => {
     setIsHistoryExpanded(!isHistoryExpanded)
@@ -192,6 +195,42 @@ const PublicNodeEntry = () => {
     }
   }, [entryId, entryIdParam, userIdParam, entryContents.length, dispatch])
 
+  // Calculate connection lines center position based on actual formattedContentWrapper height
+  useEffect(() => {
+    const calculateConnectionLinesPosition = () => {
+      // Prefer measuring formattedContentWrapper if it exists, otherwise fall back to contentContainer
+      const elementToMeasure = formattedContentWrapperRef.current || contentContainerRef.current
+
+      if (elementToMeasure) {
+        const rect = elementToMeasure.getBoundingClientRect()
+        const elementHeight = rect.height
+        const elementTop = rect.top
+        const centerTop = elementTop + elementHeight / 2
+        setConnectionLinesTop(centerTop)
+      } else if (contentContainerRef.current) {
+        // Fallback: measure contentContainer if formattedContentWrapper doesn't exist yet
+        const containerRect = contentContainerRef.current.getBoundingClientRect()
+        const containerHeight = containerRect.height
+        const containerTop = containerRect.top
+        const centerTop = containerTop + containerHeight / 2
+        setConnectionLinesTop(centerTop)
+      }
+    }
+
+    // Calculate initially and on window resize/content changes
+    calculateConnectionLinesPosition()
+
+    // Recalculate when content or history changes (with a small delay to allow DOM updates)
+    const timeoutId = setTimeout(calculateConnectionLinesPosition, 100)
+
+    window.addEventListener('resize', calculateConnectionLinesPosition)
+
+    return () => {
+      clearTimeout(timeoutId)
+      window.removeEventListener('resize', calculateConnectionLinesPosition)
+    }
+  }, [content, isHistoryExpanded, displayContent])
+
   const handleExploreNetwork = () => {
     if (entryId && userIdParam) {
       history.push(`/view-network?userId=${userIdParam}&entryId=${entryId}`)
@@ -292,7 +331,7 @@ const PublicNodeEntry = () => {
           collapsible={true}
         />
       </div>
-      <div className={styles.contentContainer}>
+      <div ref={contentContainerRef} className={styles.contentContainer}>
         <div className={styles.topContainer}>
           <DefaultButton
             onClick={handleToggleHistory}
@@ -334,36 +373,42 @@ const PublicNodeEntry = () => {
             </DefaultButton>
           </div>
         </div>
-        <div className={styles.connectionLinesWrapper}>
+        <div
+          className={styles.connectionLinesWrapper}
+          style={connectionLinesTop !== null ? { top: `${connectionLinesTop}px` } : undefined}
+        >
           {!connectionsLoading && (
             <PublicConnectionLines entryId={entryId} userId={userIdParam} connections={connections || []} />
           )}
-          <div className={classNames(styles.contentArea, { [styles.withHistory]: isHistoryExpanded })}>
-            <PublicHistory
-              entryId={entryId}
-              userId={userIdParam}
-              isExpanded={isHistoryExpanded}
-              onVersionSelect={handleVersionSelect}
-            />
-            <div className={styles.content}>
-              {displayContent !== null && selectedVersionIndex !== null ? (
-                <PublicHistoryDiff
-                  currentContent={displayContent}
-                  previousContent={
-                    selectedVersionIndex < filteredEntryContents.length - 1
-                      ? filteredEntryContents[selectedVersionIndex + 1]?.content || ''
-                      : ''
-                  }
-                  selectedVersionIndex={selectedVersionIndex}
-                />
-              ) : parsedContent ? (
-                <div className={classNames(formattedTextStyles.wrapper, styles.formattedContentWrapper)}>
-                  {parsedContent}
-                </div>
-              ) : (
-                'No content yet...'
-              )}
-            </div>
+        </div>
+        <div className={classNames(styles.contentArea, isHistoryExpanded && styles.historyExpanded)}>
+          <PublicHistory
+            entryId={entryId}
+            userId={userIdParam}
+            isExpanded={isHistoryExpanded}
+            onVersionSelect={handleVersionSelect}
+          />
+          <div className={classNames(styles.content, isHistoryExpanded && styles.contentWithHistory)}>
+            {displayContent !== null && selectedVersionIndex !== null ? (
+              <PublicHistoryDiff
+                currentContent={displayContent}
+                previousContent={
+                  selectedVersionIndex < filteredEntryContents.length - 1
+                    ? filteredEntryContents[selectedVersionIndex + 1]?.content || ''
+                    : ''
+                }
+                selectedVersionIndex={selectedVersionIndex}
+              />
+            ) : parsedContent ? (
+              <div
+                ref={formattedContentWrapperRef}
+                className={classNames(formattedTextStyles.wrapper, styles.formattedContentWrapper)}
+              >
+                {parsedContent}
+              </div>
+            ) : (
+              'No content yet...'
+            )}
           </div>
         </div>
       </div>
