@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { useLocation, useHistory } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import classNames from 'classnames'
+import { Modal } from 'react-responsive-modal'
+import 'react-responsive-modal/styles.css'
 import PublicConnectionLines from '@components/Shared/PublicConnectionLines/PublicConnectionLines'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
@@ -48,6 +50,21 @@ const PublicNodeEntry = () => {
   const contentContainerRef = useRef(null)
   const formattedContentWrapperRef = useRef(null)
   const [connectionLinesTop, setConnectionLinesTop] = useState(null)
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Detect mobile viewport (below 680px)
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 680)
+    }
+
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+
+    return () => {
+      window.removeEventListener('resize', checkMobile)
+    }
+  }, [])
 
   const handleToggleHistory = useCallback(() => {
     setIsHistoryExpanded(!isHistoryExpanded)
@@ -311,11 +328,7 @@ const PublicNodeEntry = () => {
   }
 
   if (!entryId || !title) {
-    return (
-      <div className={styles.wrapper}>
-        <div className={styles.error}>Entry not found</div>
-      </div>
-    )
+    return <div className={styles.error}>Entry not found</div>
   }
 
   return (
@@ -333,45 +346,77 @@ const PublicNodeEntry = () => {
       </div>
       <div ref={contentContainerRef} className={styles.contentContainer}>
         <div className={styles.topContainer}>
-          <DefaultButton
-            onClick={handleToggleHistory}
-            className={styles.historyButton}
-            tooltip={'View history'}
-            isSelected={isHistoryExpanded}
-          >
-            History
-          </DefaultButton>
-          <div className={classNames(styles.title, sharedStyles.flexCenter)}>
-            {title || 'Untitled'}
-            {status === 'read' && (
-              <span className={styles.readIndicator} data-tooltip-id="main-tooltip" data-tooltip-content="Read">
-                ✓
-              </span>
-            )}
-            {status === 'updated' && (
-              <span
-                className={classNames(styles.readIndicator, styles.updated)}
-                data-tooltip-id="main-tooltip"
-                data-tooltip-content="Updated"
+          {!isMobile && (
+            <div className={styles.leftButtons}>
+              <DefaultButton
+                onClick={handleToggleHistory}
+                className={styles.historyButton}
+                tooltip={'View history'}
+                isSelected={isHistoryExpanded}
               >
-                ●
-              </span>
-            )}
-          </div>
-          <div className={styles.rightButtons}>
-            {isOwner && (
-              <DefaultButton onClick={handleEditEntry} className={styles.editButton} tooltip="Edit this entry">
-                Edit
+                History
               </DefaultButton>
-            )}
-            <DefaultButton
-              onClick={handleExploreNetwork}
-              className={styles.networkButton}
-              tooltip="Explore this node's network"
-            >
-              Network
-            </DefaultButton>
+            </div>
+          )}
+          <div className={styles.titleContainer}>
+            <div className={classNames(styles.title, sharedStyles.flexCenter)}>
+              {title || 'Untitled'}
+              {status === 'read' && (
+                <span className={styles.readIndicator} data-tooltip-id="main-tooltip" data-tooltip-content="Read">
+                  ✓
+                </span>
+              )}
+              {status === 'updated' && (
+                <span
+                  className={classNames(styles.readIndicator, styles.updated)}
+                  data-tooltip-id="main-tooltip"
+                  data-tooltip-content="Updated"
+                >
+                  ●
+                </span>
+              )}
+            </div>
           </div>
+          {!isMobile && (
+            <div className={styles.rightButtons}>
+              {isOwner && (
+                <DefaultButton onClick={handleEditEntry} className={styles.editButton} tooltip="Edit this entry">
+                  Edit
+                </DefaultButton>
+              )}
+              <DefaultButton
+                onClick={handleExploreNetwork}
+                className={styles.networkButton}
+                tooltip="Explore this node's network"
+              >
+                Network
+              </DefaultButton>
+            </div>
+          )}
+          {isMobile && (
+            <div className={styles.buttonRow}>
+              <DefaultButton
+                onClick={handleToggleHistory}
+                className={styles.historyButton}
+                tooltip={'View history'}
+                isSelected={isHistoryExpanded}
+              >
+                History
+              </DefaultButton>
+              {isOwner && (
+                <DefaultButton onClick={handleEditEntry} className={styles.editButton} tooltip="Edit this entry">
+                  Edit
+                </DefaultButton>
+              )}
+              <DefaultButton
+                onClick={handleExploreNetwork}
+                className={styles.networkButton}
+                tooltip="Explore this node's network"
+              >
+                Network
+              </DefaultButton>
+            </div>
+          )}
         </div>
         <div
           className={styles.connectionLinesWrapper}
@@ -382,13 +427,34 @@ const PublicNodeEntry = () => {
           )}
         </div>
         <div className={classNames(styles.contentArea, isHistoryExpanded && styles.historyExpanded)}>
-          <PublicHistory
-            entryId={entryId}
-            userId={userIdParam}
-            isExpanded={isHistoryExpanded}
-            onVersionSelect={handleVersionSelect}
-          />
-          <div className={classNames(styles.content, isHistoryExpanded && styles.contentWithHistory)}>
+          {!isMobile && (
+            <PublicHistory
+              entryId={entryId}
+              userId={userIdParam}
+              isExpanded={isHistoryExpanded}
+              onVersionSelect={handleVersionSelect}
+            />
+          )}
+          {isMobile && (
+            <Modal
+              open={isHistoryExpanded}
+              onClose={handleToggleHistory}
+              center
+              classNames={{
+                modal: styles.historyModal,
+                overlay: styles.historyModalOverlay,
+                closeButton: styles.historyModalCloseButton,
+              }}
+            >
+              <PublicHistory
+                entryId={entryId}
+                userId={userIdParam}
+                isExpanded={isHistoryExpanded}
+                onVersionSelect={handleVersionSelect}
+              />
+            </Modal>
+          )}
+          <div className={classNames(styles.content, isHistoryExpanded && !isMobile && styles.contentWithHistory)}>
             {displayContent !== null && selectedVersionIndex !== null ? (
               <PublicHistoryDiff
                 currentContent={displayContent}

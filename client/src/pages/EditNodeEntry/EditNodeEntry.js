@@ -123,7 +123,7 @@ const EditNodeEntry = () => {
 
   return (
     <div className={styles.wrapper}>
-      {/* <WritingDataManager entryType={ENTRY_TYPES.NODE} handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} /> */}
+      <WritingDataManager entryType={ENTRY_TYPES.NODE} handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
       <div className={styles.editContainer}>
         <div className={classNames(styles.topContainer, styles.grid3Columns)}>
           <>
