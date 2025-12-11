@@ -82,8 +82,13 @@ const PublicLegend = () => {
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>Browse Networks</h3>
             <p className={styles.text}>
-              Browse all available nodes and network starting point. Click on a node title to view its content, or click
-              "Explore" to see its network of connections.
+              Browse all available nodes and network starting point. - Click on the centre node's title to view its
+              content, or click on any of it's connected nodes to center them see their connections.
+            </p>
+            <p className={styles.highlight}>
+              <strong>Dotted connection lines = external links</strong>
+              <br />
+              <strong>White spheres indicate unread nodes</strong>
             </p>
           </div>
 
@@ -94,16 +99,7 @@ const PublicLegend = () => {
               previous versions of the content.
             </p>
           </div>
-
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Network View</h3>
-            <p className={styles.text}>
-              Visualize the connections between nodes. Click on any sphere to navigate to that node.
-            </p>
-            <p className={styles.highlight}>
-              <strong>White spheres indicate unread nodes</strong> - nodes you haven't read yet.
-            </p>
-          </div>
+          <h3 className={styles.title}>Why are you doing this?</h3>
           <DefaultButton
             onClick={() => history.push('/show-node-entry?userId=4fd36f0e-9159-4561-af4e-e5841994c873&entryId=1435')}
             className={styles.gotItButton}

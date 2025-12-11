@@ -9,20 +9,55 @@ import { setEntryById } from '@redux/reducers/currentEntryReducer'
 
 const { PARENT, CHILD, SIBLING, EXTERNAL } = CONNECTION_TYPES.FRONTEND
 
-const ConnectionLines = ({ entryId }) => {
+const ConnectionLines = ({ entryId, onBeforeNavigate }) => {
   const { connections } = useSelector((state) => state.connections)
   const dispatch = useDispatch()
   const [tooltip, setTooltip] = useState({ visible: false, content: '', x: 0, y: 0 })
 
   const handleConnectionLineClick = async (id) => {
+    // Save current node before navigating to a new one
+    if (onBeforeNavigate) {
+      await onBeforeNavigate()
+    }
     await dispatch(setEntryById(id))
   }
 
-  const handleMouseEnter = useCallback((content) => {
+  // Helper function to extract text from HTML
+  const extractTextFromHTML = (html) => {
+    if (!html) return ''
+    if (typeof html !== 'string') return String(html)
+
+    // Create a temporary DOM element to parse HTML
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = html
+    return tempDiv.textContent || tempDiv.innerText || ''
+  }
+
+  // Map connection types to tooltip prefixes
+  const getConnectionTypePrefix = (type) => {
+    switch (type) {
+      case PARENT:
+        return 'Edit Parent Node: '
+      case CHILD:
+        return 'Edit Child Node: '
+      case SIBLING:
+        return 'Edit Sibling Node: '
+      case EXTERNAL:
+        return 'External Link: '
+      default:
+        return ''
+    }
+  }
+
+  const handleMouseEnter = useCallback((connectionType, content) => {
     return (e) => {
+      const prefix = getConnectionTypePrefix(connectionType)
+      const textContent = extractTextFromHTML(content)
+      const tooltipText = `${prefix}${textContent}`
+
       setTooltip({
         visible: true,
-        content,
+        content: tooltipText,
         x: e.clientX,
         y: e.clientY + 10,
       })
@@ -70,7 +105,7 @@ const ConnectionLines = ({ entryId }) => {
           key={`parent-${parent.id}`}
           onClick={() => handleConnectionLineClick(parent.id)}
           className={styles.connectionLine}
-          onMouseEnter={handleMouseEnter(`Edit Parent Node: ${parent.title}`)}
+          onMouseEnter={handleMouseEnter(PARENT, parent.title)}
           onMouseLeave={handleMouseLeave}
           style={{
             '--line-angle': `${-45 + index * 30}deg`,
@@ -93,7 +128,7 @@ const ConnectionLines = ({ entryId }) => {
             key={`sibling-${sibling.id}`}
             onClick={() => handleConnectionLineClick(sibling.id)}
             className={styles.connectionLine}
-            onMouseEnter={handleMouseEnter(`Edit Sibling Node: ${sibling.title}`)}
+            onMouseEnter={handleMouseEnter(SIBLING, sibling.title)}
             onMouseLeave={handleMouseLeave}
             style={{
               '--line-angle': calculateSiblingAngle(index),
@@ -120,7 +155,7 @@ const ConnectionLines = ({ entryId }) => {
             key={`child-${child.id}`}
             onClick={() => handleConnectionLineClick(child.id)}
             className={styles.connectionLine}
-            onMouseEnter={handleMouseEnter(`Edit Child Node: ${child.title}`)}
+            onMouseEnter={handleMouseEnter(CHILD, child.title)}
             onMouseLeave={handleMouseLeave}
             style={{
               '--line-angle': `${calculateChildAngle(nonZeroIndex)}`,
@@ -138,7 +173,7 @@ const ConnectionLines = ({ entryId }) => {
             window.open(external.url, '_blank')
           }}
           className={`${styles.connectionLine} ${styles.externalLine}`}
-          onMouseEnter={handleMouseEnter(`External Link: ${external.title}`)}
+          onMouseEnter={handleMouseEnter(EXTERNAL, external.title)}
           onMouseLeave={handleMouseLeave}
           style={{
             '--line-angle': `${120 + index * 20}deg`,

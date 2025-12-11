@@ -147,7 +147,6 @@ const CreateEntry = ({ entryType }) => {
         />
         {entriesSaving && !isModalOpen && <div className={styles.savingOverlay} />}
       </div>
-      {/* )} */}
     </div>
   )
 }

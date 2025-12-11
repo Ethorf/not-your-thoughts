@@ -1,28 +1,15 @@
 import React from 'react'
 import classNames from 'classnames'
-import PropTypes from 'prop-types'
 import styles from './DefaultButton.module.scss'
 
 const DefaultButton = React.forwardRef(({ tooltip, className, children, isSelected, ...props }, ref) => {
   return (
-    <button
-      ref={ref}
-      {...props}
-      className={classNames(styles.wrapper, className, { [styles.selected]: isSelected })}
-    >
+    <button ref={ref} {...props} className={classNames(styles.wrapper, className, { [styles.selected]: isSelected })}>
       {children}
     </button>
   )
 })
 
 DefaultButton.displayName = 'DefaultButton'
-
-DefaultButton.propTypes = {
-  onClick: PropTypes.func,
-  children: PropTypes.node.isRequired,
-  className: PropTypes.string,
-  tooltip: PropTypes.string,
-  isSelected: PropTypes.bool,
-}
 
 export default DefaultButton

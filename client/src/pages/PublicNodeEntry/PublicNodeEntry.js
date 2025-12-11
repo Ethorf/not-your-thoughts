@@ -49,7 +49,6 @@ const PublicNodeEntry = () => {
   const { entryContents } = useSelector((state) => state.currentEntry)
   const contentContainerRef = useRef(null)
   const formattedContentWrapperRef = useRef(null)
-  const [connectionLinesTop, setConnectionLinesTop] = useState(null)
   const [isMobile, setIsMobile] = useState(false)
 
   // Detect mobile viewport (below 680px)
@@ -211,42 +210,6 @@ const PublicNodeEntry = () => {
       })
     }
   }, [entryId, entryIdParam, userIdParam, entryContents.length, dispatch])
-
-  // Calculate connection lines center position based on actual formattedContentWrapper height
-  useEffect(() => {
-    const calculateConnectionLinesPosition = () => {
-      // Prefer measuring formattedContentWrapper if it exists, otherwise fall back to contentContainer
-      const elementToMeasure = formattedContentWrapperRef.current || contentContainerRef.current
-
-      if (elementToMeasure) {
-        const rect = elementToMeasure.getBoundingClientRect()
-        const elementHeight = rect.height
-        const elementTop = rect.top
-        const centerTop = elementTop + elementHeight / 2
-        setConnectionLinesTop(centerTop)
-      } else if (contentContainerRef.current) {
-        // Fallback: measure contentContainer if formattedContentWrapper doesn't exist yet
-        const containerRect = contentContainerRef.current.getBoundingClientRect()
-        const containerHeight = containerRect.height
-        const containerTop = containerRect.top
-        const centerTop = containerTop + containerHeight / 2
-        setConnectionLinesTop(centerTop)
-      }
-    }
-
-    // Calculate initially and on window resize/content changes
-    calculateConnectionLinesPosition()
-
-    // Recalculate when content or history changes (with a small delay to allow DOM updates)
-    const timeoutId = setTimeout(calculateConnectionLinesPosition, 100)
-
-    window.addEventListener('resize', calculateConnectionLinesPosition)
-
-    return () => {
-      clearTimeout(timeoutId)
-      window.removeEventListener('resize', calculateConnectionLinesPosition)
-    }
-  }, [content, isHistoryExpanded, displayContent])
 
   const handleExploreNetwork = () => {
     if (entryId && userIdParam) {
@@ -418,10 +381,7 @@ const PublicNodeEntry = () => {
             </div>
           )}
         </div>
-        <div
-          className={styles.connectionLinesWrapper}
-          style={connectionLinesTop !== null ? { top: `${connectionLinesTop}px` } : undefined}
-        >
+        <div className={styles.connectionLinesWrapper}>
           {!connectionsLoading && (
             <PublicConnectionLines entryId={entryId} userId={userIdParam} connections={connections || []} />
           )}

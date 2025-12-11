@@ -31,7 +31,7 @@ $content-section-width: 80vw;
 }
 .contentContainer {
   position: fixed;
-  top: 15vh;
+  top: 84px;
   left: 0;
   right: 0;
   width: 100%;
@@ -84,7 +84,7 @@ $content-section-width: 80vw;
 }
 
 .title {
-  font-size: 1.8rem;
+  font-size: 2rem;
   text-transform: uppercase;
   background-color: black;
   padding: 8px 16px;
@@ -111,11 +111,12 @@ $content-section-width: 80vw;
 
 .connectionLinesWrapper {
   position: fixed;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: $content-section-width;
   height: 100vh;
-  z-index: 1;
+  z-index: $connection-lines-z-index;
   pointer-events: none;
   overflow: visible;
 }
@@ -259,8 +260,8 @@ $content-section-width: 80vw;
 
   .connectionLinesWrapper {
     width: 100vw;
-    left: 0;
-    transform: translateY(-50%);
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 
   .contentArea {

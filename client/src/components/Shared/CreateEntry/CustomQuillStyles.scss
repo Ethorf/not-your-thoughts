@@ -105,6 +105,8 @@
     transition: all 1s;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    word-break: normal;
+    hyphens: none;
   }
 
   li {
@@ -116,7 +118,6 @@
       position: absolute;
       left: $main-text-padding-left;
       width: auto;
-      // white-space: nowrap;
     }
   }
 
