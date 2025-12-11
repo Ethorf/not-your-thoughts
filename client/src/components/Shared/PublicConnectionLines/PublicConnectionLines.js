@@ -17,11 +17,42 @@ const PublicConnectionLines = ({ entryId, userId, connections = [] }) => {
     }
   }
 
-  const handleMouseEnter = useCallback((content) => {
+  // Helper function to extract text from HTML
+  const extractTextFromHTML = (html) => {
+    if (!html) return ''
+    if (typeof html !== 'string') return String(html)
+
+    // Create a temporary DOM element to parse HTML
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = html
+    return tempDiv.textContent || tempDiv.innerText || ''
+  }
+
+  // Map connection types to tooltip prefixes
+  const getConnectionTypePrefix = (type) => {
+    switch (type) {
+      case PARENT:
+        return 'View Parent Node: '
+      case CHILD:
+        return 'View Child Node: '
+      case SIBLING:
+        return 'View Sibling Node: '
+      case EXTERNAL:
+        return 'External Link: '
+      default:
+        return ''
+    }
+  }
+
+  const handleMouseEnter = useCallback((connectionType, content) => {
     return (e) => {
+      const prefix = getConnectionTypePrefix(connectionType)
+      const textContent = extractTextFromHTML(content)
+      const tooltipText = `${prefix}${textContent}`
+
       setTooltip({
         visible: true,
-        content,
+        content: tooltipText,
         x: e.clientX,
         y: e.clientY + 10,
       })
@@ -41,11 +72,12 @@ const PublicConnectionLines = ({ entryId, userId, connections = [] }) => {
     const grouped = connections.reduce((acc, conn) => {
       const transformed = transformConnection(entryId, conn)
       const type = transformed.connection_type || conn.connection_type
+      const url = conn.foreign_source
 
       if (!acc[type]) {
         acc[type] = []
       }
-      acc[type].push(transformed)
+      acc[type].push({ ...transformed, url })
       return acc
     }, {})
 
@@ -71,7 +103,7 @@ const PublicConnectionLines = ({ entryId, userId, connections = [] }) => {
           key={`parent-${parent.id}`}
           onClick={() => handleConnectionLineClick(parent.id)}
           className={styles.connectionLine}
-          onMouseEnter={handleMouseEnter(`View Parent Node: ${parent.title}`)}
+          onMouseEnter={handleMouseEnter(PARENT, parent.title)}
           onMouseLeave={handleMouseLeave}
           style={{
             '--line-angle': `${-45 + index * 30}deg`,
@@ -94,7 +126,7 @@ const PublicConnectionLines = ({ entryId, userId, connections = [] }) => {
             key={`sibling-${sibling.id}`}
             onClick={() => handleConnectionLineClick(sibling.id)}
             className={styles.connectionLine}
-            onMouseEnter={handleMouseEnter(`View Sibling Node: ${sibling.title}`)}
+            onMouseEnter={handleMouseEnter(SIBLING, sibling.title)}
             onMouseLeave={handleMouseLeave}
             style={{
               '--line-angle': calculateSiblingAngle(index),
@@ -121,7 +153,7 @@ const PublicConnectionLines = ({ entryId, userId, connections = [] }) => {
             key={`child-${child.id}`}
             onClick={() => handleConnectionLineClick(child.id)}
             className={styles.connectionLine}
-            onMouseEnter={handleMouseEnter(`View Child Node: ${child.title}`)}
+            onMouseEnter={handleMouseEnter(CHILD, child.title)}
             onMouseLeave={handleMouseLeave}
             style={{
               '--line-angle': `${calculateChildAngle(nonZeroIndex)}`,
@@ -136,7 +168,7 @@ const PublicConnectionLines = ({ entryId, userId, connections = [] }) => {
         <div
           key={`external-${external.id}`}
           className={`${styles.connectionLine} ${styles.externalLine}`}
-          onMouseEnter={handleMouseEnter(`External Link: ${external.title}`)}
+          onMouseEnter={handleMouseEnter(EXTERNAL, external.title)}
           onMouseLeave={handleMouseLeave}
           onClick={() => {
             if (external.url) {
@@ -170,4 +202,3 @@ const PublicConnectionLines = ({ entryId, userId, connections = [] }) => {
 }
 
 export default PublicConnectionLines
-

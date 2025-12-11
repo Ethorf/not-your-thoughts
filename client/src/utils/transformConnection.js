@@ -4,7 +4,11 @@ export const transformConnection = (currentEntryId, conn) => {
   if (!conn) return { title: 'Unknown', id: null }
 
   if (conn.connection_type === CONNECTION_TYPES.FRONTEND.EXTERNAL) {
-    return { title: conn.primary_source || 'External Link', id: conn.primary_entry_id || null }
+    return {
+      title: conn.primary_source || 'External Link',
+      id: conn.primary_entry_id || null,
+      url: conn.foreign_source,
+    }
   }
 
   return currentEntryId === conn.foreign_entry_id

@@ -34,7 +34,7 @@ const SphereWithEffects = ({
   const getTooltipText = useCallback(
     (title) => {
       if (!conn) {
-        return `Edit ${title}`
+        return `View ${title}`
       }
       return conn.connection_type === EXTERNAL ? `Follow ${title} link` : `Explore ${title}'s connections`
     },

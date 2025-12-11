@@ -28,6 +28,11 @@
     height: 8%;
     font-size: 1.3rem;
     margin-bottom: 10%;
+    pointer-events: none; // Allow clicks to pass through when closed
+  }
+
+  &__open {
+    pointer-events: auto; // Re-enable pointer events when open
   }
   &__top-container {
     width: 100vw;
@@ -43,6 +48,7 @@
     background-color: transparent;
     border: none;
     outline: none;
+    pointer-events: auto; // Arrow button should always be clickable
   }
   &__arrow-closed {
     transition: 1s all;

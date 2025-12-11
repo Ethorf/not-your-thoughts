@@ -8,7 +8,7 @@ import styles from './CreateJournalEntry.module.scss'
 
 //Redux Function Import
 import { fetchJournalConfig } from '@redux/reducers/journalEntriesReducer.js'
-import { saveJournalEntry } from '@redux/reducers/currentEntryReducer'
+import { resetJournalEntryDraft, saveJournalEntry } from '@redux/reducers/currentEntryReducer'
 import { openModal } from '@redux/reducers/modalsReducer.js'
 
 //Component Imports
@@ -43,6 +43,10 @@ const CreateJournalEntry = () => {
   const handleSaveJournal = async () => {
     await dispatch(saveJournalEntry({ content, wordCount, entryId, wpm, timeElapsed }))
   }
+
+  useEffect(() => {
+    dispatch(resetJournalEntryDraft())
+  }, [dispatch])
 
   useEffect(() => {
     dispatch(fetchJournalConfig())

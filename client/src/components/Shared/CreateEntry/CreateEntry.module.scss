@@ -36,6 +36,18 @@
   width: 100%;
 }
 
+.savingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: $text-entry-z-index + 5; // Above editor but below modals (modals use 10-66)
+  pointer-events: all; // Block all interactions
+  background-color: rgba(0, 0, 0, 0.3); // Invisible overlay
+  cursor: wait;
+}
+
 .journalWrapper {
   padding-top: 8px;
 }

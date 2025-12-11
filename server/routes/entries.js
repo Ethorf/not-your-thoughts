@@ -748,68 +748,37 @@ function calculateCharacterDifference(str1, str2) {
 }
 
 // Helper function to filter contents based on uniqueness threshold
+// Optimized to compare each version with the previous one (O(n)) instead of all previous unique contents (O(n²))
 function filterUniqueContents(contents, threshold) {
   if (contents.length === 0) return contents
 
   const uniqueContents = [contents[0]] // Always include the first (most recent) content
 
+  // Compare each version with the previous one (simpler and faster than comparing with all previous unique contents)
   for (let i = 1; i < contents.length; i++) {
     const currentContent = contents[i]
-    let isUnique = true
+    const previousContent = contents[i - 1]
 
-    // Check if current content is sufficiently different from all previously selected unique contents
-    for (const uniqueContent of uniqueContents) {
-      const difference = calculateCharacterDifference(currentContent.content, uniqueContent.content)
-      if (difference < threshold) {
-        isUnique = false
-        break
-      }
-    }
+    const difference = calculateCharacterDifference(currentContent.content, previousContent.content)
 
-    if (isUnique) {
+    if (difference >= threshold) {
       uniqueContents.push(currentContent)
     }
   }
 
-  // Filter out any remaining exact duplicates (0 character difference)
-  const finalContents = []
-  for (let i = 0; i < uniqueContents.length; i++) {
+  // Filter out exact duplicates (0 character difference) - simplified to O(n) comparison with previous only
+  const finalContents = [uniqueContents[0]] // Always include the first (most recent) version
+  for (let i = 1; i < uniqueContents.length; i++) {
     const currentContent = uniqueContents[i]
-    let isExactDuplicate = false
+    const previousContent = uniqueContents[i - 1]
 
-    // Check if this content is an exact duplicate of any previous content
-    for (let j = 0; j < finalContents.length; j++) {
-      if (currentContent.content === finalContents[j].content) {
-        isExactDuplicate = true
-        break
-      }
-    }
-
-    if (!isExactDuplicate) {
+    // Only check if it's an exact duplicate of the previous version (simple string comparison)
+    if (currentContent.content !== previousContent.content) {
       finalContents.push(currentContent)
     }
   }
 
-  // Final pass: remove any versions that have no meaningful changes from the previous version
-  const meaningfulContents = []
-  for (let i = 0; i < finalContents.length; i++) {
-    const currentContent = finalContents[i]
-
-    if (i === 0) {
-      // Always include the first (most recent) version
-      meaningfulContents.push(currentContent)
-    } else {
-      // Check if this version has meaningful changes from the previous one
-      const previousContent = finalContents[i - 1]
-      const difference = calculateCharacterDifference(currentContent.content, previousContent.content)
-
-      if (difference >= threshold) {
-        meaningfulContents.push(currentContent)
-      }
-    }
-  }
-
-  return meaningfulContents
+  return finalContents
 }
 
 // POST /entries/batch_create

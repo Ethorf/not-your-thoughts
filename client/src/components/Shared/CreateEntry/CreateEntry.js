@@ -7,7 +7,6 @@ import Delta from 'quill-delta'
 
 // Components
 import TextButton from '@components/Shared/TextButton/TextButton'
-import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import FormattedTextOverlay from '@components/Shared/FormattedTextOverlay/FormattedTextOverlay'
 
 // Redux
@@ -25,10 +24,13 @@ const CreateEntry = ({ entryType }) => {
   const dispatch = useDispatch()
   const quillRef = useRef(null)
 
-  const { content, entriesLoading, entryId } = useSelector((state) => state.currentEntry)
+  const { content, entryId, entriesSaving } = useSelector((state) => state.currentEntry)
   const { sidebarOpen } = useSelector((state) => state.sidebar)
+  const { isOpen: isModalOpen } = useSelector((state) => state.modals)
 
   const [toolbarVisible, setToolbarVisible] = useState(false)
+  const [localContent, setLocalContent] = useState(content || '')
+  const lastEntryIdRef = useRef(entryId)
 
   const setTotalWordCount = useCallback(() => {
     const totalWords = calculateWordCount(content)
@@ -42,9 +44,25 @@ const CreateEntry = ({ entryType }) => {
   }, [content, dispatch])
 
   const handleContentChange = (e) => {
+    setLocalContent(e)
     dispatch(setContent(e))
     setTotalWordCount()
   }
+
+  // Only sync local content from Redux when entryId changes (loading a new entry)
+  // or when content first loads for the current entry
+  useEffect(() => {
+    if (entryId !== lastEntryIdRef.current) {
+      // Entry changed - update local content
+      if (content) {
+        setLocalContent(content)
+      }
+      lastEntryIdRef.current = entryId
+    } else if (entryId && content && !localContent) {
+      // Same entry, but content loaded for the first time
+      setLocalContent(content)
+    }
+  }, [entryId, content, localContent])
 
   useEffect(() => {
     setTotalWordCount()
@@ -110,27 +128,25 @@ const CreateEntry = ({ entryType }) => {
           {toolbarVisible ? 'X' : '+'}
         </TextButton>
       )}
-      {entriesLoading ? (
-        <SmallSpinner />
-      ) : (
-        <div className={styles.editorContainer}>
-          {entryType === NODE ? <FormattedTextOverlay quillRef={quillRef} toolbarVisible={toolbarVisible} /> : null}
-          <ReactQuill
-            className={`textArea ${
-              entryType === JOURNAL
-                ? 'noScroll visibleText toolbar-hidden'
-                : toolbarVisible
-                ? 'toolbar-visible hiddenText'
-                : 'toolbar-hidden hiddenText'
-            }`}
-            modules={toolBarModules}
-            placeholder={PLACEHOLDER_COPY[entryType]}
-            value={content}
-            onChange={handleContentChange}
-            ref={quillRef}
-          />
-        </div>
-      )}
+      <div className={styles.editorContainer}>
+        {entryType === NODE ? <FormattedTextOverlay quillRef={quillRef} toolbarVisible={toolbarVisible} /> : null}
+        <ReactQuill
+          className={`textArea ${
+            entryType === JOURNAL
+              ? 'noScroll visibleText toolbar-hidden'
+              : toolbarVisible
+              ? 'toolbar-visible hiddenText'
+              : 'toolbar-hidden hiddenText'
+          }`}
+          modules={toolBarModules}
+          placeholder={PLACEHOLDER_COPY[entryType]}
+          value={localContent}
+          onChange={handleContentChange}
+          ref={quillRef}
+          readOnly={entriesSaving}
+        />
+        {entriesSaving && !isModalOpen && <div className={styles.savingOverlay} />}
+      </div>
     </div>
   )
 }

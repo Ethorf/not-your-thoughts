@@ -95,7 +95,7 @@ const LeftMainNavigation = () => {
           navLink
           onClick={() => history.push('/public-dashboard?userId=4fd36f0e-9159-4561-af4e-e5841994c873')}
         >
-          Browse {user && 'Public'} Networks
+          {user ? 'Public View' : 'Browse Networks'}
         </TextButton>
         {!guestMode && user && (
           <>
@@ -176,4 +176,3 @@ const LeftMainNavigation = () => {
 }
 
 export default LeftMainNavigation
-

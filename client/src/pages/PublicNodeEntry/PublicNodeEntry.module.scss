@@ -1,13 +1,11 @@
 @import '@styles/variables';
+@import '@styles/mixins';
+$content-section-width: 80vw;
 
 .wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding-top: 60px;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .searchSection {
@@ -20,22 +18,50 @@
   display: flex;
   justify-content: center;
   z-index: 1000;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
 }
 
 .searchComponent {
   max-width: 400px;
   width: 100%;
 }
-
+.contentContainer {
+  position: fixed;
+  top: 84px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: $text-entry-z-index;
+  pointer-events: none;
+}
 .topContainer {
   display: flex;
   align-items: center;
   position: relative;
   justify-content: space-between;
   width: 100%;
-  max-width: 800px;
+  max-width: $content-section-width;
   z-index: $text-entry-z-index;
-  padding-bottom: 16px;
+  padding-bottom: 12px;
+}
+
+.leftButtons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.titleContainer {
+  flex: 1;
+  display: flex;
+  justify-content: center;
 }
 
 .rightButtons {
@@ -58,7 +84,7 @@
 }
 
 .title {
-  font-size: 1.8rem;
+  font-size: 2rem;
   text-transform: uppercase;
   background-color: black;
   padding: 8px 16px;
@@ -79,32 +105,47 @@
   }
 }
 
+.contentContainer > * {
+  pointer-events: auto;
+}
+
 .connectionLinesWrapper {
-  position: relative;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  z-index: 1;
-  background-color: black;
-  flex: 1;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: $content-section-width;
+  height: 100vh;
+  z-index: $connection-lines-z-index;
+  pointer-events: none;
+  overflow: visible;
 }
 
 .contentArea {
   position: relative;
-  width: 800px;
-  max-width: 800px;
+  width: $content-section-width;
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
   margin: 0 auto;
+  transition: gap 0.3s ease;
+  transform-origin: top center;
+}
+
+.contentArea.historyExpanded {
+  gap: 10px;
 }
 
 .content {
+  flex: 1 1 100%;
   width: 100%;
-  max-width: 800px;
-  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(80vh - 100px);
   overflow-y: auto;
+  overflow-x: hidden;
   color: silver;
   font-size: 1rem;
-  min-height: 15vh;
   line-height: 1.6;
   word-wrap: break-word;
   border: 1px solid rgba(192, 192, 192, 0.5);
@@ -114,12 +155,32 @@
   background-color: black;
   z-index: 2;
   box-sizing: border-box;
-  margin-bottom: 100px;
+  cursor: default; // Default cursor for text content
+}
+
+.contentWithHistory {
+  flex: 1 1 1;
+  min-width: 0;
+  width: auto;
 }
 
 .formattedContentWrapper {
   position: relative !important;
   pointer-events: auto;
+  cursor: default; // Default cursor, only links will have pointer
+
+  // Ensure only clickable connections have pointer cursor
+  p,
+  li,
+  ul,
+  ol,
+  strong,
+  em,
+  u,
+  s,
+  del {
+    cursor: default;
+  }
 }
 
 .grid3Columns {
@@ -139,4 +200,131 @@
 
 .error {
   color: #ff6b6b;
+}
+
+// Mobile responsive styles (max-width: 680px)
+@media (max-width: 680px) {
+  .searchSection {
+    max-width: 90vw;
+    padding: 0 10px;
+    top: 10px;
+  }
+
+  .searchComponent {
+    max-width: 100%;
+  }
+
+  .contentContainer {
+    top: 0;
+    align-items: stretch;
+    margin-bottom: 100px;
+  }
+
+  .topContainer {
+    max-width: 100vw;
+    width: 100%;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+    align-items: stretch;
+  }
+
+  .titleContainer {
+    width: 100%;
+    order: 1;
+  }
+
+  .title {
+    font-size: 1.5rem;
+    width: 100%;
+    padding: 6px 12px;
+    text-align: center;
+    margin-top: 72px;
+  }
+
+  .buttonRow {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    order: 2;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .historyButton,
+  .editButton,
+  .networkButton {
+    font-size: 0.7rem;
+    min-width: 80px;
+  }
+
+  .connectionLinesWrapper {
+    width: 100vw;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .contentArea {
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  .content {
+    width: 100%;
+    max-width: 100%;
+    padding: 16px 12px 100px 12px;
+    font-size: 0.9rem;
+    max-height: calc(100vh - 120px);
+    border: none;
+    border-radius: 0;
+  }
+
+  .contentWithHistory {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .formattedContentWrapper {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+
+    p {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+
+    li {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  }
+}
+
+.historyModal {
+  background: black;
+  border: 1px solid rgba(192, 192, 192, 0.5);
+  border-radius: 8px;
+  color: rgba(192, 192, 192, 0.7);
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  max-width: 95vw;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.historyModalOverlay {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.historyModalCloseButton {
+  fill: rgba(192, 192, 192, 0.7);
+  transition: all 250ms ease-in-out;
+  z-index: 1001;
+
+  &:hover {
+    fill: rgba(192, 192, 192, 1);
+  }
 }

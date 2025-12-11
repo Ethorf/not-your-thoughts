@@ -135,7 +135,7 @@ const PublicConnectionSpheres = ({
                   title={transformed.title}
                   size={size * 0.7}
                   conn={sub}
-                  onClick={() => handleConnectionSphereClick(transformed.id, conn)}
+                  onClick={() => handleConnectionSphereClick(sub)}
                   rotation={rotation}
                   nodeStatus={subNodeStatus}
                 />

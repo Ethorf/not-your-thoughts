@@ -13,10 +13,12 @@
   height: 100%;
   font-size: 1.3rem;
   z-index: 10;
+  pointer-events: none; // Allow clicks to pass through when closed
 
   &.sidebarOpen {
     left: 0;
     visibility: visible;
+    pointer-events: auto; // Re-enable pointer events when open
   }
 }
 
@@ -25,6 +27,7 @@
   background-color: transparent;
   border: none;
   outline: none;
+  pointer-events: auto; // Arrow button should always be clickable
 }
 
 .arrow {

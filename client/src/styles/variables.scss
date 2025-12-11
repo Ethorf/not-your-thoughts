@@ -12,7 +12,8 @@ $silver-faded: rgba(192, 192, 192, 0.5);
 $pillars-z-index: 4;
 $text-entry-z-index: $pillars-z-index + 1;
 $sidebar-z-index: $pillars-z-index + 2;
-
+$connection-lines-z-index: 1;
+$buttons-z-index: 2;
 // Borders
 $silver-border-default: 1px solid rgba(192, 192, 192, 0.5);
 $silver-border-active: 1px solid rgba(192, 192, 192, 0.5);
@@ -28,7 +29,7 @@ $default-transition: all 250ms ease-in-out;
 
 // Main Text and overlay Variables
 $main-text-font-size: 19px;
-$main-text-line-height: 20px;
+$main-text-line-height: 24px;
 $main-text-padding-left: 26px;
 $main-text-padding-bottom: 26px;
 $main-text-padding-right: 46px;

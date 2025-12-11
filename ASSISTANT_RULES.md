@@ -105,6 +105,11 @@
 - [ ] Remove unused class definitions
 - [ ] Check for unused variable declarations
 - [ ] Verify all imported mixins are used
+- [ ] **NEVER add duplicate CSS rules** - always check if a rule already exists before adding it
+- [ ] **Check for existing selectors** before adding new ones (e.g., if `.li` already exists, don't add it again)
+- [ ] **Merge properties** into existing selectors instead of creating duplicates
+- [ ] **Review the entire file** before adding new CSS rules to ensure no duplicates
+- [ ] **If modifying styles, update existing rules** rather than adding duplicate selectors
 
 ### **General:**
 

@@ -252,11 +252,27 @@ const ViewNetwork = () => {
     }
   }
 
-  const handleConnectionSphereClick = (id, conn) => {
-    if (conn.connection_type === EXTERNAL) {
-      window.open(conn.foreign_source, '_blank')
-    } else if (userId) {
-      history.push(`/view-network?userId=${userId}&entryId=${id}`)
+  const handleConnectionSphereClick = (connection) => {
+    if (!connection) {
+      return
+    }
+
+    if (connection.connection_type === EXTERNAL) {
+      if (connection.foreign_source) {
+        window.open(connection.foreign_source, '_blank')
+      }
+      return
+    }
+
+    if (!entryData?.id || !userId) {
+      return
+    }
+
+    const targetNode = transformConnection(entryData.id, connection)
+    if (targetNode?.id) {
+      history.push(`/view-network?userId=${userId}&entryId=${targetNode.id}`)
+    } else {
+      console.warn('Unable to determine target node for connection:', connection)
     }
   }
 
@@ -425,7 +441,7 @@ const ViewNetwork = () => {
                         title={transformed.title || 'Untitled'}
                         size={sphereSize}
                         conn={conn}
-                        onClick={() => handleConnectionSphereClick(transformed.id, conn)}
+                        onClick={() => handleConnectionSphereClick(conn)}
                         rotation={[vRotation, hRotation, 0]}
                         nodeStatus={nodeStatus}
                       />

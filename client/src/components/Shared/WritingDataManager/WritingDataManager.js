@@ -76,7 +76,7 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
       clearTimeout(timeoutRef.current)
       timeoutRef.current = setTimeout(() => {
         stopTimerRef.current(true)
-      }, 10000)
+      }, 20000)
     }
 
     window.addEventListener('keydown', handleKeyPress)
