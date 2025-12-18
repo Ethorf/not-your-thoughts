@@ -86,6 +86,21 @@ html {
   background-color: black;
 }
 
+// iPhone safe area bottom padding for mobile
+@import '@styles/mixins.scss';
+
+@include mobile-small-only() {
+  .App {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@include mobile-only {
+  .App {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
 // .page {
 //   position: absolute;
 //   left: 15px;

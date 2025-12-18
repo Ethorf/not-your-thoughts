@@ -13,6 +13,7 @@ import PublicLegend from '@components/Shared/PublicLegend/PublicLegend'
 
 // Utils
 import { checkAndUpdateNodeStatuses } from '@utils/nodeReadStatus'
+import { resolvePublicUserId } from '@utils/resolvePublicUserId'
 
 const PublicDashboard = () => {
   const location = useLocation()
@@ -33,7 +34,8 @@ const PublicDashboard = () => {
     const fetchNodes = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/entries/public/node_entries_info/${userId}`)
+        const resolvedUserId = resolvePublicUserId(userId)
+        const response = await fetch(`/api/entries/public/node_entries_info/${resolvedUserId}`)
         if (!response.ok) {
           throw new Error('Failed to fetch nodes')
         }
@@ -76,7 +78,7 @@ const PublicDashboard = () => {
   return (
     <div className={classNames(styles.wrapper, sharedStyles.flexColumnCenter)}>
       <PublicLegend />
-      <h1>Eric Thorfinnson's Nodes</h1>
+      <h1 className={styles.title}>Eric Thorfinnson's Nodes</h1>
       <div className={styles.nodesSection}>
         <PublicNodesDashboardList nodeEntriesInfo={nodeEntriesInfo} userId={userId} />
       </div>

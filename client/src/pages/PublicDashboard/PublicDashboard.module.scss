@@ -33,3 +33,17 @@ h1 {
 .error {
   color: #ff6b6b;
 }
+
+@media (max-width: 680px) {
+  .nodesSection {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 0 20px; // Add padding to prevent edge cutoff
+    box-sizing: border-box;
+  }
+  .title {
+    font-size: 1.1rem;
+    margin-top: 80px;
+  }
+}

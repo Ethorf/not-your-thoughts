@@ -9,7 +9,6 @@
   display: flex;
   flex-direction: column;
   font-family: 'Poppins', sans-serif;
-  width: auto;
   height: 100%;
   font-size: 1.3rem;
   z-index: 10;
@@ -36,8 +35,8 @@
   opacity: 1;
   outline: none;
   height: 30px;
-  width: 30px;
-  left: -55px;
+  position: relative;
+  left: 28px;
   transition: all 1.5s;
   transform: rotate(0deg);
 
@@ -64,10 +63,10 @@
   align-items: flex-start;
   opacity: 0;
   transition: all 1s ease-in-out;
-  width: 100%;
-  padding: 10px;
+  width: 180px;
+  padding-left: 12px;
   max-height: 85vh;
-  background: transparent;
+  background: black;
   visibility: hidden;
   pointer-events: none;
 
@@ -84,7 +83,7 @@
   color: silver;
   transition: all 0.7s;
   margin-bottom: 4px;
-  width: 200px;
+  width: 100px;
   text-align: left;
   font-size: 20px;
   margin-left: 0;
@@ -115,7 +114,6 @@
 }
 
 .logoutButton {
-  width: 200%;
   color: silver;
   border: none;
   background-color: transparent;
@@ -132,7 +130,6 @@
 }
 
 .logoutButtonLight {
-  width: 200%;
   color: black;
   border: none;
   background-color: transparent;
@@ -148,4 +145,3 @@
     text-shadow: 1px 1px 1px black;
   }
 }
-

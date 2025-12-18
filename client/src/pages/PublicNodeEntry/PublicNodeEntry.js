@@ -1,20 +1,21 @@
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { useLocation, useHistory } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 import classNames from 'classnames'
-import { Modal } from 'react-responsive-modal'
-import 'react-responsive-modal/styles.css'
 import PublicConnectionLines from '@components/Shared/PublicConnectionLines/PublicConnectionLines'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import PublicHistory from '@components/Shared/PublicHistory/PublicHistory'
+import PublicHistoryModal from '@components/Shared/PublicHistoryModal/PublicHistoryModal'
+import PublicConnectionsModal from '@components/Shared/PublicConnectionsModal/PublicConnectionsModal'
 import PublicHistoryDiff from '@components/Shared/PublicHistoryDiff/PublicHistoryDiff'
 import PublicLegend from '@components/Shared/PublicLegend/PublicLegend'
 import PublicNodeSearch from '@components/Shared/PublicNodeSearch/PublicNodeSearch'
+import PublicFormattedContent from '@components/Shared/PublicFormattedContent/PublicFormattedContent'
 import { markNodeAsRead, getNodeStatus } from '@utils/nodeReadStatus'
-import { createFormatRules, formatContentWithConnections } from '@utils/formatContentWithConnections'
+import useFilteredEntryContents from '@hooks/useFilteredEntryContents'
+import useIsMobile from '@hooks/useIsMobile'
 import styles from './PublicNodeEntry.module.scss'
-import formattedTextStyles from '@components/Shared/FormattedTextOverlay/FormattedTextOverlay.module.scss'
 
 // Redux
 import {
@@ -32,9 +33,17 @@ const PublicNodeEntry = () => {
   const dispatch = useDispatch()
   const params = useMemo(() => new URLSearchParams(location.search), [location.search])
 
-  const { entryId, title, content, entriesLoading, nodeEntriesInfo } = useSelector((state) => state.currentEntry)
-  const { connections, connectionsLoading } = useSelector((state) => state.connections)
-  const { user, isAuthenticated } = useSelector((state) => state.auth)
+  // Split selectors for better memoization - only re-render when specific fields change
+  const entryId = useSelector((state) => state.currentEntry.entryId)
+  const title = useSelector((state) => state.currentEntry.title)
+  const content = useSelector((state) => state.currentEntry.content)
+  const entriesLoading = useSelector((state) => state.currentEntry.entriesLoading)
+  const entryContentsLoading = useSelector((state) => state.currentEntry.entryContentsLoading)
+  const nodeEntriesInfo = useSelector((state) => state.currentEntry.nodeEntriesInfo, shallowEqual)
+  const entryContents = useSelector((state) => state.currentEntry.entryContents, shallowEqual)
+  const { connections, connectionsLoading } = useSelector((state) => state.connections, shallowEqual)
+  const user = useSelector((state) => state.auth.user)
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated)
 
   const entryIdParam = params.get('entryId')
   const userIdParam = params.get('userId')
@@ -43,135 +52,84 @@ const PublicNodeEntry = () => {
   const isOwner = isAuthenticated && user?.id === userIdParam
 
   const [isHistoryExpanded, setIsHistoryExpanded] = useState(false)
+  const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false)
   const [displayContent, setDisplayContent] = useState(null)
   const [selectedVersionIndex, setSelectedVersionIndex] = useState(null)
   const [status, setStatus] = useState('unread')
-  const { entryContents } = useSelector((state) => state.currentEntry)
-  const contentContainerRef = useRef(null)
+  const isMobile = useIsMobile()
   const formattedContentWrapperRef = useRef(null)
-  const [isMobile, setIsMobile] = useState(false)
+  const centerIndicatorRef = useRef(null)
+  const hasFetchedNodeEntriesRef = useRef(false)
+  const lastEntryIdParamRef = useRef(null)
+  const lastUserIdParamRef = useRef(null)
 
-  // Detect mobile viewport (below 680px)
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 680)
-    }
-
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-
-    return () => {
-      window.removeEventListener('resize', checkMobile)
-    }
-  }, [])
-
-  const handleToggleHistory = useCallback(() => {
-    setIsHistoryExpanded(!isHistoryExpanded)
-    if (isHistoryExpanded) {
-      // Reset to current content when closing history
-      setDisplayContent(null)
-      setSelectedVersionIndex(null)
-    }
-  }, [isHistoryExpanded])
-
-  // Get filtered contents to properly find previous version for diff
-  const filteredEntryContents = useMemo(() => {
-    if (entryContents.length === 0) return []
-
-    const stripHtml = (html) => {
-      if (!html || typeof html !== 'string') return ''
-      const temp = document.createElement('div')
-      temp.innerHTML = html
-      return temp.textContent || temp.innerText || ''
-    }
-
-    const calculateCharacterDifference = (content1, content2) => {
-      if (!content1 || !content2) return Math.max(content1?.length || 0, content2?.length || 0)
-      const text1 = stripHtml(content1)
-      const text2 = stripHtml(content2)
-
-      // Simple Levenshtein distance calculation
-      const matrix = []
-      for (let i = 0; i <= text2.length; i++) {
-        matrix[i] = [i]
-      }
-      for (let j = 0; j <= text1.length; j++) {
-        matrix[0][j] = j
-      }
-      for (let i = 1; i <= text2.length; i++) {
-        for (let j = 1; j <= text1.length; j++) {
-          if (text2.charAt(i - 1) === text1.charAt(j - 1)) {
-            matrix[i][j] = matrix[i - 1][j - 1]
-          } else {
-            matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j] + 1)
-          }
-        }
-      }
-      return matrix[text2.length][text1.length]
-    }
-
-    const filtered = [entryContents[0]] // Always include the first (most recent) content
-    const threshold = 3 // Minimum character difference
-
-    for (let i = 1; i < entryContents.length; i++) {
-      const currentContent = entryContents[i]
-      const previousContent = entryContents[i - 1]
-
-      const difference = calculateCharacterDifference(currentContent.content, previousContent.content)
-
-      if (difference >= threshold) {
-        filtered.push(currentContent)
-      }
-    }
-
-    return filtered
-  }, [entryContents])
-
-  const handleVersionSelect = useCallback(
-    (selectedContent, originalIndex) => {
-      setDisplayContent(selectedContent)
-      // Find the index in the filtered list
-      const filteredIndex = filteredEntryContents.findIndex(
-        (content) => content.id === entryContents[originalIndex]?.id
-      )
-      setSelectedVersionIndex(filteredIndex >= 0 ? filteredIndex : originalIndex)
-    },
-    [filteredEntryContents, entryContents]
+  // Use custom hook for filtered entry contents and history handlers
+  const { filteredEntryContents, handleToggleHistory, handleVersionSelect } = useFilteredEntryContents(
+    entryContents,
+    isHistoryExpanded,
+    setIsHistoryExpanded,
+    setDisplayContent,
+    setSelectedVersionIndex
   )
 
-  // Fetch node entries info for search
+  // Fetch node entries info for search - use ref to avoid dependency on array
   useEffect(() => {
     if (!userIdParam) {
       return
     }
-    // Only fetch if we don't have nodeEntriesInfo or it's for a different user
-    if (!nodeEntriesInfo || nodeEntriesInfo.length === 0) {
+
+    // Reset ref if userId changes
+    if (lastUserIdParamRef.current !== userIdParam) {
+      hasFetchedNodeEntriesRef.current = false
+      lastUserIdParamRef.current = userIdParam
+    }
+
+    // Only fetch if we haven't fetched for this user yet and don't have data
+    const hasNodeEntries = nodeEntriesInfo && nodeEntriesInfo.length > 0
+    if (!hasFetchedNodeEntriesRef.current && !hasNodeEntries) {
+      hasFetchedNodeEntriesRef.current = true
       dispatch(fetchPublicNodeEntriesInfo(userIdParam)).catch((err) => {
         console.error('Error fetching node entries info:', err)
+        hasFetchedNodeEntriesRef.current = false // Reset on error to allow retry
       })
     }
-  }, [dispatch, userIdParam, nodeEntriesInfo])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, userIdParam, nodeEntriesInfo?.length]) // Only depend on length to avoid unnecessary re-runs
 
+  // Main entry fetch effect - optimized to only run when params change
   useEffect(() => {
     if (!entryIdParam || !userIdParam) {
       return
     }
 
+    // Check if entry/user changed (using ref to track previous values)
+    const entryChanged = lastEntryIdParamRef.current !== entryIdParam || lastUserIdParamRef.current !== userIdParam
+
     // Only fetch if we don't already have this entry loaded
-    if (entryId === entryIdParam && title && content) {
-      // Already have this entry, just check status
+    // Use entryId from closure (current Redux state) to check if we already have it
+    if (!entryChanged && entryId === entryIdParam && title && content) {
+      // Already have this entry, just check status and refresh connections
       setStatus(getNodeStatus(entryIdParam) || 'unread')
       // Still fetch connections in case they changed
       dispatch(fetchPublicConnections({ entryId: entryIdParam, userId: userIdParam })).catch((err) => {
         console.error('Error fetching connections:', err)
       })
+      // Update refs even if not fetching
+      lastEntryIdParamRef.current = entryIdParam
+      lastUserIdParamRef.current = userIdParam
       return
     }
 
+    // Update refs to track current params
+    lastEntryIdParamRef.current = entryIdParam
+    lastUserIdParamRef.current = userIdParam
+
     // Reset history state when entry changes
-    setDisplayContent(null)
-    setSelectedVersionIndex(null)
-    setIsHistoryExpanded(false)
+    if (entryChanged) {
+      setDisplayContent(null)
+      setSelectedVersionIndex(null)
+      setIsHistoryExpanded(false)
+    }
 
     // Check node status
     setStatus(getNodeStatus(entryIdParam) || 'unread')
@@ -199,17 +157,26 @@ const PublicNodeEntry = () => {
       .catch((err) => {
         console.error('Error fetching entry:', err)
       })
-  }, [dispatch, entryIdParam, userIdParam, entryId, title, content])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, entryIdParam, userIdParam]) // Intentionally omit entryId/title/content to avoid unnecessary re-runs
 
   // Also fetch history if entry is already loaded but we don't have history yet
+  // Only fetch if not already loading to prevent duplicate requests
   useEffect(() => {
-    if (entryId === entryIdParam && entryId && userIdParam && entryContents.length === 0) {
+    if (
+      entryId === entryIdParam &&
+      entryId &&
+      userIdParam &&
+      entryContents.length === 0 &&
+      !entryContentsLoading &&
+      !entriesLoading
+    ) {
       // Fetch history in background if entry is loaded but history isn't
       dispatch(fetchPublicEntryContents({ entryId: entryIdParam, userId: userIdParam })).catch((err) => {
         console.error('Error fetching entry contents:', err)
       })
     }
-  }, [entryId, entryIdParam, userIdParam, entryContents.length, dispatch])
+  }, [entryId, entryIdParam, userIdParam, entryContents.length, entryContentsLoading, entriesLoading, dispatch])
 
   const handleExploreNetwork = () => {
     if (entryId && userIdParam) {
@@ -222,12 +189,6 @@ const PublicNodeEntry = () => {
       history.push(`/edit-node-entry?entryId=${entryId}`)
     }
   }
-
-  // Get all titles for highlighting (excluding current entry)
-  const allTitles = useMemo(
-    () => nodeEntriesInfo?.map((x) => x?.title?.toLowerCase()).filter((t) => t !== title?.toLowerCase()) ?? [],
-    [title, nodeEntriesInfo]
-  )
 
   // Handle clicking on internal connections - navigate to node
   const handleInternalConnectionClick = useCallback(
@@ -256,22 +217,6 @@ const PublicNodeEntry = () => {
     [history, userIdParam]
   )
 
-  // Create format rules from connections
-  const formatRules = useMemo(() => {
-    return createFormatRules(
-      connections,
-      entryId,
-      handleInternalConnectionClick,
-      handleExternalConnectionClick,
-      formattedTextStyles
-    )
-  }, [connections, entryId, handleInternalConnectionClick, handleExternalConnectionClick])
-
-  // Parse HTML content with connection highlighting (same as FormattedTextOverlay)
-  const parsedContent = useMemo(() => {
-    return formatContentWithConnections(content, formatRules, allTitles, handleUnconnectedNodeClick, nodeEntriesInfo)
-  }, [content, formatRules, allTitles, handleUnconnectedNodeClick, nodeEntriesInfo])
-
   if (!entryIdParam || !userIdParam) {
     return (
       <div className={styles.wrapper}>
@@ -280,7 +225,8 @@ const PublicNodeEntry = () => {
     )
   }
 
-  if (entriesLoading) {
+  // Show loading if we're currently fetching OR if we have params but no entry data yet (initial load)
+  if (entriesLoading || (!entryId && !title && entryIdParam && userIdParam)) {
     return (
       <div className={styles.wrapper}>
         <div className={styles.loading}>
@@ -290,7 +236,8 @@ const PublicNodeEntry = () => {
     )
   }
 
-  if (!entryId || !title) {
+  // Only show error if we've finished loading and still don't have the entry
+  if (!entriesLoading && (!entryId || !title)) {
     return <div className={styles.error}>Entry not found</div>
   }
 
@@ -307,20 +254,18 @@ const PublicNodeEntry = () => {
           collapsible={true}
         />
       </div>
-      <div ref={contentContainerRef} className={styles.contentContainer}>
+      <div className={styles.contentContainer}>
         <div className={styles.topContainer}>
-          {!isMobile && (
-            <div className={styles.leftButtons}>
-              <DefaultButton
-                onClick={handleToggleHistory}
-                className={styles.historyButton}
-                tooltip={'View history'}
-                isSelected={isHistoryExpanded}
-              >
-                History
-              </DefaultButton>
-            </div>
-          )}
+          <div className={styles.leftButtons}>
+            <DefaultButton
+              onClick={handleToggleHistory}
+              className={styles.historyButton}
+              tooltip={'View history'}
+              isSelected={isHistoryExpanded}
+            >
+              History
+            </DefaultButton>
+          </div>
           <div className={styles.titleContainer}>
             <div className={classNames(styles.title, sharedStyles.flexCenter)}>
               {title || 'Untitled'}
@@ -340,13 +285,43 @@ const PublicNodeEntry = () => {
               )}
             </div>
           </div>
-          {!isMobile && (
-            <div className={styles.rightButtons}>
-              {isOwner && (
-                <DefaultButton onClick={handleEditEntry} className={styles.editButton} tooltip="Edit this entry">
-                  Edit
-                </DefaultButton>
-              )}
+          <div className={styles.rightButtons}>
+            {isOwner && (
+              <DefaultButton onClick={handleEditEntry} className={styles.editButton} tooltip="Edit this entry">
+                Edit
+              </DefaultButton>
+            )}
+            <DefaultButton
+              onClick={handleExploreNetwork}
+              className={styles.networkButton}
+              tooltip="Explore this node's network"
+            >
+              Network
+            </DefaultButton>
+          </div>
+          <div className={styles.buttonRow}>
+            <DefaultButton
+              onClick={handleToggleHistory}
+              className={styles.historyButton}
+              tooltip={'View history'}
+              isSelected={isHistoryExpanded}
+            >
+              History
+            </DefaultButton>
+            {isOwner && (
+              <DefaultButton onClick={handleEditEntry} className={styles.editButton} tooltip="Edit this entry">
+                Edit
+              </DefaultButton>
+            )}
+            {isMobile ? (
+              <DefaultButton
+                onClick={() => setIsConnectionsModalOpen(true)}
+                className={styles.networkButton}
+                tooltip="View connections"
+              >
+                Connections
+              </DefaultButton>
+            ) : (
               <DefaultButton
                 onClick={handleExploreNetwork}
                 className={styles.networkButton}
@@ -354,67 +329,43 @@ const PublicNodeEntry = () => {
               >
                 Network
               </DefaultButton>
-            </div>
-          )}
-          {isMobile && (
-            <div className={styles.buttonRow}>
-              <DefaultButton
-                onClick={handleToggleHistory}
-                className={styles.historyButton}
-                tooltip={'View history'}
-                isSelected={isHistoryExpanded}
-              >
-                History
-              </DefaultButton>
-              {isOwner && (
-                <DefaultButton onClick={handleEditEntry} className={styles.editButton} tooltip="Edit this entry">
-                  Edit
-                </DefaultButton>
-              )}
-              <DefaultButton
-                onClick={handleExploreNetwork}
-                className={styles.networkButton}
-                tooltip="Explore this node's network"
-              >
-                Network
-              </DefaultButton>
-            </div>
-          )}
+            )}
+          </div>
         </div>
         <div className={styles.connectionLinesWrapper}>
-          {!connectionsLoading && (
+          {!connectionsLoading && !isMobile && (
             <PublicConnectionLines entryId={entryId} userId={userIdParam} connections={connections || []} />
           )}
         </div>
         <div className={classNames(styles.contentArea, isHistoryExpanded && styles.historyExpanded)}>
-          {!isMobile && (
+          <div className={styles.desktopHistory}>
             <PublicHistory
               entryId={entryId}
               userId={userIdParam}
               isExpanded={isHistoryExpanded}
               onVersionSelect={handleVersionSelect}
             />
-          )}
+          </div>
           {isMobile && (
-            <Modal
-              open={isHistoryExpanded}
-              onClose={handleToggleHistory}
-              center
-              classNames={{
-                modal: styles.historyModal,
-                overlay: styles.historyModalOverlay,
-                closeButton: styles.historyModalCloseButton,
-              }}
-            >
-              <PublicHistory
+            <>
+              <PublicHistoryModal
+                isOpen={isHistoryExpanded}
+                onClose={handleToggleHistory}
                 entryId={entryId}
                 userId={userIdParam}
-                isExpanded={isHistoryExpanded}
                 onVersionSelect={handleVersionSelect}
               />
-            </Modal>
+              <PublicConnectionsModal
+                isOpen={isConnectionsModalOpen}
+                onClose={() => setIsConnectionsModalOpen(false)}
+                connections={connections || []}
+                entryId={entryId}
+                userId={userIdParam}
+              />
+            </>
           )}
-          <div className={classNames(styles.content, isHistoryExpanded && !isMobile && styles.contentWithHistory)}>
+          <div className={classNames(styles.content, isHistoryExpanded && styles.contentWithHistory)}>
+            <div ref={centerIndicatorRef} className={styles.centerIndicator} />
             {displayContent !== null && selectedVersionIndex !== null ? (
               <PublicHistoryDiff
                 currentContent={displayContent}
@@ -425,15 +376,20 @@ const PublicNodeEntry = () => {
                 }
                 selectedVersionIndex={selectedVersionIndex}
               />
-            ) : parsedContent ? (
-              <div
-                ref={formattedContentWrapperRef}
-                className={classNames(formattedTextStyles.wrapper, styles.formattedContentWrapper)}
-              >
-                {parsedContent}
-              </div>
             ) : (
-              'No content yet...'
+              <div ref={formattedContentWrapperRef}>
+                <PublicFormattedContent
+                  content={content}
+                  connections={connections}
+                  entryId={entryId}
+                  nodeEntriesInfo={nodeEntriesInfo}
+                  userId={userIdParam}
+                  title={title}
+                  onInternalConnectionClick={handleInternalConnectionClick}
+                  onExternalConnectionClick={handleExternalConnectionClick}
+                  onUnconnectedNodeClick={handleUnconnectedNodeClick}
+                />
+              </div>
             )}
           </div>
         </div>

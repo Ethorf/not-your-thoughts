@@ -7,6 +7,7 @@ import { SAVE_TYPES } from '@constants/saveTypes'
 
 // import { showToast } from '@utils/toast' // Unused
 import { hasOneWord } from '@utils/hasOneWord'
+import { resolvePublicUserId } from '@utils/resolvePublicUserId'
 
 import { saveNodeEntry } from '@redux/reducers/currentEntryReducer'
 
@@ -101,7 +102,8 @@ export const fetchPublicConnections = createAsyncThunk(
   'connections/fetchPublicConnections',
   async ({ entryId, userId }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/connections/public/${entryId}?userId=${userId}`)
+      const resolvedUserId = resolvePublicUserId(userId)
+      const response = await fetch(`/api/connections/public/${entryId}?userId=${resolvedUserId}`)
       if (!response.ok) {
         if (response.status === 204) {
           // No connections found - this is okay

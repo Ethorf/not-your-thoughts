@@ -31,7 +31,6 @@ import PillarTop from '@components/PillarsComponents/PillarTopComponent.js'
 import PillarLeft from '@components/PillarsComponents/PillarLeftComponent.js'
 import PillarRight from '@components/PillarsComponents/PillarRightComponent.js'
 import PillarBottom from '@components/PillarsComponents/PillarBottomComponent.js'
-import ProgressWord from '@components/progress/progressWord.js'
 
 const CreateJournalEntry = () => {
   const dispatch = useDispatch()
@@ -68,7 +67,6 @@ const CreateJournalEntry = () => {
             handleAutosave={() => handleSaveJournal(SAVE_TYPES.AUTO)}
           />
         ) : null}
-        <ProgressWord />
         <BgImage />
         <div className={styles.headerPromptContainer}>
           <Header />

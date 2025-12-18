@@ -8,6 +8,7 @@ import { DEFAULT_SPHERE_SIZES } from '@constants/spheres'
 // Utils
 import { transformConnection } from '@utils/transformConnection'
 import { getNodeStatus } from '@utils/nodeReadStatus'
+import { resolvePublicUserId } from '@utils/resolvePublicUserId'
 
 // Components
 import SphereWithEffects from './SphereWithEffects'
@@ -38,7 +39,8 @@ const PublicConnectionSpheres = ({
 
       try {
         setFetchError(null)
-        const response = await fetch(`/api/connections/public/${connId}?userId=${userId}`)
+        const resolvedUserId = resolvePublicUserId(userId)
+        const response = await fetch(`/api/connections/public/${connId}?userId=${resolvedUserId}`)
 
         if (!response.ok) {
           if (response.status === 204) {

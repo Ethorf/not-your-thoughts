@@ -101,7 +101,7 @@ const PublicLegend = () => {
           </div>
           <h3 className={styles.title}>Why are you doing this?</h3>
           <DefaultButton
-            onClick={() => history.push('/show-node-entry?userId=4fd36f0e-9159-4561-af4e-e5841994c873&entryId=1435')}
+            onClick={() => history.push('/show-node-entry?userId=ethorf&entryId=1435')}
             className={styles.gotItButton}
           >
             Learn more in longform

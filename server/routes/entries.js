@@ -349,6 +349,7 @@ router.get('/node_entries_info', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
   try {
+    // Optimized query: only fetch latest content (LIMIT 1), use MIN/MAX for dates
     const nodeEntriesQuery = await pool.query(
       `SELECT 
     entries.id, 
@@ -356,22 +357,19 @@ router.get('/node_entries_info', authorize, async (req, res) => {
     entries.starred,
     entries.is_top_level,
     entries.date_originally_created,
-    ARRAY(
-      SELECT content 
+    -- Only fetch the latest content (most efficient)
+    (SELECT content 
       FROM entry_contents 
       WHERE entry_id = entries.id 
       ORDER BY date_created DESC
-    ) AS content,
-    (SELECT date_created 
+      LIMIT 1) AS content,
+    -- Use MIN/MAX instead of ORDER BY for better performance with indexes
+    (SELECT MIN(date_created) 
       FROM entry_contents 
-      WHERE entry_id = entries.id 
-      ORDER BY date_created ASC 
-      LIMIT 1) AS date_created,
-    (SELECT date_created 
+      WHERE entry_id = entries.id) AS date_created,
+    (SELECT MAX(date_created) 
       FROM entry_contents 
-      WHERE entry_id = entries.id 
-      ORDER BY date_created DESC 
-      LIMIT 1) AS date_last_modified,
+      WHERE entry_id = entries.id) AS date_last_modified,
     --  aggregate writing data
     (SELECT COALESCE(SUM(word_count), 0) 
       FROM entry_writing_data 
@@ -391,11 +389,10 @@ router.get('/node_entries_info', authorize, async (req, res) => {
     }
 
     const processedEntries = nodeEntries.map((entry) => {
-      const contentArray = Array.isArray(entry.content) ? entry.content : []
-      const hasContent = contentArray.length > 0
-      const latestContent = hasContent
-        ? contentArray.find((item) => typeof item === 'string' && item.trim()) || contentArray[0] || ''
-        : ''
+      // Content is now a single string (not an array) since we use LIMIT 1
+      // Wrap in array for frontend compatibility (frontend expects content[0])
+      const latestContent = entry.content && typeof entry.content === 'string' ? entry.content.trim() : ''
+      const hasContent = latestContent.length > 0
       const calculatedWordCount = calculateWordCountFromContent(latestContent)
       const aggregatedWordCount = Number(entry.wd_word_count) || 0
       const wordCount = calculatedWordCount > 0 ? calculatedWordCount : aggregatedWordCount
@@ -406,6 +403,7 @@ router.get('/node_entries_info', authorize, async (req, res) => {
         starred: entry.starred,
         isTopLevel: entry.is_top_level,
         isPrivate: entry.is_private || false,
+        content: latestContent ? [latestContent] : [], // Wrap in array for frontend compatibility
         wordCount,
         calculatedWordCount,
         wdWordCount: aggregatedWordCount, // ✅ aggregated writing data fallback
@@ -881,6 +879,7 @@ router.get('/public/node_entries_info/:userId', async (req, res) => {
   const { userId } = req.params
 
   try {
+    // Optimized query: only fetch latest content (LIMIT 1), use MIN/MAX for dates
     const nodeEntriesQuery = await pool.query(
       `SELECT 
     entries.id, 
@@ -888,22 +887,19 @@ router.get('/public/node_entries_info/:userId', async (req, res) => {
     entries.starred,
     entries.is_top_level,
     entries.date_originally_created,
-    ARRAY(
-      SELECT content 
+    -- Only fetch the latest content (most efficient)
+    (SELECT content 
       FROM entry_contents 
       WHERE entry_id = entries.id 
       ORDER BY date_created DESC
-    ) AS content,
-    (SELECT date_created 
+      LIMIT 1) AS content,
+    -- Use MIN/MAX instead of ORDER BY for better performance with indexes
+    (SELECT MIN(date_created) 
       FROM entry_contents 
-      WHERE entry_id = entries.id 
-      ORDER BY date_created ASC 
-      LIMIT 1) AS date_created,
-    (SELECT date_created 
+      WHERE entry_id = entries.id) AS date_created,
+    (SELECT MAX(date_created) 
       FROM entry_contents 
-      WHERE entry_id = entries.id 
-      ORDER BY date_created DESC 
-      LIMIT 1) AS date_last_modified,
+      WHERE entry_id = entries.id) AS date_last_modified,
     --  aggregate writing data
     (SELECT COALESCE(SUM(word_count), 0) 
       FROM entry_writing_data 
@@ -935,11 +931,10 @@ router.get('/public/node_entries_info/:userId', async (req, res) => {
     }
 
     const processedEntries = nodeEntries.map((entry) => {
-      const contentArray = Array.isArray(entry.content) ? entry.content : []
-      const hasContent = contentArray.length > 0
-      const latestContent = hasContent
-        ? contentArray.find((item) => typeof item === 'string' && item.trim()) || contentArray[0] || ''
-        : ''
+      // Content is now a single string (not an array) since we use LIMIT 1
+      // Wrap in array for frontend compatibility (frontend expects content[0])
+      const latestContent = entry.content && typeof entry.content === 'string' ? entry.content.trim() : ''
+      const hasContent = latestContent.length > 0
       const calculatedWordCount = calculateWordCountFromContent(latestContent)
       const aggregatedWordCount = Number(entry.wd_word_count) || 0
       const wordCount = calculatedWordCount > 0 ? calculatedWordCount : aggregatedWordCount
@@ -950,6 +945,7 @@ router.get('/public/node_entries_info/:userId', async (req, res) => {
         starred: entry.starred,
         isTopLevel: entry.is_top_level,
         isPrivate: entry.is_private || false,
+        content: latestContent ? [latestContent] : [], // Wrap in array for frontend compatibility
         wordCount,
         calculatedWordCount,
         wdWordCount: aggregatedWordCount,
@@ -1035,26 +1031,22 @@ router.get('/public/entry/:entryId', async (req, res) => {
   }
 
   try {
-    // Retrieve the entry with the provided entryId
+    // Retrieve the entry with the provided entryId - optimized to only fetch latest content
+    // Use scalar subquery instead of ARRAY for better performance, but wrap in array for frontend compatibility
     const entryQuery = `
       SELECT 
         entries.*, 
-        ARRAY(
-          SELECT content 
+        (SELECT content 
           FROM entry_contents 
           WHERE entry_id = $1 
           ORDER BY date_created DESC
-        ) AS content,
-        (SELECT date_created 
+          LIMIT 1) AS content,
+        (SELECT MIN(date_created) 
           FROM entry_contents 
-          WHERE entry_id = $1 
-          ORDER BY date_created ASC 
-          LIMIT 1) AS date_created,
-        (SELECT date_created 
+          WHERE entry_id = $1) AS date_created,
+        (SELECT MAX(date_created) 
           FROM entry_contents 
-          WHERE entry_id = $1 
-          ORDER BY date_created DESC 
-          LIMIT 1) AS date_last_updated
+          WHERE entry_id = $1) AS date_last_updated
       FROM 
         entries 
       WHERE 
@@ -1086,12 +1078,16 @@ router.get('/public/entry/:entryId', async (req, res) => {
 
     const { wd_time_elapsed: wdTimeElapsed, wd_word_count: wdWordCount } = writingDataResult.rows[0]
 
-    // Include wdTimeElapsed and wdWordCount in the response
-    res.json({
+    // Wrap content in array for frontend compatibility (frontend expects content[0])
+    const response = {
       ...entryData,
+      content: entryData.content ? [entryData.content] : [],
       wdTimeElapsed,
       wdWordCount,
-    })
+    }
+
+    // Include wdTimeElapsed and wdWordCount in the response
+    res.json(response)
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')

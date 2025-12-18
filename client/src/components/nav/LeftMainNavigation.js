@@ -49,7 +49,7 @@ const LeftMainNavigation = () => {
     if (leftSidebarOpen) {
       const timer = setTimeout(() => {
         dispatch(toggleLeftSidebar())
-      }, 3000)
+      }, 30000)
 
       return () => clearTimeout(timer)
     }
@@ -91,10 +91,7 @@ const LeftMainNavigation = () => {
             Dashboard
           </NavLink>
         ) : null}
-        <TextButton
-          navLink
-          onClick={() => history.push('/public-dashboard?userId=4fd36f0e-9159-4561-af4e-e5841994c873')}
-        >
+        <TextButton navLink onClick={() => history.push('/public-dashboard?userId=ethorf')}>
           {user ? 'Public View' : 'Browse Networks'}
         </TextButton>
         {!guestMode && user && (

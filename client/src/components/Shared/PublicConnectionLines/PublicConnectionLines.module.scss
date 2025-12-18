@@ -13,8 +13,8 @@
 // Individual connection lines
 .connectionLine {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: var(--convergence-top, 50%);
+  left: var(--convergence-left, 50%);
   transform-origin: 0 0;
   z-index: $connection-lines-z-index;
   animation: fadeInLine 0.6s ease-out var(--line-delay, 0s) both;

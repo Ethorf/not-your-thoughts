@@ -41,3 +41,14 @@
 .searchComponent {
   width: 100%;
 }
+
+@media (max-width: 680px) {
+  .topContainer {
+    justify-content: start;
+  }
+
+  .sortControls {
+    font-size: 0.7rem;
+    margin-left: 0;
+  }
+}

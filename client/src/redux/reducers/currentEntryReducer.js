@@ -6,6 +6,7 @@ import { SAVE_TYPES } from '@constants/saveTypes'
 // import { deleteConnection } from '@redux/reducers/connectionsReducer' // Unused - only used in commented code
 
 import { showToast } from '@utils/toast'
+import { resolvePublicUserId } from '@utils/resolvePublicUserId'
 
 const { NODE, JOURNAL } = ENTRY_TYPES
 
@@ -338,7 +339,8 @@ export const fetchPublicEntry = createAsyncThunk(
   'currentEntryReducer/fetchPublicEntry',
   async ({ entryId, userId }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/entries/public/entry/${entryId}?userId=${userId}`)
+      const resolvedUserId = resolvePublicUserId(userId)
+      const response = await fetch(`/api/entries/public/entry/${entryId}?userId=${resolvedUserId}`)
       if (!response.ok) {
         throw new Error('Failed to fetch entry')
       }
@@ -354,7 +356,8 @@ export const fetchPublicNodeEntriesInfo = createAsyncThunk(
   'currentEntryReducer/fetchPublicNodeEntriesInfo',
   async (userId, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/entries/public/node_entries_info/${userId}`)
+      const resolvedUserId = resolvePublicUserId(userId)
+      const response = await fetch(`/api/entries/public/node_entries_info/${resolvedUserId}`)
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ msg: 'Failed to fetch nodes' }))
         throw new Error(errorData.msg || 'Failed to fetch nodes')
@@ -371,7 +374,8 @@ export const fetchPublicEntryContents = createAsyncThunk(
   'currentEntryReducer/fetchPublicEntryContents',
   async ({ entryId, userId }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/entries/public/entry_contents/${entryId}?userId=${userId}`)
+      const resolvedUserId = resolvePublicUserId(userId)
+      const response = await fetch(`/api/entries/public/entry_contents/${entryId}?userId=${resolvedUserId}`)
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Failed to fetch entry contents' }))
         throw new Error(errorData.message || 'Failed to fetch entry contents')
