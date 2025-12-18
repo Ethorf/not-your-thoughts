@@ -164,7 +164,6 @@ export const PublicNodesDashboardList = ({ nodeEntriesInfo = [], userId = null }
   return (
     <>
       <div className={styles.topContainer}>
-        <h3>Nodes</h3>
         <div className={styles.searchContainer}>
           <PublicNodeSearch
             mode="filter"
@@ -175,15 +174,12 @@ export const PublicNodesDashboardList = ({ nodeEntriesInfo = [], userId = null }
             userId={userId}
           />
         </div>
-        <label>
-          Sort:
-          <DefaultDropdown
-            className={styles.sortControls}
-            value={VALUE_TO_DISPLAY(sortBy)}
-            options={SORT_OPTIONS}
-            onChange={(e) => setSortBy(DISPLAY_TO_VALUE(e.target.value))}
-          />
-        </label>
+        <DefaultDropdown
+          className={styles.sortControls}
+          value={VALUE_TO_DISPLAY(sortBy)}
+          options={SORT_OPTIONS}
+          onChange={(e) => setSortBy(DISPLAY_TO_VALUE(e.target.value))}
+        />
       </div>
 
       {filteredAndSortedNodes.length ? (

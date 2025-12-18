@@ -113,7 +113,7 @@ const PublicNodeSearch = ({
     setIsOpen(false)
     setSearchTerm('')
     inputRef.current?.blur()
-    
+
     // Collapse if collapsible
     if (collapsible) {
       handleCollapse()
@@ -162,7 +162,7 @@ const PublicNodeSearch = ({
       ) {
         setIsOpen(false)
         setSelectedIndex(-1)
-        
+
         // Always collapse if collapsible and clicked outside
         if (collapsible && isExpanded) {
           handleCollapse()
@@ -216,36 +216,33 @@ const PublicNodeSearch = ({
           className={styles.searchInput}
         />
 
-      {isOpen && showResults && filteredNodes.length > 0 && mode !== 'filter' && (
-        <div ref={resultsRef} className={styles.results}>
-          {filteredNodes.map((node, index) => {
-            const previewText = node.content?.[0]
-              ? node.content[0].replace(/<[^>]*>/g, '').substring(0, 100)
-              : ''
-            return (
-              <div
-                key={node.id}
-                className={classNames(styles.resultItem, { [styles.selected]: index === selectedIndex })}
-                onClick={() => handleNodeSelect(node)}
-                onMouseEnter={() => setSelectedIndex(index)}
-              >
-                <div className={styles.nodeTitle}>{node.title}</div>
-                {previewText && <div className={styles.nodePreview}>{previewText}...</div>}
-              </div>
-            )
-          })}
-        </div>
-      )}
+        {isOpen && showResults && filteredNodes.length > 0 && mode !== 'filter' && (
+          <div ref={resultsRef} className={styles.results}>
+            {filteredNodes.map((node, index) => {
+              const previewText = node.content?.[0] ? node.content[0].replace(/<[^>]*>/g, '').substring(0, 100) : ''
+              return (
+                <div
+                  key={node.id}
+                  className={classNames(styles.resultItem, { [styles.selected]: index === selectedIndex })}
+                  onClick={() => handleNodeSelect(node)}
+                  onMouseEnter={() => setSelectedIndex(index)}
+                >
+                  <div className={styles.nodeTitle}>{node.title}</div>
+                  {previewText && <div className={styles.nodePreview}>{previewText}...</div>}
+                </div>
+              )
+            })}
+          </div>
+        )}
 
-      {isOpen && showResults && filteredNodes.length === 0 && searchTerm.length > 0 && mode !== 'filter' && (
-        <div ref={resultsRef} className={styles.results}>
-          <div className={styles.noResults}>No nodes found</div>
-        </div>
-      )}
+        {isOpen && showResults && filteredNodes.length === 0 && searchTerm.length > 0 && mode !== 'filter' && (
+          <div ref={resultsRef} className={styles.results}>
+            <div className={styles.noResults}>No nodes found</div>
+          </div>
+        )}
       </div>
     </div>
   )
 }
 
 export default PublicNodeSearch
-

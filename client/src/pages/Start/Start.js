@@ -207,7 +207,7 @@ const Landing = ({ toggleGuestMode }) => {
         </DefaultButton>
         <DefaultButton
           ref={(button) => (browseNetworksButtonContainer = button)}
-          onClick={() => history.push('/public-dashboard?userId=4fd36f0e-9159-4561-af4e-e5841994c873')}
+          onClick={() => history.push('/public-dashboard?userId=ethorf')}
           className="landing__register-button"
           style={{ marginTop: '10px' }}
         >

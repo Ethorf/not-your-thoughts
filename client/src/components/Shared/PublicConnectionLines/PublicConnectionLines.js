@@ -7,7 +7,12 @@ import styles from './PublicConnectionLines.module.scss'
 
 const { PARENT, CHILD, SIBLING, EXTERNAL } = CONNECTION_TYPES.FRONTEND
 
-const PublicConnectionLines = ({ entryId, userId, connections = [] }) => {
+const PublicConnectionLines = ({
+  entryId,
+  userId,
+  connections = [],
+  convergencePoint = { top: '50%', left: '50%' },
+}) => {
   const history = useHistory()
   const [tooltip, setTooltip] = useState({ visible: false, content: '', x: 0, y: 0 })
 
@@ -96,7 +101,13 @@ const PublicConnectionLines = ({ entryId, userId, connections = [] }) => {
   }
 
   return (
-    <div className={styles.connectionLinesWrapper}>
+    <div
+      className={styles.connectionLinesWrapper}
+      style={{
+        '--convergence-top': convergencePoint.top,
+        '--convergence-left': convergencePoint.left,
+      }}
+    >
       {/* Parent connections - top */}
       {connectionLines.parents.map((parent, index) => (
         <div

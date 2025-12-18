@@ -2,11 +2,50 @@ const path = require(`path`)
 
 module.exports = {
   webpack: {
-    configure: (webpackConfig) => {
+    configure: (webpackConfig, { env }) => {
+      const isDevelopment = env === 'development'
+
       // Locate the rule handling SCSS files
       const oneOfRule = webpackConfig.module.rules.find((rule) => Array.isArray(rule.oneOf))
 
       if (oneOfRule) {
+        // Find and modify CSS module loader configuration
+        oneOfRule.oneOf.forEach((rule) => {
+          // Check if this rule handles CSS modules (module.scss or module.css)
+          const isModuleRule =
+            rule.test &&
+            (rule.test.toString().includes('module') ||
+              (rule.test.toString().includes('\\.module\\.') && rule.test.toString().includes('css')))
+
+          if (isModuleRule && rule.use && Array.isArray(rule.use)) {
+            rule.use.forEach((loader) => {
+              // Handle object loader format
+              if (typeof loader === 'object' && loader.loader) {
+                const loaderPath = loader.loader
+                if (loaderPath.includes('css-loader')) {
+                  // Configure CSS modules with readable classnames in development
+                  loader.options = loader.options || {}
+                  loader.options.modules = loader.options.modules || {}
+                  if (isDevelopment) {
+                    // Use readable classnames: [filename]__[local]--[hash:base64:5]
+                    // For newer css-loader versions, use getLocalIdent function
+                    loader.options.modules.getLocalIdent = (context, localIdentName, localName) => {
+                      // Return readable format: filename__localname--hash
+                      const hash = require('crypto')
+                        .createHash('md5')
+                        .update(context.resourcePath + localName)
+                        .digest('base64')
+                        .substring(0, 5)
+                      const filename = path.basename(context.resourcePath, path.extname(context.resourcePath))
+                      return `${filename}__${localName}--${hash}`
+                    }
+                  }
+                }
+              }
+            })
+          }
+        })
+
         // Add sass-loader to handle SCSS files
         const sassLoader = {
           test: /\.scss$/,

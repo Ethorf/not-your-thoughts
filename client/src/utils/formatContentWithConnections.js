@@ -110,6 +110,7 @@ export const findIdByNodeTitle = (nodes, title) => {
  * @param {Function} onUnconnectedNodeClick - Callback for clicking on nodes without connections
  * @param {Array} nodeEntriesInfo - Array of node entry objects
  * @param {string} unconnectedNodeTooltip - Tooltip text for unconnected nodes (default: "node found, click to view")
+ * @param {boolean} enableShinyText - Whether to show ShinyText for unconnected nodes (default: true)
  * @returns {Array} Array of React elements representing formatted content
  */
 export const formatContentWithConnections = (
@@ -118,7 +119,8 @@ export const formatContentWithConnections = (
   allTitles,
   onUnconnectedNodeClick = null,
   nodeEntriesInfo = [],
-  unconnectedNodeTooltip = 'node found, click to view'
+  unconnectedNodeTooltip = 'node found, click to view',
+  enableShinyText = true
 ) => {
   if (!content) return null
 
@@ -182,21 +184,41 @@ export const formatContentWithConnections = (
             })
           )
         } else if (allTitles.includes(word.toLowerCase()) && onUnconnectedNodeClick) {
-          // Show ShinyText for nodes that don't have connections
-          parts.push(
-            <ShinyText
-              key={`${word}-${paragraphIndex}-${match.index}`}
-              onClick={() => {
-                const nodeId = findIdByNodeTitle(nodeEntriesInfo, word)
-                if (nodeId) {
-                  onUnconnectedNodeClick(nodeId)
-                }
-              }}
-              text={word}
-              data-tooltip-id="main-tooltip"
-              data-tooltip-content={unconnectedNodeTooltip}
-            />
-          )
+          // Show ShinyText for nodes that don't have connections (if enabled)
+          if (enableShinyText) {
+            parts.push(
+              <ShinyText
+                key={`${word}-${paragraphIndex}-${match.index}`}
+                onClick={() => {
+                  const nodeId = findIdByNodeTitle(nodeEntriesInfo, word)
+                  if (nodeId) {
+                    onUnconnectedNodeClick(nodeId)
+                  }
+                }}
+                text={word}
+                data-tooltip-id="main-tooltip"
+                data-tooltip-content={unconnectedNodeTooltip}
+              />
+            )
+          } else {
+            // Just render plain text with click handler for unconnected nodes
+            const nodeId = findIdByNodeTitle(nodeEntriesInfo, word)
+            parts.push(
+              <span
+                key={`${word}-${paragraphIndex}-${match.index}`}
+                onClick={() => {
+                  if (nodeId) {
+                    onUnconnectedNodeClick(nodeId)
+                  }
+                }}
+                style={{ cursor: 'pointer' }}
+                data-tooltip-id="main-tooltip"
+                data-tooltip-content={unconnectedNodeTooltip}
+              >
+                {word}
+              </span>
+            )
+          }
         } else {
           parts.push(word)
         }

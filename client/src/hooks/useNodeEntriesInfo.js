@@ -1,30 +1,51 @@
 import { useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchNodeEntriesInfo } from '../redux/reducers/currentEntryReducer'
-import isEqual from 'lodash/isEqual' // Import lodash isEqual for deep comparison
 
-// TODO This is weird, not really doing the equivalency check it should
+// Module-level flag to prevent multiple simultaneous fetches across all hook instances
+let isFetchingGlobally = false
+
 const useNodeEntriesInfo = () => {
   const dispatch = useDispatch()
-  const { entries, nodeEntriesInfo } = useSelector((state) => state.currentEntry)
+  const { nodeEntriesInfo, entriesLoading } = useSelector((state) => state.currentEntry)
 
-  // useRef to store the previous nodeEntriesInfo
-  const prevNodeEntriesInfo = useRef(nodeEntriesInfo)
+  // useRef to track if we've attempted to fetch in this hook instance
+  const fetchAttemptedRef = useRef(false)
 
-  // Effect to dispatch API call only if nodeEntriesInfo has changed or is empty
+  // Effect to dispatch API call only if nodeEntriesInfo is empty and not already loading
   useEffect(() => {
-    // Check if nodeEntriesInfo has changed using deep comparison
     const isNodeEntriesInfoEmpty = !nodeEntriesInfo || nodeEntriesInfo.length === 0
-    const nodeEntriesInfoChanged = !isEqual(nodeEntriesInfo, prevNodeEntriesInfo.current)
-
-    if (isNodeEntriesInfoEmpty || nodeEntriesInfoChanged) {
+    
+    // Only fetch if:
+    // 1. We don't have nodeEntriesInfo data, AND
+    // 2. We're not currently loading (check Redux state), AND
+    // 3. No global fetch is in progress (prevent race conditions), AND
+    // 4. We haven't already attempted to fetch in this component instance
+    if (isNodeEntriesInfoEmpty && !entriesLoading && !isFetchingGlobally && !fetchAttemptedRef.current) {
+      // Set global flag synchronously BEFORE dispatch to prevent race conditions
+      isFetchingGlobally = true
+      fetchAttemptedRef.current = true
+      
       dispatch(fetchNodeEntriesInfo())
+        .then(() => {
+          isFetchingGlobally = false
+        })
+        .catch((err) => {
+          isFetchingGlobally = false
+          // On error, reset so we can retry
+          fetchAttemptedRef.current = false
+          console.error('Error fetching node entries:', err)
+        })
+      
       console.log('fetching node entries')
     }
 
-    // Update prevNodeEntriesInfo to the current value
-    prevNodeEntriesInfo.current = nodeEntriesInfo
-  }, [dispatch, nodeEntriesInfo, entries])
+    // Reset the flag if we now have data (allowing future fetches if data becomes empty again)
+    if (nodeEntriesInfo && nodeEntriesInfo.length > 0) {
+      fetchAttemptedRef.current = false
+      isFetchingGlobally = false
+    }
+  }, [dispatch, nodeEntriesInfo, entriesLoading])
 
   return nodeEntriesInfo
 }

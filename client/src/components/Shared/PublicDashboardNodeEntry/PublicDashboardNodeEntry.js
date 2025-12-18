@@ -10,6 +10,9 @@ import TextButton from '@components/Shared/TextButton/TextButton'
 import { parseDate } from '@utils/parseDate'
 import { getNodeStatus } from '@utils/nodeReadStatus'
 
+// Hooks
+import useIsMobile from '@hooks/useIsMobile'
+
 // Styles
 import styles from './PublicDashboardNodeEntry.module.scss'
 import calculateWordCount from '@utils/calculateWordCount'
@@ -50,6 +53,7 @@ const getWordCount = (node) => {
 export const PublicDashboardNodeEntry = ({ node = {}, userId }) => {
   const { id = null, title, pending, date_last_modified, connectionCount = 0 } = node
   const history = useHistory()
+  const isMobile = useIsMobile()
   const status = getNodeStatus(id)
 
   const handleViewNode = () => {
@@ -87,24 +91,30 @@ export const PublicDashboardNodeEntry = ({ node = {}, userId }) => {
       >
         {title}
       </TextButton>
-      <div className={styles.wordCount} data-tooltip-id="main-tooltip" data-tooltip-content="word count">
-        {wordCount.toLocaleString()} {wordCount === 1 ? 'word' : 'words'}
-      </div>
-      <div className={styles.connectionCount}>{connectionCount} connections</div>
-      <span
-        className={classNames(styles.readIndicator, {
-          [styles.read]: status === 'read',
-        })}
-      >
-        {status === 'updated' ? 'updated!' : status === 'read' ? 'read ✓' : 'unread'}
-      </span>
-      <DefaultButton
-        className={styles.exploreButton}
-        onClick={handleExploreNode}
-        tooltip="Explore this node's connections"
-      >
-        Explore
-      </DefaultButton>
+      {!isMobile && (
+        <div className={styles.wordCount} data-tooltip-id="main-tooltip" data-tooltip-content="word count">
+          {wordCount.toLocaleString()} {wordCount === 1 ? 'word' : 'words'}
+        </div>
+      )}
+      {!isMobile && <div className={styles.connectionCount}>{connectionCount} connections</div>}
+      {!isMobile && (
+        <span
+          className={classNames(styles.readIndicator, {
+            [styles.read]: status === 'read',
+          })}
+        >
+          {status === 'updated' ? 'updated!' : status === 'read' ? 'read ✓' : 'unread'}
+        </span>
+      )}
+      {!isMobile && (
+        <DefaultButton
+          className={styles.exploreButton}
+          onClick={handleExploreNode}
+          tooltip="Explore this node's connections"
+        >
+          Explore
+        </DefaultButton>
+      )}
     </li>
   )
 }

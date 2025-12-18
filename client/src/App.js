@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css'
 
 import PrivateRoute from './components/higherOrderComponents/PrivateRoute/PrivateRoute.js'
 import { useSelector, connect } from 'react-redux'
+import useIsMobile from './hooks/useIsMobile'
 import './App.scss'
 
 // Components
@@ -50,15 +51,20 @@ const AppContent = () => {
   const location = useLocation()
   const mode = useSelector((state) => state.modes.mode)
   const { user } = useSelector((state) => state.auth)
+  const isMobile = useIsMobile()
 
   // Hide NavBarTop for public routes
   const publicRoutes = ['/show-node-entry', '/public-dashboard', '/view-network']
   const isPublicRoute = publicRoutes.some((route) => location.pathname.startsWith(route))
+  
+  // Hide NavBarTop on mobile for homepage
+  const isHomepage = location.pathname === '/'
+  const shouldShowNavBarTop = !isPublicRoute && !(isMobile && isHomepage)
 
   return (
     <>
       <ModalsContainer />
-      {!isPublicRoute && <NavBarTop />}
+      {shouldShowNavBarTop && <NavBarTop />}
       <LeftMainNavigation />
       {user && <RightSidebar />}
       <TransitionGroup>
