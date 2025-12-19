@@ -13,3 +13,25 @@ body {
 *:after {
   box-sizing: inherit;
 }
+
+// Hide all tooltips on mobile
+@include mobile-only {
+  // Hide react-tooltip tooltips
+  [data-tooltip-id],
+  [id*="react-tooltip"],
+  [class*="react-tooltip"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+  
+  // Hide custom tooltips
+  [class*="tooltip"],
+  [class*="Tooltip"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+}

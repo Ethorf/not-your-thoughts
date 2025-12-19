@@ -57,7 +57,6 @@ const PublicNodeEntry = () => {
   const [selectedVersionIndex, setSelectedVersionIndex] = useState(null)
   const [status, setStatus] = useState('unread')
   const isMobile = useIsMobile()
-  const formattedContentWrapperRef = useRef(null)
   const centerIndicatorRef = useRef(null)
   const hasFetchedNodeEntriesRef = useRef(false)
   const lastEntryIdParamRef = useRef(null)
@@ -381,19 +380,17 @@ const PublicNodeEntry = () => {
                 selectedVersionIndex={selectedVersionIndex}
               />
             ) : (
-              <div ref={formattedContentWrapperRef}>
-                <PublicFormattedContent
-                  content={content}
-                  connections={connections}
-                  entryId={entryId}
-                  nodeEntriesInfo={nodeEntriesInfo}
-                  userId={userIdParam}
-                  title={title}
-                  onInternalConnectionClick={handleInternalConnectionClick}
-                  onExternalConnectionClick={handleExternalConnectionClick}
-                  onUnconnectedNodeClick={handleUnconnectedNodeClick}
-                />
-              </div>
+              <PublicFormattedContent
+                content={content}
+                connections={connections}
+                entryId={entryId}
+                nodeEntriesInfo={nodeEntriesInfo}
+                userId={userIdParam}
+                title={title}
+                onInternalConnectionClick={handleInternalConnectionClick}
+                onExternalConnectionClick={handleExternalConnectionClick}
+                onUnconnectedNodeClick={handleUnconnectedNodeClick}
+              />
             )}
           </div>
         </div>

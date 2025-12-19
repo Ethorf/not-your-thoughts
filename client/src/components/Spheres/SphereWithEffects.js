@@ -5,6 +5,7 @@ import * as THREE from 'three'
 
 // Constants
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
+import useIsMobile from '@hooks/useIsMobile'
 
 import styles from './SphereWithEffects.module.scss'
 
@@ -29,6 +30,7 @@ const SphereWithEffects = ({
   const localTooltipTimeout = useRef(null)
   const sphereRef = useRef()
   const haloRef = useRef()
+  const isMobile = useIsMobile()
 
   // Memoized tooltip text generation
   const getTooltipText = useCallback(
@@ -106,9 +108,12 @@ const SphereWithEffects = ({
   // Memoized hover handlers
   const handlePointerOver = useCallback(() => {
     setLocalHovered(true)
-    localTooltipTimeout.current = setTimeout(() => setLocalTooltip(true), 600)
+    // Don't show tooltips on mobile
+    if (!isMobile) {
+      localTooltipTimeout.current = setTimeout(() => setLocalTooltip(true), 600)
+    }
     document.body.style.cursor = 'pointer'
-  }, [])
+  }, [isMobile])
 
   const handlePointerOut = useCallback(() => {
     setLocalHovered(false)
@@ -189,7 +194,7 @@ const SphereWithEffects = ({
 
       {/* Halo */}
       <mesh ref={haloRef} position={pos} renderOrder={3}>
-        {localTooltip && isMounted && typeof window !== 'undefined' && (
+        {!isMobile && localTooltip && isMounted && typeof window !== 'undefined' && (
           <Html className={styles.tooltip} center>
             {getTooltipText(title)}
           </Html>

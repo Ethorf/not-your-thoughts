@@ -1,6 +1,9 @@
 const path = require(`path`)
 
 module.exports = {
+  devServer: {
+    allowedHosts: 'all', // Allow all hosts (including ngrok)
+  },
   webpack: {
     configure: (webpackConfig, { env }) => {
       const isDevelopment = env === 'development'

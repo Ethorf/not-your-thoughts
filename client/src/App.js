@@ -122,11 +122,12 @@ const App = () => {
   }, [])
 
   const mode = useSelector((state) => state.modes.mode)
+  const isMobile = useIsMobile()
 
   return (
     <div className={`App ${mode}`}>
       <ToastContainer />
-      <Tooltip id="main-tooltip" style={{ zIndex: 99999, fontSize: '0.6rem' }} place="top" />
+      {!isMobile && <Tooltip id="main-tooltip" style={{ zIndex: 99999, fontSize: '0.6rem' }} place="top" />}
       <BrowserRouter>
         <AppContent />
       </BrowserRouter>

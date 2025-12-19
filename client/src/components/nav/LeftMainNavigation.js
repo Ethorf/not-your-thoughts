@@ -92,7 +92,7 @@ const LeftMainNavigation = () => {
           </NavLink>
         ) : null}
         <TextButton navLink onClick={() => history.push('/public-dashboard?userId=ethorf')}>
-          {user ? 'Public View' : 'Browse Networks'}
+          {user ? 'Public View' : 'Browse'}
         </TextButton>
         {!guestMode && user && (
           <>
