@@ -575,6 +575,8 @@ const currentEntrySlice = createSlice({
         if (needsLoading || switchingEntries) {
           state.entryContents = []
         }
+        // Note: nodeEntriesInfo is cleared in fetchPublicNodeEntriesInfo.pending when userId changes
+        // This prevents memory accumulation when switching between users
       })
       .addCase(fetchPublicEntry.fulfilled, (state, action) => {
         const {
@@ -599,11 +601,14 @@ const currentEntrySlice = createSlice({
           entriesLoading: false,
         }
       })
-      .addCase(fetchPublicNodeEntriesInfo.pending, (state) => {
-        // Only set loading if we don't already have nodeEntriesInfo
+      .addCase(fetchPublicNodeEntriesInfo.pending, (state, action) => {
+        const requestedUserId = action.meta.arg
+        // Clear existing nodeEntriesInfo to prevent memory accumulation when switching users
+        // This ensures we don't keep data from previous users in memory
         return {
           ...state,
-          entriesLoading: !state.nodeEntriesInfo || state.nodeEntriesInfo.length === 0,
+          nodeEntriesInfo: [], // Clear before fetching new data
+          entriesLoading: true,
         }
       })
       .addCase(fetchPublicNodeEntriesInfo.fulfilled, (state, action) => {

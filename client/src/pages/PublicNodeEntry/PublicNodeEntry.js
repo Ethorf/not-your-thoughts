@@ -57,7 +57,6 @@ const PublicNodeEntry = () => {
   const [selectedVersionIndex, setSelectedVersionIndex] = useState(null)
   const [status, setStatus] = useState('unread')
   const isMobile = useIsMobile()
-  const formattedContentWrapperRef = useRef(null)
   const centerIndicatorRef = useRef(null)
   const hasFetchedNodeEntriesRef = useRef(false)
   const lastEntryIdParamRef = useRef(null)
@@ -78,15 +77,19 @@ const PublicNodeEntry = () => {
       return
     }
 
-    // Reset ref if userId changes
-    if (lastUserIdParamRef.current !== userIdParam) {
+    // Reset ref if userId changes - this ensures we fetch fresh data for new users
+    const userIdChanged = lastUserIdParamRef.current !== userIdParam
+    if (userIdChanged) {
       hasFetchedNodeEntriesRef.current = false
       lastUserIdParamRef.current = userIdParam
+      // Clear nodeEntriesInfo when switching users to prevent memory accumulation
+      // The reducer will handle clearing, but we ensure we fetch fresh data
     }
 
     // Only fetch if we haven't fetched for this user yet and don't have data
+    // Also fetch if userId changed (to get fresh data for new user)
     const hasNodeEntries = nodeEntriesInfo && nodeEntriesInfo.length > 0
-    if (!hasFetchedNodeEntriesRef.current && !hasNodeEntries) {
+    if ((!hasFetchedNodeEntriesRef.current && !hasNodeEntries) || userIdChanged) {
       hasFetchedNodeEntriesRef.current = true
       dispatch(fetchPublicNodeEntriesInfo(userIdParam)).catch((err) => {
         console.error('Error fetching node entries info:', err)
@@ -94,7 +97,7 @@ const PublicNodeEntry = () => {
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, userIdParam, nodeEntriesInfo?.length]) // Only depend on length to avoid unnecessary re-runs
+  }, [dispatch, userIdParam]) // Removed nodeEntriesInfo?.length to avoid re-fetching unnecessarily
 
   // Main entry fetch effect - optimized to only run when params change
   useEffect(() => {
@@ -377,19 +380,17 @@ const PublicNodeEntry = () => {
                 selectedVersionIndex={selectedVersionIndex}
               />
             ) : (
-              <div ref={formattedContentWrapperRef}>
-                <PublicFormattedContent
-                  content={content}
-                  connections={connections}
-                  entryId={entryId}
-                  nodeEntriesInfo={nodeEntriesInfo}
-                  userId={userIdParam}
-                  title={title}
-                  onInternalConnectionClick={handleInternalConnectionClick}
-                  onExternalConnectionClick={handleExternalConnectionClick}
-                  onUnconnectedNodeClick={handleUnconnectedNodeClick}
-                />
-              </div>
+              <PublicFormattedContent
+                content={content}
+                connections={connections}
+                entryId={entryId}
+                nodeEntriesInfo={nodeEntriesInfo}
+                userId={userIdParam}
+                title={title}
+                onInternalConnectionClick={handleInternalConnectionClick}
+                onExternalConnectionClick={handleExternalConnectionClick}
+                onUnconnectedNodeClick={handleUnconnectedNodeClick}
+              />
             )}
           </div>
         </div>

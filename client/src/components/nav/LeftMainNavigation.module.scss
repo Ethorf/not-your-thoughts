@@ -5,7 +5,7 @@
 .wrapper {
   transition: 1s all;
   position: fixed;
-  left: -95px;
+  left: -90px;
   display: flex;
   flex-direction: column;
   font-family: 'Poppins', sans-serif;
@@ -17,64 +17,69 @@
   &.sidebarOpen {
     left: 0;
     visibility: visible;
-    pointer-events: auto; // Re-enable pointer events when open
+    pointer-events: auto;
   }
-}
 
-.arrowContainer {
-  margin-top: 20px;
-  background-color: transparent;
-  border: none;
-  outline: none;
-  pointer-events: auto; // Arrow button should always be clickable
-}
-
-.arrow {
-  color: silver;
-  background-color: transparent;
-  opacity: 1;
-  outline: none;
-  height: 30px;
-  position: relative;
-  left: 28px;
-  transition: all 1.5s;
-  transform: rotate(0deg);
-
-  &:focus {
+  .arrowContainer {
+    margin-top: 20px;
+    background-color: transparent;
     border: none;
     outline: none;
+    pointer-events: auto; // Arrow button should always be clickable
   }
 
-  &:hover {
-    content: url('../../assets/Icons/down-arrow-white-2.png');
-    transition: all 0.5s;
-    cursor: pointer;
-  }
-
-  &.arrowRotate {
-    transform: rotate(180deg);
-    transition: all 1.5s;
-  }
-}
-
-.sidebarContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  opacity: 0;
-  transition: all 1s ease-in-out;
-  width: 180px;
-  padding-left: 12px;
-  max-height: 85vh;
-  background: black;
-  visibility: hidden;
-  pointer-events: none;
-
-  &.sidebarOpen {
+  .arrow {
+    color: silver;
+    background-color: transparent;
     opacity: 1;
+    outline: none;
+    height: 30px;
+    position: relative;
+    left: 28px;
+    transition: all 1.5s;
+    transform: rotate(0deg);
+
+    &:focus {
+      border: none;
+      outline: none;
+    }
+
+    &:hover {
+      content: url('../../assets/Icons/down-arrow-white-2.png');
+      transition: all 0.5s;
+      cursor: pointer;
+    }
+
+    &.arrowRotate {
+      transform: rotate(180deg);
+      transition: all 1.5s;
+    }
+  }
+
+  .sidebarContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    opacity: 0;
     transition: all 1s ease-in-out;
-    visibility: visible;
-    pointer-events: auto;
+    width: 200px;
+    padding-left: 12px;
+    padding-top: 12px;
+    max-height: 85vh;
+    background: black;
+    visibility: hidden;
+    pointer-events: none;
+
+    &.sidebarOpen {
+      opacity: 1;
+      transition: all 1s ease-in-out;
+      visibility: visible;
+      pointer-events: auto;
+      border: 1px solid $silver-faded;
+      border-radius: $default-border-radius;
+      padding-bottom: 12px;
+      padding-left: 22px;
+    }
   }
 }
 

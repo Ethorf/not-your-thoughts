@@ -1,50 +1,56 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Modal } from 'react-responsive-modal'
 import 'react-responsive-modal/styles.css'
 import { useHistory } from 'react-router-dom'
 
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
+import useIsMobile from '@hooks/useIsMobile'
 
 import styles from './PublicLegend.module.scss'
 
-const COOKIE_NAME = 'public_legend_seen'
-const COOKIE_EXPIRY_DAYS = 365
+// Disabled automatic showing of legend - cookie logic commented out
+// const COOKIE_NAME = 'public_legend_seen'
+// const COOKIE_EXPIRY_DAYS = 365
 
-const getCookieValue = (name) => {
-  if (typeof document === 'undefined') {
-    return null
-  }
+// const getCookieValue = (name) => {
+//   if (typeof document === 'undefined') {
+//     return null
+//   }
 
-  const cookies = document.cookie.split(';')
-  const cookie = cookies.find((c) => c.trim().startsWith(`${name}=`))
+//   const cookies = document.cookie.split(';')
+//   const cookie = cookies.find((c) => c.trim().startsWith(`${name}=`))
 
-  if (!cookie) {
-    return null
-  }
+//   if (!cookie) {
+//     return null
+//   }
 
-  return decodeURIComponent(cookie.split('=')[1])
-}
+//   return decodeURIComponent(cookie.split('=')[1])
+// }
 
-const setCookie = (name, value) => {
-  if (typeof document === 'undefined') {
-    return
-  }
+// const setCookie = (name, value) => {
+//   if (typeof document === 'undefined') {
+//     return
+//   }
 
-  const expiryDate = new Date()
-  expiryDate.setTime(expiryDate.getTime() + COOKIE_EXPIRY_DAYS * 24 * 60 * 60 * 1000)
+//   const expiryDate = new Date()
+//   expiryDate.setTime(expiryDate.getTime() + COOKIE_EXPIRY_DAYS * 24 * 60 * 60 * 1000)
 
-  document.cookie = `${name}=${value};expires=${expiryDate.toUTCString()};path=/`
-}
+//   document.cookie = `${name}=${value};expires=${expiryDate.toUTCString()};path=/`
+// }
 
 const PublicLegend = () => {
   const [isOpen, setIsOpen] = useState(false)
   const history = useHistory()
+  const isMobile = useIsMobile()
+  const contentRef = useRef(null)
+
   useEffect(() => {
-    const hasSeenLegend = getCookieValue(COOKIE_NAME)
-    if (!hasSeenLegend) {
-      setIsOpen(true)
-      setCookie(COOKIE_NAME, 'true')
-    }
+    // Disabled automatic showing of legend
+    // const hasSeenLegend = getCookieValue(COOKIE_NAME)
+    // if (!hasSeenLegend) {
+    //   setIsOpen(true)
+    //   setCookie(COOKIE_NAME, 'true')
+    // }
   }, [])
 
   const handleOpen = () => {
@@ -54,6 +60,33 @@ const PublicLegend = () => {
   const handleClose = () => {
     setIsOpen(false)
   }
+
+  useEffect(() => {
+    if (isOpen) {
+      // Lock body scroll when modal is open
+      document.body.style.overflow = 'hidden'
+
+      // Scroll modal to top on mobile when it opens
+      if (isMobile) {
+        setTimeout(() => {
+          const modalElement =
+            contentRef.current?.closest('[class*="react-responsive-modal-modal"]') ||
+            document.querySelector('[class*="react-responsive-modal-modal"]')
+          if (modalElement) {
+            modalElement.scrollTop = -1000
+          }
+        }, 100)
+      }
+    } else {
+      // Restore body scroll when modal is closed
+      document.body.style.overflow = ''
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isOpen, isMobile])
 
   return (
     <>
@@ -69,15 +102,18 @@ const PublicLegend = () => {
 
       <Modal
         classNames={{
+          root: styles.root,
+          modalContainer: styles.modalContainer,
           modal: styles.modal,
           overlay: styles.overlay,
           closeButton: styles.modalCloseButton,
         }}
         open={isOpen}
         onClose={handleClose}
-        center
+        center={false}
+        blockScroll={true}
       >
-        <div className={styles.content}>
+        <div ref={contentRef} className={styles.content}>
           <h2 className={styles.title}>What's Going On Here?</h2>
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>Browse Networks</h3>

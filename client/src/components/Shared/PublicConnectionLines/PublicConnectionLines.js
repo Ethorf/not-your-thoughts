@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { useHistory } from 'react-router-dom'
 import { transformConnection } from '@utils/transformConnection'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
+import useIsMobile from '@hooks/useIsMobile'
 import styles from './PublicConnectionLines.module.scss'
 
 const { PARENT, CHILD, SIBLING, EXTERNAL } = CONNECTION_TYPES.FRONTEND
@@ -14,6 +15,7 @@ const PublicConnectionLines = ({
   convergencePoint = { top: '50%', left: '50%' },
 }) => {
   const history = useHistory()
+  const isMobile = useIsMobile()
   const [tooltip, setTooltip] = useState({ visible: false, content: '', x: 0, y: 0 })
 
   const handleConnectionLineClick = (id) => {
@@ -51,6 +53,9 @@ const PublicConnectionLines = ({
 
   const handleMouseEnter = useCallback((connectionType, content) => {
     return (e) => {
+      // Don't show tooltips on mobile
+      if (isMobile) return
+      
       const prefix = getConnectionTypePrefix(connectionType)
       const textContent = extractTextFromHTML(content)
       const tooltipText = `${prefix}${textContent}`
@@ -62,7 +67,7 @@ const PublicConnectionLines = ({
         y: e.clientY + 10,
       })
     }
-  }, [])
+  }, [isMobile])
 
   const handleMouseLeave = useCallback(() => {
     setTooltip({ visible: false, content: '', x: 0, y: 0 })
@@ -194,7 +199,7 @@ const PublicConnectionLines = ({
       ))}
 
       {/* Custom cursor-following tooltip - rendered via portal to ensure it's above everything */}
-      {tooltip.visible &&
+      {!isMobile && tooltip.visible &&
         typeof document !== 'undefined' &&
         createPortal(
           <div

@@ -263,10 +263,12 @@ $content-section-width: 80vw;
 
 // Mobile responsive styles (max-width: 680px)
 @media (max-width: 680px) {
+  .wrapper {
+    overflow-y: hidden;
+  }
   .searchSection {
     max-width: 90vw;
     padding: 0 10px;
-    top: 10px;
   }
 
   .searchComponent {
@@ -277,7 +279,6 @@ $content-section-width: 80vw;
     top: 0;
     align-items: center;
     justify-content: flex-start;
-    margin-bottom: 100px;
   }
 
   .topContainer {
@@ -324,16 +325,12 @@ $content-section-width: 80vw;
   .content {
     width: 100%;
     max-width: 100%;
-    padding: 16px 8px 100px 8px;
+    padding: 16px 8px 200px 8px;
     font-size: 0.9rem;
     max-height: calc(100vh - 120px);
     border: none;
     border-radius: 0;
     text-align: center;
-
-    > p {
-      padding: 0 !important;
-    }
   }
 
   .contentWithHistory {

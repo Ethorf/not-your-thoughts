@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { transformConnection } from '@utils/transformConnection'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
+import useIsMobile from '@hooks/useIsMobile'
 import styles from './ConnectionLines.module.scss'
 
 import { setEntryById } from '@redux/reducers/currentEntryReducer'
@@ -12,6 +13,7 @@ const { PARENT, CHILD, SIBLING, EXTERNAL } = CONNECTION_TYPES.FRONTEND
 const ConnectionLines = ({ entryId, onBeforeNavigate }) => {
   const { connections } = useSelector((state) => state.connections)
   const dispatch = useDispatch()
+  const isMobile = useIsMobile()
   const [tooltip, setTooltip] = useState({ visible: false, content: '', x: 0, y: 0 })
 
   const handleConnectionLineClick = async (id) => {
@@ -51,6 +53,9 @@ const ConnectionLines = ({ entryId, onBeforeNavigate }) => {
 
   const handleMouseEnter = useCallback((connectionType, content) => {
     return (e) => {
+      // Don't show tooltips on mobile
+      if (isMobile) return
+      
       const prefix = getConnectionTypePrefix(connectionType)
       const textContent = extractTextFromHTML(content)
       const tooltipText = `${prefix}${textContent}`
@@ -62,7 +67,7 @@ const ConnectionLines = ({ entryId, onBeforeNavigate }) => {
         y: e.clientY + 10,
       })
     }
-  }, [])
+  }, [isMobile])
 
   const handleMouseLeave = useCallback(() => {
     setTooltip({ visible: false, content: '', x: 0, y: 0 })
@@ -183,7 +188,7 @@ const ConnectionLines = ({ entryId, onBeforeNavigate }) => {
       ))}
 
       {/* Custom cursor-following tooltip - rendered via portal to ensure it's above everything */}
-      {tooltip.visible &&
+      {!isMobile && tooltip.visible &&
         typeof document !== 'undefined' &&
         createPortal(
           <div
