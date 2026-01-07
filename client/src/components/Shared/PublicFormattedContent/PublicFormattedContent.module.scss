@@ -4,12 +4,11 @@
   position: relative !important;
 }
 
-// Mobile: Left-align lists and their markers
 @include mobile-all {
   .formattedContentWrapper {
     ol,
     ul {
-      padding-left: 24px !important;
+      padding-left: 0px !important;
       text-align: left !important;
     }
 
