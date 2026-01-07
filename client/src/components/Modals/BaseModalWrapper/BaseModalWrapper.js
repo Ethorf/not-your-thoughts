@@ -7,7 +7,7 @@ import useIsMobile from '@hooks/useIsMobile'
 
 import styles from './BaseModalWrapper.module.scss'
 
-export const BaseModalWrapper = ({ children, className, modalName, onOpen }) => {
+export const BaseModalWrapper = ({ children, className, modalName, onOpen, onClose: customOnClose }) => {
   const dispatch = useDispatch()
   const { isOpen, activeModal } = useSelector((state) => state.modals)
   const modalIsOpen = isOpen && activeModal === modalName
@@ -15,22 +15,26 @@ export const BaseModalWrapper = ({ children, className, modalName, onOpen }) => 
   const modalContentRef = useRef(null)
 
   const handleCloseModal = () => {
+    if (customOnClose) {
+      customOnClose()
+    }
     dispatch(closeModal())
   }
-  
+
   useEffect(() => {
     if (modalIsOpen) {
       onOpen && onOpen()
       // Lock body scroll when modal is open
       document.body.style.overflow = 'hidden'
-      
+
       // Scroll modal to top on mobile when it opens
       if (isMobile) {
         // Use setTimeout to ensure modal is rendered before scrolling
         setTimeout(() => {
           // Try multiple selectors to find the modal element
-          const modalElement = modalContentRef.current?.closest('[class*="react-responsive-modal-modal"]') ||
-                               document.querySelector('[class*="react-responsive-modal-modal"]')
+          const modalElement =
+            modalContentRef.current?.closest('[class*="react-responsive-modal-modal"]') ||
+            document.querySelector('[class*="react-responsive-modal-modal"]')
           if (modalElement) {
             modalElement.scrollTop = 0
           }
@@ -40,7 +44,7 @@ export const BaseModalWrapper = ({ children, className, modalName, onOpen }) => 
       // Restore body scroll when modal is closed
       document.body.style.overflow = ''
     }
-    
+
     // Cleanup on unmount
     return () => {
       document.body.style.overflow = ''
@@ -52,16 +56,18 @@ export const BaseModalWrapper = ({ children, className, modalName, onOpen }) => 
       classNames={{
         root: styles.root,
         modalContainer: styles.modalContainer,
-        modal: [className, styles.wrapper],
+        modal: `${styles.modal} ${isMobile ? styles.bottomSheet : ''} ${className || ''}`,
         overlay: styles.overlay,
         closeButton: styles.closeButton,
       }}
+      closeOnOverlayClick={true}
       open={modalIsOpen}
       onClose={handleCloseModal}
-      center={false}
+      center={!isMobile}
       blockScroll={true}
     >
-      <div ref={modalContentRef}>
+      <div ref={modalContentRef} className={styles.contentWrapper}>
+        {isMobile && <div className={styles.dragHandle} />}
         {children}
       </div>
     </Modal>

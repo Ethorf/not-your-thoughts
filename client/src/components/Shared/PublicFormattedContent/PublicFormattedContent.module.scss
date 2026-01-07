@@ -1,4 +1,20 @@
+@import '@styles/mixins.scss';
+
 .formattedContentWrapper {
   position: relative !important;
 }
 
+// Mobile: Left-align lists and their markers
+@include mobile-all {
+  .formattedContentWrapper {
+    ol,
+    ul {
+      padding-left: 24px !important;
+      text-align: left !important;
+    }
+
+    li {
+      text-align: left !important;
+    }
+  }
+}

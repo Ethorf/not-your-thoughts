@@ -35,8 +35,12 @@ axiosInstance.interceptors.request.use(
   }
 )
 
-// Function to attempt server restart
+// Function to attempt server restart (development only)
 const attemptServerRestart = async () => {
+  // Only attempt restart in development
+  if (process.env.NODE_ENV !== 'development') {
+    return
+  }
   try {
     await axiosInstance.post('api/health/restart-server')
     console.log('Server restart initiated')

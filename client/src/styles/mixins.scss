@@ -11,8 +11,15 @@
   }
 }
 //Screen Sizes
+
 @mixin mobile-small-only() {
   @media #{$mobile-small-only} {
+    @content;
+  }
+}
+
+@mixin mobile-all() {
+  @media #{$mobile-all} {
     @content;
   }
 }

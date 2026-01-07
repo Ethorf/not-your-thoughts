@@ -68,7 +68,6 @@ function SidebarNodeSelector({ className }) {
           setInputValue={setInputValue}
           options={nodeEntriesInfo?.filter((n) => n.id !== entryId).map((x) => x.title)}
           onSubmit={handleOnSubmit}
-          className={styles.dropDown}
         />
       ) : (
         <div className={styles.placeholder} />

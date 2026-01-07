@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import { BrowserRouter, Route, Switch, useLocation } from 'react-router-dom'
-import { CSSTransition, TransitionGroup } from 'react-transition-group'
 import { ToastContainer } from 'react-toastify'
 import { Tooltip } from 'react-tooltip'
 import 'react-toastify/dist/ReactToastify.css'
@@ -49,14 +48,13 @@ if (localStorage.token) {
 
 const AppContent = () => {
   const location = useLocation()
-  const mode = useSelector((state) => state.modes.mode)
   const { user } = useSelector((state) => state.auth)
   const isMobile = useIsMobile()
 
   // Hide NavBarTop for public routes
   const publicRoutes = ['/show-node-entry', '/public-dashboard', '/view-network']
   const isPublicRoute = publicRoutes.some((route) => location.pathname.startsWith(route))
-  
+
   // Hide NavBarTop on mobile for homepage
   const isHomepage = location.pathname === '/'
   const shouldShowNavBarTop = !isPublicRoute && !(isMobile && isHomepage)
@@ -67,58 +65,43 @@ const AppContent = () => {
       {shouldShowNavBarTop && <NavBarTop />}
       <LeftMainNavigation />
       {user && <RightSidebar />}
-      <TransitionGroup>
-        {/* TODO fix this transition or remove & change all together */}
-        <CSSTransition
-          // key={location.key}
-          // timeout={1100}
-          // classNames={mode === '-light' ? 'fade' : 'fad'}
-          // unmountOnExit
-        >
-          <Switch location={location}>
-            <Route path="/" exact>
-              {({ match }) => <Landing show={match !== null} />}
-            </Route>
-            <Route path="/login" exact>
-              {({ match }) => <Login show={match !== null} />}
-            </Route>
-            <Route path="/register" exact>
-              {({ match }) => <Register show={match !== null} />}
-            </Route>
-            <PrivateRoute path="/dashboard" exact component={Dashboard} />
-            <PrivateRoute path="/explore" exact component={Explore} />
-            <PrivateRoute path="/create-journal-entry" exact component={CreateJournalEntry} />
-            <PrivateRoute path="/profile" exact component={ProfilePage} />
-            <PrivateRoute path="/edit-node-entry" component={EditNodeEntry} />
-            <PrivateRoute path="/history" exact component={History} />
-            <PrivateRoute path="/entries" exact component={Entries} />
-            <Route path="/resources" exact>
-              {({ match }) => <Resources show={match !== null} />}
-            </Route>
-            <Route path="/modes" exact>
-              {({ match }) => <Modes show={match !== null} />}
-            </Route>
-            <Route path="/about" exact>
-              {({ match }) => <About show={match !== null} />}
-            </Route>
-            <Route path="/view-network" exact component={ViewNetwork} />
-            <Route path="/show-node-entry" exact component={PublicNodeEntry} />
-            <Route path="/public-dashboard" exact component={PublicDashboard} />
-          </Switch>
-        </CSSTransition>
-      </TransitionGroup>
+      <Switch location={location}>
+        <Route path="/" exact>
+          {({ match }) => <Landing show={match !== null} />}
+        </Route>
+        <Route path="/login" exact>
+          {({ match }) => <Login show={match !== null} />}
+        </Route>
+        <Route path="/register" exact>
+          {({ match }) => <Register show={match !== null} />}
+        </Route>
+        <PrivateRoute path="/dashboard" exact component={Dashboard} />
+        <PrivateRoute path="/explore" exact component={Explore} />
+        <PrivateRoute path="/create-journal-entry" exact component={CreateJournalEntry} />
+        <PrivateRoute path="/profile" exact component={ProfilePage} />
+        <PrivateRoute path="/edit-node-entry" component={EditNodeEntry} />
+        <PrivateRoute path="/history" exact component={History} />
+        <PrivateRoute path="/entries" exact component={Entries} />
+        <Route path="/resources" exact>
+          {({ match }) => <Resources show={match !== null} />}
+        </Route>
+        <Route path="/modes" exact>
+          {({ match }) => <Modes show={match !== null} />}
+        </Route>
+        <Route path="/about" exact>
+          {({ match }) => <About show={match !== null} />}
+        </Route>
+        <Route path="/view-network" exact component={ViewNetwork} />
+        <Route path="/show-node-entry" exact component={PublicNodeEntry} />
+        <Route path="/public-dashboard" exact component={PublicDashboard} />
+      </Switch>
     </>
   )
 }
 
 const App = () => {
-  // This one is basically just checking if you're already logged in
   useEffect(() => {
-    store.dispatch(loadUser())
-  }, [])
-
-  useEffect(() => {
-    checkServerStatus('http://localhost:8086/api/health', 5000) // Adjust URL and interval as needed
+    checkServerStatus('/api/health', 5000)
   }, [])
 
   const mode = useSelector((state) => state.modes.mode)

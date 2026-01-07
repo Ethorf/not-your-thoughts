@@ -2,20 +2,25 @@ import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { useLocation, useHistory } from 'react-router-dom'
 import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 import classNames from 'classnames'
+
+// Components
 import PublicConnectionLines from '@components/Shared/PublicConnectionLines/PublicConnectionLines'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import PublicHistory from '@components/Shared/PublicHistory/PublicHistory'
-import PublicHistoryModal from '@components/Shared/PublicHistoryModal/PublicHistoryModal'
-import PublicConnectionsModal from '@components/Shared/PublicConnectionsModal/PublicConnectionsModal'
 import PublicHistoryDiff from '@components/Shared/PublicHistoryDiff/PublicHistoryDiff'
 import PublicLegend from '@components/Shared/PublicLegend/PublicLegend'
 import PublicNodeSearch from '@components/Shared/PublicNodeSearch/PublicNodeSearch'
 import PublicFormattedContent from '@components/Shared/PublicFormattedContent/PublicFormattedContent'
+import PublicModalsContainer from '@components/Shared/PublicModalsContainer/PublicModalsContainer'
+
+// Utils & Hooks
 import { markNodeAsRead, getNodeStatus } from '@utils/nodeReadStatus'
 import useFilteredEntryContents from '@hooks/useFilteredEntryContents'
 import useIsMobile from '@hooks/useIsMobile'
-import styles from './PublicNodeEntry.module.scss'
+
+// Constants
+import { MODAL_NAMES } from '@constants/modalNames'
 
 // Redux
 import {
@@ -24,8 +29,10 @@ import {
   fetchPublicEntryContents,
 } from '@redux/reducers/currentEntryReducer'
 import { fetchPublicConnections } from '@redux/reducers/connectionsReducer'
+import { openModal } from '@redux/reducers/modalsReducer'
 
 import sharedStyles from '@styles/sharedClassnames.module.scss'
+import styles from './PublicNodeEntry.module.scss'
 
 const PublicNodeEntry = () => {
   const history = useHistory()
@@ -49,13 +56,13 @@ const PublicNodeEntry = () => {
   const userIdParam = params.get('userId')
 
   // Check if the logged-in user is viewing their own content
-  const isOwner = isAuthenticated && user?.id === userIdParam
+  const isOwner = isAuthenticated
 
   const [isHistoryExpanded, setIsHistoryExpanded] = useState(false)
-  const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false)
   const [displayContent, setDisplayContent] = useState(null)
   const [selectedVersionIndex, setSelectedVersionIndex] = useState(null)
   const [status, setStatus] = useState('unread')
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false)
   const isMobile = useIsMobile()
   const centerIndicatorRef = useRef(null)
   const hasFetchedNodeEntriesRef = useRef(false)
@@ -220,6 +227,34 @@ const PublicNodeEntry = () => {
     [history, userIdParam]
   )
 
+  // Open connections modal on mobile
+  const handleOpenConnectionsModal = useCallback(() => {
+    dispatch(
+      openModal({
+        name: MODAL_NAMES.PUBLIC_CONNECTIONS,
+        data: {
+          connections: connections || [],
+          entryId,
+          userId: userIdParam,
+        },
+      })
+    )
+  }, [dispatch, connections, entryId, userIdParam])
+
+  // Open history modal on mobile
+  const handleOpenHistoryModal = useCallback(() => {
+    dispatch(
+      openModal({
+        name: MODAL_NAMES.PUBLIC_HISTORY,
+        data: {
+          entryId,
+          userId: userIdParam,
+          onVersionSelect: handleVersionSelect,
+        },
+      })
+    )
+  }, [dispatch, entryId, userIdParam, handleVersionSelect])
+
   if (!entryIdParam || !userIdParam) {
     return (
       <div className={styles.wrapper}>
@@ -246,6 +281,8 @@ const PublicNodeEntry = () => {
 
   return (
     <div className={styles.wrapper}>
+      {/* Public modals container - renders all modals via Redux */}
+      <PublicModalsContainer />
       <PublicLegend />
       <div className={styles.searchSection}>
         <PublicNodeSearch
@@ -255,13 +292,14 @@ const PublicNodeEntry = () => {
           nodeEntriesInfo={nodeEntriesInfo || []}
           userId={userIdParam}
           collapsible={true}
+          onExpandChange={setIsSearchExpanded}
         />
       </div>
-      <div className={styles.contentContainer}>
+      <div className={classNames(styles.contentContainer, { [styles.searchExpanded]: isSearchExpanded })}>
         <div className={styles.topContainer}>
           <div className={styles.leftButtons}>
             <DefaultButton
-              onClick={handleToggleHistory}
+              onClick={isMobile ? handleOpenHistoryModal : handleToggleHistory}
               className={styles.historyButton}
               tooltip={'View history'}
               isSelected={isHistoryExpanded}
@@ -304,7 +342,7 @@ const PublicNodeEntry = () => {
           </div>
           <div className={styles.buttonRow}>
             <DefaultButton
-              onClick={handleToggleHistory}
+              onClick={isMobile ? handleOpenHistoryModal : handleToggleHistory}
               className={styles.historyButton}
               tooltip={'View history'}
               isSelected={isHistoryExpanded}
@@ -318,7 +356,7 @@ const PublicNodeEntry = () => {
             )}
             {isMobile ? (
               <DefaultButton
-                onClick={() => setIsConnectionsModalOpen(true)}
+                onClick={handleOpenConnectionsModal}
                 className={styles.networkButton}
                 tooltip="View connections"
               >
@@ -349,24 +387,6 @@ const PublicNodeEntry = () => {
               onVersionSelect={handleVersionSelect}
             />
           </div>
-          {isMobile && (
-            <>
-              <PublicHistoryModal
-                isOpen={isHistoryExpanded}
-                onClose={handleToggleHistory}
-                entryId={entryId}
-                userId={userIdParam}
-                onVersionSelect={handleVersionSelect}
-              />
-              <PublicConnectionsModal
-                isOpen={isConnectionsModalOpen}
-                onClose={() => setIsConnectionsModalOpen(false)}
-                connections={connections || []}
-                entryId={entryId}
-                userId={userIdParam}
-              />
-            </>
-          )}
           <div className={classNames(styles.content, isHistoryExpanded && styles.contentWithHistory)}>
             <div ref={centerIndicatorRef} className={styles.centerIndicator} />
             {displayContent !== null && selectedVersionIndex !== null ? (

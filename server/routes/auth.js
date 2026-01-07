@@ -58,8 +58,6 @@ router.post('/register', validInfo, async (req, res) => {
 // Login a user
 router.post('/login', validInfo, async (req, res) => {
   const { email, password } = req.body
-  console.log('<<<<<< req.body >>>>>>>>> is: <<<<<<<<<<<<')
-  console.log(req.body)
 
   const lowerCaseEmail = email.toLowerCase()
   try {

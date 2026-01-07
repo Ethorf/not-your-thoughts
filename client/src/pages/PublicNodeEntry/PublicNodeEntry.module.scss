@@ -1,5 +1,6 @@
 @import '@styles/variables';
 @import '@styles/mixins';
+
 $content-section-width: 80vw;
 
 .wrapper {
@@ -262,13 +263,14 @@ $content-section-width: 80vw;
 }
 
 // Mobile responsive styles (max-width: 680px)
-@media (max-width: 680px) {
+@include mobile-all {
   .wrapper {
     overflow-y: hidden;
   }
   .searchSection {
     max-width: 90vw;
     padding: 0 10px;
+    margin-bottom: 22px;
   }
 
   .searchComponent {
@@ -276,9 +278,14 @@ $content-section-width: 80vw;
   }
 
   .contentContainer {
-    top: 0;
+    top: 16px;
     align-items: center;
     justify-content: flex-start;
+    transition: transform 0.3s ease-in-out;
+
+    &.searchExpanded {
+      transform: translateY($mobile-search-expanded-offset);
+    }
   }
 
   .topContainer {
@@ -350,6 +357,7 @@ $content-section-width: 80vw;
     li {
       padding-left: 0 !important;
       padding-right: 0 !important;
+      text-align: left !important;
     }
   }
 

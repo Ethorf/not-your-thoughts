@@ -1,44 +1,31 @@
-import React, { useEffect, useRef } from 'react'
-import { Modal } from 'react-responsive-modal'
+import React from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import 'react-responsive-modal/styles.css'
+
 import { transformConnection } from '@utils/transformConnection'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
-import useIsMobile from '@hooks/useIsMobile'
+import { MODAL_NAMES } from '@constants/modalNames'
+import { BaseModalWrapper } from '@components/Modals/BaseModalWrapper/BaseModalWrapper'
+import { closeModal } from '@redux/reducers/modalsReducer'
+
 import styles from './PublicConnectionsModal.module.scss'
 
 const { PARENT, CHILD, SIBLING, EXTERNAL } = CONNECTION_TYPES.FRONTEND
 
-const PublicConnectionsModal = ({ isOpen, onClose, connections = [], entryId, userId }) => {
+/**
+ * Public Connections Modal - shows all connections for a node entry
+ * Uses Redux state management through BaseModalWrapper
+ */
+export const PublicConnectionsModal = () => {
+  const dispatch = useDispatch()
   const history = useHistory()
-  const isMobile = useIsMobile()
-  const contentRef = useRef(null)
+  const { modalData } = useSelector((state) => state.modals)
 
-  useEffect(() => {
-    if (isOpen) {
-      // Lock body scroll when modal is open
-      document.body.style.overflow = 'hidden'
-      
-      // Scroll modal to top on mobile when it opens
-      if (isMobile) {
-        setTimeout(() => {
-          const modalElement = contentRef.current?.closest('[class*="react-responsive-modal-modal"]') ||
-                               document.querySelector('[class*="react-responsive-modal-modal"]')
-          if (modalElement) {
-            modalElement.scrollTop = 0
-          }
-        }, 100)
-      }
-    } else {
-      // Restore body scroll when modal is closed
-      document.body.style.overflow = ''
-    }
-    
-    // Cleanup on unmount
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [isOpen, isMobile])
+  // Get data from modalData (set when opening the modal)
+  const connections = modalData?.connections || []
+  const entryId = modalData?.entryId
+  const userId = modalData?.userId
 
   const handleNodeClick = (connection) => {
     if (!connection || !userId) return
@@ -53,7 +40,7 @@ const PublicConnectionsModal = ({ isOpen, onClose, connections = [], entryId, us
     const targetNode = transformConnection(entryId, connection)
     if (targetNode?.id) {
       history.push(`/show-node-entry?userId=${userId}&entryId=${targetNode.id}`)
-      onClose() // Close modal after navigation
+      dispatch(closeModal())
     }
   }
 
@@ -72,22 +59,14 @@ const PublicConnectionsModal = ({ isOpen, onClose, connections = [], entryId, us
     }
   }
 
+  const handleClose = () => {
+    dispatch(closeModal())
+  }
+
   return (
-    <Modal
-      open={isOpen}
-      onClose={onClose}
-      center={false} // Disable centering for full-screen mobile
-      blockScroll={true}
-      classNames={{
-        root: styles.root,
-        modalContainer: styles.modalContainer,
-        modal: styles.modal,
-        overlay: styles.overlay,
-        closeButton: styles.closeButton,
-      }}
-    >
-      <div ref={contentRef} className={styles.content}>
-        <h2 className={styles.title}>Connections</h2>
+    <BaseModalWrapper modalName={MODAL_NAMES.PUBLIC_CONNECTIONS} className={styles.connectionsModal}>
+      <h2 className={styles.title}>Connections</h2>
+      <div className={styles.content}>
         {connections.length === 0 ? (
           <div className={styles.emptyMessage}>No connections found</div>
         ) : (
@@ -97,7 +76,7 @@ const PublicConnectionsModal = ({ isOpen, onClose, connections = [], entryId, us
               const isExternal = connection.connection_type === EXTERNAL
 
               return (
-                <div key={connection.id} className={styles.connectionItem}>
+                <div onClick={() => handleNodeClick(connection)} key={connection.id} className={styles.connectionItem}>
                   <div className={styles.connectionType}>{getConnectionTypeLabel(connection.connection_type)}</div>
                   <div className={styles.connectionContent}>
                     {isExternal ? (
@@ -106,17 +85,12 @@ const PublicConnectionsModal = ({ isOpen, onClose, connections = [], entryId, us
                         target="_blank"
                         rel="noopener noreferrer"
                         className={styles.connectionLink}
-                        onClick={() => onClose()}
+                        onClick={handleClose}
                       >
                         {connection.primary_source || connection.foreign_source || 'External Link'}
                       </a>
                     ) : (
-                      <button
-                        className={styles.connectionButton}
-                        onClick={() => handleNodeClick(connection)}
-                      >
-                        {targetNode?.title || 'Untitled'}
-                      </button>
+                      <button className={styles.connectionButton}>{targetNode?.title || 'Untitled'}</button>
                     )}
                   </div>
                 </div>
@@ -125,9 +99,8 @@ const PublicConnectionsModal = ({ isOpen, onClose, connections = [], entryId, us
           </div>
         )}
       </div>
-    </Modal>
+    </BaseModalWrapper>
   )
 }
 
 export default PublicConnectionsModal
-
