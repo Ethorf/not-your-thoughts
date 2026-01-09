@@ -106,3 +106,9 @@
 .externalConnectionInput {
   width: 50%;
 }
+
+@include mobile-all {
+  .title {
+    margin-left: 10px;
+  }
+}

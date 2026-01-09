@@ -10,6 +10,7 @@ import sharedStyles from '@styles/sharedClassnames.module.scss'
 import { PublicNodesDashboardList } from '@components/Shared/PublicNodesDashboardList/PublicNodesDashboardList'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import PublicLegend from '@components/Shared/PublicLegend/PublicLegend'
+import PublicModalsContainer from '@components/Shared/PublicModalsContainer/PublicModalsContainer'
 
 // Utils
 import { checkAndUpdateNodeStatuses } from '@utils/nodeReadStatus'
@@ -77,6 +78,7 @@ const PublicDashboard = () => {
 
   return (
     <div className={classNames(styles.wrapper, sharedStyles.flexColumnCenter)}>
+      <PublicModalsContainer />
       <PublicLegend />
       <h1 className={styles.title}>Eric Thorfinnson's Nodes</h1>
       <div className={styles.nodesSection}>

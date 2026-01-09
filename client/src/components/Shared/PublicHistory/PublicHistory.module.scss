@@ -6,7 +6,8 @@
   max-height: 70vh;
   display: flex;
   flex-direction: column;
-  z-index: 3;
+  z-index: $connection-lines-z-index + 2;
+  position: relative;
   width: 20vw;
 }
 

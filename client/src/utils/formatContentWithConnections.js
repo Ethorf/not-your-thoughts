@@ -11,13 +11,16 @@ function escapeRegExp(string) {
   return string?.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
+// Store styles reference for use in formatContentWithConnections
+let currentStyles = {}
+
 /**
  * Creates format rules from connections for highlighting connected text
  * @param {Array} connections - Array of connection objects
  * @param {string} entryId - Current entry ID
  * @param {Function} onInternalConnectionClick - Callback for internal connection clicks
  * @param {Function} onExternalConnectionClick - Optional callback for external connection clicks
- * @param {string} styles - CSS module styles object
+ * @param {Object} styles - CSS module styles object
  * @returns {Object} Rules object mapping connection sources to React elements
  */
 export const createFormatRules = (
@@ -27,6 +30,8 @@ export const createFormatRules = (
   onExternalConnectionClick = null,
   styles = {}
 ) => {
+  // Store styles for use in formatContentWithConnections
+  currentStyles = styles
   const rules = {}
 
   connections?.forEach(({ primary_source, connection_type, foreign_entry_id, foreign_source }) => {
@@ -260,6 +265,22 @@ export const formatContentWithConnections = (
             return null
           }
           return <p key={`${paragraphIndex}-${Math.random()}`}>{children}</p>
+        case 'a':
+          // Handle anchor tags with proper external connection styling
+          const href = node.getAttribute('href')
+          return (
+            <a
+              key={`${paragraphIndex}-${Math.random()}`}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={currentStyles.externalConnection}
+              data-tooltip-id="main-tooltip"
+              data-tooltip-content="External link"
+            >
+              {children}
+            </a>
+          )
         default:
           return children
       }

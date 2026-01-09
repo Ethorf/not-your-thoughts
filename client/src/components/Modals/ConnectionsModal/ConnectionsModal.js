@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 // Constants
@@ -22,7 +22,6 @@ import EditNodeLink from '@components/Shared/EditNodeLink/EditNodeLink'
 import {
   createConnection,
   deleteConnection,
-  setConnectionTitleInput,
   setConnectionSourceType,
   getSelectedText,
   updateConnection,
@@ -54,13 +53,12 @@ export const ConnectionsModal = () => {
   const {
     connections,
     connectionsLoading,
-    connectionTitleInput,
     connectionSourceType,
     modalConnectionType,
     selectedPrimarySourceText,
     selectedForeignSourceText,
   } = useSelector((state) => state.connections)
-  const { content, entryId, title, isTopLevel } = useSelector((state) => state.currentEntry)
+  const { content, entryId, title, isTopLevel, nodeEntriesInfo } = useSelector((state) => state.currentEntry)
 
   const [localForeignEntryId, setLocalForeignEntryId] = useState(null)
   const [localForeignEntryContent, setLocalForeignEntryContent] = useState(null)
@@ -69,14 +67,12 @@ export const ConnectionsModal = () => {
   const [externalLinkInput, setExternalLinkInput] = useState(null)
   const [newNodeTitle, setNewNodeTitle] = useState('')
 
-  // Reset all local state values on load
-
-  const resetLocalState = async () => {
-    await dispatch(setConnectionTitleInput(''))
+  const resetLocalState = useCallback(() => {
     setLocalForeignEntryId(null)
     setExternalLinkInput(null)
     setConnectionDescription('')
-  }
+    setNewNodeTitle('')
+  }, [])
 
   // Reset connection type if it's PARENT and node is top-level
   useEffect(() => {
@@ -85,9 +81,10 @@ export const ConnectionsModal = () => {
     }
   }, [isTopLevel, localConnectionType])
 
-  const handleModalOpen = async () => {
-    await resetLocalState()
-  }
+  // Memoize handleModalOpen so it doesn't trigger BaseModalWrapper's useEffect on every render
+  const handleModalOpen = useCallback(() => {
+    resetLocalState()
+  }, [resetLocalState])
 
   useEffect(() => {
     const fetchForeignEntry = async () => {
@@ -111,7 +108,7 @@ export const ConnectionsModal = () => {
         source_type: connectionSourceType,
       })
     )
-    await resetLocalState()
+    resetLocalState()
   }
 
   const handleUpdateNodeWithLink = async (content, linkString, link) => {
@@ -144,7 +141,7 @@ export const ConnectionsModal = () => {
     )
 
     if (selectedPrimarySourceText) await handleUpdateNodeWithLink(content, selectedPrimarySourceText, externalLinkInput)
-    await resetLocalState()
+    resetLocalState()
   }
 
   const handleCreateConnection = async () => {
@@ -153,10 +150,40 @@ export const ConnectionsModal = () => {
     } else if (localForeignEntryId) {
       await onCreateConnection()
     } else {
-      const newNode = await dispatch(createNodeEntry({ title: newNodeTitle }))
-      const newForeignEntryId = newNode?.payload ?? null
+      // First, check if a node with this title already exists
+      const existingNode = nodeEntriesInfo?.find((node) => node.title?.toLowerCase() === newNodeTitle?.toLowerCase())
 
-      if (!newForeignEntryId) {
+      if (existingNode) {
+        // Node exists - connect to it instead of creating a new one
+        setLocalForeignEntryId(existingNode.id)
+        await dispatch(
+          createConnection({
+            connection_type: localConnectionType,
+            current_entry_id: entryId,
+            foreign_entry_id: localConnectionType === PARENT ? entryId : existingNode.id,
+            primary_entry_id: localConnectionType === PARENT ? existingNode.id : entryId,
+            primary_source: connectionSourceType === DESCRIPTIVE ? connectionDescription : selectedPrimarySourceText,
+            foreign_source: connectionSourceType === DIRECT ? selectedForeignSourceText : null,
+            source_type: connectionSourceType,
+          })
+        )
+        resetLocalState()
+        return
+      }
+
+      // Creating a new node
+      const newNode = await dispatch(createNodeEntry({ title: newNodeTitle }))
+
+      // Check if the action was rejected (e.g., title already exists)
+      if (newNode.type?.endsWith('/rejected')) {
+        console.error('Failed to create new node:', newNode)
+        return
+      }
+
+      const newForeignEntryId = newNode?.payload
+
+      // Validate that we got a valid numeric ID
+      if (!newForeignEntryId || typeof newForeignEntryId !== 'number') {
         console.error('Failed to create new node - no valid ID returned:', newNode)
         showToast('Failed to create new node', 'error')
         return
@@ -173,7 +200,7 @@ export const ConnectionsModal = () => {
           source_type: connectionSourceType,
         })
       )
-      await resetLocalState()
+      resetLocalState()
     }
   }
 
@@ -254,8 +281,6 @@ export const ConnectionsModal = () => {
                 className={styles.nodeSelect}
                 onChange={(value) => setNewNodeTitle(value)}
                 onSelect={(value) => setLocalForeignEntryId(value)}
-                setInputValue={(e) => dispatch(setConnectionTitleInput(e))}
-                inputValue={connectionTitleInput}
               />
             </>
           )}

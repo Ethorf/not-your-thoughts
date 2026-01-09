@@ -22,7 +22,7 @@
   transition: opacity 0.3s ease;
   pointer-events: auto; // Enable clicking on individual lines
   // Make the clickable area larger than the visual line
-  width: 55vw;
+  width: 150vw;
   height: 30px;
   margin-top: -15px; // Center the clickable area
 
@@ -58,7 +58,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 55vw;
+  width: 150vw;
   height: 20px;
   background: linear-gradient(
     rgba(192, 192, 192, 0.1) 0%,
@@ -130,8 +130,9 @@
 
 // Responsive adjustments
 @media (max-width: 768px) {
+  .connectionLine,
   .connectionLine::before {
-    width: 100vw; // Still extend to screen edge on mobile
+    width: 150vw; // Extend well beyond screen edge on mobile
   }
 }
 

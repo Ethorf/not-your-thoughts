@@ -7,6 +7,7 @@ import styles from './PublicNodeSearch.module.scss'
 const PublicNodeSearch = ({
   mode = 'filter', // 'filter' for dashboard, 'navigate' for explore
   onFilterChange = null, // callback for filter mode
+  onExpandChange = null, // callback when expand state changes
   placeholder = 'Search nodes...',
   className = '',
   showResults = true,
@@ -185,8 +186,20 @@ const PublicNodeSearch = ({
     }
   }, [mode])
 
+  // Notify parent when expand state changes
+  useEffect(() => {
+    if (onExpandChange) {
+      onExpandChange(isExpanded)
+    }
+  }, [isExpanded, onExpandChange])
+
   return (
-    <div className={classNames(styles.nodeSearch, className, { [styles.collapsible]: collapsible })}>
+    <div
+      className={classNames(styles.nodeSearch, className, {
+        [styles.collapsible]: collapsible,
+        [styles.isExpanded]: isExpanded,
+      })}
+    >
       {collapsible && (
         <button
           ref={iconRef}

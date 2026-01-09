@@ -17,6 +17,10 @@ const {
   FRONTEND: { EXTERNAL, PARENT },
 } = CONNECTION_TYPES
 
+// Cache for sub-connections to prevent duplicate requests
+const subConnectionsCache = new Map()
+const pendingRequests = new Map()
+
 const PublicConnectionSpheres = ({
   conn,
   connId,
@@ -37,22 +41,63 @@ const PublicConnectionSpheres = ({
     const fetchSubs = async () => {
       if (!connId || !userId) return
 
-      try {
-        setFetchError(null)
-        const resolvedUserId = resolvePublicUserId(userId)
-        const response = await fetch(`/api/connections/public/${connId}?userId=${resolvedUserId}`)
+      const cacheKey = `${connId}:${userId}`
+      
+      // Check cache first
+      if (subConnectionsCache.has(cacheKey)) {
+        setSubConnections(subConnectionsCache.get(cacheKey))
+        return
+      }
 
-        if (!response.ok) {
-          if (response.status === 204) {
-            // No connections found - this is okay
-            setSubConnections([])
-            return
-          }
-          throw new Error('Failed to fetch sub-connections')
+      // Check if request is already pending
+      if (pendingRequests.has(cacheKey)) {
+        // Wait for pending request to complete
+        try {
+          const cachedData = await pendingRequests.get(cacheKey)
+          setSubConnections(cachedData)
+          return
+        } catch (err) {
+          setFetchError(err)
+          setSubConnections([])
+          return
         }
+      }
 
-        const data = await response.json()
-        setSubConnections(data.connections || [])
+      // Create new request
+      const requestPromise = (async () => {
+        try {
+          setFetchError(null)
+          const resolvedUserId = resolvePublicUserId(userId)
+          const response = await fetch(`/api/connections/public/${connId}?userId=${resolvedUserId}`)
+
+          if (!response.ok) {
+            if (response.status === 204) {
+              // No connections found - this is okay
+              const emptyArray = []
+              subConnectionsCache.set(cacheKey, emptyArray)
+              pendingRequests.delete(cacheKey)
+              return emptyArray
+            }
+            throw new Error('Failed to fetch sub-connections')
+          }
+
+          const data = await response.json()
+          const connections = data.connections || []
+          subConnectionsCache.set(cacheKey, connections)
+          pendingRequests.delete(cacheKey)
+          return connections
+        } catch (err) {
+          pendingRequests.delete(cacheKey)
+          throw err
+        }
+      })()
+
+      // Store pending request
+      pendingRequests.set(cacheKey, requestPromise)
+
+      try {
+        const connections = await requestPromise
+        setSubConnections(connections)
       } catch (err) {
         console.error('Error fetching sub-connections:', err)
         setFetchError(err)

@@ -7,6 +7,7 @@ import { SAVE_TYPES } from '@constants/saveTypes'
 
 import { showToast } from '@utils/toast'
 import { resolvePublicUserId } from '@utils/resolvePublicUserId'
+import { createDeduplicationCondition, clearPendingRequest } from '@utils/requestDeduplication'
 
 const { NODE, JOURNAL } = ENTRY_TYPES
 
@@ -121,27 +122,6 @@ export const saveNodeEntry = createAsyncThunk(
 
       await dispatch(fetchNodeEntriesInfo())
 
-      // Clean up obsolete connections
-
-      // const state = getState()
-      // const text = (state.currentEntry.content || '').toLowerCase()
-      // const allConnections = state.connections.connections
-
-      // const connectionsToDelete =
-      //   allConnections?.filter((conn) => {
-      //     const { primary_source, source_type } = conn
-      //     return (
-      //       (source_type === CONNECTION_SOURCE_TYPES.DIRECT || source_type === CONNECTION_SOURCE_TYPES.SINGLE_WORD) &&
-      //       primary_source &&
-      //       !text.includes(primary_source.toLowerCase())
-      //     )
-      //   }) || []
-
-      // for (const conn of connectionsToDelete) {
-      //   dispatch(deleteConnection(conn.id))
-      // }
-
-      // const cleanedConnections = connectionsToDelete.length > 0
       const cleanedConnections = false
 
       if (saveType === AUTO) {
@@ -338,6 +318,7 @@ export const toggleEntryIsPrivate = createAsyncThunk(
 export const fetchPublicEntry = createAsyncThunk(
   'currentEntryReducer/fetchPublicEntry',
   async ({ entryId, userId }, { rejectWithValue }) => {
+    const arg = { entryId, userId }
     try {
       const resolvedUserId = resolvePublicUserId(userId)
       const response = await fetch(`/api/entries/public/entry/${entryId}?userId=${resolvedUserId}`)
@@ -348,7 +329,12 @@ export const fetchPublicEntry = createAsyncThunk(
       return data
     } catch (error) {
       return rejectWithValue({ message: error.message || 'Failed to fetch entry' })
+    } finally {
+      clearPendingRequest('currentEntryReducer/fetchPublicEntry', arg)
     }
+  },
+  {
+    condition: createDeduplicationCondition('currentEntryReducer/fetchPublicEntry'),
   }
 )
 
@@ -366,13 +352,19 @@ export const fetchPublicNodeEntriesInfo = createAsyncThunk(
       return data.nodeEntries || []
     } catch (error) {
       return rejectWithValue({ message: error.message || 'Failed to fetch nodes' })
+    } finally {
+      clearPendingRequest('currentEntryReducer/fetchPublicNodeEntriesInfo', userId)
     }
+  },
+  {
+    condition: createDeduplicationCondition('currentEntryReducer/fetchPublicNodeEntriesInfo'),
   }
 )
 
 export const fetchPublicEntryContents = createAsyncThunk(
   'currentEntryReducer/fetchPublicEntryContents',
   async ({ entryId, userId }, { rejectWithValue }) => {
+    const arg = { entryId, userId }
     try {
       const resolvedUserId = resolvePublicUserId(userId)
       const response = await fetch(`/api/entries/public/entry_contents/${entryId}?userId=${resolvedUserId}`)
@@ -384,7 +376,12 @@ export const fetchPublicEntryContents = createAsyncThunk(
       return data.contents || []
     } catch (error) {
       return rejectWithValue({ message: error.message || 'Failed to fetch entry contents' })
+    } finally {
+      clearPendingRequest('currentEntryReducer/fetchPublicEntryContents', arg)
     }
+  },
+  {
+    condition: createDeduplicationCondition('currentEntryReducer/fetchPublicEntryContents'),
   }
 )
 
@@ -569,7 +566,7 @@ const currentEntrySlice = createSlice({
         const needsLoading = !state.entryId || state.entryId !== requestedEntryId || !state.title || !state.content
         // Clear entryContents if we're switching to a different entry
         const switchingEntries = state.entryId && state.entryId !== requestedEntryId
-        
+
         state.entriesLoading = needsLoading
         // Clear if loading new entry or switching entries
         if (needsLoading || switchingEntries) {
@@ -579,12 +576,7 @@ const currentEntrySlice = createSlice({
         // This prevents memory accumulation when switching between users
       })
       .addCase(fetchPublicEntry.fulfilled, (state, action) => {
-        const {
-          content,
-          id: entryId,
-          num_of_words: wordCount,
-          title,
-        } = action.payload
+        const { content, id: entryId, num_of_words: wordCount, title } = action.payload
 
         return {
           ...state,
@@ -601,8 +593,7 @@ const currentEntrySlice = createSlice({
           entriesLoading: false,
         }
       })
-      .addCase(fetchPublicNodeEntriesInfo.pending, (state, action) => {
-        const requestedUserId = action.meta.arg
+      .addCase(fetchPublicNodeEntriesInfo.pending, (state) => {
         // Clear existing nodeEntriesInfo to prevent memory accumulation when switching users
         // This ensures we don't keep data from previous users in memory
         return {

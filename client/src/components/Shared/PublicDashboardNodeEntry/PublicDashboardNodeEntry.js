@@ -79,9 +79,9 @@ export const PublicDashboardNodeEntry = ({ node = {}, userId }) => {
           {parseDate(date_last_modified)}
         </div>
       ) : (
-        <div>Not yet...</div>
+        <div className={styles.date}>Not yet...</div>
       )}
-      <TextButton
+      <div
         tooltip={`view: ${title}`}
         className={classNames(styles.titleButton, {
           [styles.read]: status === 'read',
@@ -90,7 +90,7 @@ export const PublicDashboardNodeEntry = ({ node = {}, userId }) => {
         onClick={handleViewNode}
       >
         {title}
-      </TextButton>
+      </div>
       {!isMobile && (
         <div className={styles.wordCount} data-tooltip-id="main-tooltip" data-tooltip-content="word count">
           {wordCount.toLocaleString()} {wordCount === 1 ? 'word' : 'words'}

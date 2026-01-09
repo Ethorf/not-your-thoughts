@@ -15,9 +15,14 @@ export const NodesDashboardList = () => {
     // Apply search filter if provided
     if (searchFilter.trim()) {
       const term = searchFilter.toLowerCase()
-      filtered = filtered.filter(
-        (node) => node.title?.toLowerCase().includes(term) || node.content?.toLowerCase().includes(term)
-      )
+      filtered = filtered.filter((node) => {
+        const titleMatch = node.title?.toLowerCase().includes(term)
+        // Handle content as either a string or an array
+        const contentMatch = Array.isArray(node.content)
+          ? node.content.some((c) => c?.toLowerCase?.().includes(term))
+          : node.content?.toLowerCase?.().includes(term)
+        return titleMatch || contentMatch
+      })
     }
 
     if (sortBy === 'recent') {

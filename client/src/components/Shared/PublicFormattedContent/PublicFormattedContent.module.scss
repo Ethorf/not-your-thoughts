@@ -1,4 +1,19 @@
+@import '@styles/mixins.scss';
+
 .formattedContentWrapper {
   position: relative !important;
 }
 
+@include mobile-all {
+  .formattedContentWrapper {
+    ol,
+    ul {
+      padding-left: 0px !important;
+      text-align: left !important;
+    }
+
+    li {
+      text-align: left !important;
+    }
+  }
+}

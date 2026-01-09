@@ -8,6 +8,7 @@ import { SAVE_TYPES } from '@constants/saveTypes'
 // import { showToast } from '@utils/toast' // Unused
 import { hasOneWord } from '@utils/hasOneWord'
 import { resolvePublicUserId } from '@utils/resolvePublicUserId'
+import { createDeduplicationCondition, clearPendingRequest } from '@utils/requestDeduplication'
 
 import { saveNodeEntry } from '@redux/reducers/currentEntryReducer'
 
@@ -101,6 +102,7 @@ export const fetchAllConnections = createAsyncThunk(
 export const fetchPublicConnections = createAsyncThunk(
   'connections/fetchPublicConnections',
   async ({ entryId, userId }, { rejectWithValue }) => {
+    const arg = { entryId, userId }
     try {
       const resolvedUserId = resolvePublicUserId(userId)
       const response = await fetch(`/api/connections/public/${entryId}?userId=${resolvedUserId}`)
@@ -115,7 +117,12 @@ export const fetchPublicConnections = createAsyncThunk(
       return data.connections || []
     } catch (error) {
       return rejectWithValue({ message: error.message || 'Failed to fetch connections' })
+    } finally {
+      clearPendingRequest('connections/fetchPublicConnections', arg)
     }
+  },
+  {
+    condition: createDeduplicationCondition('connections/fetchPublicConnections'),
   }
 )
 

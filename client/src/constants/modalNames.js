@@ -8,4 +8,8 @@ export const MODAL_NAMES = enumify([
   'akas_input',
   'connections',
   'are_you_sure',
+  // Public modals
+  'public_history',
+  'public_connections',
+  'public_legend',
 ])

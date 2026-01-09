@@ -15,23 +15,12 @@ body {
 }
 
 // Hide all tooltips on mobile
-@include mobile-only {
-  // Hide react-tooltip tooltips
-  [data-tooltip-id],
-  [id*="react-tooltip"],
-  [class*="react-tooltip"] {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
+@include mobile-all {
+  body {
+    overflow: hidden;
   }
-  
-  // Hide custom tooltips
-  [class*="tooltip"],
-  [class*="Tooltip"] {
+
+  .react-tooltip {
     display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
   }
 }

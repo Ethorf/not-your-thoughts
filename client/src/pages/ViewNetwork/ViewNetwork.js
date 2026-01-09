@@ -10,6 +10,7 @@ import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 import PublicNodeSearch from '@components/Shared/PublicNodeSearch/PublicNodeSearch'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import PublicLegend from '@components/Shared/PublicLegend/PublicLegend'
+import PublicModalsContainer from '@components/Shared/PublicModalsContainer/PublicModalsContainer'
 
 // Redux
 import { fetchPublicNodeEntriesInfo, fetchPublicEntry } from '@redux/reducers/currentEntryReducer'
@@ -279,6 +280,7 @@ const ViewNetwork = () => {
 
   return (
     <div className={classNames(styles.wrapper, sharedStyles.flexColumnCenter)}>
+      <PublicModalsContainer />
       <PublicLegend />
       <div className={styles.topBar}>
         <h1>Network View</h1>

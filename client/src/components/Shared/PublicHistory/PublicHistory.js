@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import classNames from 'classnames'
 import extractTextFromHTML from '@utils/extractTextFromHTML'
@@ -12,92 +12,18 @@ const PublicHistory = ({ entryId, userId, isExpanded, onVersionSelect }) => {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [lastFetchedEntryId, setLastFetchedEntryId] = useState(null)
 
-  // Helper function to strip HTML and get text content
-  const stripHtml = useCallback((html) => {
-    if (!html || typeof html !== 'string') return ''
-    const temp = document.createElement('div')
-    temp.innerHTML = html
-    return temp.textContent || temp.innerText || ''
-  }, [])
-
-  // Calculate character difference between two HTML contents
-  const calculateCharacterDifference = useCallback(
-    (content1, content2) => {
-      if (!content1 || !content2) return Math.max(content1?.length || 0, content2?.length || 0)
-
-      const text1 = stripHtml(content1)
-      const text2 = stripHtml(content2)
-
-      // Simple Levenshtein distance calculation
-      const matrix = []
-      for (let i = 0; i <= text2.length; i++) {
-        matrix[i] = [i]
-      }
-      for (let j = 0; j <= text1.length; j++) {
-        matrix[0][j] = j
-      }
-      for (let i = 1; i <= text2.length; i++) {
-        for (let j = 1; j <= text1.length; j++) {
-          if (text2.charAt(i - 1) === text1.charAt(j - 1)) {
-            matrix[i][j] = matrix[i - 1][j - 1]
-          } else {
-            matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j] + 1)
-          }
-        }
-      }
-      return matrix[text2.length][text1.length]
-    },
-    [stripHtml]
-  )
-
-  // Filter contents to only show versions with actual changes
-  // Use state + useEffect to defer expensive calculation and avoid blocking render
+  // Server already filters contents using Levenshtein distance, so we just use them directly
+  // This avoids expensive client-side calculations that were causing crashes
   const [filteredContents, setFilteredContents] = useState([])
 
   useEffect(() => {
-    // Only calculate when expanded and we have contents
+    // Server already filters, so we just pass through the contents
     if (!isExpanded || entryContents.length === 0) {
       setFilteredContents([])
       return
     }
-
-    // Defer expensive Levenshtein calculation using requestIdleCallback
-    let idleCallbackId = null
-    let timeoutId = null
-
-    const calculateFiltered = () => {
-      const filtered = [entryContents[0]] // Always include the first (most recent) content
-      const threshold = 3 // Minimum character difference
-
-      for (let i = 1; i < entryContents.length; i++) {
-        const currentContent = entryContents[i]
-        const previousContent = entryContents[i - 1]
-
-        const difference = calculateCharacterDifference(currentContent.content, previousContent.content)
-
-        if (difference >= threshold) {
-          filtered.push(currentContent)
-        }
-      }
-
-      setFilteredContents(filtered)
-    }
-
-    if (typeof requestIdleCallback !== 'undefined') {
-      idleCallbackId = requestIdleCallback(calculateFiltered, { timeout: 200 })
-    } else {
-      timeoutId = setTimeout(calculateFiltered, 0)
-    }
-
-    return () => {
-      if (idleCallbackId !== null && typeof cancelIdleCallback !== 'undefined') {
-        cancelIdleCallback(idleCallbackId)
-      }
-      if (timeoutId !== null) {
-        clearTimeout(timeoutId)
-      }
-    }
-  }, [isExpanded, entryContents, calculateCharacterDifference])
+    setFilteredContents(entryContents)
+  }, [isExpanded, entryContents])
 
   useEffect(() => {
     // Reset selected index when entryId changes
