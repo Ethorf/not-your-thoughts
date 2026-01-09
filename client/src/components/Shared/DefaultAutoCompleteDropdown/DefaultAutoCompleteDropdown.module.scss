@@ -57,6 +57,7 @@
   padding: 12px 4px;
   max-height: 40vh;
   overflow-y: scroll;
+  z-index: $dropdown-z-index;
 }
 
 .option {
