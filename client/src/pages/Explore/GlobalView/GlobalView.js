@@ -113,6 +113,99 @@ const buildClusters = (nodeEntries, connections) => {
   return { clusters, adjacency: graph }
 }
 
+// Build node textures from node positions
+const buildNodeSphereTextures = (nodePositions) => {
+  const textures = new Map()
+
+  nodePositions.forEach(({ node }) => {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    canvas.width = 512
+    canvas.height = 512
+
+    ctx.fillStyle = 'black'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    if (node.content) {
+      const text = extractTextFromHTML(node.content)
+      ctx.fillStyle = 'silver'
+      ctx.font = '10px Syncopate'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+
+      const words = text.split(' ')
+      let line = ''
+      const maxWidth = canvas.width - 50
+      const lines = []
+
+      for (let i = 0; i < words.length; i++) {
+        const testLine = line + words[i] + ' '
+        const metrics = ctx.measureText(testLine)
+        if (metrics.width > maxWidth && i > 0) {
+          lines.push(line.trim())
+          line = words[i] + ' '
+        } else {
+          line = testLine
+        }
+      }
+      lines.push(line.trim())
+
+      const lineHeight = 20
+      let y = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2
+
+      lines.forEach((l) => {
+        ctx.fillText(l, canvas.width / 2, y)
+        y += lineHeight
+      })
+    }
+
+    if (node.title) {
+      // Truncate title to max 4 words, 2 words per line
+      const words = node.title.split(' ')
+      const truncatedWords = words.slice(0, 4)
+      const needsEllipsis = words.length > 4
+
+      const line1 = truncatedWords.slice(0, 2).join(' ')
+      const line2Words = truncatedWords.slice(2, 4)
+      const line2 = line2Words.length > 0 ? line2Words.join(' ') + (needsEllipsis ? '...' : '') : ''
+
+      // Draw title with better visibility
+      ctx.font = 'bold 18px Syncopate'
+      ctx.fillStyle = 'white'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+
+      // Add text shadow for better visibility
+      ctx.shadowColor = 'black'
+      ctx.shadowBlur = 4
+      ctx.shadowOffsetX = 2
+      ctx.shadowOffsetY = 2
+
+      // Draw first line
+      const yOffset = line2 ? -12 : 0
+      ctx.fillText(line1, canvas.width / 2, canvas.height / 2 + yOffset)
+
+      // Draw second line if exists
+      if (line2) {
+        ctx.fillText(line2, canvas.width / 2, canvas.height / 2 + 12)
+      }
+
+      // Reset shadow
+      ctx.shadowColor = 'transparent'
+      ctx.shadowBlur = 0
+      ctx.shadowOffsetX = 0
+      ctx.shadowOffsetY = 0
+    }
+
+    const tex = new THREE.CanvasTexture(canvas)
+    tex.wrapS = THREE.ClampToEdgeWrapping
+    tex.wrapT = THREE.ClampToEdgeWrapping
+    textures.set(node.id, tex)
+  })
+
+  return textures
+}
+
 // Helper component to position camera to face a specific sphere
 const CameraController = ({ nodePositions, entryId, controlsRef }) => {
   const { camera } = useThree()
@@ -372,97 +465,7 @@ const GlobalView = () => {
   }, [nodeEntriesInfo, allConnections, clusters, dispatch])
 
   // Create texture for each node
-  const nodeTextures = useMemo(() => {
-    const textures = new Map()
-
-    nodePositions.forEach(({ node }) => {
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')
-      canvas.width = 512
-      canvas.height = 512
-
-      ctx.fillStyle = 'black'
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-      if (node.content) {
-        const text = extractTextFromHTML(node.content)
-        ctx.fillStyle = 'silver'
-        ctx.font = '10px Syncopate'
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-
-        const words = text.split(' ')
-        let line = ''
-        const maxWidth = canvas.width - 50
-        const lines = []
-
-        for (let i = 0; i < words.length; i++) {
-          const testLine = line + words[i] + ' '
-          const metrics = ctx.measureText(testLine)
-          if (metrics.width > maxWidth && i > 0) {
-            lines.push(line.trim())
-            line = words[i] + ' '
-          } else {
-            line = testLine
-          }
-        }
-        lines.push(line.trim())
-
-        const lineHeight = 20
-        let y = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2
-
-        lines.forEach((l) => {
-          ctx.fillText(l, canvas.width / 2, y)
-          y += lineHeight
-        })
-      }
-
-      if (node.title) {
-        // Truncate title to max 4 words, 2 words per line
-        const words = node.title.split(' ')
-        const truncatedWords = words.slice(0, 4)
-        const needsEllipsis = words.length > 4
-
-        const line1 = truncatedWords.slice(0, 2).join(' ')
-        const line2Words = truncatedWords.slice(2, 4)
-        const line2 = line2Words.length > 0 ? line2Words.join(' ') + (needsEllipsis ? '...' : '') : ''
-
-        // Draw title with better visibility
-        ctx.font = 'bold 18px Syncopate'
-        ctx.fillStyle = 'white'
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-
-        // Add text shadow for better visibility
-        ctx.shadowColor = 'black'
-        ctx.shadowBlur = 4
-        ctx.shadowOffsetX = 2
-        ctx.shadowOffsetY = 2
-
-        // Draw first line
-        const yOffset = line2 ? -12 : 0
-        ctx.fillText(line1, canvas.width / 2, canvas.height / 2 + yOffset)
-
-        // Draw second line if exists
-        if (line2) {
-          ctx.fillText(line2, canvas.width / 2, canvas.height / 2 + 12)
-        }
-
-        // Reset shadow
-        ctx.shadowColor = 'transparent'
-        ctx.shadowBlur = 0
-        ctx.shadowOffsetX = 0
-        ctx.shadowOffsetY = 0
-      }
-
-      const tex = new THREE.CanvasTexture(canvas)
-      tex.wrapS = THREE.ClampToEdgeWrapping
-      tex.wrapT = THREE.ClampToEdgeWrapping
-      textures.set(node.id, tex)
-    })
-
-    return textures
-  }, [nodePositions])
+  const nodeTextures = useMemo(() => buildNodeSphereTextures(nodePositions), [nodePositions])
 
   // Calculate rotation so sphere texture faces the camera
   const getSphereRotation = useCallback((spherePosition) => {
