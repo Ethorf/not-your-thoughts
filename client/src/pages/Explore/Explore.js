@@ -306,7 +306,7 @@ const Explore = () => {
 
                 const nodeInfo = nodeEntriesInfo.find((n) => n.id === transformed.id)
                 const sphereSize = getScaledSphereSize(
-                  DEFAULT_SPHERE_SIZES[SPHERE_TYPES.CONNECTION],
+                  DEFAULT_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION],
                   nodeInfo?.wdWordCount
                 )
 

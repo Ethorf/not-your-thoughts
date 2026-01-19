@@ -23,7 +23,8 @@ axiosRetry(axiosInstance, {
 axiosInstance.interceptors.request.use(
   (config) => {
     // Get the token from localStorage (or wherever you store it)
-    const token = localStorage.getItem('x-auth-token')
+    // Token is stored as 'token' in localStorage (see authReducer.js)
+    const token = localStorage.getItem('token')
     if (token) {
       // Add token to headers
       config.headers['x-auth-token'] = token

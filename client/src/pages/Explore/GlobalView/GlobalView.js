@@ -166,7 +166,7 @@ const GlobalView = () => {
                 id={mainNode.node.id}
                 pos={mainNode.position.toArray()}
                 title={mainNode.node.title}
-                size={DEFAULT_SPHERE_SIZES[SPHERE_TYPES.CONNECTION] * 0.5}
+                size={DEFAULT_SPHERE_SIZES[SPHERE_TYPES.MAIN]}
                 mainTexture={nodeTextures.get(mainNode.node.id)}
                 onClick={() => handleNodeClick(mainNode.node.id)}
                 rotation={getSphereRotation(mainNode.position)}
@@ -176,7 +176,7 @@ const GlobalView = () => {
             {/* First order nodes */}
             {firstOrderNodes.map(({ node, position }) => {
               const texture = nodeTextures.get(node.id)
-              const size = DEFAULT_SPHERE_SIZES[SPHERE_TYPES.CONNECTION] * 0.5
+              const size = DEFAULT_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
 
               return (
                 <SphereWithEffects
@@ -195,7 +195,7 @@ const GlobalView = () => {
             {/* Second order nodes */}
             {secondOrderNodes.map(({ node, position }) => {
               const texture = nodeTextures.get(node.id)
-              const size = DEFAULT_SPHERE_SIZES[SPHERE_TYPES.CONNECTION] * 0.3
+              const size = DEFAULT_SPHERE_SIZES[SPHERE_TYPES.SECOND_ORDER_CONNECTION]
 
               return (
                 <SphereWithEffects
