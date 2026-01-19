@@ -11,14 +11,17 @@ const authorize = require('../middleware/authorize')
 
 router.post('/register', validInfo, async (req, res) => {
   const { email, name, password } = req.body
+  console.log({ email, name, password })
 
   try {
-    // TODO this is broken!
     // Check if user already exists
-    // const user = await pool.query('SELECT * FROM users WHERE email = $1', [email])
-    // if (user.rows.length > 0) {
-    //   return res.status(401).json('User already exists!')
-    // }
+    const lowerCaseEmail = email.toLowerCase()
+    const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [lowerCaseEmail])
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({
+        errors: [{ msg: 'User already exists with this email' }],
+      })
+    }
 
     // Hash Password
     const salt = await bcrypt.genSalt(10)
@@ -27,7 +30,7 @@ router.post('/register', validInfo, async (req, res) => {
     // Insert new user into database
     let newUser = await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *', [
       name,
-      email,
+      lowerCaseEmail,
       bcryptPassword,
     ])
 
@@ -35,22 +38,37 @@ router.post('/register', validInfo, async (req, res) => {
     const userId = newUser.rows[0].id
 
     // Create user config in user_journal_config database table
-    const newUserConfig = await pool.query('INSERT INTO user_journal_config (user_id) VALUES ($1) RETURNING *', [
-      userId,
-    ])
-    const newUserConfigId = newUserConfig.rows[0].id
+    try {
+      const newUserConfig = await pool.query('INSERT INTO user_journal_config (user_id) VALUES ($1) RETURNING *', [
+        userId,
+      ])
+      const newUserConfigId = newUserConfig.rows[0].id
 
-    console.log(`User with id ${userId} Journal config created successfully`)
+      console.log(`User config with id ${newUserConfigId} created successfully`)
 
-    // Associate new user with journal config
-    await pool.query('UPDATE users SET journal_config = $1 WHERE id = $2', [newUserConfigId, userId])
+      // Associate new user with journal config
+      await pool.query('UPDATE users SET journal_config = $1 WHERE id = $2', [newUserConfigId, userId])
+    } catch (configErr) {
+      // If user_journal_config table doesn't exist or other config error, log but continue
+      console.error('Error creating user config:', configErr.message)
+      // Still return the token so user can log in
+    }
 
     // Return JWT token
     const jwtToken = jwtGenerator(userId)
     return res.json({ jwtToken })
   } catch (err) {
-    console.error(err.message)
-    res.status(500).send('Server error')
+    console.error('Registration error:', err.message)
+    // Handle duplicate key error specifically
+    if (err.code === '23505') {
+      return res.status(400).json({
+        errors: [{ msg: 'User already exists with this email' }],
+      })
+    }
+    // Return proper JSON error format
+    return res.status(500).json({
+      errors: [{ msg: 'Server error during registration' }],
+    })
   }
 })
 

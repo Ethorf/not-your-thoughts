@@ -26,13 +26,22 @@ const NodeSearch = ({
   const dispatch = useDispatch()
   const history = useHistory()
 
+  const toSearchableLower = (value) => {
+    if (typeof value === 'string') return value.toLowerCase()
+    return ''
+  }
+
   // Filter nodes based on search term
   const filteredNodes = useMemo(() => {
     if (!searchTerm.trim() || !nodeEntriesInfo) return []
 
     const term = searchTerm.toLowerCase()
     return nodeEntriesInfo
-      .filter((node) => node.title?.toLowerCase().includes(term) || node.content?.toLowerCase().includes(term))
+      .filter((node) => {
+        const titleLower = toSearchableLower(node?.title)
+        const contentLower = toSearchableLower(node?.content)
+        return titleLower.includes(term) || contentLower.includes(term)
+      })
       .slice(0, maxResults)
   }, [searchTerm, nodeEntriesInfo, maxResults])
 
@@ -143,7 +152,9 @@ const NodeSearch = ({
               onMouseEnter={() => setSelectedIndex(index)}
             >
               <div className={styles.nodeTitle}>{node.title}</div>
-              {node.content && <div className={styles.nodePreview}>{node.content.substring(0, 100)}...</div>}
+              {typeof node.content === 'string' && (
+                <div className={styles.nodePreview}>{node.content.substring(0, 100)}...</div>
+              )}
             </div>
           ))}
         </div>
