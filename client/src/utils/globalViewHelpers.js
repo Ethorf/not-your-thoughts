@@ -249,7 +249,60 @@ export const positionGlobalNodes = async (
     })
   }
 
-  return { allNodePositions, connectionsMap }
+  // Separate nodes by order
+  const mainNode = allNodePositions.find(({ node }) => node.id === targetNodeId)
+  const firstOrderNodes = allNodePositions.filter(({ node }) => firstOrderNodeIds.has(node.id))
+  const secondOrderNodes = allNodePositions.filter(
+    ({ node }) => node.id !== targetNodeId && !firstOrderNodeIds.has(node.id)
+  )
+
+  // Separate connection maps
+  const firstOrderConnectionsMap = new Map()
+  const secondOrderConnectionsMap = new Map()
+
+  // Build first order connections (main node to first order nodes)
+  if (mainNode) {
+    firstOrderNodes.forEach(({ node }) => {
+      if (connectionsMap.has(targetNodeId) && connectionsMap.get(targetNodeId).has(node.id)) {
+        if (!firstOrderConnectionsMap.has(targetNodeId)) {
+          firstOrderConnectionsMap.set(targetNodeId, new Set())
+        }
+        if (!firstOrderConnectionsMap.has(node.id)) {
+          firstOrderConnectionsMap.set(node.id, new Set())
+        }
+        firstOrderConnectionsMap.get(targetNodeId).add(node.id)
+        firstOrderConnectionsMap.get(node.id).add(targetNodeId)
+      }
+    })
+  }
+
+  // Build second order connections (connections between first and second order nodes)
+  firstOrderNodes.forEach(({ node: firstOrderNode }) => {
+    const connectedNodes = connectionsMap.get(firstOrderNode.id) || new Set()
+    connectedNodes.forEach((connectedNodeId) => {
+      // If the connected node is a second order node, add to second order connections
+      if (secondOrderNodes.some(({ node }) => node.id === connectedNodeId)) {
+        if (!secondOrderConnectionsMap.has(firstOrderNode.id)) {
+          secondOrderConnectionsMap.set(firstOrderNode.id, new Set())
+        }
+        if (!secondOrderConnectionsMap.has(connectedNodeId)) {
+          secondOrderConnectionsMap.set(connectedNodeId, new Set())
+        }
+        secondOrderConnectionsMap.get(firstOrderNode.id).add(connectedNodeId)
+        secondOrderConnectionsMap.get(connectedNodeId).add(firstOrderNode.id)
+      }
+    })
+  })
+
+  return {
+    mainNode: mainNode || null,
+    firstOrderNodes,
+    secondOrderNodes,
+    firstOrderConnectionsMap,
+    secondOrderConnectionsMap,
+    allNodePositions, // Keep for backward compatibility if needed
+    connectionsMap, // Keep for backward compatibility if needed
+  }
 }
 
 /**
@@ -285,6 +338,92 @@ export const buildGlobalConnectionLines = (nodePositions, allConnectionsMap) => 
       lines.push(
         <line key={connectionKey} geometry={geometry}>
           <lineBasicMaterial color="white" />
+        </line>
+      )
+    })
+  })
+
+  return lines
+}
+
+/**
+ * Build first order connection lines (main node to first order nodes)
+ * @param {Object} mainNode - Main node object with { node, position }
+ * @param {Array} firstOrderNodes - Array of first order node objects
+ * @param {Map} firstOrderConnectionsMap - Map of nodeId -> Set of connected node IDs
+ * @returns {Array} Array of React line elements
+ */
+export const buildFirstOrderConnectionLines = (mainNode, firstOrderNodes, firstOrderConnectionsMap) => {
+  if (!mainNode) return []
+
+  const lines = []
+  const drawnConnections = new Set()
+  const allFirstOrderNodes = [mainNode, ...firstOrderNodes]
+
+  allFirstOrderNodes.forEach(({ node, position: posA }) => {
+    const connectedNodes = firstOrderConnectionsMap.get(node.id) || new Set()
+
+    connectedNodes.forEach((connectedNodeId) => {
+      const connectionKey = [node.id, connectedNodeId].sort().join('-')
+
+      if (drawnConnections.has(connectionKey)) {
+        return
+      }
+
+      drawnConnections.add(connectionKey)
+
+      const connectedNode = allFirstOrderNodes.find(({ node: n }) => n.id === connectedNodeId)
+      if (!connectedNode) return
+
+      const posB = connectedNode.position
+      const points = [new THREE.Vector3(posA.x, posA.y, posA.z), new THREE.Vector3(posB.x, posB.y, posB.z)]
+      const geometry = new THREE.BufferGeometry().setFromPoints(points)
+
+      lines.push(
+        <line key={connectionKey} geometry={geometry}>
+          <lineBasicMaterial color="white" />
+        </line>
+      )
+    })
+  })
+
+  return lines
+}
+
+/**
+ * Build second order connection lines (first order to second order nodes)
+ * @param {Array} firstOrderNodes - Array of first order node objects
+ * @param {Array} secondOrderNodes - Array of second order node objects
+ * @param {Map} secondOrderConnectionsMap - Map of nodeId -> Set of connected node IDs
+ * @returns {Array} Array of React line elements
+ */
+export const buildSecondOrderConnectionLines = (firstOrderNodes, secondOrderNodes, secondOrderConnectionsMap) => {
+  const lines = []
+  const drawnConnections = new Set()
+  const allNodes = [...firstOrderNodes, ...secondOrderNodes]
+
+  allNodes.forEach(({ node, position: posA }) => {
+    const connectedNodes = secondOrderConnectionsMap.get(node.id) || new Set()
+
+    connectedNodes.forEach((connectedNodeId) => {
+      const connectionKey = [node.id, connectedNodeId].sort().join('-')
+
+      if (drawnConnections.has(connectionKey)) {
+        return
+      }
+
+      drawnConnections.add(connectionKey)
+
+      const connectedNode = allNodes.find(({ node: n }) => n.id === connectedNodeId)
+      if (!connectedNode) return
+
+      const posB = connectedNode.position
+      const points = [new THREE.Vector3(posA.x, posA.y, posA.z), new THREE.Vector3(posB.x, posB.y, posB.z)]
+      const geometry = new THREE.BufferGeometry().setFromPoints(points)
+
+      lines.push(
+        <line key={connectionKey} geometry={geometry}>
+          <lineBasicMaterial color="white" opacity={0.5} />
         </line>
       )
     })

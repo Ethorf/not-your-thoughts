@@ -25,7 +25,8 @@ import GradientGlobe from './GradientGlobe'
 
 // Utils
 import {
-  buildGlobalConnectionLines,
+  buildFirstOrderConnectionLines,
+  buildSecondOrderConnectionLines,
   buildGlobalNodeSphereTextures,
   buildClusters,
   positionGlobalNodes,
@@ -39,8 +40,11 @@ const GlobalView = () => {
   const { allConnections } = useSelector((state) => state.connections)
   const { entryId } = useSelector((state) => state.currentEntry)
   const [cameraRotation, setCameraRotation] = useState({ azimuth: 0, polar: 0 })
-  const [nodePositions, setNodePositions] = useState([])
-  const [allConnectionsMap, setAllConnectionsMap] = useState(new Map()) // Map of nodeId -> Set of connected node IDs
+  const [mainNode, setMainNode] = useState(null)
+  const [firstOrderNodes, setFirstOrderNodes] = useState([])
+  const [secondOrderNodes, setSecondOrderNodes] = useState([])
+  const [firstOrderConnectionsMap, setFirstOrderConnectionsMap] = useState(new Map())
+  const [secondOrderConnectionsMap, setSecondOrderConnectionsMap] = useState(new Map())
   const controlsRef = useRef()
 
   // Fetch all connections on mount
@@ -83,20 +87,37 @@ const GlobalView = () => {
   useEffect(() => {
     const positionNodes = async () => {
       const result = await positionGlobalNodes(nodeEntriesInfo, allConnections, clusters, dispatch, 990)
-      setNodePositions(result.allNodePositions)
-      setAllConnectionsMap(result.connectionsMap)
+      setMainNode(result.mainNode)
+      setFirstOrderNodes(result.firstOrderNodes)
+      setSecondOrderNodes(result.secondOrderNodes)
+      setFirstOrderConnectionsMap(result.firstOrderConnectionsMap)
+      setSecondOrderConnectionsMap(result.secondOrderConnectionsMap)
     }
 
     positionNodes()
   }, [nodeEntriesInfo, allConnections, clusters, dispatch])
 
-  // Create texture for each node
-  const nodeTextures = useMemo(() => buildGlobalNodeSphereTextures(nodePositions), [nodePositions])
+  // Combine all nodes for texture generation
+  const allNodesForTextures = useMemo(() => {
+    const nodes = []
+    if (mainNode) nodes.push(mainNode)
+    nodes.push(...firstOrderNodes)
+    nodes.push(...secondOrderNodes)
+    return nodes
+  }, [mainNode, firstOrderNodes, secondOrderNodes])
 
-  // Build connection lines
-  const connectionLines = useMemo(
-    () => buildGlobalConnectionLines(nodePositions, allConnectionsMap),
-    [nodePositions, allConnectionsMap]
+  // Create texture for each node
+  const nodeTextures = useMemo(() => buildGlobalNodeSphereTextures(allNodesForTextures), [allNodesForTextures])
+
+  // Build connection lines separately
+  const firstOrderConnectionLines = useMemo(
+    () => buildFirstOrderConnectionLines(mainNode, firstOrderNodes, firstOrderConnectionsMap),
+    [mainNode, firstOrderNodes, firstOrderConnectionsMap]
+  )
+
+  const secondOrderConnectionLines = useMemo(
+    () => buildSecondOrderConnectionLines(firstOrderNodes, secondOrderNodes, secondOrderConnectionsMap),
+    [firstOrderNodes, secondOrderNodes, secondOrderConnectionsMap]
   )
 
   // Calculate rotation so sphere texture faces the camera
@@ -128,17 +149,53 @@ const GlobalView = () => {
           <directionalLight position={[5, 5, 5]} intensity={0.6} />
 
           <Suspense fallback={null}>
-            <CameraController nodePositions={nodePositions} entryId={entryId} controlsRef={controlsRef} />
+            <CameraController nodePositions={allNodesForTextures} entryId={entryId} controlsRef={controlsRef} />
 
             <GradientGlobe />
 
-            {/* Connection lines for all nodes */}
-            {connectionLines}
+            {/* First order connection lines */}
+            {firstOrderConnectionLines}
 
-            {/* Nodes */}
-            {nodePositions.map(({ node, position }) => {
+            {/* Second order connection lines */}
+            {secondOrderConnectionLines}
+
+            {/* Main node */}
+            {mainNode && (
+              <SphereWithEffects
+                key={mainNode.node.id}
+                id={mainNode.node.id}
+                pos={mainNode.position.toArray()}
+                title={mainNode.node.title}
+                size={DEFAULT_SPHERE_SIZES[SPHERE_TYPES.CONNECTION] * 0.5}
+                mainTexture={nodeTextures.get(mainNode.node.id)}
+                onClick={() => handleNodeClick(mainNode.node.id)}
+                rotation={getSphereRotation(mainNode.position)}
+              />
+            )}
+
+            {/* First order nodes */}
+            {firstOrderNodes.map(({ node, position }) => {
               const texture = nodeTextures.get(node.id)
               const size = DEFAULT_SPHERE_SIZES[SPHERE_TYPES.CONNECTION] * 0.5
+
+              return (
+                <SphereWithEffects
+                  key={node.id}
+                  id={node.id}
+                  pos={position.toArray()}
+                  title={node.title}
+                  size={size}
+                  mainTexture={texture}
+                  onClick={() => handleNodeClick(node.id)}
+                  rotation={getSphereRotation(position)}
+                />
+              )
+            })}
+
+            {/* Second order nodes */}
+            {secondOrderNodes.map(({ node, position }) => {
+              const texture = nodeTextures.get(node.id)
+              const size = DEFAULT_SPHERE_SIZES[SPHERE_TYPES.CONNECTION] * 0.3
 
               return (
                 <SphereWithEffects
@@ -169,7 +226,9 @@ const GlobalView = () => {
 
       <div className={styles.info}>
         <p>Clusters: {clusters.length}</p>
-        <p>Total Nodes: {nodePositions.length}</p>
+        <p>Total Nodes: {allNodesForTextures.length}</p>
+        <p>First Order: {firstOrderNodes.length}</p>
+        <p>Second Order: {secondOrderNodes.length}</p>
         <p>
           Camera: Azimuth {cameraRotation.azimuth} | Polar {cameraRotation.polar}
         </p>
