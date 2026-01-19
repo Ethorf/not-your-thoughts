@@ -15,6 +15,7 @@ const Register = ({ setAlert, register, isAuthenticated, alert, guestMode, toggl
     password: '',
     password2: '',
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const { name, email, password, password2 } = formData
 
@@ -22,10 +23,17 @@ const Register = ({ setAlert, register, isAuthenticated, alert, guestMode, toggl
 
   const onSubmit = async (e) => {
     e.preventDefault()
+    if (isSubmitting) return // Prevent double submission
+    
     if (password !== password2) {
       setAlert('Passwords do not match', 'danger')
     } else {
-      register({ name, email, password })
+      setIsSubmitting(true)
+      try {
+        await register({ name, email, password })
+      } finally {
+        setIsSubmitting(false)
+      }
     }
   }
 
@@ -88,6 +96,7 @@ const Register = ({ setAlert, register, isAuthenticated, alert, guestMode, toggl
             type="submit"
             className="login-register__submit-button login-register__register-button"
             value="Register"
+            disabled={isSubmitting}
           />
         </FadeInAnimationOnMount>
       </form>

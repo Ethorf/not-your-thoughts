@@ -33,18 +33,28 @@ export const register =
   ({ name, email, password }) =>
   async (dispatch) => {
     const body = JSON.stringify({ name, email, password })
+    console.log({ body })
+
     try {
       const res = await axiosInstance.post('/api/auth/register', body, axiosConfig)
+
+      // Set token in axios headers
+      setAuthToken(res.data.jwtToken)
 
       await dispatch({
         type: REGISTER_SUCCESS,
         payload: res.data,
       })
+
+      // Load user data after successful registration
+      await dispatch(loadUser())
     } catch (err) {
-      const errors = err.response.data.errors
+      const errors = err.response?.data?.errors
 
       if (errors) {
         errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')))
+      } else {
+        dispatch(setAlert(err.response?.data?.message || 'Registration failed', 'danger'))
       }
       dispatch({
         type: REGISTER_FAIL,
@@ -157,7 +167,7 @@ export const addCustomPrompt =
 
 export const deleteCustomPrompt = (id) => async (dispatch) => {
   try {
-    const res = await axiosInstance.delete(`/api/updateUser/prompts/${id}`)
+    await axiosInstance.delete(`/api/updateUser/prompts/${id}`)
     dispatch({
       type: DELETE_CUSTOM_PROMPT,
       payload: id,
@@ -176,7 +186,7 @@ export const toggleCustomPromptsEnabled = () => async (dispatch) => {
     },
   }
   try {
-    const res = await axiosInstance.post('/api/updateUser/toggleCustomPrompts', config)
+    await axiosInstance.post('/api/updateUser/toggleCustomPrompts', config)
     dispatch({
       type: TOGGLE_CUSTOM_PROMPTS_ENABLED,
     })
