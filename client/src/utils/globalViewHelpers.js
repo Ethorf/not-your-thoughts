@@ -4,6 +4,39 @@ import extractTextFromHTML from './extractTextFromHTML'
 import calculateGlobalClusterPositions, { positionNodeConnections } from './calculateGlobalClusterPositions'
 import { resolvePositionOriginal } from './resolvePositionOriginal'
 import { resolvePositionWithOverlapPrevention } from './resolvePositionWithOverlapPrevention'
+import { CONNECTION_TYPES } from '@constants/connectionTypes'
+
+const {
+  FRONTEND: { SIBLING, CHILD, PARENT, EXTERNAL },
+  BACKEND: { HORIZONTAL, VERTICAL },
+} = CONNECTION_TYPES
+
+/**
+ * Transform backend connection type (horizontal/vertical/external) to frontend type
+ * (sibling/child/parent/external) based on the relationship to the main node
+ * @param {string} backendType - Backend connection type (horizontal, vertical, external)
+ * @param {number} mainNodeId - ID of the main node
+ * @param {Object} connection - Connection object with entry_id and foreign_entry_id
+ * @returns {string} Frontend connection type (sibling, child, parent, external)
+ */
+const transformBackendToFrontendConnectionType = (backendType, mainNodeId, connection) => {
+  if (backendType === EXTERNAL) {
+    return EXTERNAL
+  }
+
+  if (backendType === HORIZONTAL) {
+    return SIBLING
+  }
+
+  if (backendType === VERTICAL) {
+    // If main node is the primary entry, the other is a child
+    // If main node is the foreign entry, the other is a parent
+    return connection.entry_id === mainNodeId ? CHILD : PARENT
+  }
+
+  // Default fallback
+  return null
+}
 
 /**
  * Generate cluster positions on a sphere using Poisson-like distribution
@@ -154,6 +187,7 @@ export const positionGlobalNodes = async (
   const seenNodeIds = new Set()
   const existingPositions = new Map() // Map of nodeId -> position
   const firstOrderNodeIds = new Set() // Track 1st order connections (direct to target node)
+  const firstOrderConnectionTypes = new Map() // Map of first-order nodeId -> connection_type
   const minDistance = 0.4 // Minimum distance to check for overlaps
 
   // Add initial positions, preserving center node at clusterCenter
@@ -170,6 +204,24 @@ export const positionGlobalNodes = async (
       seenNodeIds.add(node.id)
       existingPositions.set(node.id, position)
       allNodePositions.push({ node, position })
+    }
+  })
+
+  // Precompute connection types for first-order nodes relative to the main node
+  // Transform backend types (horizontal/vertical) to frontend types (sibling/child/parent)
+  allConnections.forEach((conn) => {
+    const isMainToOther =
+      (conn.entry_id === centerNodeId && firstOrderNodeIds.has(conn.foreign_entry_id)) ||
+      (conn.foreign_entry_id === centerNodeId && firstOrderNodeIds.has(conn.entry_id))
+
+    if (!isMainToOther) return
+
+    const otherNodeId = conn.entry_id === centerNodeId ? conn.foreign_entry_id : conn.entry_id
+    // Transform backend connection type to frontend type
+    const frontendType = transformBackendToFrontendConnectionType(conn.connection_type, centerNodeId, conn)
+    // If there happen to be multiple connections, last one wins – that's fine for type categorization
+    if (frontendType) {
+      firstOrderConnectionTypes.set(otherNodeId, frontendType)
     }
   })
 
@@ -251,7 +303,13 @@ export const positionGlobalNodes = async (
 
   // Separate nodes by order
   const mainNode = allNodePositions.find(({ node }) => node.id === targetNodeId)
-  const firstOrderNodes = allNodePositions.filter(({ node }) => firstOrderNodeIds.has(node.id))
+  const firstOrderNodes = allNodePositions
+    .filter(({ node }) => firstOrderNodeIds.has(node.id))
+    .map((entry) => ({
+      ...entry,
+      // Attach connection type to each first-order node for downstream use (e.g., rendering layers)
+      connectionType: firstOrderConnectionTypes.get(entry.node.id) || null,
+    }))
   const secondOrderNodes = allNodePositions.filter(
     ({ node }) => node.id !== targetNodeId && !firstOrderNodeIds.has(node.id)
   )

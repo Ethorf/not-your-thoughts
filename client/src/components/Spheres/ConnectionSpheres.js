@@ -4,7 +4,7 @@ import * as THREE from 'three'
 
 // Constants
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
-import { DEFAULT_SPHERE_SIZES } from '@constants/spheres'
+import { SPHERE_TYPES, LOCAL_SPHERE_SIZES } from '@constants/spheres'
 
 // Redux
 import { fetchConnectionsDirect } from '@redux/reducers/connectionsReducer'
@@ -25,7 +25,7 @@ const ConnectionSpheres = ({
   handleConnectionSphereClick,
   position = [0, 0, 0],
   rotation = [0, 4.7, 0],
-  size = DEFAULT_SPHERE_SIZES.MAIN,
+  size = LOCAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION],
   verticalOffset = 0,
   horizontalOffset = 0,
   currentEntryId = null, // Allow passing from parent for public views

@@ -17,16 +17,15 @@ import styles from './GlobalView.module.scss'
 import TextButton from '@components/Shared/TextButton/TextButton'
 
 // Constants
-import { SPHERE_TYPES, DEFAULT_SPHERE_SIZES } from '@constants/spheres'
+import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES } from '@constants/spheres'
 
 // Components
 import CameraController from './CameraController'
 import GradientGlobe from './GradientGlobe'
+import GlobalFirstOrderNodes from './GlobalFirstOrderNodes'
 
 // Utils
 import {
-  buildFirstOrderConnectionLines,
-  buildSecondOrderConnectionLines,
   buildGlobalNodeSphereTextures,
   buildClusters,
   positionGlobalNodes,
@@ -44,7 +43,6 @@ const GlobalView = () => {
   const [firstOrderNodes, setFirstOrderNodes] = useState([])
   const [secondOrderNodes, setSecondOrderNodes] = useState([])
   const [firstOrderConnectionsMap, setFirstOrderConnectionsMap] = useState(new Map())
-  const [secondOrderConnectionsMap, setSecondOrderConnectionsMap] = useState(new Map())
   const controlsRef = useRef()
 
   // Fetch all connections on mount
@@ -73,7 +71,7 @@ const GlobalView = () => {
   )
 
   // Build clusters and place them on globe
-  const { clusters, adjacency } = useMemo(() => {
+  const { clusters } = useMemo(() => {
     if (!nodeEntriesInfo || !allConnections) {
       return { clusters: [], adjacency: new Map() }
     }
@@ -91,7 +89,6 @@ const GlobalView = () => {
       setFirstOrderNodes(result.firstOrderNodes)
       setSecondOrderNodes(result.secondOrderNodes)
       setFirstOrderConnectionsMap(result.firstOrderConnectionsMap)
-      setSecondOrderConnectionsMap(result.secondOrderConnectionsMap)
     }
 
     positionNodes()
@@ -109,17 +106,6 @@ const GlobalView = () => {
   // Create texture for each node
   const nodeTextures = useMemo(() => buildGlobalNodeSphereTextures(allNodesForTextures), [allNodesForTextures])
 
-  // Build connection lines separately
-  const firstOrderConnectionLines = useMemo(
-    () => buildFirstOrderConnectionLines(mainNode, firstOrderNodes, firstOrderConnectionsMap),
-    [mainNode, firstOrderNodes, firstOrderConnectionsMap]
-  )
-
-  const secondOrderConnectionLines = useMemo(
-    () => buildSecondOrderConnectionLines(firstOrderNodes, secondOrderNodes, secondOrderConnectionsMap),
-    [firstOrderNodes, secondOrderNodes, secondOrderConnectionsMap]
-  )
-
   // Calculate rotation so sphere texture faces the camera
   const getSphereRotation = useCallback((spherePosition) => {
     // Calculate the angle from the sphere to the camera view
@@ -133,13 +119,13 @@ const GlobalView = () => {
     <div className={styles.wrapper}>
       <div className={styles.header}>
         <h1>Global Mind Map</h1>
-        <TextButton
-          className={styles.backButton}
-          onClick={() => history.push('/explore')}
-          tooltip="Return to Local View"
-        >
-          ← Local View
-        </TextButton>
+            <TextButton
+              className={styles.backButton}
+              onClick={() => history.push('/explore')}
+              tooltip="Return to Local View"
+            >
+              ← Local View
+            </TextButton>
       </div>
       <p className={styles.subtitle}>All nodes clustered by connections. Rotate the globe to explore.</p>
 
@@ -153,12 +139,6 @@ const GlobalView = () => {
 
             <GradientGlobe />
 
-            {/* First order connection lines */}
-            {firstOrderConnectionLines}
-
-            {/* Second order connection lines */}
-            {secondOrderConnectionLines}
-
             {/* Main node */}
             {mainNode && (
               <SphereWithEffects
@@ -166,50 +146,37 @@ const GlobalView = () => {
                 id={mainNode.node.id}
                 pos={mainNode.position.toArray()}
                 title={mainNode.node.title}
-                size={DEFAULT_SPHERE_SIZES[SPHERE_TYPES.MAIN]}
+                size={GLOBAL_SPHERE_SIZES[SPHERE_TYPES.MAIN]}
                 mainTexture={nodeTextures.get(mainNode.node.id)}
                 onClick={() => handleNodeClick(mainNode.node.id)}
                 rotation={getSphereRotation(mainNode.position)}
               />
             )}
 
-            {/* First order nodes */}
-            {firstOrderNodes.map(({ node, position }) => {
-              const texture = nodeTextures.get(node.id)
-              const size = DEFAULT_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
-
-              return (
-                <SphereWithEffects
-                  key={node.id}
-                  id={node.id}
-                  pos={position.toArray()}
-                  title={node.title}
-                  size={size}
-                  mainTexture={texture}
-                  onClick={() => handleNodeClick(node.id)}
-                  rotation={getSphereRotation(position)}
-                />
-              )
-            })}
-
+            {/* First-order nodes + their connection lines */}
+            <GlobalFirstOrderNodes
+              mainNode={mainNode}
+              firstOrderNodes={firstOrderNodes}
+              firstOrderConnectionsMap={firstOrderConnectionsMap}
+              nodeTextures={nodeTextures}
+              onNodeClick={handleNodeClick}
+              getSphereRotation={getSphereRotation}
+            />
             {/* Second order nodes */}
-            {secondOrderNodes.map(({ node, position }) => {
-              const texture = nodeTextures.get(node.id)
-              const size = DEFAULT_SPHERE_SIZES[SPHERE_TYPES.SECOND_ORDER_CONNECTION]
-
-              return (
-                <SphereWithEffects
-                  key={node.id}
-                  id={node.id}
-                  pos={position.toArray()}
-                  title={node.title}
-                  size={size}
-                  mainTexture={texture}
-                  onClick={() => handleNodeClick(node.id)}
-                  rotation={getSphereRotation(position)}
-                />
-              )
-            })}
+            {/* {secondOrderNodes.map(({ node, position }) => (
+              <SphereWithEffects
+                key={node.id}
+                id={node.id}
+                pos={position.toArray()}
+                title={node.title}
+                size={GLOBAL_SPHERE_SIZES[SPHERE_TYPES.SECOND_ORDER_CONNECTION]}
+                mainTexture={nodeTextures.get(node.id)}
+                onClick={() => handleNodeClick(node.id)}
+                rotation={getSphereRotation(position)}
+              />
+            ))} */}
+            {/* Second order connection lines */}
+            {/* {secondOrderConnectionLines} */}
           </Suspense>
 
           <OrbitControls

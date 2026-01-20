@@ -2,6 +2,14 @@
 
 ## Code Quality Rules
 
+### 0. Always Follow ESLint
+
+- **CRITICAL**: Always follow ESLint rules and warnings
+- ESLint catches many common errors including React Hooks violations, unused variables, and code quality issues
+- Before submitting code, ensure there are no ESLint errors or warnings
+- If ESLint flags an issue, fix it rather than ignoring it
+- Use `read_lints` tool to check for linting errors before finalizing changes
+
 ### 1. No Unused Variables
 
 - Always check for unused variables when suggesting changes
@@ -50,3 +58,29 @@
 - Place utility functions near the top of components
 - Use consistent naming conventions
 - Add JSDoc comments for complex functions
+
+### 6. React Hooks Rules
+
+- **CRITICAL**: React Hooks (useState, useEffect, useMemo, useCallback, etc.) must be called unconditionally and in the same order on every render
+- Never call hooks conditionally (e.g., after an early return, inside if statements, or in loops)
+- All hooks must be called at the top level of the component, before any conditional returns
+- If you need to handle empty/null cases, do so inside the hook's logic or after all hooks are called
+- Example of what NOT to do:
+  ```jsx
+  const MyComponent = ({ items }) => {
+    if (!items?.length) return null  // ❌ Early return before hook
+    
+    const memoized = useMemo(() => items.map(...), [items])  // ❌ Hook called conditionally
+  }
+  ```
+- Example of what TO do:
+  ```jsx
+  const MyComponent = ({ items }) => {
+    const memoized = useMemo(() => {
+      if (!items?.length) return []  // ✅ Handle empty case inside hook
+      return items.map(...)
+    }, [items])
+    
+    if (!items?.length) return null  // ✅ Early return after all hooks
+  }
+  ```
