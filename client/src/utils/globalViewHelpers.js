@@ -405,23 +405,29 @@ export const buildGlobalConnectionLines = (nodePositions, allConnectionsMap) => 
 }
 
 /**
- * Build first order connection lines (main node to first order nodes)
+ * Build connection lines between main node and a specific set of first-order nodes
  * @param {Object} mainNode - Main node object with { node, position }
- * @param {Array} firstOrderNodes - Array of first order node objects
+ * @param {Array} targetNodes - Array of first order node objects to draw lines to
  * @param {Map} firstOrderConnectionsMap - Map of nodeId -> Set of connected node IDs
  * @returns {Array} Array of React line elements
  */
-export const buildFirstOrderConnectionLines = (mainNode, firstOrderNodes, firstOrderConnectionsMap) => {
-  if (!mainNode) return []
+export const buildConnectionLinesForNodes = (mainNode, targetNodes, firstOrderConnectionsMap) => {
+  if (!mainNode || !targetNodes?.length) return []
 
   const lines = []
   const drawnConnections = new Set()
-  const allFirstOrderNodes = [mainNode, ...firstOrderNodes]
+  const allNodes = [mainNode, ...targetNodes]
 
-  allFirstOrderNodes.forEach(({ node, position: posA }) => {
+  allNodes.forEach(({ node, position: posA }) => {
     const connectedNodes = firstOrderConnectionsMap.get(node.id) || new Set()
 
     connectedNodes.forEach((connectedNodeId) => {
+      // Only draw lines to nodes in our target set (or to main node)
+      const isTargetNode = targetNodes.some((n) => n.node.id === connectedNodeId)
+      const isMainNode = connectedNodeId === mainNode.node.id
+
+      if (!isTargetNode && !isMainNode) return
+
       const connectionKey = [node.id, connectedNodeId].sort().join('-')
 
       if (drawnConnections.has(connectionKey)) {
@@ -430,7 +436,7 @@ export const buildFirstOrderConnectionLines = (mainNode, firstOrderNodes, firstO
 
       drawnConnections.add(connectionKey)
 
-      const connectedNode = allFirstOrderNodes.find(({ node: n }) => n.id === connectedNodeId)
+      const connectedNode = allNodes.find(({ node: n }) => n.id === connectedNodeId)
       if (!connectedNode) return
 
       const posB = connectedNode.position
@@ -446,6 +452,18 @@ export const buildFirstOrderConnectionLines = (mainNode, firstOrderNodes, firstO
   })
 
   return lines
+}
+
+/**
+ * Build first order connection lines (main node to first order nodes)
+ * @param {Object} mainNode - Main node object with { node, position }
+ * @param {Array} firstOrderNodes - Array of first order node objects
+ * @param {Map} firstOrderConnectionsMap - Map of nodeId -> Set of connected node IDs
+ * @returns {Array} Array of React line elements
+ * @deprecated Use buildConnectionLinesForNodes instead for type-specific rendering
+ */
+export const buildFirstOrderConnectionLines = (mainNode, firstOrderNodes, firstOrderConnectionsMap) => {
+  return buildConnectionLinesForNodes(mainNode, firstOrderNodes, firstOrderConnectionsMap)
 }
 
 /**

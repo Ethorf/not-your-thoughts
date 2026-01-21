@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
-import { buildFirstOrderConnectionLines } from '@utils/globalViewHelpers'
 import GlobalExternalNodes from './GlobalExternalNodes'
 import GlobalSiblingNodes from './GlobalSiblingNodes'
 import GlobalParentNodes from './GlobalParentNodes'
@@ -12,7 +11,8 @@ const {
 
 /**
  * Renders first-order connection lines and their corresponding node spheres
- * categorized by connection type (external, sibling, parent) in the Global View.
+ * categorized by connection type (external, sibling, parent, child) in the Global View.
+ * Each connection type component handles its own lines and spheres.
  */
 const GlobalFirstOrderNodes = ({
   mainNode,
@@ -22,12 +22,6 @@ const GlobalFirstOrderNodes = ({
   onNodeClick,
   getSphereRotation,
 }) => {
-  // Build connection lines between main node and first-order nodes
-  const firstOrderConnectionLines = useMemo(
-    () => buildFirstOrderConnectionLines(mainNode, firstOrderNodes, firstOrderConnectionsMap),
-    [mainNode, firstOrderNodes, firstOrderConnectionsMap]
-  )
-
   // Categorize first-order nodes by their connection type.
   // connectionType is attached upstream in positionGlobalNodes to avoid redundant lookups here.
   const { externalNodes, siblingNodes, parentNodes, childNodes } = useMemo(() => {
@@ -62,40 +56,41 @@ const GlobalFirstOrderNodes = ({
 
   return (
     <>
-      {/* Lines between main node and first-order nodes */}
-      {firstOrderConnectionLines}
-
-      {/* External nodes */}
-      <GlobalExternalNodes
-        nodes={externalNodes}
-        nodeTextures={nodeTextures}
-        onNodeClick={onNodeClick}
-        getSphereRotation={getSphereRotation}
-      />
-
-      {/* Sibling nodes */}
-      <GlobalSiblingNodes
-        nodes={siblingNodes}
-        nodeTextures={nodeTextures}
-        onNodeClick={onNodeClick}
-        getSphereRotation={getSphereRotation}
-      />
-
-      {/* Parent nodes */}
-      <GlobalParentNodes
+       {/* <GlobalParentNodes
+        mainNode={mainNode}
         nodes={parentNodes}
+        firstOrderConnectionsMap={firstOrderConnectionsMap}
+        nodeTextures={nodeTextures}
+        onNodeClick={onNodeClick}
+        getSphereRotation={getSphereRotation}
+      /> */}
+
+      {/* <GlobalExternalNodes
+        mainNode={mainNode}
+        nodes={externalNodes}
+        firstOrderConnectionsMap={firstOrderConnectionsMap}
+        nodeTextures={nodeTextures}
+        onNodeClick={onNodeClick}
+        getSphereRotation={getSphereRotation}
+      /> */}
+
+      <GlobalSiblingNodes
+        mainNode={mainNode}
+        nodes={siblingNodes}
+        firstOrderConnectionsMap={firstOrderConnectionsMap}
         nodeTextures={nodeTextures}
         onNodeClick={onNodeClick}
         getSphereRotation={getSphereRotation}
       />
 
-      {/* Child nodes */}
-      <GlobalChildNodes
+      {/* <GlobalChildNodes
+        mainNode={mainNode}
         nodes={childNodes}
+        firstOrderConnectionsMap={firstOrderConnectionsMap}
         nodeTextures={nodeTextures}
         onNodeClick={onNodeClick}
         getSphereRotation={getSphereRotation}
-      />
+      /> */}
     </>
   )
 }
