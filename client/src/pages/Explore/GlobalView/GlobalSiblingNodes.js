@@ -4,12 +4,7 @@ import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES } from '@constants/spheres'
 import { buildConnectionLinesForNodes } from '@utils/globalViewHelpers'
 
-// Positioning constants for siblings (matching local view logic)
-const SPHERE_DIAMETER = 0.5 * 2
-const MIN_SEPARATION = SPHERE_DIAMETER + 0.1
-const SIBLING_DISTANCE_FROM_CENTER_SPHERE = 0.1
-const OUTER_FACTOR = 1.1
-const POSITION_SCALE = 0.2 // Scale factor for projecting onto sphere surface
+// Positioning constants for siblings (if needed for offset calculations)
 
 const positionSiblingNodes = (mainNode, siblingNodes) => {
   if (!mainNode || !siblingNodes?.length) return []
@@ -18,38 +13,92 @@ const positionSiblingNodes = (mainNode, siblingNodes) => {
     ? mainNode.position 
     : new THREE.Vector3(...mainNode.position)
 
+  const mainRadius = mainPosition.length()
+
   // Create a local coordinate system on the sphere surface
   const normal = mainPosition.clone().normalize()
   const northPole = new THREE.Vector3(0, 1, 0)
-  const tangent1 = new THREE.Vector3().crossVectors(northPole, normal).normalize() // left/right axis
-  const tangent2 = new THREE.Vector3().crossVectors(normal, tangent1).normalize() // up/down axis
+  
+  // tangent1 = left/right axis (perpendicular to both normal and north pole)
+  const tangent1 = new THREE.Vector3().crossVectors(northPole, normal).normalize()
+  
+  // tangent2 = up/down axis (perpendicular to both normal and tangent1)
+  const tangent2 = new THREE.Vector3().crossVectors(normal, tangent1).normalize()
 
   if (tangent2.dot(northPole) < 0) {
     tangent2.negate()
   }
 
-  // Position siblings using local view logic, then project onto sphere
   const positionedSiblings = siblingNodes.map((entry, i) => {
     const { node } = entry
 
-    // Calculate local 2D position (same as local view)
-    // Alternate left and right sides
-    const side = i % 2 === 0 ? -1 : 1
-    const localX = side * (SPHERE_DIAMETER + SIBLING_DISTANCE_FROM_CENTER_SPHERE)
-    const localY = Math.floor(i / 2) * MIN_SEPARATION * (i % 2 === 0 ? 1 : -1)
+    // Start with main node's position (siblings default to being on top of main node)
+    let worldPos = mainPosition.clone()
 
-    // Scale and apply outer factor (matching local view)
-    const scaledLocalX = localX * OUTER_FACTOR * POSITION_SCALE
-    const scaledLocalY = localY * OUTER_FACTOR * POSITION_SCALE
+    // Apply offset relative to main node
+    // Modify these x, y, z values to position each sibling
+    let offsetX = 0
+    let offsetY = 0
+    let offsetZ = 0
 
-    // Project local position onto sphere surface using tangent vectors
-    const worldPos = mainPosition.clone()
-    worldPos.x += tangent1.x * scaledLocalX + tangent2.x * scaledLocalY
-    worldPos.y += tangent1.y * scaledLocalX + tangent2.y * scaledLocalY
-    worldPos.z += tangent1.z * scaledLocalX + tangent2.z * scaledLocalY
+    // Default positioning: distribute evenly around equator
+    // You can override these per-index or modify the logic
+    if (i === 0) {
+      // Sibling 1: left
+      offsetX = -0.3
+      offsetY = 0
+      offsetZ = 0.1
+    } else if (i === 1) {
+      // Sibling 2: right
+      offsetX = 0.2
+      offsetY = 0
+      offsetZ = 0
+    } else if (i === 2) {
+      // Sibling 3: customize this one
+      offsetX = 0
+      offsetY = 0
+      offsetZ = 0
+    } else if (i === 3) {
+      // Sibling 4: customize this one
+      offsetX = 0
+      offsetY = 0
+      offsetZ = 0
+    }
 
-    // Normalize to stay on sphere surface, maintain radius
-    worldPos.normalize().multiplyScalar(mainPosition.length())
+    // Apply offsetX and offsetY in the tangent plane (left/right, up/down)
+    const offsetVector = new THREE.Vector3()
+    offsetVector.addScaledVector(tangent1, offsetX)
+    offsetVector.addScaledVector(tangent2, offsetY)
+
+    // Add offset to main position to get base position
+    worldPos = mainPosition.clone().add(offsetVector)
+
+    // Apply offsetZ: rotate around equator (Y-axis) and adjust radius
+    if (Math.abs(offsetZ) > 0.001) {
+      // Rotation angle around the Y-axis (equator rotation)
+      const rotationScale = Math.PI // 1.0 offsetZ = 180 degrees
+      const rotationAngle = offsetZ * rotationScale
+      
+      // Rotate the horizontal (X, Z) components around the Y-axis
+      const yAxis = new THREE.Vector3(0, 1, 0)
+      const horizontalPos = new THREE.Vector3(worldPos.x, 0, worldPos.z)
+      horizontalPos.applyAxisAngle(yAxis, rotationAngle)
+      
+      // Adjust radius based on offsetZ
+      // Negative offsetZ = closer to center (smaller radius)
+      // Positive offsetZ = further from center (larger radius)
+      const radiusAdjustment = offsetZ * 0.2 // Scale factor for radius change
+      const targetRadius = mainRadius + radiusAdjustment
+      
+      // Reconstruct position with rotated horizontal and original Y
+      worldPos.set(horizontalPos.x, worldPos.y, horizontalPos.z)
+      
+      // Scale to target radius (this will change Y slightly, but that's expected)
+      worldPos.normalize().multiplyScalar(targetRadius)
+    } else {
+      // No rotation or radius adjustment, just project onto sphere surface at original radius
+      worldPos.normalize().multiplyScalar(mainRadius)
+    }
 
     return {
       node,
