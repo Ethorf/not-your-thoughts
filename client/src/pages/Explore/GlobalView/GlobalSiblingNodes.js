@@ -33,42 +33,19 @@ const positionSiblingNodes = (mainNode, siblingNodes) => {
     // Start with main node's position (siblings default to being on top of main node)
     let worldPos = mainPosition.clone()
 
-    // Apply offset relative to main node
-    // Modify these x, y, z values to position each sibling
-    let offsetX = 0
-    let offsetY = 0
-    let offsetZ = 0
-    let usefulIndex = i + 1
+    let nonZeroI = i + 1
 
-    // Default positioning: distribute evenly around equator
-    // You can override these per-index or modify the logic
 
-    const getLeftRightOffset = (usefulI) => {
-
-      return usefulIndex % 2 === 0 ? "-" : "" 
+    const getLeftRightOffset = (nonZeroI) => {
+      return nonZeroI % 2 === 0 ? "-" : "" 
     }
+
+    const DEFAULT_SIBLING_OFFSET_X = 0.28
     
-    if (i === 0) {
-      // Sibling 1: left
-      offsetX = -0.3
-      offsetY = 0
-      offsetZ = -0.7
-    } else if (i === 1) {
-      // Sibling 2: right
-      offsetX = 0.2
-      offsetY = 0
-      offsetZ = 0
-    } else if (i === 2) {
-      // Sibling 3: customize this one
-      offsetX = 0
-      offsetY = 0
-      offsetZ = 0
-    } else if (i === 3) {
-      // Sibling 4: customize this one
-      offsetX = 0
-      offsetY = 0
-      offsetZ = 0
-    }
+    let offsetX = Number(`${getLeftRightOffset(nonZeroI)}${DEFAULT_SIBLING_OFFSET_X}`)
+    let offsetY = 0
+    let offsetZ = (i * 0.09) - 0.2
+    
 
     // Apply offsetX and offsetY in the tangent plane (left/right, up/down)
     const offsetVector = new THREE.Vector3()
