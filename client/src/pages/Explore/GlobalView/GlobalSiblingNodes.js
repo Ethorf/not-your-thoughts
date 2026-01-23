@@ -13,8 +13,6 @@ const positionSiblingNodes = (mainNode, siblingNodes) => {
     ? mainNode.position 
     : new THREE.Vector3(...mainNode.position)
 
-  const mainRadius = mainPosition.length()
-
   // Create a local coordinate system on the sphere surface
   const normal = mainPosition.clone().normalize()
   const northPole = new THREE.Vector3(0, 1, 0)
@@ -40,14 +38,21 @@ const positionSiblingNodes = (mainNode, siblingNodes) => {
     let offsetX = 0
     let offsetY = 0
     let offsetZ = 0
+    let usefulIndex = i + 1
 
     // Default positioning: distribute evenly around equator
     // You can override these per-index or modify the logic
+
+    const getLeftRightOffset = (usefulI) => {
+
+      return usefulIndex % 2 === 0 ? "-" : "" 
+    }
+    
     if (i === 0) {
       // Sibling 1: left
       offsetX = -0.3
       offsetY = 0
-      offsetZ = 0.1
+      offsetZ = -0.7
     } else if (i === 1) {
       // Sibling 2: right
       offsetX = 0.2
@@ -70,34 +75,28 @@ const positionSiblingNodes = (mainNode, siblingNodes) => {
     offsetVector.addScaledVector(tangent1, offsetX)
     offsetVector.addScaledVector(tangent2, offsetY)
 
-    // Add offset to main position to get base position
-    worldPos = mainPosition.clone().add(offsetVector)
-
-    // Apply offsetZ: rotate around equator (Y-axis) and adjust radius
+    // Rotate around the main node's equator (horizontal plane at mainPosition.y).
+    // This keeps the same horizontal distance from the main node while rotating.
+    const basePos = mainPosition.clone().add(offsetVector)
     if (Math.abs(offsetZ) > 0.001) {
-      // Rotation angle around the Y-axis (equator rotation)
       const rotationScale = Math.PI // 1.0 offsetZ = 180 degrees
       const rotationAngle = offsetZ * rotationScale
-      
-      // Rotate the horizontal (X, Z) components around the Y-axis
       const yAxis = new THREE.Vector3(0, 1, 0)
-      const horizontalPos = new THREE.Vector3(worldPos.x, 0, worldPos.z)
-      horizontalPos.applyAxisAngle(yAxis, rotationAngle)
-      
-      // Adjust radius based on offsetZ
-      // Negative offsetZ = closer to center (smaller radius)
-      // Positive offsetZ = further from center (larger radius)
-      const radiusAdjustment = offsetZ * 0.2 // Scale factor for radius change
-      const targetRadius = mainRadius + radiusAdjustment
-      
-      // Reconstruct position with rotated horizontal and original Y
-      worldPos.set(horizontalPos.x, worldPos.y, horizontalPos.z)
-      
-      // Scale to target radius (this will change Y slightly, but that's expected)
-      worldPos.normalize().multiplyScalar(targetRadius)
+
+      const horizontalOffset = new THREE.Vector3(
+        basePos.x - mainPosition.x,
+        0,
+        basePos.z - mainPosition.z
+      )
+      horizontalOffset.applyAxisAngle(yAxis, rotationAngle)
+
+      worldPos = new THREE.Vector3(
+        mainPosition.x + horizontalOffset.x,
+        basePos.y,
+        mainPosition.z + horizontalOffset.z
+      )
     } else {
-      // No rotation or radius adjustment, just project onto sphere surface at original radius
-      worldPos.normalize().multiplyScalar(mainRadius)
+      worldPos = basePos
     }
 
     return {
