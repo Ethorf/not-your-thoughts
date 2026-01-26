@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
-import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES } from '@constants/spheres'
+import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES, DEFAULT_CONNECTION_SPHERE_DISTANCE } from '@constants/spheres'
 import { buildConnectionLinesForNodes } from '@utils/globalViewHelpers'
 
 // Positioning constants for siblings (if needed for offset calculations)
@@ -9,17 +9,16 @@ import { buildConnectionLinesForNodes } from '@utils/globalViewHelpers'
 const positionSiblingNodes = (mainNode, siblingNodes) => {
   if (!mainNode || !siblingNodes?.length) return []
 
-  const mainPosition = mainNode.position instanceof THREE.Vector3 
-    ? mainNode.position 
-    : new THREE.Vector3(...mainNode.position)
+  const mainPosition =
+    mainNode.position instanceof THREE.Vector3 ? mainNode.position : new THREE.Vector3(...mainNode.position)
 
   // Create a local coordinate system on the sphere surface
   const normal = mainPosition.clone().normalize()
   const northPole = new THREE.Vector3(0, 1, 0)
-  
+
   // tangent1 = left/right axis (perpendicular to both normal and north pole)
   const tangent1 = new THREE.Vector3().crossVectors(northPole, normal).normalize()
-  
+
   // tangent2 = up/down axis (perpendicular to both normal and tangent1)
   const tangent2 = new THREE.Vector3().crossVectors(normal, tangent1).normalize()
 
@@ -35,17 +34,13 @@ const positionSiblingNodes = (mainNode, siblingNodes) => {
 
     let nonZeroI = i + 1
 
-
     const getLeftRightOffset = (nonZeroI) => {
-      return nonZeroI % 2 === 0 ? "-" : "" 
+      return nonZeroI % 2 === 0 ? '-' : ''
     }
 
-    const DEFAULT_SIBLING_OFFSET_X = 0.28
-    
-    let offsetX = Number(`${getLeftRightOffset(nonZeroI)}${DEFAULT_SIBLING_OFFSET_X}`)
+    let offsetX = Number(`${getLeftRightOffset(nonZeroI)}${DEFAULT_CONNECTION_SPHERE_DISTANCE}`)
     let offsetY = 0
-    let offsetZ = (i * 0.09) - 0.2
-    
+    let offsetZ = i * 0.11 - 0.2
 
     // Apply offsetX and offsetY in the tangent plane (left/right, up/down)
     const offsetVector = new THREE.Vector3()
@@ -60,18 +55,10 @@ const positionSiblingNodes = (mainNode, siblingNodes) => {
       const rotationAngle = offsetZ * rotationScale
       const yAxis = new THREE.Vector3(0, 1, 0)
 
-      const horizontalOffset = new THREE.Vector3(
-        basePos.x - mainPosition.x,
-        0,
-        basePos.z - mainPosition.z
-      )
+      const horizontalOffset = new THREE.Vector3(basePos.x - mainPosition.x, 0, basePos.z - mainPosition.z)
       horizontalOffset.applyAxisAngle(yAxis, rotationAngle)
 
-      worldPos = new THREE.Vector3(
-        mainPosition.x + horizontalOffset.x,
-        basePos.y,
-        mainPosition.z + horizontalOffset.z
-      )
+      worldPos = new THREE.Vector3(mainPosition.x + horizontalOffset.x, basePos.y, mainPosition.z + horizontalOffset.z)
     } else {
       worldPos = basePos
     }
@@ -89,7 +76,14 @@ const positionSiblingNodes = (mainNode, siblingNodes) => {
  * Renders sibling first-order nodes and their connection lines in the Global View.
  * Handles its own positioning logic for siblings.
  */
-const GlobalSiblingNodes = ({ mainNode, nodes, firstOrderConnectionsMap, nodeTextures, onNodeClick, getSphereRotation }) => {
+const GlobalSiblingNodes = ({
+  mainNode,
+  nodes,
+  firstOrderConnectionsMap,
+  nodeTextures,
+  onNodeClick,
+  getSphereRotation,
+}) => {
   // Position sibling nodes around the main node
   // NOTE: React Hooks must be called unconditionally and before any early returns
   const positionedNodes = useMemo(() => {

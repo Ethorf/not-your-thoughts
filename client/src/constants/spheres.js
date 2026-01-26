@@ -4,17 +4,20 @@ export const SPHERE_TYPES = enumify(['main', 'connection', 'first_order_connecti
 
 // Base/local (per-entry) view sphere sizes
 export const LOCAL_SPHERE_SIZES = {
-  [SPHERE_TYPES.MAIN]:1.2,
-  [SPHERE_TYPES.FIRST_ORDER_CONNECTION]: 0.8,
+  [SPHERE_TYPES.MAIN]: 1.3,
+  [SPHERE_TYPES.FIRST_ORDER_CONNECTION]: 0.9,
   [SPHERE_TYPES.SECOND_ORDER_CONNECTION]: 0.7,
 }
 
 // Global (globe) view sphere sizes
 export const GLOBAL_SPHERE_SIZES = {
-  [SPHERE_TYPES.MAIN]: 0.33,
-  [SPHERE_TYPES.FIRST_ORDER_CONNECTION]: 0.22,
-  [SPHERE_TYPES.SECOND_ORDER_CONNECTION]: 0.20,
+  [SPHERE_TYPES.MAIN]: 0.36,
+  [SPHERE_TYPES.FIRST_ORDER_CONNECTION]: 0.26,
+  [SPHERE_TYPES.SECOND_ORDER_CONNECTION]: 0.2,
 }
+
+// Default distance for first-order connection spheres in global view
+export const DEFAULT_CONNECTION_SPHERE_DISTANCE = 0.35
 
 // Backwards-compatible export – keep existing imports working.
 // Treat the previous default as the local view sizes.

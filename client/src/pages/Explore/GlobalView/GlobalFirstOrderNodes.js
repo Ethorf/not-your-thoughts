@@ -56,7 +56,7 @@ const GlobalFirstOrderNodes = ({
 
   return (
     <>
-       {/* <GlobalParentNodes
+      {/* <GlobalParentNodes
         mainNode={mainNode}
         nodes={parentNodes}
         firstOrderConnectionsMap={firstOrderConnectionsMap}
@@ -83,17 +83,16 @@ const GlobalFirstOrderNodes = ({
         getSphereRotation={getSphereRotation}
       />
 
-      {/* <GlobalChildNodes
+      <GlobalChildNodes
         mainNode={mainNode}
         nodes={childNodes}
         firstOrderConnectionsMap={firstOrderConnectionsMap}
         nodeTextures={nodeTextures}
         onNodeClick={onNodeClick}
         getSphereRotation={getSphereRotation}
-      /> */}
+      />
     </>
   )
 }
 
 export default GlobalFirstOrderNodes
-
