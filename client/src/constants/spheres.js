@@ -1,6 +1,12 @@
 import { enumify } from '../utils/enumify'
 
-export const SPHERE_TYPES = enumify(['main', 'connection', 'first_order_connection', 'second_order_connection'])
+export const SPHERE_TYPES = enumify([
+  'main',
+  'connection',
+  'first_order_connection',
+  'first_order_parent',
+  'second_order_connection',
+])
 
 // Base/local (per-entry) view sphere sizes
 export const LOCAL_SPHERE_SIZES = {
@@ -14,6 +20,7 @@ export const GLOBAL_SPHERE_SIZES = {
   [SPHERE_TYPES.MAIN]: 0.36,
   [SPHERE_TYPES.FIRST_ORDER_CONNECTION]: 0.26,
   [SPHERE_TYPES.SECOND_ORDER_CONNECTION]: 0.2,
+  [SPHERE_TYPES.FIRST_ORDER_PARENT]: 0.3,
 }
 
 // Default distance for first-order connection spheres in global view

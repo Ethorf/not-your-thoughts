@@ -160,8 +160,7 @@ const calculateGlobalClusterPositions = async (cluster, clusterCenter, nodeEntri
 
   // Add the main/center node at the cluster center
   const mainNode = nodeEntries.find((n) => n.id === clusterMainNodeId)
-  console.log('<<<<<< mainNode >>>>>>>>> is: <<<<<<<<<<<<')
-  console.log(mainNode)
+
   if (mainNode) {
     positions.push({ node: mainNode, position: clusterCenter })
   }

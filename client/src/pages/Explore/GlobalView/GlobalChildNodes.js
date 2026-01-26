@@ -25,39 +25,32 @@ const positionChildNodes = (mainNode, childNodes) => {
     tangent2.negate()
   }
 
+  const childDistance = DEFAULT_CONNECTION_SPHERE_DISTANCE - 0.2
+  const angleStep = (2 * Math.PI) / childNodes.length
+
   const positionedChildren = childNodes.map((entry, i) => {
     const { node } = entry
 
-    let nonZeroI = i + 1
+    const offsetX = childDistance
+    const offsetY = -0.4
+    const angle = i * angleStep
 
-    const getLeftRightOffset = (index) => {
-      return index % 2 === 0 ? '-' : ''
-    }
-
-    let offsetX = Number(`${getLeftRightOffset(nonZeroI)}${DEFAULT_CONNECTION_SPHERE_DISTANCE - 0.2}`)
-    let offsetY = -0.4
-    let offsetZ = i * 0.2
-
-    // Apply offsetX and offsetY in the tangent plane (left/right, up/down)
+    // Apply offset in the tangent plane (left/right, up/down)
     const offsetVector = new THREE.Vector3()
     offsetVector.addScaledVector(tangent1, offsetX)
     offsetVector.addScaledVector(tangent2, offsetY)
 
-    // Rotate around the main node's equator (horizontal plane at mainPosition.y).
-    // This keeps the same horizontal distance from the main node while rotating.
+    // Rotate around the main node's equator so children are equidistant.
     const basePos = mainPosition.clone().add(offsetVector)
-    let worldPos = basePos
+    const yAxis = new THREE.Vector3(0, 1, 0)
+    const horizontalOffset = new THREE.Vector3(basePos.x - mainPosition.x, 0, basePos.z - mainPosition.z)
+    horizontalOffset.applyAxisAngle(yAxis, angle)
 
-    if (Math.abs(offsetZ) > 0.001) {
-      const rotationScale = Math.PI // 1.0 offsetZ = 180 degrees
-      const rotationAngle = offsetZ * rotationScale
-      const yAxis = new THREE.Vector3(0, 1, 0)
-
-      const horizontalOffset = new THREE.Vector3(basePos.x - mainPosition.x, 0, basePos.z - mainPosition.z)
-      horizontalOffset.applyAxisAngle(yAxis, rotationAngle)
-
-      worldPos = new THREE.Vector3(mainPosition.x + horizontalOffset.x, basePos.y, mainPosition.z + horizontalOffset.z)
-    }
+    const worldPos = new THREE.Vector3(
+      mainPosition.x + horizontalOffset.x,
+      basePos.y,
+      mainPosition.z + horizontalOffset.z
+    )
 
     return {
       node,

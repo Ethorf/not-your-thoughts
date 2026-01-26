@@ -5,6 +5,7 @@ import calculateGlobalClusterPositions, { positionNodeConnections } from './calc
 import { resolvePositionOriginal } from './resolvePositionOriginal'
 import { resolvePositionWithOverlapPrevention } from './resolvePositionWithOverlapPrevention'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
+import { transformConnection } from '@utils/transformConnection'
 
 const {
   FRONTEND: { SIBLING, CHILD, PARENT, EXTERNAL },
@@ -303,7 +304,7 @@ export const positionGlobalNodes = async (
 
   // Separate nodes by order
   const mainNode = allNodePositions.find(({ node }) => node.id === targetNodeId)
-  const firstOrderNodes = allNodePositions
+  let firstOrderNodes = allNodePositions
     .filter(({ node }) => firstOrderNodeIds.has(node.id))
     .map((entry) => ({
       ...entry,
@@ -331,6 +332,46 @@ export const positionGlobalNodes = async (
         firstOrderConnectionsMap.get(targetNodeId).add(node.id)
         firstOrderConnectionsMap.get(node.id).add(targetNodeId)
       }
+    })
+  }
+
+  // Add external connections as first-order nodes (they don't have entries in nodeEntriesInfo)
+  const externalConnections = allConnections.filter((conn) => {
+    return conn.connection_type === EXTERNAL && (conn.entry_id === targetNodeId || conn.foreign_entry_id === targetNodeId)
+  })
+
+  if (mainNode && externalConnections.length > 0) {
+    const externalNodes = externalConnections.map((conn) => {
+      const transformed = transformConnection(targetNodeId, conn)
+      const externalId = `external-${conn.id}`
+
+      const node = {
+        id: externalId,
+        title: transformed.title,
+        content: transformed.title,
+        url: transformed.url,
+        date_last_modified: new Date(),
+      }
+
+      return {
+        node,
+        position: mainNode.position,
+        connectionType: EXTERNAL,
+      }
+    })
+
+    firstOrderNodes = [...firstOrderNodes, ...externalNodes]
+
+    if (!firstOrderConnectionsMap.has(targetNodeId)) {
+      firstOrderConnectionsMap.set(targetNodeId, new Set())
+    }
+
+    externalNodes.forEach(({ node }) => {
+      if (!firstOrderConnectionsMap.has(node.id)) {
+        firstOrderConnectionsMap.set(node.id, new Set())
+      }
+      firstOrderConnectionsMap.get(targetNodeId).add(node.id)
+      firstOrderConnectionsMap.get(node.id).add(targetNodeId)
     })
   }
 

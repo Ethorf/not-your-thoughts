@@ -25,11 +25,7 @@ import GradientGlobe from './GradientGlobe'
 import GlobalFirstOrderNodes from './GlobalFirstOrderNodes'
 
 // Utils
-import {
-  buildGlobalNodeSphereTextures,
-  buildClusters,
-  positionGlobalNodes,
-} from '@utils/globalViewHelpers'
+import { buildGlobalNodeSphereTextures, buildClusters, positionGlobalNodes } from '@utils/globalViewHelpers'
 
 const GlobalView = () => {
   const nodeEntriesInfo = useNodeEntriesInfo()
@@ -119,13 +115,13 @@ const GlobalView = () => {
     <div className={styles.wrapper}>
       <div className={styles.header}>
         <h1>Global Mind Map</h1>
-            <TextButton
-              className={styles.backButton}
-              onClick={() => history.push('/explore')}
-              tooltip="Return to Local View"
-            >
-              ← Local View
-            </TextButton>
+        <TextButton
+          className={styles.backButton}
+          onClick={() => history.push('/explore')}
+          tooltip="Return to Local View"
+        >
+          ← Local View
+        </TextButton>
       </div>
       <p className={styles.subtitle}>All nodes clustered by connections. Rotate the globe to explore.</p>
 
