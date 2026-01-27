@@ -12,8 +12,10 @@ const HORIZONTAL_ROTATION = {
   1: 4.4,
 }
 // Line extension factors
-const LINE_EXTENSION_FACTOR = 1.5
-const EXTERNAL_DISTANCE_FACTOR = 1.8 // Controls both external sphere distance and line length
+// These control how far connection spheres (and their lines) sit from the main sphere.
+// With larger local sphere sizes, we push connections further out to keep lines from overlapping.
+const LINE_EXTENSION_FACTOR = 2.4
+const EXTERNAL_DISTANCE_FACTOR = 2.9 // Controls both external sphere distance and line length
 
 // Center point
 const CENTER = [0, 0, 0]

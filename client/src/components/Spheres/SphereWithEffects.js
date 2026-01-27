@@ -27,6 +27,7 @@ const SphereWithEffects = ({
   const [localHovered, setLocalHovered] = useState(false)
   const [localTooltip, setLocalTooltip] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
+  
   const localTooltipTimeout = useRef(null)
   const sphereRef = useRef()
   const haloRef = useRef()

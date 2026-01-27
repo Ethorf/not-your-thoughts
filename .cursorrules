@@ -2,6 +2,14 @@
 
 ## Code Quality Rules
 
+### 0. Always Follow ESLint
+
+- **CRITICAL**: Always follow ESLint rules and warnings
+- ESLint catches many common errors including React Hooks violations, unused variables, and code quality issues
+- Before submitting code, ensure there are no ESLint errors or warnings
+- If ESLint flags an issue, fix it rather than ignoring it
+- Use `read_lints` tool to check for linting errors before finalizing changes
+
 ### 1. No Unused Variables
 
 - Always check for unused variables when suggesting changes
@@ -50,3 +58,37 @@
 - Place utility functions near the top of components
 - Use consistent naming conventions
 - Add JSDoc comments for complex functions
+
+### 6. React Hooks Rules - CRITICAL
+
+- **MANDATORY**: React Hooks (useState, useEffect, useMemo, useCallback, etc.) must ALWAYS be called unconditionally and in the same order on every render
+- **NEVER** call hooks conditionally - this includes:
+  - After an early return (`if (...) return null` before hooks)
+  - Inside if statements
+  - Inside loops
+  - Inside nested functions
+- **ALWAYS** call all hooks at the top level of the component, before ANY conditional returns
+- If you need to handle empty/null cases, do so inside the hook's logic or after ALL hooks are called
+- **ALWAYS** check ESLint for `react-hooks/rules-of-hooks` errors before finalizing code
+- Example of what NOT to do:
+  ```jsx
+  const MyComponent = ({ items }) => {
+    if (!items?.length) return null  // ❌ Early return before hook - VIOLATES RULES OF HOOKS
+    
+    const memoized = useMemo(() => items.map(...), [items])  // ❌ Hook called conditionally
+  }
+  ```
+- Example of what TO do:
+  ```jsx
+  const MyComponent = ({ items }) => {
+    // ✅ ALL hooks called first, unconditionally
+    const memoized = useMemo(() => {
+      if (!items?.length) return []  // ✅ Handle empty case inside hook
+      return items.map(...)
+    }, [items])
+    
+    // ✅ Early return AFTER all hooks are called
+    if (!items?.length) return null
+  }
+  ```
+- **When in doubt**: Move ALL hooks to the very top of the component, before any logic or early returns

@@ -131,8 +131,7 @@ export const fetchConnectionsDirect = createAsyncThunk(
   async (entry_id, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(`api/connections/${entry_id}`)
-      console.log('<<<<<< response.data >>>>>>>>> is: <<<<<<<<<<<<')
-      console.log(response.data)
+
       return response.data.connections
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message)

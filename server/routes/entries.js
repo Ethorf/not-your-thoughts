@@ -385,7 +385,7 @@ router.get('/node_entries_info', authorize, async (req, res) => {
     const nodeEntries = nodeEntriesQuery.rows
 
     if (nodeEntries.length === 0) {
-      return res.status(404).json({ msg: 'No node entries found for this user' })
+      return res.json({ nodeEntries: [] })
     }
 
     const processedEntries = nodeEntries.map((entry) => {

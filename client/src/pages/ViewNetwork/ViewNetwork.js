@@ -22,7 +22,7 @@ import sharedStyles from '@styles/sharedClassnames.module.scss'
 
 // Constants
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
-import { SPHERE_TYPES, DEFAULT_SPHERE_SIZES } from '@constants/spheres'
+import { SPHERE_TYPES, LOCAL_SPHERE_SIZES } from '@constants/spheres'
 
 // Utils
 import { transformConnection } from '@utils/transformConnection'
@@ -309,7 +309,7 @@ const ViewNetwork = () => {
                 id={entryId}
                 pos={center}
                 title={title}
-                size={DEFAULT_SPHERE_SIZES[SPHERE_TYPES.MAIN]}
+                size={LOCAL_SPHERE_SIZES[SPHERE_TYPES.MAIN]}
                 mainTexture={mainTexture}
                 onClick={handleMainNodeClick}
                 rotation={[0, 4.7, 0]}
@@ -386,7 +386,7 @@ const ViewNetwork = () => {
 
                 const nodeInfo = nodeEntriesInfo.find((n) => n.id === transformed.id)
                 const sphereSize = getScaledSphereSize(
-                  DEFAULT_SPHERE_SIZES[SPHERE_TYPES.CONNECTION],
+                  LOCAL_SPHERE_SIZES[SPHERE_TYPES.CONNECTION],
                   nodeInfo?.wdWordCount
                 )
 

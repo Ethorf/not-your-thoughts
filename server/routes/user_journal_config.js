@@ -12,8 +12,13 @@ router.get('/', authorize, async (req, res) => {
   const { id } = req.user
 
   try {
-    let userJournal = await pool.query('SELECT * FROM user_config WHERE user_id = $1', [id])
+    const userJournal = await pool.query('SELECT * FROM user_config WHERE user_id = $1', [id])
     let journalConfig = userJournal.rows[0]
+
+    if (!journalConfig) {
+      const createdConfig = await pool.query('INSERT INTO user_config (user_id) VALUES ($1) RETURNING *', [id])
+      journalConfig = createdConfig.rows[0]
+    }
 
     console.log('Config retrieved!')
     return res.json({ journalConfig })

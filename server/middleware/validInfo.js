@@ -2,7 +2,10 @@ module.exports = function (req, res, next) {
   const { email, name, password } = req.body
 
   function validEmail(userEmail) {
-    return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(userEmail)
+    // Allow letters, numbers, and common special characters in local part (before @)
+    // Common characters: +, -, _, ., and word characters
+    // Domain part: letters, numbers, dots, hyphens
+    return /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(userEmail)
   }
 
   if (req.path === '/register') {
