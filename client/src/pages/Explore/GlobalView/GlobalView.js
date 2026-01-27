@@ -158,21 +158,7 @@ const GlobalView = () => {
               onNodeClick={handleNodeClick}
               getSphereRotation={getSphereRotation}
             />
-            {/* Second order nodes */}
-            {/* {secondOrderNodes.map(({ node, position }) => (
-              <SphereWithEffects
-                key={node.id}
-                id={node.id}
-                pos={position.toArray()}
-                title={node.title}
-                size={GLOBAL_SPHERE_SIZES[SPHERE_TYPES.SECOND_ORDER_CONNECTION]}
-                mainTexture={nodeTextures.get(node.id)}
-                onClick={() => handleNodeClick(node.id)}
-                rotation={getSphereRotation(position)}
-              />
-            ))} */}
-            {/* Second order connection lines */}
-            {/* {secondOrderConnectionLines} */}
+
           </Suspense>
 
           <OrbitControls

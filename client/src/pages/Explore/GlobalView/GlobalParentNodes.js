@@ -3,8 +3,9 @@ import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES, DEFAULT_CONNECTION_SPHERE_DISTANCE } from '@constants/spheres'
 import { buildConnectionLinesForNodes } from '@utils/globalViewHelpers'
+import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
 
-const positionParentNodes = (mainNode, parentNodes) => {
+export const positionParentNodes = (mainNode, parentNodes) => {
   if (!mainNode || !parentNodes?.length) return []
 
   const mainPosition =
@@ -25,14 +26,6 @@ const positionParentNodes = (mainNode, parentNodes) => {
   }
 
   const positionedParents = parentNodes.map((entry, i) => {
-    const { node } = entry
-
-    let nonZeroI = i + 1
-
-    const getLeftRightOffset = (index) => {
-      return index % 2 === 0 ? '-' : ''
-    }
-
     let offsetX = parentNodes.length > 1 ? DEFAULT_CONNECTION_SPHERE_DISTANCE : 0
     let offsetY = 0.5
     let offsetZ = i * 0.11 - 0.2
@@ -59,7 +52,7 @@ const positionParentNodes = (mainNode, parentNodes) => {
     }
 
     return {
-      node,
+      ...entry,
       position: worldPos,
     }
   })
@@ -91,6 +84,21 @@ const GlobalParentNodes = ({
     return buildConnectionLinesForNodes(mainNode, positionedNodes, firstOrderConnectionsMap)
   }, [mainNode, positionedNodes, firstOrderConnectionsMap])
 
+  const secondOrderByParentId = useMemo(() => {
+    if (!positionedNodes?.length) return new Map()
+
+    const map = new Map()
+    positionedNodes.forEach((entry) => {
+      const secondOrderNodes = entry.secondOrderNodes || []
+      const parentsOnly = secondOrderNodes.filter((nodeEntry) => nodeEntry.connectionType === 'parent')
+      if (parentsOnly.length) {
+        map.set(entry.node.id, parentsOnly)
+      }
+    })
+
+    return map
+  }, [positionedNodes])
+
   if (!nodes?.length) return null
 
   return (
@@ -111,6 +119,23 @@ const GlobalParentNodes = ({
           rotation={getSphereRotation(position)}
         />
       ))}
+
+      {positionedNodes.map((parentEntry) => {
+        const secondOrderNodesForParent = secondOrderByParentId.get(parentEntry.node.id)
+        if (!secondOrderNodesForParent?.length) return null
+
+        return (
+          <GlobalSecondOrderNodes
+            key={`second-order-parents-${parentEntry.node.id}`}
+            parentNode={parentEntry}
+            nodes={secondOrderNodesForParent}
+            positionNodes={positionParentNodes}
+            nodeTextures={nodeTextures}
+            onNodeClick={onNodeClick}
+            getSphereRotation={getSphereRotation}
+          />
+        )
+      })}
     </>
   )
 }

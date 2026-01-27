@@ -3,10 +3,11 @@ import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES, DEFAULT_CONNECTION_SPHERE_DISTANCE } from '@constants/spheres'
 import { buildConnectionLinesForNodes } from '@utils/globalViewHelpers'
+import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
 
 // Positioning constants for siblings (if needed for offset calculations)
 
-const positionSiblingNodes = (mainNode, siblingNodes) => {
+export const positionSiblingNodes = (mainNode, siblingNodes) => {
   if (!mainNode || !siblingNodes?.length) return []
 
   const mainPosition =
@@ -27,18 +28,17 @@ const positionSiblingNodes = (mainNode, siblingNodes) => {
   }
 
   const positionedSiblings = siblingNodes.map((entry, i) => {
-    const { node } = entry
-
     // Start with main node's position (siblings default to being on top of main node)
     let worldPos = mainPosition.clone()
 
-    let nonZeroI = i + 1
+    const nonZeroI = i + 1
+    const alternatingSign = nonZeroI % 2 === 0 ? -1 : 1
+    const lateralSign =
+      typeof mainNode?.lateralSign === 'number' && mainNode.lateralSign !== 0
+        ? mainNode.lateralSign
+        : alternatingSign
 
-    const getLeftRightOffset = (nonZeroI) => {
-      return nonZeroI % 2 === 0 ? '-' : ''
-    }
-
-    let offsetX = Number(`${getLeftRightOffset(nonZeroI)}${DEFAULT_CONNECTION_SPHERE_DISTANCE}`)
+    let offsetX = lateralSign * DEFAULT_CONNECTION_SPHERE_DISTANCE
     let offsetY = 0
     let offsetZ = i * 0.11 - 0.2
 
@@ -64,8 +64,9 @@ const positionSiblingNodes = (mainNode, siblingNodes) => {
     }
 
     return {
-      node,
+      ...entry,
       position: worldPos,
+      lateralSign,
     }
   })
 
@@ -97,6 +98,21 @@ const GlobalSiblingNodes = ({
     return buildConnectionLinesForNodes(mainNode, positionedNodes, firstOrderConnectionsMap)
   }, [mainNode, positionedNodes, firstOrderConnectionsMap])
 
+  const secondOrderByParentId = useMemo(() => {
+    if (!positionedNodes?.length) return new Map()
+
+    const map = new Map()
+    positionedNodes.forEach((entry) => {
+      const secondOrderNodes = entry.secondOrderNodes || []
+      const siblingsOnly = secondOrderNodes.filter((nodeEntry) => nodeEntry.connectionType === 'sibling')
+      if (siblingsOnly.length) {
+        map.set(entry.node.id, siblingsOnly)
+      }
+    })
+
+    return map
+  }, [positionedNodes])
+
   if (!nodes?.length) return null
 
   return (
@@ -117,6 +133,23 @@ const GlobalSiblingNodes = ({
           rotation={getSphereRotation(position)}
         />
       ))}
+
+      {positionedNodes.map((parentEntry) => {
+        const secondOrderNodesForParent = secondOrderByParentId.get(parentEntry.node.id)
+        if (!secondOrderNodesForParent?.length) return null
+
+        return (
+          <GlobalSecondOrderNodes
+            key={`second-order-siblings-${parentEntry.node.id}`}
+            parentNode={parentEntry}
+            nodes={secondOrderNodesForParent}
+            positionNodes={positionSiblingNodes}
+            nodeTextures={nodeTextures}
+            onNodeClick={onNodeClick}
+            getSphereRotation={getSphereRotation}
+          />
+        )
+      })}
     </>
   )
 }

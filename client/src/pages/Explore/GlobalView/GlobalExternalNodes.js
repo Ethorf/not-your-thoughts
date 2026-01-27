@@ -2,6 +2,7 @@ import React, { useMemo, useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES, DEFAULT_CONNECTION_SPHERE_DISTANCE } from '@constants/spheres'
+import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
 
 const DashedLine = ({ lineKey, points, color = 'white', dashSize = 0.03, gapSize = 0.02 }) => {
   const lineRef = useRef(null)
@@ -66,7 +67,7 @@ const buildDashedConnectionLinesForNodes = (mainNode, targetNodes, firstOrderCon
   return lines
 }
 
-const positionExternalNodes = (mainNode, externalNodes) => {
+export const positionExternalNodes = (mainNode, externalNodes) => {
   if (!mainNode || !externalNodes?.length) return []
 
   const mainPosition =
@@ -90,8 +91,6 @@ const positionExternalNodes = (mainNode, externalNodes) => {
   const angleStep = (2 * Math.PI) / externalNodes.length
 
   const positionedExternal = externalNodes.map((entry, i) => {
-    const { node } = entry
-
     const offsetX = externalDistance
     const offsetY = 0.4
     const angle = i * angleStep
@@ -114,7 +113,7 @@ const positionExternalNodes = (mainNode, externalNodes) => {
     )
 
     return {
-      node,
+      ...entry,
       position: worldPos,
     }
   })
@@ -146,6 +145,21 @@ const GlobalExternalNodes = ({
     return buildDashedConnectionLinesForNodes(mainNode, positionedNodes, firstOrderConnectionsMap)
   }, [mainNode, positionedNodes, firstOrderConnectionsMap])
 
+  const secondOrderByParentId = useMemo(() => {
+    if (!positionedNodes?.length) return new Map()
+
+    const map = new Map()
+    positionedNodes.forEach((entry) => {
+      const secondOrderNodes = entry.secondOrderNodes || []
+      const externalsOnly = secondOrderNodes.filter((nodeEntry) => nodeEntry.connectionType === 'external')
+      if (externalsOnly.length) {
+        map.set(entry.node.id, externalsOnly)
+      }
+    })
+
+    return map
+  }, [positionedNodes])
+
   if (!nodes?.length) return null
 
   return (
@@ -166,6 +180,23 @@ const GlobalExternalNodes = ({
           rotation={getSphereRotation(position)}
         />
       ))}
+
+      {positionedNodes.map((parentEntry) => {
+        const secondOrderNodesForParent = secondOrderByParentId.get(parentEntry.node.id)
+        if (!secondOrderNodesForParent?.length) return null
+
+        return (
+          <GlobalSecondOrderNodes
+            key={`second-order-externals-${parentEntry.node.id}`}
+            parentNode={parentEntry}
+            nodes={secondOrderNodesForParent}
+            positionNodes={positionExternalNodes}
+            nodeTextures={nodeTextures}
+            onNodeClick={onNodeClick}
+            getSphereRotation={getSphereRotation}
+          />
+        )
+      })}
     </>
   )
 }

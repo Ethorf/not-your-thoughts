@@ -2,10 +2,10 @@ import React, { useMemo } from 'react'
 import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES, DEFAULT_CONNECTION_SPHERE_DISTANCE } from '@constants/spheres'
-
 import { buildConnectionLinesForNodes } from '@utils/globalViewHelpers'
+import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
 
-const positionChildNodes = (mainNode, childNodes) => {
+export const positionChildNodes = (mainNode, childNodes) => {
   if (!mainNode || !childNodes?.length) return []
 
   const mainPosition =
@@ -29,8 +29,6 @@ const positionChildNodes = (mainNode, childNodes) => {
   const angleStep = (2 * Math.PI) / childNodes.length
 
   const positionedChildren = childNodes.map((entry, i) => {
-    const { node } = entry
-
     const offsetX = childDistance
     const offsetY = -0.4
     const angle = i * angleStep
@@ -53,7 +51,7 @@ const positionChildNodes = (mainNode, childNodes) => {
     )
 
     return {
-      node,
+      ...entry,
       position: worldPos,
     }
   })
@@ -87,6 +85,21 @@ const GlobalChildNodes = ({
     return buildConnectionLinesForNodes(mainNode, positionedNodes, firstOrderConnectionsMap)
   }, [mainNode, positionedNodes, firstOrderConnectionsMap])
 
+  const secondOrderByParentId = useMemo(() => {
+    if (!positionedNodes?.length) return new Map()
+
+    const map = new Map()
+    positionedNodes.forEach((entry) => {
+      const secondOrderNodes = entry.secondOrderNodes || []
+      const childrenOnly = secondOrderNodes.filter((nodeEntry) => nodeEntry.connectionType === 'child')
+      if (childrenOnly.length) {
+        map.set(entry.node.id, childrenOnly)
+      }
+    })
+
+    return map
+  }, [positionedNodes])
+
   if (!nodes?.length) return null
 
   return (
@@ -107,6 +120,23 @@ const GlobalChildNodes = ({
           rotation={getSphereRotation(position)}
         />
       ))}
+
+      {positionedNodes.map((parentEntry) => {
+        const secondOrderNodesForParent = secondOrderByParentId.get(parentEntry.node.id)
+        if (!secondOrderNodesForParent?.length) return null
+
+        return (
+          <GlobalSecondOrderNodes
+            key={`second-order-children-${parentEntry.node.id}`}
+            parentNode={parentEntry}
+            nodes={secondOrderNodesForParent}
+            positionNodes={positionChildNodes}
+            nodeTextures={nodeTextures}
+            onNodeClick={onNodeClick}
+            getSphereRotation={getSphereRotation}
+          />
+        )
+      })}
     </>
   )
 }

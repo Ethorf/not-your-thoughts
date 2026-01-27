@@ -281,7 +281,7 @@ export const positionGlobalNodes = async (
     const isSecondOrder = firstOrderNodeIds.has(nodeToExpand.id)
     const isWestOfMain = biasSignX < 0
 
-    subPositions.forEach(({ node, position }) => {
+    subPositions.forEach(({ node, position, connectionType }) => {
       if (!seenNodeIds.has(node.id)) {
         // Use overlap prevention for 2nd order connections, original positioning for others
         const finalPosition = isSecondOrder
@@ -297,7 +297,7 @@ export const positionGlobalNodes = async (
 
         seenNodeIds.add(node.id)
         existingPositions.set(node.id, finalPosition)
-        allNodePositions.push({ node, position: finalPosition })
+        allNodePositions.push({ node, position: finalPosition, connectionType: connectionType || null })
       }
     })
   }
@@ -393,9 +393,28 @@ export const positionGlobalNodes = async (
     })
   })
 
+  // Attach second-order nodes to their first-order parent entry (relative rendering)
+  const secondOrderById = new Map(secondOrderNodes.map((entry) => [entry.node.id, entry]))
+  const firstOrderNodesWithSecondOrder = firstOrderNodes.map((entry) => {
+    const connected = secondOrderConnectionsMap.get(entry.node.id) || new Set()
+    const attachedSecondOrder = []
+
+    connected.forEach((connectedId) => {
+      const secondOrderEntry = secondOrderById.get(connectedId)
+      if (secondOrderEntry) {
+        attachedSecondOrder.push(secondOrderEntry)
+      }
+    })
+
+    return {
+      ...entry,
+      secondOrderNodes: attachedSecondOrder,
+    }
+  })
+
   return {
     mainNode: mainNode || null,
-    firstOrderNodes,
+    firstOrderNodes: firstOrderNodesWithSecondOrder,
     secondOrderNodes,
     firstOrderConnectionsMap,
     secondOrderConnectionsMap,
