@@ -190,7 +190,6 @@ const GlobalExternalNodes = ({
             key={`second-order-externals-${parentEntry.node.id}`}
             parentNode={parentEntry}
             nodes={secondOrderNodesForParent}
-            positionNodes={positionExternalNodes}
             nodeTextures={nodeTextures}
             onNodeClick={onNodeClick}
             getSphereRotation={getSphereRotation}

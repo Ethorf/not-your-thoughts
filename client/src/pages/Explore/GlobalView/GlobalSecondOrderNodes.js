@@ -1,77 +1,77 @@
 import React, { useMemo } from 'react'
-import * as THREE from 'three'
-import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
-import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES } from '@constants/spheres'
+import { CONNECTION_TYPES } from '@constants/connectionTypes'
+import GlobalSecondOrderSiblingNodes from './GlobalSecondOrderSiblingNodes'
+import GlobalSecondOrderParentNodes from './GlobalSecondOrderParentNodes'
+import GlobalSecondOrderChildNodes from './GlobalSecondOrderChildNodes'
+import GlobalSecondOrderExternalNodes from './GlobalSecondOrderExternalNodes'
 
 /**
- * Renders second-order sibling nodes and their connection lines for a given parent.
+ * Renders second-order nodes grouped by connection type for a given parent.
  */
-const GlobalSecondOrderNodes = ({
-  parentNode,
-  nodes,
-  positionNodes,
-  nodeTextures,
-  onNodeClick,
-  getSphereRotation,
-}) => {
-  const positionedNodes = useMemo(() => {
-    if (!parentNode || !nodes?.length || !positionNodes) return []
-    return positionNodes(parentNode, nodes)
-  }, [parentNode, nodes, positionNodes])
+const GlobalSecondOrderNodes = ({ parentNode, nodes, nodeTextures, onNodeClick, getSphereRotation }) => {
+  const { externalNodes, siblingNodes, parentNodes, childNodes } = useMemo(() => {
+    const external = []
+    const sibling = []
+    const parent = []
+    const child = []
 
-  const connectionLines = useMemo(() => {
-    if (!parentNode || !positionedNodes?.length) return []
+    nodes?.forEach((entry) => {
+      const { connectionType } = entry
 
-    const lines = []
-    const drawnConnections = new Set()
-    const allNodes = [parentNode, ...positionedNodes]
-
-    allNodes.forEach(({ node, position: posA }) => {
-      const connectedNodes = node.id === parentNode.node.id
-        ? positionedNodes.map((n) => n.node.id)
-        : [parentNode.node.id]
-
-      connectedNodes.forEach((connectedNodeId) => {
-        const connectionKey = [node.id, connectedNodeId].sort().join('-')
-        if (drawnConnections.has(connectionKey)) return
-
-        drawnConnections.add(connectionKey)
-
-        const connectedNode = allNodes.find(({ node: n }) => n.id === connectedNodeId)
-        if (!connectedNode) return
-
-        const posB = connectedNode.position
-        const points = [new THREE.Vector3(posA.x, posA.y, posA.z), new THREE.Vector3(posB.x, posB.y, posB.z)]
-        const geometry = new THREE.BufferGeometry().setFromPoints(points)
-
-        lines.push(
-          <line key={connectionKey} geometry={geometry}>
-            <lineBasicMaterial color="white" />
-          </line>
-        )
-      })
+      if (connectionType === CONNECTION_TYPES.FRONTEND.EXTERNAL) {
+        external.push(entry)
+      } else if (connectionType === CONNECTION_TYPES.FRONTEND.SIBLING) {
+        sibling.push(entry)
+      } else if (connectionType === CONNECTION_TYPES.FRONTEND.PARENT) {
+        parent.push(entry)
+      } else if (connectionType === CONNECTION_TYPES.FRONTEND.CHILD) {
+        child.push(entry)
+      }
     })
 
-    return lines
-  }, [parentNode, positionedNodes])
+    return {
+      externalNodes: external,
+      siblingNodes: sibling,
+      parentNodes: parent,
+      childNodes: child,
+    }
+  }, [nodes])
 
   if (!nodes?.length) return null
 
   return (
     <>
-      {connectionLines}
-      {positionedNodes.map(({ node, position }) => (
-        <SphereWithEffects
-          key={node.id}
-          id={node.id}
-          pos={position.toArray()}
-          title={node.title}
-          size={GLOBAL_SPHERE_SIZES[SPHERE_TYPES.SECOND_ORDER_CONNECTION]}
-          mainTexture={nodeTextures.get(node.id)}
-          onClick={() => onNodeClick(node.id)}
-          rotation={getSphereRotation(position)}
-        />
-      ))}
+      <GlobalSecondOrderParentNodes
+        parentNode={parentNode}
+        nodes={parentNodes}
+        nodeTextures={nodeTextures}
+        onNodeClick={onNodeClick}
+        getSphereRotation={getSphereRotation}
+      />
+
+      <GlobalSecondOrderExternalNodes
+        parentNode={parentNode}
+        nodes={externalNodes}
+        nodeTextures={nodeTextures}
+        onNodeClick={onNodeClick}
+        getSphereRotation={getSphereRotation}
+      />
+
+      <GlobalSecondOrderSiblingNodes
+        parentNode={parentNode}
+        nodes={siblingNodes}
+        nodeTextures={nodeTextures}
+        onNodeClick={onNodeClick}
+        getSphereRotation={getSphereRotation}
+      />
+
+      <GlobalSecondOrderChildNodes
+        parentNode={parentNode}
+        nodes={childNodes}
+        nodeTextures={nodeTextures}
+        onNodeClick={onNodeClick}
+        getSphereRotation={getSphereRotation}
+      />
     </>
   )
 }

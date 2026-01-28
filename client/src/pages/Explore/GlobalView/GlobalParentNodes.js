@@ -129,7 +129,6 @@ const GlobalParentNodes = ({
             key={`second-order-parents-${parentEntry.node.id}`}
             parentNode={parentEntry}
             nodes={secondOrderNodesForParent}
-            positionNodes={positionParentNodes}
             nodeTextures={nodeTextures}
             onNodeClick={onNodeClick}
             getSphereRotation={getSphereRotation}

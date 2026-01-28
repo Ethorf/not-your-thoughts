@@ -32,13 +32,12 @@ export const positionSiblingNodes = (mainNode, siblingNodes) => {
     let worldPos = mainPosition.clone()
 
     const nonZeroI = i + 1
-    const alternatingSign = nonZeroI % 2 === 0 ? -1 : 1
-    const lateralSign =
-      typeof mainNode?.lateralSign === 'number' && mainNode.lateralSign !== 0
-        ? mainNode.lateralSign
-        : alternatingSign
+    const alternatingXSides = nonZeroI % 2 === 0 ? -1 : 1
+    // sideSign keeps children on the same left/right as their parent
+    const sideSign =
+      typeof mainNode?.sideSign === 'number' && mainNode.sideSign !== 0 ? mainNode.sideSign : alternatingXSides
 
-    let offsetX = lateralSign * DEFAULT_CONNECTION_SPHERE_DISTANCE
+    let offsetX = sideSign * DEFAULT_CONNECTION_SPHERE_DISTANCE
     let offsetY = 0
     let offsetZ = i * 0.11 - 0.2
 
@@ -66,7 +65,7 @@ export const positionSiblingNodes = (mainNode, siblingNodes) => {
     return {
       ...entry,
       position: worldPos,
-      lateralSign,
+      sideSign,
     }
   })
 
@@ -143,7 +142,6 @@ const GlobalSiblingNodes = ({
             key={`second-order-siblings-${parentEntry.node.id}`}
             parentNode={parentEntry}
             nodes={secondOrderNodesForParent}
-            positionNodes={positionSiblingNodes}
             nodeTextures={nodeTextures}
             onNodeClick={onNodeClick}
             getSphereRotation={getSphereRotation}
