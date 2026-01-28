@@ -146,13 +146,7 @@ export const buildClusters = (nodeEntries, connections) => {
  * @param {number} targetNodeId - The main node ID to center on (default: 990)
  * @returns {Promise<Object>} Promise resolving to { allNodePositions: Array, connectionsMap: Map }
  */
-export const positionGlobalNodes = async (
-  nodeEntriesInfo,
-  allConnections,
-  clusters,
-  dispatch,
-  targetNodeId = 990
-) => {
+export const positionGlobalNodes = async (nodeEntriesInfo, allConnections, clusters, dispatch, targetNodeId = 990) => {
   if (!nodeEntriesInfo || !allConnections || clusters.length === 0) {
     return { allNodePositions: [], connectionsMap: new Map() }
   }
@@ -337,7 +331,9 @@ export const positionGlobalNodes = async (
 
   // Add external connections as first-order nodes (they don't have entries in nodeEntriesInfo)
   const externalConnections = allConnections.filter((conn) => {
-    return conn.connection_type === EXTERNAL && (conn.entry_id === targetNodeId || conn.foreign_entry_id === targetNodeId)
+    return (
+      conn.connection_type === EXTERNAL && (conn.entry_id === targetNodeId || conn.foreign_entry_id === targetNodeId)
+    )
   })
 
   if (mainNode && externalConnections.length > 0) {
@@ -412,10 +408,28 @@ export const positionGlobalNodes = async (
     }
   })
 
+  // Attach connected nodes to each entry for recursive rendering
+  const allRenderableNodes = [mainNode, ...firstOrderNodesWithSecondOrder, ...secondOrderNodes].filter(Boolean)
+  const nodeEntryById = new Map(allRenderableNodes.map((entry) => [entry.node.id, entry]))
+  const withConnectedNodes = allRenderableNodes.map((entry) => {
+    const connectedIds = connectionsMap.get(entry.node.id) || new Set()
+    const connectedNodes = [...connectedIds].map((id) => nodeEntryById.get(id)).filter(Boolean)
+    return {
+      ...entry,
+      connectedNodes,
+    }
+  })
+  const withConnectedById = new Map(withConnectedNodes.map((entry) => [entry.node.id, entry]))
+  const mainNodeWithConnected = mainNode ? withConnectedById.get(mainNode.node.id) || mainNode : null
+  const firstOrderNodesFinal = firstOrderNodesWithSecondOrder.map(
+    (entry) => withConnectedById.get(entry.node.id) || entry
+  )
+  const secondOrderNodesFinal = secondOrderNodes.map((entry) => withConnectedById.get(entry.node.id) || entry)
+
   return {
-    mainNode: mainNode || null,
-    firstOrderNodes: firstOrderNodesWithSecondOrder,
-    secondOrderNodes,
+    mainNode: mainNodeWithConnected || null,
+    firstOrderNodes: firstOrderNodesFinal,
+    secondOrderNodes: secondOrderNodesFinal,
     firstOrderConnectionsMap,
     secondOrderConnectionsMap,
     allNodePositions, // Keep for backward compatibility if needed

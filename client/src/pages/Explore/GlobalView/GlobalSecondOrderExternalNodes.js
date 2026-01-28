@@ -60,7 +60,7 @@ const buildDashedLines = (parentNode, positionedNodes) => {
   return lines
 }
 
-const positionSecondOrderExternals = (parentNode, externalNodes) => {
+export const positionSecondOrderExternals = (parentNode, externalNodes) => {
   if (!parentNode || !externalNodes?.length) return []
 
   const parentPosition =
@@ -105,20 +105,29 @@ const positionSecondOrderExternals = (parentNode, externalNodes) => {
   })
 }
 
-const GlobalSecondOrderExternalNodes = ({ parentNode, nodes, nodeTextures, onNodeClick, getSphereRotation }) => {
-  const positionedNodes = useMemo(() => {
+const GlobalSecondOrderExternalNodes = ({
+  parentNode,
+  nodes,
+  positionedNodes,
+  nodeTextures,
+  onNodeClick,
+  getSphereRotation,
+}) => {
+  const computedNodes = useMemo(() => {
     if (!parentNode || !nodes?.length) return []
     return positionSecondOrderExternals(parentNode, nodes)
   }, [parentNode, nodes])
 
-  const connectionLines = useMemo(() => buildDashedLines(parentNode, positionedNodes), [parentNode, positionedNodes])
+  const finalNodes = positionedNodes?.length ? positionedNodes : computedNodes
+
+  const connectionLines = useMemo(() => buildDashedLines(parentNode, finalNodes), [parentNode, finalNodes])
 
   if (!nodes?.length) return null
 
   return (
     <>
       {connectionLines}
-      {positionedNodes.map(({ node, position }) => (
+      {finalNodes.map(({ node, position }) => (
         <SphereWithEffects
           key={node.id}
           id={node.id}

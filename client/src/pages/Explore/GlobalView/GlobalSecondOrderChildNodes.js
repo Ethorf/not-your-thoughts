@@ -37,7 +37,7 @@ const buildSolidLines = (parentNode, positionedNodes) => {
   return lines
 }
 
-const positionSecondOrderChildren = (parentNode, childNodes) => {
+export const positionSecondOrderChildren = (parentNode, childNodes) => {
   if (!parentNode || !childNodes?.length) return []
 
   const parentPosition =
@@ -91,20 +91,29 @@ const positionSecondOrderChildren = (parentNode, childNodes) => {
   })
 }
 
-const GlobalSecondOrderChildNodes = ({ parentNode, nodes, nodeTextures, onNodeClick, getSphereRotation }) => {
-  const positionedNodes = useMemo(() => {
+const GlobalSecondOrderChildNodes = ({
+  parentNode,
+  nodes,
+  positionedNodes,
+  nodeTextures,
+  onNodeClick,
+  getSphereRotation,
+}) => {
+  const computedNodes = useMemo(() => {
     if (!parentNode || !nodes?.length) return []
     return positionSecondOrderChildren(parentNode, nodes)
   }, [parentNode, nodes])
 
-  const connectionLines = useMemo(() => buildSolidLines(parentNode, positionedNodes), [parentNode, positionedNodes])
+  const finalNodes = positionedNodes?.length ? positionedNodes : computedNodes
+
+  const connectionLines = useMemo(() => buildSolidLines(parentNode, finalNodes), [parentNode, finalNodes])
 
   if (!nodes?.length) return null
 
   return (
     <>
       {connectionLines}
-      {positionedNodes.map(({ node, position }) => (
+      {finalNodes.map(({ node, position }) => (
         <SphereWithEffects
           key={node.id}
           id={node.id}

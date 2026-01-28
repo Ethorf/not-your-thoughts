@@ -89,15 +89,15 @@ const GlobalParentNodes = ({
 
     const map = new Map()
     positionedNodes.forEach((entry) => {
-      const secondOrderNodes = entry.secondOrderNodes || []
-      const parentsOnly = secondOrderNodes.filter((nodeEntry) => nodeEntry.connectionType === 'parent')
-      if (parentsOnly.length) {
-        map.set(entry.node.id, parentsOnly)
+      const connectedNodes = entry.connectedNodes || []
+      const filtered = connectedNodes.filter((nodeEntry) => !mainNode || nodeEntry.node.id !== mainNode.node.id)
+      if (filtered.length) {
+        map.set(entry.node.id, filtered)
       }
     })
 
     return map
-  }, [positionedNodes])
+  }, [positionedNodes, mainNode])
 
   if (!nodes?.length) return null
 

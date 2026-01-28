@@ -150,15 +150,15 @@ const GlobalExternalNodes = ({
 
     const map = new Map()
     positionedNodes.forEach((entry) => {
-      const secondOrderNodes = entry.secondOrderNodes || []
-      const externalsOnly = secondOrderNodes.filter((nodeEntry) => nodeEntry.connectionType === 'external')
-      if (externalsOnly.length) {
-        map.set(entry.node.id, externalsOnly)
+      const connectedNodes = entry.connectedNodes || []
+      const filtered = connectedNodes.filter((nodeEntry) => !mainNode || nodeEntry.node.id !== mainNode.node.id)
+      if (filtered.length) {
+        map.set(entry.node.id, filtered)
       }
     })
 
     return map
-  }, [positionedNodes])
+  }, [positionedNodes, mainNode])
 
   if (!nodes?.length) return null
 
