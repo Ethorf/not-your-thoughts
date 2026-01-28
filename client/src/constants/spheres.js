@@ -26,8 +26,10 @@ export const GLOBAL_SPHERE_SIZES = {
 // Default distance for first-order connection spheres in global view
 export const DEFAULT_CONNECTION_SPHERE_DISTANCE = 0.35
 
-// Default distance for first-order connection spheres in global view
 export const SECOND_ORDER_CONNECTION_SPHERE_DISTANCE = 0.12
+
+export const SECOND_ORDER_SIBLING_CONNECTION_SPHERE_DISTANCE = 0.19
+
 // Backwards-compatible export – keep existing imports working.
 // Treat the previous default as the local view sizes.
 export const DEFAULT_SPHERE_SIZES = LOCAL_SPHERE_SIZES

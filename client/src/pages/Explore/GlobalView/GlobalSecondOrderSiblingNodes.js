@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
-import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES, DEFAULT_CONNECTION_SPHERE_DISTANCE } from '@constants/spheres'
+import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES, SECOND_ORDER_SIBLING_CONNECTION_SPHERE_DISTANCE } from '@constants/spheres'
 
 const buildSolidLines = (parentNode, positionedNodes) => {
   if (!parentNode || !positionedNodes?.length) return []
@@ -58,7 +58,7 @@ const positionSecondOrderSiblings = (parentNode, siblingNodes) => {
     const sideSign =
       typeof parentNode?.sideSign === 'number' && parentNode.sideSign !== 0 ? parentNode.sideSign : alternatingXSides
 
-    const offsetX = sideSign * DEFAULT_CONNECTION_SPHERE_DISTANCE
+    const offsetX = sideSign * SECOND_ORDER_SIBLING_CONNECTION_SPHERE_DISTANCE
     const offsetY = 0
     const offsetZ = i * 0.11 - 0.2
 
