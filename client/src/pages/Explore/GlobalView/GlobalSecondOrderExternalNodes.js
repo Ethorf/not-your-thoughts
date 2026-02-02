@@ -2,6 +2,8 @@ import React, { useMemo, useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES, DEFAULT_CONNECTION_SPHERE_DISTANCE } from '@constants/spheres'
+import useGlobalSecondOrderConnections from '@hooks/useGlobalSecondOrderConnections'
+import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
 
 const DashedLine = ({ lineKey, points, color = 'white', dashSize = 0.03, gapSize = 0.02 }) => {
   const lineRef = useRef(null)
@@ -112,6 +114,7 @@ const GlobalSecondOrderExternalNodes = ({
   nodeTextures,
   onNodeClick,
   getSphereRotation,
+  renderedNodeIds,
 }) => {
   const computedNodes = useMemo(() => {
     if (!parentNode || !nodes?.length) return []
@@ -119,15 +122,28 @@ const GlobalSecondOrderExternalNodes = ({
   }, [parentNode, nodes])
 
   const finalNodes = positionedNodes?.length ? positionedNodes : computedNodes
+  const nodesToRender = useMemo(() => {
+    if (!finalNodes?.length) return []
+    if (!renderedNodeIds) return finalNodes
+    const next = []
+    finalNodes.forEach((entry) => {
+      const id = entry?.node?.id
+      if (!id || renderedNodeIds.has(id)) return
+      renderedNodeIds.add(id)
+      next.push(entry)
+    })
+    return next
+  }, [finalNodes, renderedNodeIds])
 
-  const connectionLines = useMemo(() => buildDashedLines(parentNode, finalNodes), [parentNode, finalNodes])
+  const connectionLines = useMemo(() => buildDashedLines(parentNode, nodesToRender), [parentNode, nodesToRender])
+  const connectionsByNodeId = useGlobalSecondOrderConnections(nodesToRender)
 
-  if (!nodes?.length) return null
+  if (!nodesToRender?.length) return null
 
   return (
     <>
       {connectionLines}
-      {finalNodes.map(({ node, position }) => (
+      {nodesToRender.map(({ node, position }) => (
         <SphereWithEffects
           key={node.id}
           id={node.id}
@@ -139,6 +155,22 @@ const GlobalSecondOrderExternalNodes = ({
           rotation={getSphereRotation(position)}
         />
       ))}
+      {nodesToRender.map((parentEntry) => {
+        const connectedNodes = connectionsByNodeId.get(parentEntry.node.id)
+        if (!connectedNodes?.length) return null
+        return (
+          <GlobalSecondOrderNodes
+            key={`third-order-externals-${parentEntry.node.id}`}
+            parentNode={parentEntry}
+            nodes={connectedNodes}
+            depth={2}
+            nodeTextures={nodeTextures}
+            onNodeClick={onNodeClick}
+            getSphereRotation={getSphereRotation}
+            renderedNodeIds={renderedNodeIds}
+          />
+        )
+      })}
     </>
   )
 }

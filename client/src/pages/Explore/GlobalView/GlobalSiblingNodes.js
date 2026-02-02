@@ -83,6 +83,7 @@ const GlobalSiblingNodes = ({
   nodeTextures,
   onNodeClick,
   getSphereRotation,
+  renderedNodeIds,
 }) => {
   // Position sibling nodes around the main node
   // NOTE: React Hooks must be called unconditionally and before any early returns
@@ -145,6 +146,7 @@ const GlobalSiblingNodes = ({
             nodeTextures={nodeTextures}
             onNodeClick={onNodeClick}
             getSphereRotation={getSphereRotation}
+            renderedNodeIds={renderedNodeIds}
           />
         )
       })}

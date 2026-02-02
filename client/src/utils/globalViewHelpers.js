@@ -6,38 +6,11 @@ import { resolvePositionOriginal } from './resolvePositionOriginal'
 import { resolvePositionWithOverlapPrevention } from './resolvePositionWithOverlapPrevention'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
 import { transformConnection } from '@utils/transformConnection'
+import { transformBackendToFrontendConnectionType } from './connectionTypeHelpers'
 
 const {
   FRONTEND: { SIBLING, CHILD, PARENT, EXTERNAL },
-  BACKEND: { HORIZONTAL, VERTICAL },
 } = CONNECTION_TYPES
-
-/**
- * Transform backend connection type (horizontal/vertical/external) to frontend type
- * (sibling/child/parent/external) based on the relationship to the main node
- * @param {string} backendType - Backend connection type (horizontal, vertical, external)
- * @param {number} mainNodeId - ID of the main node
- * @param {Object} connection - Connection object with entry_id and foreign_entry_id
- * @returns {string} Frontend connection type (sibling, child, parent, external)
- */
-const transformBackendToFrontendConnectionType = (backendType, mainNodeId, connection) => {
-  if (backendType === EXTERNAL) {
-    return EXTERNAL
-  }
-
-  if (backendType === HORIZONTAL) {
-    return SIBLING
-  }
-
-  if (backendType === VERTICAL) {
-    // If main node is the primary entry, the other is a child
-    // If main node is the foreign entry, the other is a parent
-    return connection.entry_id === mainNodeId ? CHILD : PARENT
-  }
-
-  // Default fallback
-  return null
-}
 
 /**
  * Generate cluster positions on a sphere using Poisson-like distribution
@@ -220,8 +193,9 @@ export const positionGlobalNodes = async (nodeEntriesInfo, allConnections, clust
     }
   })
 
-  // Expand sub-connections: for each node (excluding target node), position its connections
-  const nodesToExpand = positions.map(({ node }) => node).filter((node) => node.id !== targetNodeId)
+  // Expand sub-connections: build additional orders of connections
+  const maxExpandDepth = 3 // 0 = first-order only, 1 = second-order, 2 = third-order, 3 = fourth-order
+  let nodesToExpand = positions.map(({ node }) => node).filter((node) => node.id !== targetNodeId)
 
   // Helper function to add connection to map (bidirectional)
   const addConnection = (nodeId1, nodeId2) => {
@@ -234,11 +208,20 @@ export const positionGlobalNodes = async (nodeEntriesInfo, allConnections, clust
     connectionsMap.get(nodeId1).add(nodeId2)
     connectionsMap.get(nodeId2).add(nodeId1)
   }
+  const connectionTypeMap = new Map()
+  const setConnectionType = (fromId, toId, connectionType) => {
+    if (!connectionType) return
+    if (!connectionTypeMap.has(fromId)) {
+      connectionTypeMap.set(fromId, new Map())
+    }
+    connectionTypeMap.get(fromId).set(toId, connectionType)
+  }
 
   // Track connections from main node
   const mainNodePositions = positions.filter(({ node }) => node.id !== centerNodeId)
   mainNodePositions.forEach(({ node }) => {
     addConnection(targetNodeId, node.id)
+    setConnectionType(targetNodeId, node.id, firstOrderConnectionTypes.get(node.id))
   })
 
   // Compute a stable left/right basis from the main cluster center
@@ -247,53 +230,68 @@ export const positionGlobalNodes = async (nodeEntriesInfo, allConnections, clust
   const mainTangent1 = new THREE.Vector3().crossVectors(northPole, mainNormal).normalize() // left/right axis
 
   // Position connections for each node with smaller scale to prevent overlaps
-  for (const nodeToExpand of nodesToExpand) {
-    const nodePosition = existingPositions.get(nodeToExpand.id)
+  for (let depth = 0; depth < maxExpandDepth; depth += 1) {
+    if (!nodesToExpand.length) break
 
-    if (!nodePosition) continue
+    const nextQueue = []
 
-    // Determine which side (left/right) this node is on relative to the main center
-    const deltaFromCenter = nodePosition.clone().sub(clusterCenter)
-    const biasSignX = Math.sign(deltaFromCenter.dot(mainTangent1)) || 1
+    for (const nodeToExpand of nodesToExpand) {
+      const nodePosition = existingPositions.get(nodeToExpand.id)
 
-    const subPositions = await positionNodeConnections(
-      nodeToExpand.id,
-      nodePosition,
-      nodeEntriesInfo,
-      dispatch,
-      0.25, // Increased scale for sub-connections to add more spacing
-      { biasSignX, suppressFirstChildBias: true }
-    )
+      if (!nodePosition) continue
 
-    // Track connections for this node
-    subPositions.forEach(({ node }) => {
-      addConnection(nodeToExpand.id, node.id)
-    })
+      // Determine which side (left/right) this node is on relative to the main center
+      const deltaFromCenter = nodePosition.clone().sub(clusterCenter)
+      const biasSignX = Math.sign(deltaFromCenter.dot(mainTangent1)) || 1
 
-    // Only add nodes we haven't seen yet
-    // Check if nodeToExpand is 1st order to determine if these are 2nd order connections
-    const isSecondOrder = firstOrderNodeIds.has(nodeToExpand.id)
-    const isWestOfMain = biasSignX < 0
-
-    subPositions.forEach(({ node, position, connectionType }) => {
-      if (!seenNodeIds.has(node.id)) {
-        // Use overlap prevention for 2nd order connections, original positioning for others
-        const finalPosition = isSecondOrder
-          ? resolvePositionWithOverlapPrevention(
-              position,
-              nodePosition,
-              isWestOfMain,
-              clusterCenter,
-              existingPositions.values(),
-              minDistance
-            )
-          : resolvePositionOriginal(position)
-
-        seenNodeIds.add(node.id)
-        existingPositions.set(node.id, finalPosition)
-        allNodePositions.push({ node, position: finalPosition, connectionType: connectionType || null })
+      const subPositions = await positionNodeConnections(
+        nodeToExpand.id,
+        nodePosition,
+        nodeEntriesInfo,
+        dispatch,
+        0.25, // Increased scale for sub-connections to add more spacing
+        { biasSignX, suppressFirstChildBias: true }
+      )
+      if (process.env.NODE_ENV !== 'production' && nodeToExpand.id === 1152) {
+        console.info('[GlobalView] 1152 sub-connections', {
+          count: subPositions.length,
+          nodes: subPositions.map(({ node, connectionType }) => ({ id: node.id, connectionType })),
+        })
       }
-    })
+
+      // Track connections for this node
+      subPositions.forEach(({ node, connectionType }) => {
+        addConnection(nodeToExpand.id, node.id)
+        setConnectionType(nodeToExpand.id, node.id, connectionType)
+      })
+
+      // Only add nodes we haven't seen yet
+      // Use overlap prevention only for first expansion layer
+      const shouldPreventOverlap = depth === 0 && firstOrderNodeIds.has(nodeToExpand.id)
+      const isWestOfMain = biasSignX < 0
+
+      subPositions.forEach(({ node, position, connectionType }) => {
+        if (!seenNodeIds.has(node.id)) {
+          const finalPosition = shouldPreventOverlap
+            ? resolvePositionWithOverlapPrevention(
+                position,
+                nodePosition,
+                isWestOfMain,
+                clusterCenter,
+                existingPositions.values(),
+                minDistance
+              )
+            : resolvePositionOriginal(position)
+
+          seenNodeIds.add(node.id)
+          existingPositions.set(node.id, finalPosition)
+          allNodePositions.push({ node, position: finalPosition, connectionType: connectionType || null })
+          nextQueue.push(node)
+        }
+      })
+    }
+
+    nodesToExpand = nextQueue
   }
 
   // Separate nodes by order
@@ -409,11 +407,27 @@ export const positionGlobalNodes = async (nodeEntriesInfo, allConnections, clust
   })
 
   // Attach connected nodes to each entry for recursive rendering
-  const allRenderableNodes = [mainNode, ...firstOrderNodesWithSecondOrder, ...secondOrderNodes].filter(Boolean)
-  const nodeEntryById = new Map(allRenderableNodes.map((entry) => [entry.node.id, entry]))
+  // Include all expanded nodes so deeper orders can render.
+  const nodeEntryById = new Map()
+  const seedEntries = [...allNodePositions, mainNode, ...firstOrderNodesWithSecondOrder].filter(Boolean)
+  seedEntries.forEach((entry) => {
+    nodeEntryById.set(entry.node.id, entry)
+  })
+  const allRenderableNodes = [...nodeEntryById.values()]
   const withConnectedNodes = allRenderableNodes.map((entry) => {
     const connectedIds = connectionsMap.get(entry.node.id) || new Set()
-    const connectedNodes = [...connectedIds].map((id) => nodeEntryById.get(id)).filter(Boolean)
+    const connectedNodes = [...connectedIds]
+      .map((id) => {
+        const baseEntry = nodeEntryById.get(id)
+        if (!baseEntry) return null
+        const edgeType = connectionTypeMap.get(entry.node.id)?.get(id)
+        if (!edgeType) return baseEntry
+        return {
+          ...baseEntry,
+          connectionType: edgeType,
+        }
+      })
+      .filter(Boolean)
     return {
       ...entry,
       connectedNodes,

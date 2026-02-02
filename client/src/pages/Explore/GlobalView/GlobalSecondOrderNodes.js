@@ -12,10 +12,11 @@ const GlobalSecondOrderNodes = ({
   parentNode,
   nodes,
   depth = 1,
-  maxDepth = 2,
+  maxDepth = 3,
   nodeTextures,
   onNodeClick,
   getSphereRotation,
+  renderedNodeIds,
 }) => {
   const { externalNodes, siblingNodes, parentNodes, childNodes } = useMemo(() => {
     const external = []
@@ -80,6 +81,7 @@ const GlobalSecondOrderNodes = ({
         nodeTextures={nodeTextures}
         onNodeClick={onNodeClick}
         getSphereRotation={getSphereRotation}
+        renderedNodeIds={renderedNodeIds}
       />
 
       <GlobalSecondOrderExternalNodes
@@ -89,6 +91,7 @@ const GlobalSecondOrderNodes = ({
         nodeTextures={nodeTextures}
         onNodeClick={onNodeClick}
         getSphereRotation={getSphereRotation}
+        renderedNodeIds={renderedNodeIds}
       />
 
       <GlobalSecondOrderSiblingNodes
@@ -98,6 +101,7 @@ const GlobalSecondOrderNodes = ({
         nodeTextures={nodeTextures}
         onNodeClick={onNodeClick}
         getSphereRotation={getSphereRotation}
+        renderedNodeIds={renderedNodeIds}
       />
 
       <GlobalSecondOrderChildNodes
@@ -107,13 +111,16 @@ const GlobalSecondOrderNodes = ({
         nodeTextures={nodeTextures}
         onNodeClick={onNodeClick}
         getSphereRotation={getSphereRotation}
+        renderedNodeIds={renderedNodeIds}
       />
 
       {depth < maxDepth &&
         allPositionedNodes.map((entry) => {
-          const connectedNodes = (entry.connectedNodes || []).filter(
-            (childEntry) => childEntry.node.id !== parentNode.node.id
-          )
+          const connectedNodes = (entry.connectedNodes || []).filter((childEntry) => {
+            if (childEntry.node.id === parentNode.node.id) return false
+            if (!renderedNodeIds) return true
+            return !renderedNodeIds.has(childEntry.node.id)
+          })
           if (!connectedNodes.length) return null
 
           return (
@@ -126,6 +133,7 @@ const GlobalSecondOrderNodes = ({
               nodeTextures={nodeTextures}
               onNodeClick={onNodeClick}
               getSphereRotation={getSphereRotation}
+              renderedNodeIds={renderedNodeIds}
             />
           )
         })}

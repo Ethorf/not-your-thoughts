@@ -99,6 +99,13 @@ const GlobalView = () => {
     return nodes
   }, [mainNode, firstOrderNodes, secondOrderNodes])
 
+  const mainNodeId = mainNode?.node?.id
+  const renderedNodeIdsRef = useRef(new Set())
+
+  useEffect(() => {
+    renderedNodeIdsRef.current = new Set()
+  }, [mainNodeId])
+
   // Create texture for each node
   const nodeTextures = useMemo(() => buildGlobalNodeSphereTextures(allNodesForTextures), [allNodesForTextures])
 
@@ -157,8 +164,8 @@ const GlobalView = () => {
               nodeTextures={nodeTextures}
               onNodeClick={handleNodeClick}
               getSphereRotation={getSphereRotation}
+              renderedNodeIds={renderedNodeIdsRef.current}
             />
-
           </Suspense>
 
           <OrbitControls

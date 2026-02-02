@@ -2,11 +2,44 @@ import * as THREE from 'three'
 import { fetchConnectionsDirect } from '@redux/reducers/connectionsReducer'
 import calculateSpherePositions from './calculateSpherePositions'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
+import axiosInstance from '@utils/axiosInstance'
 import { transformConnection } from '@utils/transformConnection'
+import { transformBackendToFrontendConnectionType } from './connectionTypeHelpers'
 
 const {
   FRONTEND: { PARENT, EXTERNAL, CHILD, SIBLING },
 } = CONNECTION_TYPES
+
+const cachedNodeEntries = new Map()
+const inflightNodeEntryRequests = new Map()
+
+const fetchNodeEntryById = async (entryId) => {
+  if (!entryId) return null
+  if (cachedNodeEntries.has(entryId)) return cachedNodeEntries.get(entryId)
+  if (inflightNodeEntryRequests.has(entryId)) return inflightNodeEntryRequests.get(entryId)
+
+  const request = axiosInstance
+    .get(`api/entries/entry/${entryId}`)
+    .then((response) => {
+      const entry = response.data || {}
+      const normalizedEntry = {
+        id: entry.id ?? entryId,
+        title: entry.title || 'Untitled',
+        content: Array.isArray(entry.content) ? entry.content[0] : entry.content,
+        date_last_modified: entry.date_last_updated || entry.date_last_modified || new Date(),
+      }
+      cachedNodeEntries.set(entryId, normalizedEntry)
+      inflightNodeEntryRequests.delete(entryId)
+      return normalizedEntry
+    })
+    .catch(() => {
+      inflightNodeEntryRequests.delete(entryId)
+      return null
+    })
+
+  inflightNodeEntryRequests.set(entryId, request)
+  return request
+}
 
 /**
  * Position connections for a node at a given position on the sphere
@@ -44,26 +77,43 @@ export const positionNodeConnections = async (
 
   // Fetch connections for the node
   const allConnections = await dispatch(fetchConnectionsDirect(nodeId)).unwrap()
+  const normalizedConnections = allConnections
+    .map((conn) => ({
+      ...conn,
+      connection_type: transformBackendToFrontendConnectionType(conn.connection_type, nodeId, conn),
+    }))
+    .filter((conn) => conn.connection_type)
 
   // Use the same positioning logic as local explore view
-  const localPositions = calculateSpherePositions(allConnections, { PARENT, EXTERNAL, CHILD, SIBLING })
+  const localPositions = calculateSpherePositions(normalizedConnections, { PARENT, EXTERNAL, CHILD, SIBLING })
 
   // Map each connection to its node and project local position onto sphere
   let firstChildHandled = false
-  allConnections.forEach((conn) => {
+  const enrichedConnections = await Promise.all(
+    normalizedConnections.map(async (conn) => {
+      const transformed = transformConnection(nodeId, conn)
+      const matchingEntry = nodeEntries.find((n) => n.id === transformed.id)
+      const fetchedEntry = matchingEntry ? null : await fetchNodeEntryById(transformed.id)
+
+      const node = matchingEntry ||
+        fetchedEntry || {
+          // Fallback to connection data if node not found
+          id: transformed.id,
+          title: transformed.title,
+          content: transformed.title,
+          date_last_modified: new Date(),
+        }
+
+      return {
+        conn,
+        node,
+      }
+    })
+  )
+
+  enrichedConnections.forEach(({ conn, node }) => {
     const localPos = localPositions.positions[conn.id]
     if (!localPos) return
-
-    const transformed = transformConnection(nodeId, conn)
-
-    // Find the node entry to get correct title and content
-    const node = nodeEntries.find((n) => n.id === transformed.id) || {
-      // Fallback to connection data if node not found
-      id: transformed.id,
-      title: transformed.title,
-      content: 'Gorem japsdifasdlkj asdfasdfads',
-      date_last_modified: new Date(),
-    }
 
     // Convert local 2D position to 3D position on sphere surface
     const [localX, localY] = localPos
