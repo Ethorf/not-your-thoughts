@@ -16,6 +16,8 @@ const GlobalSecondOrderNodes = ({
   nodeTextures,
   onNodeClick,
   getSphereRotation,
+  onNodeHover,
+  clusterCenterTitle,
 }) => {
   const { externalNodes, siblingNodes, parentNodes, childNodes } = useMemo(() => {
     const external = []
@@ -78,6 +80,8 @@ const GlobalSecondOrderNodes = ({
         getSphereRotation={getSphereRotation}
         depth={depth}
         maxDepth={maxDepth}
+        onNodeHover={onNodeHover}
+        clusterCenterTitle={clusterCenterTitle}
       />
 
       <GlobalSecondOrderExternalNodes
@@ -89,6 +93,8 @@ const GlobalSecondOrderNodes = ({
         getSphereRotation={getSphereRotation}
         depth={depth}
         maxDepth={maxDepth}
+        onNodeHover={onNodeHover}
+        clusterCenterTitle={clusterCenterTitle}
       />
 
       <GlobalSecondOrderSiblingNodes
@@ -100,6 +106,8 @@ const GlobalSecondOrderNodes = ({
         getSphereRotation={getSphereRotation}
         depth={depth}
         maxDepth={maxDepth}
+        onNodeHover={onNodeHover}
+        clusterCenterTitle={clusterCenterTitle}
       />
 
       <GlobalSecondOrderChildNodes
@@ -111,6 +119,8 @@ const GlobalSecondOrderNodes = ({
         getSphereRotation={getSphereRotation}
         depth={depth}
         maxDepth={maxDepth}
+        onNodeHover={onNodeHover}
+        clusterCenterTitle={clusterCenterTitle}
       />
     </>
   )

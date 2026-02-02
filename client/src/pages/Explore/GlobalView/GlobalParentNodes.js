@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES, DEFAULT_CONNECTION_SPHERE_DISTANCE } from '@constants/spheres'
 import { buildConnectionLinesForNodes } from '@utils/globalViewHelpers'
+import { CONNECTION_TYPES } from '@constants/connectionTypes'
 import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
 
 export const positionParentNodes = (mainNode, parentNodes) => {
@@ -70,6 +71,8 @@ const GlobalParentNodes = ({
   nodeTextures,
   onNodeClick,
   getSphereRotation,
+  onNodeHover,
+  clusterCenterTitle,
 }) => {
   // Position parent nodes around the main node
   // NOTE: React Hooks must be called unconditionally and before any early returns
@@ -116,6 +119,13 @@ const GlobalParentNodes = ({
           size={GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_PARENT]}
           mainTexture={nodeTextures.get(node.id)}
           onClick={() => onNodeClick(node.id)}
+          onHover={onNodeHover}
+          hoverInfo={{
+            nodeTitle: node.title,
+            clusterCenterTitle,
+            connectionType: node.connectionType || CONNECTION_TYPES.FRONTEND.PARENT,
+            parentTitle: mainNode?.node?.title || null,
+          }}
           rotation={getSphereRotation(position)}
         />
       ))}
@@ -132,6 +142,8 @@ const GlobalParentNodes = ({
             nodeTextures={nodeTextures}
             onNodeClick={onNodeClick}
             getSphereRotation={getSphereRotation}
+            onNodeHover={onNodeHover}
+            clusterCenterTitle={clusterCenterTitle}
           />
         )
       })}

@@ -21,13 +21,15 @@ const SphereWithEffects = ({
   conn,
   mainTexture,
   onClick,
+  onHover,
+  hoverInfo,
   rotation = [0, 4.7, 0],
   nodeStatus = null,
 }) => {
   const [localHovered, setLocalHovered] = useState(false)
   const [localTooltip, setLocalTooltip] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
-  
+
   const localTooltipTimeout = useRef(null)
   const sphereRef = useRef()
   const haloRef = useRef()
@@ -114,7 +116,8 @@ const SphereWithEffects = ({
       localTooltipTimeout.current = setTimeout(() => setLocalTooltip(true), 600)
     }
     document.body.style.cursor = 'pointer'
-  }, [isMobile])
+    onHover?.(hoverInfo || null)
+  }, [isMobile, onHover, hoverInfo])
 
   const handlePointerOut = useCallback(() => {
     setLocalHovered(false)
@@ -124,7 +127,8 @@ const SphereWithEffects = ({
       localTooltipTimeout.current = null
     }
     document.body.style.cursor = 'default'
-  }, [])
+    onHover?.(null)
+  }, [onHover])
 
   const handleClick = useCallback(() => {
     onClick?.(id, conn)

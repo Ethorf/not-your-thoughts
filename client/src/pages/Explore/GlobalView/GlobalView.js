@@ -39,6 +39,7 @@ const GlobalView = () => {
   const [firstOrderNodes, setFirstOrderNodes] = useState([])
   const [secondOrderNodes, setSecondOrderNodes] = useState([])
   const [firstOrderConnectionsMap, setFirstOrderConnectionsMap] = useState(new Map())
+  const [hoverInfo, setHoverInfo] = useState(null)
   const controlsRef = useRef()
 
   // Fetch all connections on mount
@@ -65,6 +66,10 @@ const GlobalView = () => {
     },
     [dispatch, history]
   )
+
+  const handleNodeHover = useCallback((info) => {
+    setHoverInfo(info)
+  }, [])
 
   // Build clusters and place them on globe
   const { clusters } = useMemo(() => {
@@ -99,6 +104,8 @@ const GlobalView = () => {
     return nodes
   }, [mainNode, firstOrderNodes, secondOrderNodes])
 
+  const clusterCenterTitle = mainNode?.node?.title || 'Unknown'
+
   // Create texture for each node
   const nodeTextures = useMemo(() => buildGlobalNodeSphereTextures(allNodesForTextures), [allNodesForTextures])
 
@@ -123,8 +130,6 @@ const GlobalView = () => {
           ← Local View
         </TextButton>
       </div>
-      <p className={styles.subtitle}>All nodes clustered by connections. Rotate the globe to explore.</p>
-
       <div className={styles.globeContainer}>
         <Canvas camera={{ position: [0, 0, 5] }}>
           <ambientLight intensity={0.4} />
@@ -145,6 +150,13 @@ const GlobalView = () => {
                 size={GLOBAL_SPHERE_SIZES[SPHERE_TYPES.MAIN]}
                 mainTexture={nodeTextures.get(mainNode.node.id)}
                 onClick={() => handleNodeClick(mainNode.node.id)}
+                onHover={handleNodeHover}
+                hoverInfo={{
+                  nodeTitle: mainNode.node.title,
+                  clusterCenterTitle,
+                  connectionType: 'main',
+                  parentTitle: null,
+                }}
                 rotation={getSphereRotation(mainNode.position)}
               />
             )}
@@ -157,6 +169,8 @@ const GlobalView = () => {
               nodeTextures={nodeTextures}
               onNodeClick={handleNodeClick}
               getSphereRotation={getSphereRotation}
+              onNodeHover={handleNodeHover}
+              clusterCenterTitle={clusterCenterTitle}
             />
           </Suspense>
 
@@ -165,18 +179,20 @@ const GlobalView = () => {
             enablePan={false}
             enableZoom={true}
             enableRotate={true}
-            minDistance={4}
+            minDistance={3}
             maxDistance={12}
             onChange={handleCameraChange}
           />
         </Canvas>
       </div>
 
-      <div className={styles.info}>
-        <p>Clusters: {clusters.length}</p>
-        <p>Total Nodes: {allNodesForTextures.length}</p>
-        <p>First Order: {firstOrderNodes.length}</p>
-        <p>Second Order: {secondOrderNodes.length}</p>
+      <div className={`${styles.info} ${hoverInfo ? '' : styles.infoHidden}`}>
+        <p>Node: {hoverInfo?.nodeTitle || ''}</p>
+        <p>Cluster Center: {hoverInfo?.clusterCenterTitle || ''}</p>
+        <p>Connection: {hoverInfo?.connectionType || ''}</p>
+        <p>
+          Nearest: {hoverInfo?.parentTitle || ''} {hoverInfo?.connectionType ? `(${hoverInfo.connectionType})` : ''}
+        </p>
         <p>
           Camera: Azimuth {cameraRotation.azimuth} | Polar {cameraRotation.polar}
         </p>

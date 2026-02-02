@@ -2,6 +2,7 @@ import React, { useMemo, useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES, DEFAULT_CONNECTION_SPHERE_DISTANCE } from '@constants/spheres'
+import { CONNECTION_TYPES } from '@constants/connectionTypes'
 import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
 
 const DashedLine = ({ lineKey, points, color = 'white', dashSize = 0.03, gapSize = 0.02 }) => {
@@ -131,6 +132,8 @@ const GlobalExternalNodes = ({
   nodeTextures,
   onNodeClick,
   getSphereRotation,
+  onNodeHover,
+  clusterCenterTitle,
 }) => {
   // Position external nodes around the main node
   // NOTE: React Hooks must be called unconditionally and before any early returns
@@ -177,6 +180,13 @@ const GlobalExternalNodes = ({
           size={GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]}
           mainTexture={nodeTextures.get(node.id)}
           onClick={() => onNodeClick(node.id)}
+          onHover={onNodeHover}
+          hoverInfo={{
+            nodeTitle: node.title,
+            clusterCenterTitle,
+            connectionType: node.connectionType || CONNECTION_TYPES.FRONTEND.EXTERNAL,
+            parentTitle: mainNode?.node?.title || null,
+          }}
           rotation={getSphereRotation(position)}
         />
       ))}
@@ -193,6 +203,8 @@ const GlobalExternalNodes = ({
             nodeTextures={nodeTextures}
             onNodeClick={onNodeClick}
             getSphereRotation={getSphereRotation}
+            onNodeHover={onNodeHover}
+            clusterCenterTitle={clusterCenterTitle}
           />
         )
       })}

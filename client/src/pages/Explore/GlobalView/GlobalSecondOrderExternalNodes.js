@@ -116,6 +116,8 @@ const GlobalSecondOrderExternalNodes = ({
   getSphereRotation,
   depth = 1,
   maxDepth = 2,
+  onNodeHover,
+  clusterCenterTitle,
 }) => {
   const computedNodes = useMemo(() => {
     if (!parentNode || !nodes?.length) return []
@@ -140,6 +142,13 @@ const GlobalSecondOrderExternalNodes = ({
           size={GLOBAL_SPHERE_SIZES[SPHERE_TYPES.SECOND_ORDER_CONNECTION]}
           mainTexture={nodeTextures.get(node.id)}
           onClick={() => onNodeClick(node.id)}
+          onHover={onNodeHover}
+          hoverInfo={{
+            nodeTitle: node.title,
+            clusterCenterTitle,
+            connectionType: node.connectionType,
+            parentTitle: parentNode?.node?.title || null,
+          }}
           rotation={getSphereRotation(position)}
         />
       ))}
@@ -157,6 +166,8 @@ const GlobalSecondOrderExternalNodes = ({
               nodeTextures={nodeTextures}
               onNodeClick={onNodeClick}
               getSphereRotation={getSphereRotation}
+              onNodeHover={onNodeHover}
+              clusterCenterTitle={clusterCenterTitle}
             />
           )
         })}
