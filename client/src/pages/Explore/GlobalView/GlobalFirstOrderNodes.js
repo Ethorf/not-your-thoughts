@@ -21,7 +21,6 @@ const GlobalFirstOrderNodes = ({
   nodeTextures,
   onNodeClick,
   getSphereRotation,
-  renderedNodeIds,
 }) => {
   // Categorize first-order nodes by their connection type.
   // connectionType is attached upstream in positionGlobalNodes to avoid redundant lookups here.
@@ -64,7 +63,6 @@ const GlobalFirstOrderNodes = ({
         nodeTextures={nodeTextures}
         onNodeClick={onNodeClick}
         getSphereRotation={getSphereRotation}
-        renderedNodeIds={renderedNodeIds}
       />
 
       <GlobalExternalNodes
@@ -74,7 +72,6 @@ const GlobalFirstOrderNodes = ({
         nodeTextures={nodeTextures}
         onNodeClick={onNodeClick}
         getSphereRotation={getSphereRotation}
-        renderedNodeIds={renderedNodeIds}
       />
 
       <GlobalSiblingNodes
@@ -84,7 +81,6 @@ const GlobalFirstOrderNodes = ({
         nodeTextures={nodeTextures}
         onNodeClick={onNodeClick}
         getSphereRotation={getSphereRotation}
-        renderedNodeIds={renderedNodeIds}
       />
 
       <GlobalChildNodes
@@ -94,7 +90,6 @@ const GlobalFirstOrderNodes = ({
         nodeTextures={nodeTextures}
         onNodeClick={onNodeClick}
         getSphereRotation={getSphereRotation}
-        renderedNodeIds={renderedNodeIds}
       />
     </>
   )

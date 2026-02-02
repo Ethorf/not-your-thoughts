@@ -12,11 +12,10 @@ const GlobalSecondOrderNodes = ({
   parentNode,
   nodes,
   depth = 1,
-  maxDepth = 3,
+  maxDepth = 2,
   nodeTextures,
   onNodeClick,
   getSphereRotation,
-  renderedNodeIds,
 }) => {
   const { externalNodes, siblingNodes, parentNodes, childNodes } = useMemo(() => {
     const external = []
@@ -66,10 +65,6 @@ const GlobalSecondOrderNodes = ({
     return positionSecondOrderExternals(parentNode, externalNodes)
   }, [parentNode, externalNodes])
 
-  const allPositionedNodes = useMemo(() => {
-    return [...positionedParentNodes, ...positionedExternalNodes, ...positionedSiblingNodes, ...positionedChildNodes]
-  }, [positionedParentNodes, positionedExternalNodes, positionedSiblingNodes, positionedChildNodes])
-
   if (!nodes?.length) return null
 
   return (
@@ -81,7 +76,8 @@ const GlobalSecondOrderNodes = ({
         nodeTextures={nodeTextures}
         onNodeClick={onNodeClick}
         getSphereRotation={getSphereRotation}
-        renderedNodeIds={renderedNodeIds}
+        depth={depth}
+        maxDepth={maxDepth}
       />
 
       <GlobalSecondOrderExternalNodes
@@ -91,7 +87,8 @@ const GlobalSecondOrderNodes = ({
         nodeTextures={nodeTextures}
         onNodeClick={onNodeClick}
         getSphereRotation={getSphereRotation}
-        renderedNodeIds={renderedNodeIds}
+        depth={depth}
+        maxDepth={maxDepth}
       />
 
       <GlobalSecondOrderSiblingNodes
@@ -101,7 +98,8 @@ const GlobalSecondOrderNodes = ({
         nodeTextures={nodeTextures}
         onNodeClick={onNodeClick}
         getSphereRotation={getSphereRotation}
-        renderedNodeIds={renderedNodeIds}
+        depth={depth}
+        maxDepth={maxDepth}
       />
 
       <GlobalSecondOrderChildNodes
@@ -111,32 +109,9 @@ const GlobalSecondOrderNodes = ({
         nodeTextures={nodeTextures}
         onNodeClick={onNodeClick}
         getSphereRotation={getSphereRotation}
-        renderedNodeIds={renderedNodeIds}
+        depth={depth}
+        maxDepth={maxDepth}
       />
-
-      {depth < maxDepth &&
-        allPositionedNodes.map((entry) => {
-          const connectedNodes = (entry.connectedNodes || []).filter((childEntry) => {
-            if (childEntry.node.id === parentNode.node.id) return false
-            if (!renderedNodeIds) return true
-            return !renderedNodeIds.has(childEntry.node.id)
-          })
-          if (!connectedNodes.length) return null
-
-          return (
-            <GlobalSecondOrderNodes
-              key={`second-order-recursive-${entry.node.id}-${depth}`}
-              parentNode={entry}
-              nodes={connectedNodes}
-              depth={depth + 1}
-              maxDepth={maxDepth}
-              nodeTextures={nodeTextures}
-              onNodeClick={onNodeClick}
-              getSphereRotation={getSphereRotation}
-              renderedNodeIds={renderedNodeIds}
-            />
-          )
-        })}
     </>
   )
 }

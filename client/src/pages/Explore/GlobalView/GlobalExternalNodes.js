@@ -131,7 +131,6 @@ const GlobalExternalNodes = ({
   nodeTextures,
   onNodeClick,
   getSphereRotation,
-  renderedNodeIds,
 }) => {
   // Position external nodes around the main node
   // NOTE: React Hooks must be called unconditionally and before any early returns
@@ -194,7 +193,6 @@ const GlobalExternalNodes = ({
             nodeTextures={nodeTextures}
             onNodeClick={onNodeClick}
             getSphereRotation={getSphereRotation}
-            renderedNodeIds={renderedNodeIds}
           />
         )
       })}

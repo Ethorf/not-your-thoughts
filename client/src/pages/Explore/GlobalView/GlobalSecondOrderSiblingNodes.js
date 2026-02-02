@@ -101,7 +101,8 @@ const GlobalSecondOrderSiblingNodes = ({
   nodeTextures,
   onNodeClick,
   getSphereRotation,
-  renderedNodeIds,
+  depth = 1,
+  maxDepth = 2,
 }) => {
   const computedNodes = useMemo(() => {
     if (!parentNode || !nodes?.length) return []
@@ -109,28 +110,15 @@ const GlobalSecondOrderSiblingNodes = ({
   }, [parentNode, nodes])
 
   const finalNodes = positionedNodes?.length ? positionedNodes : computedNodes
-  const nodesToRender = useMemo(() => {
-    if (!finalNodes?.length) return []
-    if (!renderedNodeIds) return finalNodes
-    const next = []
-    finalNodes.forEach((entry) => {
-      const id = entry?.node?.id
-      if (!id || renderedNodeIds.has(id)) return
-      renderedNodeIds.add(id)
-      next.push(entry)
-    })
-    return next
-  }, [finalNodes, renderedNodeIds])
+  const connectionLines = useMemo(() => buildSolidLines(parentNode, finalNodes), [parentNode, finalNodes])
+  const connectionsByNodeId = useGlobalSecondOrderConnections(finalNodes)
 
-  const connectionLines = useMemo(() => buildSolidLines(parentNode, nodesToRender), [parentNode, nodesToRender])
-  const connectionsByNodeId = useGlobalSecondOrderConnections(nodesToRender)
-
-  if (!nodesToRender?.length) return null
+  if (!finalNodes?.length) return null
 
   return (
     <>
       {connectionLines}
-      {nodesToRender.map(({ node, position }) => (
+      {finalNodes.map(({ node, position }) => (
         <SphereWithEffects
           key={node.id}
           id={node.id}
@@ -142,22 +130,23 @@ const GlobalSecondOrderSiblingNodes = ({
           rotation={getSphereRotation(position)}
         />
       ))}
-      {nodesToRender.map((parentEntry) => {
-        const connectedNodes = connectionsByNodeId.get(parentEntry.node.id)
-        if (!connectedNodes?.length) return null
-        return (
-          <GlobalSecondOrderNodes
-            key={`third-order-siblings-${parentEntry.node.id}`}
-            parentNode={parentEntry}
-            nodes={connectedNodes}
-            depth={2}
-            nodeTextures={nodeTextures}
-            onNodeClick={onNodeClick}
-            getSphereRotation={getSphereRotation}
-            renderedNodeIds={renderedNodeIds}
-          />
-        )
-      })}
+      {depth < maxDepth &&
+        finalNodes.map((parentEntry) => {
+          const connectedNodes = connectionsByNodeId.get(parentEntry.node.id)
+          if (!connectedNodes?.length) return null
+          return (
+            <GlobalSecondOrderNodes
+              key={`third-order-siblings-${parentEntry.node.id}`}
+              parentNode={parentEntry}
+              nodes={connectedNodes}
+              depth={depth + 1}
+              maxDepth={maxDepth}
+              nodeTextures={nodeTextures}
+              onNodeClick={onNodeClick}
+              getSphereRotation={getSphereRotation}
+            />
+          )
+        })}
     </>
   )
 }
