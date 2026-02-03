@@ -92,6 +92,7 @@ export const positionSecondOrderSiblings = (parentNode, siblingNodes) => {
     return {
       ...entry,
       position: worldPos,
+      sideSign,
     }
   })
 }
