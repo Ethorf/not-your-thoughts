@@ -440,12 +440,29 @@ export const positionGlobalNodes = async (nodeEntriesInfo, allConnections, clust
   )
   const secondOrderNodesFinal = secondOrderNodes.map((entry) => withConnectedById.get(entry.node.id) || entry)
 
+  const renderOwnerMap = {}
+  if (mainNodeWithConnected?.node?.id) {
+    const visited = new Set([mainNodeWithConnected.node.id])
+    const queue = [mainNodeWithConnected.node.id]
+    while (queue.length) {
+      const currentId = queue.shift()
+      const neighbors = connectionsMap.get(currentId) || new Set()
+      neighbors.forEach((neighborId) => {
+        if (visited.has(neighborId)) return
+        visited.add(neighborId)
+        renderOwnerMap[neighborId] = currentId
+        queue.push(neighborId)
+      })
+    }
+  }
+
   return {
     mainNode: mainNodeWithConnected || null,
     firstOrderNodes: firstOrderNodesFinal,
     secondOrderNodes: secondOrderNodesFinal,
     firstOrderConnectionsMap,
     secondOrderConnectionsMap,
+    renderOwnerMap,
     allNodePositions, // Keep for backward compatibility if needed
     connectionsMap, // Keep for backward compatibility if needed
   }

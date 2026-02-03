@@ -9,7 +9,7 @@ import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 
 // Redux
-import { setEntryById } from '@redux/reducers/currentEntryReducer'
+import { setEntryById, setGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
 import { fetchAllConnections } from '@redux/reducers/connectionsReducer'
 
 // Styles
@@ -90,6 +90,7 @@ const GlobalView = () => {
       setFirstOrderNodes(result.firstOrderNodes)
       setSecondOrderNodes(result.secondOrderNodes)
       setFirstOrderConnectionsMap(result.firstOrderConnectionsMap)
+      dispatch(setGlobalRenderOwners(result.renderOwnerMap || {}))
     }
 
     positionNodes()

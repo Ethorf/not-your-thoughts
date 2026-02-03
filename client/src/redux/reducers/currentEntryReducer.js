@@ -31,6 +31,7 @@ const initialState = {
   isPrivate: false,
   entryContents: [],
   entryContentsLoading: false,
+  globalRenderOwners: {},
 }
 
 export const addAka = createAsyncThunk(
@@ -425,6 +426,18 @@ const currentEntrySlice = createSlice({
     setWPM(state, action) {
       state.wpm = action.payload
     },
+    setGlobalRenderOwners: (state, action) => {
+      state.globalRenderOwners = action.payload || {}
+    },
+    claimGlobalRenderOwners: (state, action) => {
+      const { ownerId, nodeIds } = action.payload || {}
+      if (!ownerId || !nodeIds?.length) return
+      nodeIds.forEach((nodeId) => {
+        if (!state.globalRenderOwners[nodeId]) {
+          state.globalRenderOwners[nodeId] = ownerId
+        }
+      })
+    },
     resetCurrentEntryState: () => initialState,
     resetJournalEntryDraft: (state) => {
       return {
@@ -644,6 +657,8 @@ export const {
   setTypeJournal,
   setContent,
   setWPM,
+  setGlobalRenderOwners,
+  claimGlobalRenderOwners,
 } = currentEntrySlice.actions
 
 export default currentEntrySlice.reducer

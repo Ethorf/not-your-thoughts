@@ -1,8 +1,10 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES, SECOND_ORDER_CONNECTION_SPHERE_DISTANCE } from '@constants/spheres'
 import useGlobalSecondOrderConnections from '@hooks/useGlobalSecondOrderConnections'
+import { claimGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
 import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
 
 const buildSolidLines = (parentNode, positionedNodes) => {
@@ -111,15 +113,37 @@ const GlobalSecondOrderParentNodes = ({
   }, [parentNode, nodes])
 
   const finalNodes = positionedNodes?.length ? positionedNodes : computedNodes
-  const connectionLines = useMemo(() => buildSolidLines(parentNode, finalNodes), [parentNode, finalNodes])
-  const connectionsByNodeId = useGlobalSecondOrderConnections(finalNodes)
+  const dispatch = useDispatch()
+  const globalRenderOwners = useSelector((state) => state.currentEntry.globalRenderOwners || {})
+  const ownerId = parentNode?.node?.id
+  const nodeIds = useMemo(() => finalNodes.map((entry) => entry?.node?.id).filter(Boolean), [finalNodes])
 
-  if (!finalNodes?.length) return null
+  useEffect(() => {
+    if (!ownerId || !nodeIds.length) return
+    const unowned = nodeIds.filter((id) => !globalRenderOwners[id])
+    if (!unowned.length) return
+    dispatch(claimGlobalRenderOwners({ ownerId, nodeIds: unowned }))
+  }, [dispatch, ownerId, nodeIds, globalRenderOwners])
+
+  const renderableNodes = useMemo(() => {
+    if (!finalNodes?.length || !ownerId) return []
+    return finalNodes.filter((entry) => {
+      const nodeId = entry?.node?.id
+      if (!nodeId) return false
+      const owner = globalRenderOwners[nodeId]
+      return !owner || owner === ownerId
+    })
+  }, [finalNodes, globalRenderOwners, ownerId])
+
+  const connectionLines = useMemo(() => buildSolidLines(parentNode, renderableNodes), [parentNode, renderableNodes])
+  const connectionsByNodeId = useGlobalSecondOrderConnections(renderableNodes)
+
+  if (!renderableNodes?.length) return null
 
   return (
     <>
       {connectionLines}
-      {finalNodes.map(({ node, position }) => (
+      {renderableNodes.map(({ node, position }) => (
         <SphereWithEffects
           key={node.id}
           id={node.id}
@@ -139,7 +163,7 @@ const GlobalSecondOrderParentNodes = ({
         />
       ))}
       {depth < maxDepth &&
-        finalNodes.map((parentEntry) => {
+        renderableNodes.map((parentEntry) => {
           const connectedNodes = connectionsByNodeId.get(parentEntry.node.id)
           if (!connectedNodes?.length) return null
           return (
