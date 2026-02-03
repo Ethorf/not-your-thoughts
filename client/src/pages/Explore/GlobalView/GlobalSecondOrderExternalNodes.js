@@ -64,7 +64,7 @@ const buildDashedLines = (parentNode, positionedNodes) => {
   return lines
 }
 
-export const positionSecondOrderExternals = (parentNode, externalNodes) => {
+export const positionSecondOrderExternals = (parentNode, externalNodes, depth = 1) => {
   if (!parentNode || !externalNodes?.length) return []
 
   const parentPosition =
@@ -79,7 +79,8 @@ export const positionSecondOrderExternals = (parentNode, externalNodes) => {
     tangent2.negate()
   }
 
-  const offsetY = 0.4
+  const depthScale = depth > 1 ? 0.5 : 1
+  const offsetY = 0.4 * depthScale
   const externalDistance = DEFAULT_CONNECTION_SPHERE_DISTANCE - 0.1
   const angleStep = (2 * Math.PI) / externalNodes.length
 
@@ -123,8 +124,8 @@ const GlobalSecondOrderExternalNodes = ({
 }) => {
   const computedNodes = useMemo(() => {
     if (!parentNode || !nodes?.length) return []
-    return positionSecondOrderExternals(parentNode, nodes)
-  }, [parentNode, nodes])
+    return positionSecondOrderExternals(parentNode, nodes, depth)
+  }, [parentNode, nodes, depth])
 
   const finalNodes = positionedNodes?.length ? positionedNodes : computedNodes
   const dispatch = useDispatch()

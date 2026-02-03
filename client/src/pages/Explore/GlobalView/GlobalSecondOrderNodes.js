@@ -54,18 +54,18 @@ const GlobalSecondOrderNodes = ({
 
   const positionedParentNodes = useMemo(() => {
     if (!parentNode || !parentNodes?.length) return []
-    return positionSecondOrderParents(parentNode, parentNodes)
-  }, [parentNode, parentNodes])
+    return positionSecondOrderParents(parentNode, parentNodes, depth)
+  }, [parentNode, parentNodes, depth])
 
   const positionedChildNodes = useMemo(() => {
     if (!parentNode || !childNodes?.length) return []
-    return positionSecondOrderChildren(parentNode, childNodes)
-  }, [parentNode, childNodes])
+    return positionSecondOrderChildren(parentNode, childNodes, depth)
+  }, [parentNode, childNodes, depth])
 
   const positionedExternalNodes = useMemo(() => {
     if (!parentNode || !externalNodes?.length) return []
-    return positionSecondOrderExternals(parentNode, externalNodes)
-  }, [parentNode, externalNodes])
+    return positionSecondOrderExternals(parentNode, externalNodes, depth)
+  }, [parentNode, externalNodes, depth])
 
   if (!nodes?.length) return null
 

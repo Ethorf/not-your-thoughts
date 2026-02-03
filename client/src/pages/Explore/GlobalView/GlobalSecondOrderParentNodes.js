@@ -41,7 +41,7 @@ const buildSolidLines = (parentNode, positionedNodes) => {
   return lines
 }
 
-export const positionSecondOrderParents = (parentNode, parentNodes) => {
+export const positionSecondOrderParents = (parentNode, parentNodes, depth = 1) => {
   if (!parentNode || !parentNodes?.length) return []
 
   const parentPosition =
@@ -56,6 +56,8 @@ export const positionSecondOrderParents = (parentNode, parentNodes) => {
     tangent2.negate()
   }
 
+  const depthScale = depth > 1 ? 0.5 : 1
+
   return parentNodes.map((entry, i) => {
     const nonZeroI = i + 1
     const alternatingXSides = nonZeroI % 2 === 0 ? -1 : 1
@@ -63,7 +65,7 @@ export const positionSecondOrderParents = (parentNode, parentNodes) => {
       typeof parentNode?.sideSign === 'number' && parentNode.sideSign !== 0 ? parentNode.sideSign : alternatingXSides
 
     const offsetX = sideSign * SECOND_ORDER_CONNECTION_SPHERE_DISTANCE
-    const offsetY = 0.3
+    const offsetY = 0.3 * depthScale
     const offsetZ = i * 0.11 - 0.2
 
     const offsetVector = new THREE.Vector3()
@@ -109,8 +111,8 @@ const GlobalSecondOrderParentNodes = ({
 }) => {
   const computedNodes = useMemo(() => {
     if (!parentNode || !nodes?.length) return []
-    return positionSecondOrderParents(parentNode, nodes)
-  }, [parentNode, nodes])
+    return positionSecondOrderParents(parentNode, nodes, depth)
+  }, [parentNode, nodes, depth])
 
   const finalNodes = positionedNodes?.length ? positionedNodes : computedNodes
   const dispatch = useDispatch()
