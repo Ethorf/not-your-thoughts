@@ -4,10 +4,14 @@ import axiosInstance from '@utils/axiosInstance'
 import { fetchConnectionsDirect } from '@redux/reducers/connectionsReducer'
 import { transformConnection } from '@utils/transformConnection'
 import { transformBackendToFrontendConnectionType } from '@utils/connectionTypeHelpers'
+import { CONNECTION_TYPES } from '@constants/connectionTypes'
 import useNodeEntriesInfo from './useNodeEntriesInfo'
 
 const cachedNodeEntries = new Map()
 const inflightNodeEntryRequests = new Map()
+const {
+  FRONTEND: { EXTERNAL },
+} = CONNECTION_TYPES
 
 const fetchNodeEntryById = async (entryId) => {
   if (!entryId) return null
@@ -61,6 +65,7 @@ const useGlobalSecondOrderConnections = (nodes) => {
         nodes.map(async (entry) => {
           const nodeId = entry?.node?.id
           if (!nodeId) return [nodeId, []]
+          if (typeof nodeId !== 'number') return [nodeId, []]
 
           const rawConnections = await dispatch(fetchConnectionsDirect(nodeId))
             .unwrap()
@@ -75,6 +80,20 @@ const useGlobalSecondOrderConnections = (nodes) => {
 
           const connectedEntries = await Promise.all(
             normalizedConnections.map(async (conn) => {
+              if (conn.connection_type === EXTERNAL) {
+                const externalId = `external-${conn.id}`
+                const title = conn.primary_source || conn.foreign_source || 'External Link'
+                return {
+                  node: {
+                    id: externalId,
+                    title,
+                    content: title,
+                    url: conn.foreign_source,
+                    date_last_modified: new Date(),
+                  },
+                  connectionType: conn.connection_type,
+                }
+              }
               const transformed = transformConnection(nodeId, conn)
               const entryInfo = entriesById.get(transformed.id) || (await fetchNodeEntryById(transformed.id))
               if (!entryInfo) return null

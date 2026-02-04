@@ -195,7 +195,10 @@ export const positionGlobalNodes = async (nodeEntriesInfo, allConnections, clust
 
   // Expand sub-connections: build additional orders of connections
   const maxExpandDepth = 3 // 0 = first-order only, 1 = second-order, 2 = third-order, 3 = fourth-order
-  let nodesToExpand = positions.map(({ node }) => node).filter((node) => node.id !== targetNodeId)
+  const isExternalNodeId = (nodeId) => typeof nodeId === 'string' && nodeId.startsWith('external-')
+  let nodesToExpand = positions
+    .map(({ node }) => node)
+    .filter((node) => node.id !== targetNodeId && !isExternalNodeId(node.id))
 
   // Helper function to add connection to map (bidirectional)
   const addConnection = (nodeId1, nodeId2) => {
@@ -286,7 +289,9 @@ export const positionGlobalNodes = async (nodeEntriesInfo, allConnections, clust
           seenNodeIds.add(node.id)
           existingPositions.set(node.id, finalPosition)
           allNodePositions.push({ node, position: finalPosition, connectionType: connectionType || null })
-          nextQueue.push(node)
+          if (!isExternalNodeId(node.id)) {
+            nextQueue.push(node)
+          }
         }
       })
     }
@@ -366,6 +371,9 @@ export const positionGlobalNodes = async (nodeEntriesInfo, allConnections, clust
       }
       firstOrderConnectionsMap.get(targetNodeId).add(node.id)
       firstOrderConnectionsMap.get(node.id).add(targetNodeId)
+      addConnection(targetNodeId, node.id)
+      setConnectionType(targetNodeId, node.id, EXTERNAL)
+      setConnectionType(node.id, targetNodeId, EXTERNAL)
     })
   }
 

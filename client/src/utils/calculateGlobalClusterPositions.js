@@ -58,6 +58,9 @@ export const positionNodeConnections = async (
   positionScale = 0.2,
   options = {}
 ) => {
+  if (typeof nodeId !== 'number') {
+    return []
+  }
   // Validate nodePosition
   if (!nodePosition || !(nodePosition instanceof THREE.Vector3) || nodePosition.length() === 0) {
     return []
@@ -91,6 +94,19 @@ export const positionNodeConnections = async (
   let firstChildHandled = false
   const enrichedConnections = await Promise.all(
     normalizedConnections.map(async (conn) => {
+      if (conn.connection_type === EXTERNAL) {
+        const externalId = `external-${conn.id}`
+        const title = conn.primary_source || conn.foreign_source || 'External Link'
+        const node = {
+          id: externalId,
+          title,
+          content: title,
+          url: conn.foreign_source,
+          date_last_modified: new Date(),
+        }
+        return { conn, node }
+      }
+
       const transformed = transformConnection(nodeId, conn)
       const matchingEntry = nodeEntries.find((n) => n.id === transformed.id)
       const fetchedEntry = matchingEntry ? null : await fetchNodeEntryById(transformed.id)
