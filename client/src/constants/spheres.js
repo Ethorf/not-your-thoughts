@@ -33,7 +33,7 @@ export const SECOND_ORDER_SIBLING_CONNECTION_SPHERE_DISTANCE = 0.19
 // Backwards-compatible export – keep existing imports working.
 // Treat the previous default as the local view sizes.
 export const DEFAULT_SPHERE_SIZES = LOCAL_SPHERE_SIZES
-// jeff
+
 // Line width constants
 export const LINE_WIDTHS = {
   MAIN_CONNECTION: 1.2,
