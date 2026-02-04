@@ -27,15 +27,15 @@ const DashedLine = ({ lineKey, points, color = 'white', dashSize = 0.03, gapSize
   )
 }
 
-const buildDashedLines = (parentNode, positionedNodes) => {
-  if (!parentNode || !positionedNodes?.length) return []
+const buildDashedLines = (anchorNode, positionedNodes) => {
+  if (!anchorNode || !positionedNodes?.length) return []
 
   const lines = []
   const drawnConnections = new Set()
-  const allNodes = [parentNode, ...positionedNodes]
+  const allNodes = [anchorNode, ...positionedNodes]
 
   allNodes.forEach(({ node, position: posA }) => {
-    const connectedNodes = node.id === parentNode.node.id ? positionedNodes.map((n) => n.node.id) : [parentNode.node.id]
+    const connectedNodes = node.id === anchorNode.node.id ? positionedNodes.map((n) => n.node.id) : [anchorNode.node.id]
 
     connectedNodes.forEach((connectedNodeId) => {
       const connectionKey = [node.id, connectedNodeId].sort().join('-')
@@ -64,11 +64,11 @@ const buildDashedLines = (parentNode, positionedNodes) => {
   return lines
 }
 
-export const positionSecondOrderExternals = (parentNode, externalNodes, depth = 1) => {
-  if (!parentNode || !externalNodes?.length) return []
+export const positionSecondOrderExternals = (anchorNode, externalNodes, depth = 1) => {
+  if (!anchorNode || !externalNodes?.length) return []
 
   const parentPosition =
-    parentNode.position instanceof THREE.Vector3 ? parentNode.position : new THREE.Vector3(...parentNode.position)
+    anchorNode.position instanceof THREE.Vector3 ? anchorNode.position : new THREE.Vector3(...anchorNode.position)
 
   const normal = parentPosition.clone().normalize()
   const northPole = new THREE.Vector3(0, 1, 0)
@@ -111,7 +111,7 @@ export const positionSecondOrderExternals = (parentNode, externalNodes, depth = 
 }
 
 const GlobalSecondOrderExternalNodes = ({
-  parentNode,
+  anchorNode,
   nodes,
   positionedNodes,
   nodeTextures,
@@ -123,14 +123,14 @@ const GlobalSecondOrderExternalNodes = ({
   clusterCenterTitle,
 }) => {
   const computedNodes = useMemo(() => {
-    if (!parentNode || !nodes?.length) return []
-    return positionSecondOrderExternals(parentNode, nodes, depth)
-  }, [parentNode, nodes, depth])
+    if (!anchorNode || !nodes?.length) return []
+    return positionSecondOrderExternals(anchorNode, nodes, depth)
+  }, [anchorNode, nodes, depth])
 
   const finalNodes = positionedNodes?.length ? positionedNodes : computedNodes
   const dispatch = useDispatch()
   const globalRenderOwners = useSelector((state) => state.currentEntry.globalRenderOwners || {})
-  const ownerId = parentNode?.node?.id
+  const ownerId = anchorNode?.node?.id
   const nodeIds = useMemo(() => finalNodes.map((entry) => entry?.node?.id).filter(Boolean), [finalNodes])
 
   useEffect(() => {
@@ -150,7 +150,7 @@ const GlobalSecondOrderExternalNodes = ({
     })
   }, [finalNodes, globalRenderOwners, ownerId])
 
-  const connectionLines = useMemo(() => buildDashedLines(parentNode, renderableNodes), [parentNode, renderableNodes])
+  const connectionLines = useMemo(() => buildDashedLines(anchorNode, renderableNodes), [anchorNode, renderableNodes])
   const connectionsByNodeId = useGlobalSecondOrderConnections(renderableNodes)
 
   if (!renderableNodes?.length) return null
@@ -172,7 +172,7 @@ const GlobalSecondOrderExternalNodes = ({
             nodeTitle: node.title,
             clusterCenterTitle,
             connectionType: node.connectionType,
-            parentTitle: parentNode?.node?.title || null,
+            parentTitle: anchorNode?.node?.title || null,
           }}
           rotation={getSphereRotation(position)}
         />
@@ -184,7 +184,7 @@ const GlobalSecondOrderExternalNodes = ({
           return (
             <GlobalSecondOrderNodes
               key={`third-order-externals-${parentEntry.node.id}`}
-              parentNode={parentEntry}
+              anchorNode={parentEntry}
               nodes={connectedNodes}
               depth={depth + 1}
               maxDepth={maxDepth}

@@ -162,7 +162,7 @@ const GlobalChildNodes = ({
         return (
           <GlobalSecondOrderNodes
             key={`second-order-children-${parentEntry.node.id}`}
-            parentNode={parentEntry}
+            anchorNode={parentEntry}
             nodes={secondOrderNodesForParent}
             nodeTextures={nodeTextures}
             onNodeClick={onNodeClick}

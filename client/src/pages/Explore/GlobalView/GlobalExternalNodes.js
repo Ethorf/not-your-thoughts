@@ -222,7 +222,7 @@ const GlobalExternalNodes = ({
         return (
           <GlobalSecondOrderNodes
             key={`second-order-externals-${parentEntry.node.id}`}
-            parentNode={parentEntry}
+            anchorNode={parentEntry}
             nodes={secondOrderNodesForParent}
             nodeTextures={nodeTextures}
             onNodeClick={onNodeClick}

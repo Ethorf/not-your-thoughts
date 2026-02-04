@@ -174,7 +174,7 @@ const GlobalSiblingNodes = ({
         return (
           <GlobalSecondOrderNodes
             key={`second-order-siblings-${parentEntry.node.id}`}
-            parentNode={parentEntry}
+            anchorNode={parentEntry}
             nodes={secondOrderNodesForParent}
             nodeTextures={nodeTextures}
             onNodeClick={onNodeClick}

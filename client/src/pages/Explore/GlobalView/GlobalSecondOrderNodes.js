@@ -9,7 +9,7 @@ import GlobalSecondOrderExternalNodes, { positionSecondOrderExternals } from './
  * Renders second-order nodes grouped by connection type for a given parent.
  */
 const GlobalSecondOrderNodes = ({
-  parentNode,
+  anchorNode,
   nodes,
   depth = 1,
   maxDepth = Number.POSITIVE_INFINITY,
@@ -48,31 +48,31 @@ const GlobalSecondOrderNodes = ({
   }, [nodes])
 
   const positionedSiblingNodes = useMemo(() => {
-    if (!parentNode || !siblingNodes?.length) return []
-    return positionSecondOrderSiblings(parentNode, siblingNodes)
-  }, [parentNode, siblingNodes])
+    if (!anchorNode || !siblingNodes?.length) return []
+    return positionSecondOrderSiblings(anchorNode, siblingNodes)
+  }, [anchorNode, siblingNodes])
 
   const positionedParentNodes = useMemo(() => {
-    if (!parentNode || !parentNodes?.length) return []
-    return positionSecondOrderParents(parentNode, parentNodes, depth)
-  }, [parentNode, parentNodes, depth])
+    if (!anchorNode || !parentNodes?.length) return []
+    return positionSecondOrderParents(anchorNode, parentNodes, depth)
+  }, [anchorNode, parentNodes, depth])
 
   const positionedChildNodes = useMemo(() => {
-    if (!parentNode || !childNodes?.length) return []
-    return positionSecondOrderChildren(parentNode, childNodes, depth)
-  }, [parentNode, childNodes, depth])
+    if (!anchorNode || !childNodes?.length) return []
+    return positionSecondOrderChildren(anchorNode, childNodes, depth)
+  }, [anchorNode, childNodes, depth])
 
   const positionedExternalNodes = useMemo(() => {
-    if (!parentNode || !externalNodes?.length) return []
-    return positionSecondOrderExternals(parentNode, externalNodes, depth)
-  }, [parentNode, externalNodes, depth])
+    if (!anchorNode || !externalNodes?.length) return []
+    return positionSecondOrderExternals(anchorNode, externalNodes, depth)
+  }, [anchorNode, externalNodes, depth])
 
   if (!nodes?.length) return null
 
   return (
     <>
       <GlobalSecondOrderParentNodes
-        parentNode={parentNode}
+        anchorNode={anchorNode}
         nodes={parentNodes}
         positionedNodes={positionedParentNodes}
         nodeTextures={nodeTextures}
@@ -85,7 +85,7 @@ const GlobalSecondOrderNodes = ({
       />
 
       <GlobalSecondOrderExternalNodes
-        parentNode={parentNode}
+        anchorNode={anchorNode}
         nodes={externalNodes}
         positionedNodes={positionedExternalNodes}
         nodeTextures={nodeTextures}
@@ -98,7 +98,7 @@ const GlobalSecondOrderNodes = ({
       />
 
       <GlobalSecondOrderSiblingNodes
-        parentNode={parentNode}
+        anchorNode={anchorNode}
         nodes={siblingNodes}
         positionedNodes={positionedSiblingNodes}
         nodeTextures={nodeTextures}
@@ -111,7 +111,7 @@ const GlobalSecondOrderNodes = ({
       />
 
       <GlobalSecondOrderChildNodes
-        parentNode={parentNode}
+        anchorNode={anchorNode}
         nodes={childNodes}
         positionedNodes={positionedChildNodes}
         nodeTextures={nodeTextures}

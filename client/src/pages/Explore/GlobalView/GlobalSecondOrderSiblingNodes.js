@@ -7,15 +7,15 @@ import useGlobalSecondOrderConnections from '@hooks/useGlobalSecondOrderConnecti
 import { claimGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
 import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
 
-const buildSolidLines = (parentNode, positionedNodes) => {
-  if (!parentNode || !positionedNodes?.length) return []
+const buildSolidLines = (anchorNode, positionedNodes) => {
+  if (!anchorNode || !positionedNodes?.length) return []
 
   const lines = []
   const drawnConnections = new Set()
-  const allNodes = [parentNode, ...positionedNodes]
+  const allNodes = [anchorNode, ...positionedNodes]
 
   allNodes.forEach(({ node, position: posA }) => {
-    const connectedNodes = node.id === parentNode.node.id ? positionedNodes.map((n) => n.node.id) : [parentNode.node.id]
+    const connectedNodes = node.id === anchorNode.node.id ? positionedNodes.map((n) => n.node.id) : [anchorNode.node.id]
 
     connectedNodes.forEach((connectedNodeId) => {
       const connectionKey = [node.id, connectedNodeId].sort().join('-')
@@ -41,11 +41,11 @@ const buildSolidLines = (parentNode, positionedNodes) => {
   return lines
 }
 
-export const positionSecondOrderSiblings = (parentNode, siblingNodes) => {
-  if (!parentNode || !siblingNodes?.length) return []
+export const positionSecondOrderSiblings = (anchorNode, siblingNodes) => {
+  if (!anchorNode || !siblingNodes?.length) return []
 
   const parentPosition =
-    parentNode.position instanceof THREE.Vector3 ? parentNode.position : new THREE.Vector3(...parentNode.position)
+    anchorNode.position instanceof THREE.Vector3 ? anchorNode.position : new THREE.Vector3(...anchorNode.position)
 
   const normal = parentPosition.clone().normalize()
   const northPole = new THREE.Vector3(0, 1, 0)
@@ -60,7 +60,7 @@ export const positionSecondOrderSiblings = (parentNode, siblingNodes) => {
     const nonZeroI = i + 1
     const alternatingXSides = nonZeroI % 2 === 0 ? -1 : 1
     const sideSign =
-      typeof parentNode?.sideSign === 'number' && parentNode.sideSign !== 0 ? parentNode.sideSign : alternatingXSides
+      typeof anchorNode?.sideSign === 'number' && anchorNode.sideSign !== 0 ? anchorNode.sideSign : alternatingXSides
 
     const offsetX = sideSign * SECOND_ORDER_SIBLING_CONNECTION_SPHERE_DISTANCE
     const offsetY = 0
@@ -98,7 +98,7 @@ export const positionSecondOrderSiblings = (parentNode, siblingNodes) => {
 }
 
 const GlobalSecondOrderSiblingNodes = ({
-  parentNode,
+  anchorNode,
   nodes,
   positionedNodes,
   nodeTextures,
@@ -110,14 +110,14 @@ const GlobalSecondOrderSiblingNodes = ({
   clusterCenterTitle,
 }) => {
   const computedNodes = useMemo(() => {
-    if (!parentNode || !nodes?.length) return []
-    return positionSecondOrderSiblings(parentNode, nodes)
-  }, [parentNode, nodes])
+    if (!anchorNode || !nodes?.length) return []
+    return positionSecondOrderSiblings(anchorNode, nodes)
+  }, [anchorNode, nodes])
 
   const finalNodes = positionedNodes?.length ? positionedNodes : computedNodes
   const dispatch = useDispatch()
   const globalRenderOwners = useSelector((state) => state.currentEntry.globalRenderOwners || {})
-  const ownerId = parentNode?.node?.id
+  const ownerId = anchorNode?.node?.id
   const nodeIds = useMemo(() => finalNodes.map((entry) => entry?.node?.id).filter(Boolean), [finalNodes])
 
   useEffect(() => {
@@ -137,7 +137,7 @@ const GlobalSecondOrderSiblingNodes = ({
     })
   }, [finalNodes, globalRenderOwners, ownerId])
 
-  const connectionLines = useMemo(() => buildSolidLines(parentNode, renderableNodes), [parentNode, renderableNodes])
+  const connectionLines = useMemo(() => buildSolidLines(anchorNode, renderableNodes), [anchorNode, renderableNodes])
   const connectionsByNodeId = useGlobalSecondOrderConnections(renderableNodes)
 
   if (!renderableNodes?.length) return null
@@ -159,7 +159,7 @@ const GlobalSecondOrderSiblingNodes = ({
             nodeTitle: node.title,
             clusterCenterTitle,
             connectionType: node.connectionType,
-            parentTitle: parentNode?.node?.title || null,
+            parentTitle: anchorNode?.node?.title || null,
           }}
           rotation={getSphereRotation(position)}
         />
@@ -171,7 +171,7 @@ const GlobalSecondOrderSiblingNodes = ({
           return (
             <GlobalSecondOrderNodes
               key={`third-order-siblings-${parentEntry.node.id}`}
-              parentNode={parentEntry}
+              anchorNode={parentEntry}
               nodes={connectedNodes}
               depth={depth + 1}
               maxDepth={maxDepth}
