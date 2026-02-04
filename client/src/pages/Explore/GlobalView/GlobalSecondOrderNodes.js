@@ -12,7 +12,7 @@ const GlobalSecondOrderNodes = ({
   parentNode,
   nodes,
   depth = 1,
-  maxDepth = 2,
+  maxDepth = Number.POSITIVE_INFINITY,
   nodeTextures,
   onNodeClick,
   getSphereRotation,

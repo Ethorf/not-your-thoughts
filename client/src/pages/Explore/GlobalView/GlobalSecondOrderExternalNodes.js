@@ -118,7 +118,7 @@ const GlobalSecondOrderExternalNodes = ({
   onNodeClick,
   getSphereRotation,
   depth = 1,
-  maxDepth = 2,
+  maxDepth = Number.POSITIVE_INFINITY,
   onNodeHover,
   clusterCenterTitle,
 }) => {
