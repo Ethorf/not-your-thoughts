@@ -9,7 +9,7 @@ import { transformConnection } from '@utils/transformConnection'
 import { transformBackendToFrontendConnectionType } from './connectionTypeHelpers'
 
 const {
-  FRONTEND: { SIBLING, CHILD, PARENT, EXTERNAL },
+  FRONTEND: { EXTERNAL },
 } = CONNECTION_TYPES
 
 /**
@@ -255,12 +255,6 @@ export const positionGlobalNodes = async (nodeEntriesInfo, allConnections, clust
         0.25, // Increased scale for sub-connections to add more spacing
         { biasSignX, suppressFirstChildBias: true }
       )
-      if (process.env.NODE_ENV !== 'production' && nodeToExpand.id === 1152) {
-        console.info('[GlobalView] 1152 sub-connections', {
-          count: subPositions.length,
-          nodes: subPositions.map(({ node, connectionType }) => ({ id: node.id, connectionType })),
-        })
-      }
 
       // Track connections for this node
       subPositions.forEach(({ node, connectionType }) => {
@@ -303,11 +297,19 @@ export const positionGlobalNodes = async (nodeEntriesInfo, allConnections, clust
   const mainNode = allNodePositions.find(({ node }) => node.id === targetNodeId)
   let firstOrderNodes = allNodePositions
     .filter(({ node }) => firstOrderNodeIds.has(node.id))
-    .map((entry) => ({
-      ...entry,
-      // Attach connection type to each first-order node for downstream use (e.g., rendering layers)
-      connectionType: firstOrderConnectionTypes.get(entry.node.id) || null,
-    }))
+    .map((entry) => {
+      const explicitType = firstOrderConnectionTypes.get(entry.node.id)
+      const derivedExternal =
+        entry.connectionType === EXTERNAL ||
+        (typeof entry.node.id === 'string' && entry.node.id.startsWith('external-'))
+          ? EXTERNAL
+          : null
+      return {
+        ...entry,
+        // Attach connection type to each first-order node for downstream use (e.g., rendering layers)
+        connectionType: explicitType || derivedExternal,
+      }
+    })
   const secondOrderNodes = allNodePositions.filter(
     ({ node }) => node.id !== targetNodeId && !firstOrderNodeIds.has(node.id)
   )
@@ -340,41 +342,51 @@ export const positionGlobalNodes = async (nodeEntriesInfo, allConnections, clust
   })
 
   if (mainNode && externalConnections.length > 0) {
-    const externalNodes = externalConnections.map((conn) => {
-      const transformed = transformConnection(targetNodeId, conn)
-      const externalId = `external-${conn.id}`
+    const externalNodes = externalConnections
+      .map((conn) => {
+        const transformed = transformConnection(targetNodeId, conn)
+        const externalId = `external-${conn.id}`
+        if (seenNodeIds.has(externalId)) {
+          return null
+        }
 
-      const node = {
-        id: externalId,
-        title: transformed.title,
-        content: transformed.title,
-        url: transformed.url,
-        date_last_modified: new Date(),
+        const node = {
+          id: externalId,
+          title: transformed.title,
+          content: transformed.title,
+          url: transformed.url,
+          date_last_modified: new Date(),
+        }
+
+        return {
+          node,
+          position: mainNode.position,
+          connectionType: EXTERNAL,
+        }
+      })
+      .filter(Boolean)
+
+    if (!externalNodes.length) {
+      // Externals already included via initial positioning.
+    } else {
+      firstOrderNodes = [...firstOrderNodes, ...externalNodes]
+
+      if (!firstOrderConnectionsMap.has(targetNodeId)) {
+        firstOrderConnectionsMap.set(targetNodeId, new Set())
       }
 
-      return {
-        node,
-        position: mainNode.position,
-        connectionType: EXTERNAL,
-      }
-    })
-
-    firstOrderNodes = [...firstOrderNodes, ...externalNodes]
-
-    if (!firstOrderConnectionsMap.has(targetNodeId)) {
-      firstOrderConnectionsMap.set(targetNodeId, new Set())
+      externalNodes.forEach(({ node }) => {
+        if (!firstOrderConnectionsMap.has(node.id)) {
+          firstOrderConnectionsMap.set(node.id, new Set())
+        }
+        firstOrderConnectionsMap.get(targetNodeId).add(node.id)
+        firstOrderConnectionsMap.get(node.id).add(targetNodeId)
+        addConnection(targetNodeId, node.id)
+        setConnectionType(targetNodeId, node.id, EXTERNAL)
+        setConnectionType(node.id, targetNodeId, EXTERNAL)
+        seenNodeIds.add(node.id)
+      })
     }
-
-    externalNodes.forEach(({ node }) => {
-      if (!firstOrderConnectionsMap.has(node.id)) {
-        firstOrderConnectionsMap.set(node.id, new Set())
-      }
-      firstOrderConnectionsMap.get(targetNodeId).add(node.id)
-      firstOrderConnectionsMap.get(node.id).add(targetNodeId)
-      addConnection(targetNodeId, node.id)
-      setConnectionType(targetNodeId, node.id, EXTERNAL)
-      setConnectionType(node.id, targetNodeId, EXTERNAL)
-    })
   }
 
   // Build second order connections (connections between first and second order nodes)

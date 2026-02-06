@@ -118,7 +118,7 @@ const GlobalView = () => {
 
     return [0, angle + 4.5, 0] // Add base offset of 4.7
   }, [])
-
+  console.log({ firstOrderNodes })
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
