@@ -93,6 +93,7 @@ export const positionSecondOrderChildren = (anchorNode, childNodes, depth = 1) =
     return {
       ...entry,
       position: worldPos,
+      sideSign,
     }
   })
 }

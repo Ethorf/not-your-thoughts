@@ -80,13 +80,19 @@ export const positionSecondOrderExternals = (anchorNode, externalNodes, depth = 
   }
 
   const depthScale = depth > 1 ? 0.5 : 1
-  const offsetY = 0.4 * depthScale
-  const externalDistance = DEFAULT_CONNECTION_SPHERE_DISTANCE - 0.1
-  const angleStep = (2 * Math.PI) / externalNodes.length
+  const externalDistance = DEFAULT_CONNECTION_SPHERE_DISTANCE - 0.2
+  const angleStep = (1.5 * Math.PI) / externalNodes.length
 
   return externalNodes.map((entry, i) => {
-    const offsetX = externalDistance
-    const angle = i * angleStep
+    const nonZeroI = i + 1
+    const alternatingXSides = nonZeroI % 2 === 0 ? -1 : 1
+    const sideSign =
+      typeof anchorNode?.sideSign === 'number' && anchorNode.sideSign !== 0 ? anchorNode.sideSign : alternatingXSides
+
+    // Simple XYZ-style knobs (x = radial, y = vertical, z = rotation)
+    const offsetX = externalDistance * sideSign
+    const offsetY = 0.4 * depthScale
+    const offsetZ = i * angleStep * sideSign
 
     const offsetVector = new THREE.Vector3()
     offsetVector.addScaledVector(tangent1, offsetX)
@@ -95,7 +101,7 @@ export const positionSecondOrderExternals = (anchorNode, externalNodes, depth = 
     const basePos = parentPosition.clone().add(offsetVector)
     const yAxis = new THREE.Vector3(0, 1, 0)
     const horizontalOffset = new THREE.Vector3(basePos.x - parentPosition.x, 0, basePos.z - parentPosition.z)
-    horizontalOffset.applyAxisAngle(yAxis, angle)
+    horizontalOffset.applyAxisAngle(yAxis, offsetZ)
 
     const worldPos = new THREE.Vector3(
       parentPosition.x + horizontalOffset.x,
@@ -106,6 +112,7 @@ export const positionSecondOrderExternals = (anchorNode, externalNodes, depth = 
     return {
       ...entry,
       position: worldPos,
+      sideSign,
     }
   })
 }

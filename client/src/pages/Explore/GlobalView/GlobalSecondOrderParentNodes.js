@@ -93,6 +93,7 @@ export const positionSecondOrderParents = (anchorNode, parentNodes, depth = 1) =
     return {
       ...entry,
       position: worldPos,
+      sideSign,
     }
   })
 }
