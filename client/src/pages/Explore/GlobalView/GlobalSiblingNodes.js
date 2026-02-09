@@ -40,9 +40,12 @@ export const positionSiblingNodes = (mainNode, siblingNodes) => {
     const sideSign =
       typeof mainNode?.sideSign === 'number' && mainNode.sideSign !== 0 ? mainNode.sideSign : alternatingXSides
 
+    // Simple XYZ-style knobs (x = radial, y = vertical, z = phase)
     let offsetX = sideSign * DEFAULT_CONNECTION_SPHERE_DISTANCE
     let offsetY = 0
-    let offsetZ = i * 0.11 - 0.2
+    let offsetZ = 0.7
+    const angleStep = (2 * Math.PI) / siblingNodes.length
+    const rotationAngle = offsetZ + i * angleStep
 
     // Apply offsetX and offsetY in the tangent plane (left/right, up/down)
     const offsetVector = new THREE.Vector3()
@@ -52,9 +55,7 @@ export const positionSiblingNodes = (mainNode, siblingNodes) => {
     // Rotate around the main node's equator (horizontal plane at mainPosition.y).
     // This keeps the same horizontal distance from the main node while rotating.
     const basePos = mainPosition.clone().add(offsetVector)
-    if (Math.abs(offsetZ) > 0.001) {
-      const rotationScale = Math.PI // 1.0 offsetZ = 180 degrees
-      const rotationAngle = offsetZ * rotationScale
+    if (Math.abs(rotationAngle) > 0.001) {
       const yAxis = new THREE.Vector3(0, 1, 0)
 
       const horizontalOffset = new THREE.Vector3(basePos.x - mainPosition.x, 0, basePos.z - mainPosition.z)

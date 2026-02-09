@@ -80,7 +80,7 @@ export const positionSecondOrderExternals = (anchorNode, externalNodes, depth = 
   }
 
   const depthScale = depth > 1 ? 0.5 : 1
-  const externalDistance = DEFAULT_CONNECTION_SPHERE_DISTANCE - 0.2
+  const externalDistance = DEFAULT_CONNECTION_SPHERE_DISTANCE - 0.23
   const angleStep = (1.5 * Math.PI) / externalNodes.length
 
   return externalNodes.map((entry, i) => {

@@ -64,7 +64,7 @@ export const positionSecondOrderSiblings = (anchorNode, siblingNodes) => {
 
     const offsetX = sideSign * SECOND_ORDER_SIBLING_CONNECTION_SPHERE_DISTANCE
     const offsetY = 0
-    const offsetZ = i * 0.11 - 0.2
+    const offsetZ = i * 0.11 - 0.18
 
     const offsetVector = new THREE.Vector3()
     offsetVector.addScaledVector(tangent1, offsetX)

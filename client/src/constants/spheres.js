@@ -28,7 +28,7 @@ export const DEFAULT_CONNECTION_SPHERE_DISTANCE = 0.35
 
 export const SECOND_ORDER_CONNECTION_SPHERE_DISTANCE = 0.12
 
-export const SECOND_ORDER_SIBLING_CONNECTION_SPHERE_DISTANCE = 0.19
+export const SECOND_ORDER_SIBLING_CONNECTION_SPHERE_DISTANCE = 0.3
 
 // Backwards-compatible export – keep existing imports working.
 // Treat the previous default as the local view sizes.
