@@ -700,7 +700,7 @@ export const buildGlobalNodeSphereTextures = (nodePositions) => {
     if (node.content) {
       const text = extractTextFromHTML(node.content)
       ctx.fillStyle = 'silver'
-      ctx.font = '10px Syncopate'
+      ctx.font = '12px Syncopate'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
 
@@ -721,7 +721,7 @@ export const buildGlobalNodeSphereTextures = (nodePositions) => {
       }
       lines.push(line.trim())
 
-      const lineHeight = 20
+      const lineHeight = 26
       let y = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2
 
       lines.forEach((l) => {
@@ -741,7 +741,7 @@ export const buildGlobalNodeSphereTextures = (nodePositions) => {
       const line2 = line2Words.length > 0 ? line2Words.join(' ') + (needsEllipsis ? '...' : '') : ''
 
       // Draw title with better visibility
-      ctx.font = 'bold 18px Syncopate'
+      ctx.font = 'bold 26px Syncopate'
       ctx.fillStyle = 'white'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
@@ -753,12 +753,12 @@ export const buildGlobalNodeSphereTextures = (nodePositions) => {
       ctx.shadowOffsetY = 2
 
       // Draw first line
-      const yOffset = line2 ? -12 : 0
+      const yOffset = line2 ? -18 : 0
       ctx.fillText(line1, canvas.width / 2, canvas.height / 2 + yOffset)
 
       // Draw second line if exists
       if (line2) {
-        ctx.fillText(line2, canvas.width / 2, canvas.height / 2 + 12)
+        ctx.fillText(line2, canvas.width / 2, canvas.height / 2 + 18)
       }
 
       // Reset shadow

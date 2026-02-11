@@ -43,8 +43,7 @@ const deduplicateClusterViews = (views) => {
 
   for (const view of views) {
     if (FILTER_EMPTY_CLUSTERS) {
-      const hasConnections =
-        (view.firstOrderNodes?.length ?? 0) > 0 || (view.secondOrderNodes?.length ?? 0) > 0
+      const hasConnections = (view.firstOrderNodes?.length ?? 0) > 0 || (view.secondOrderNodes?.length ?? 0) > 0
       if (!hasConnections && view.mainNode) continue
     }
 
@@ -251,14 +250,13 @@ const GlobalView = () => {
 
       <div className={`${styles.info} ${hoverInfo ? '' : styles.infoHidden}`}>
         <h2 className={styles.nodeTitle}>{hoverInfo?.nodeTitle}</h2>
-        <p>Cluster Center: {hoverInfo?.clusterCenterTitle || ''}</p>
-        <p>Connection: {hoverInfo?.connectionType || ''}</p>
-        <p>
-          Nearest: {hoverInfo?.parentTitle || ''} {hoverInfo?.connectionType ? `(${hoverInfo.connectionType})` : ''}
-        </p>
-        <p>
-          Camera: Azimuth {cameraRotation.azimuth} | Polar {cameraRotation.polar}
-        </p>
+        <div className={styles.nodeInfo}>
+          <p>Cluster Center: {hoverInfo?.clusterCenterTitle || ''}</p>
+          <p>Connection: {hoverInfo?.connectionType || ''}</p>
+          <p>
+            Nearest: {hoverInfo?.parentTitle || ''} {hoverInfo?.connectionType ? `(${hoverInfo.connectionType})` : ''}
+          </p>
+        </div>
       </div>
     </div>
   )

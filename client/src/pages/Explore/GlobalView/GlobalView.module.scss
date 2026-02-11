@@ -51,7 +51,7 @@
 }
 
 .globeContainer {
-  flex: 1;
+  flex: 0 0 80vh;
   width: 100vw;
   max-width: 100vw;
   box-sizing: border-box;
@@ -65,21 +65,28 @@
 
 .info {
   display: flex;
-  gap: 30px;
-  margin-top: 20px;
-  padding: 15px 25px;
-  min-height: 80px;
+  padding: 8px 25px;
+  height: 20vh;
   width: 100%;
-  max-width: 1200px;
   box-sizing: border-box;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   border: 1px solid rgba(255, 255, 255, 0.1);
 
+  overflow: hidden;
+
   .nodeTitle {
-    font-size: 18px;
+    font-family: 'Syncopate', sans-serif;
+    font-size: 24px;
     font-weight: 600;
-    color: #4caf50;
+    color: white;
+  }
+
+  .nodeInfo {
+    display: flex;
   }
 }
 
