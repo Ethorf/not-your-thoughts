@@ -129,7 +129,8 @@ const GlobalView = () => {
     return result
   }, [nodeEntriesInfo, allConnections])
 
-  // Handle async positioning of nodes for each cluster (hub = node with most connections)
+  // Handle async positioning of nodes for each cluster (hub = node with most connections).
+  // Sort clusters by size (largest first) so they get positions closest to the equator.
   useEffect(() => {
     const positionAllClusters = async () => {
       if (!clusters?.length || !adjacency) {
@@ -138,14 +139,17 @@ const GlobalView = () => {
       }
 
       const clusterCenters = generateClusterPositions(clusters.length, 3)
+      const sortedBySize = clusters
+        .map((cluster, index) => ({ cluster, index }))
+        .sort((a, b) => b.cluster.length - a.cluster.length)
       const results = []
 
-      for (let index = 0; index < clusters.length; index++) {
-        const cluster = clusters[index]
+      for (let i = 0; i < sortedBySize.length; i++) {
+        const { cluster } = sortedBySize[i]
         const hubNodeId = getClusterHubNode(cluster, adjacency)
         if (!hubNodeId) continue
 
-        const clusterCenter = clusterCenters[index] ?? null
+        const clusterCenter = clusterCenters[i] ?? null
         const result = await positionGlobalNodes(
           nodeEntriesInfo,
           allConnections,

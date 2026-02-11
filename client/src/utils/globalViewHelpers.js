@@ -13,44 +13,60 @@ const {
 } = CONNECTION_TYPES
 
 /**
- * Generate cluster positions on a sphere using Poisson-like distribution
+ * Generate cluster positions on a sphere. Positions are ordered so index 0 is
+ * closest to the equator (y ≈ 0), index N-1 is farthest (near poles).
+ * Caller should sort clusters by size (largest first) and assign position[i]
+ * to the ith-largest cluster.
  * @param {number} numClusters - Number of clusters to generate
  * @param {number} radius - Radius of the sphere (default: 3)
- * @returns {Array} Array of THREE.Vector3 positions
+ * @returns {Array} Array of THREE.Vector3 positions (equator-first order)
  */
 export const generateClusterPositions = (numClusters, radius = 3) => {
   const positions = []
-  const minDistance = 0.8 // Minimum distance between clusters
+  const minDistance = 0.8
+  const goldenAngle = Math.PI * 2 * 0.618 // Spread azimuth evenly
 
   for (let i = 0; i < numClusters; i++) {
     let attempts = 0
     let validPosition = false
-    let position = null
 
-    while (!validPosition && attempts < 100) {
-      // Generate random point on sphere
-      const theta = Math.random() * Math.PI * 2 // Azimuth
-      const phi = Math.acos(2 * Math.random() - 1) // Polar angle
+    // phi = π/2 is equator. Index 0 = tight equatorial band, higher indices spread toward poles.
+    const poleProgress = numClusters <= 1 ? 0 : i / (numClusters - 1)
+    const phiHalfWidth = 0.15 + poleProgress * 1.2
+    const phiCenter = Math.PI / 2
+
+    while (!validPosition && attempts < 150) {
+      const theta = (i * goldenAngle + Math.random() * 0.5) % (Math.PI * 2)
+      const phi = phiCenter + (Math.random() - 0.5) * 2 * phiHalfWidth
+      const clampedPhi = Math.max(0.15, Math.min(Math.PI - 0.15, phi))
 
       const candidatePosition = new THREE.Vector3(
-        radius * Math.sin(phi) * Math.cos(theta),
-        radius * Math.cos(phi),
-        radius * Math.sin(phi) * Math.sin(theta)
+        radius * Math.sin(clampedPhi) * Math.cos(theta),
+        radius * Math.cos(clampedPhi),
+        radius * Math.sin(clampedPhi) * Math.sin(theta)
       )
 
-      // Check distance from existing positions
-      const isValidDistance = positions.every((existingPos) => candidatePosition.distanceTo(existingPos) >= minDistance)
+      const isValidDistance = positions.every(
+        (existingPos) => candidatePosition.distanceTo(existingPos) >= minDistance
+      )
 
       if (isValidDistance) {
-        position = candidatePosition
+        positions.push(candidatePosition)
         validPosition = true
       }
-
       attempts++
     }
 
-    if (position) {
-      positions.push(position)
+    if (!validPosition) {
+      const theta = Math.random() * Math.PI * 2
+      const phi = Math.PI / 2 + (i / numClusters) * Math.PI * 0.8
+      positions.push(
+        new THREE.Vector3(
+          radius * Math.sin(phi) * Math.cos(theta),
+          radius * Math.cos(phi),
+          radius * Math.sin(phi) * Math.sin(theta)
+        )
+      )
     }
   }
 
