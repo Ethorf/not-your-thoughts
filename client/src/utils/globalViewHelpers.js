@@ -111,15 +111,49 @@ export const buildClusters = (nodeEntries, connections) => {
 }
 
 /**
+ * Find the node within a cluster that has the most connections (to other nodes in the same cluster)
+ * @param {Array} cluster - Array of node IDs in the cluster
+ * @param {Map} adjacency - Map of nodeId -> array of connected node IDs
+ * @returns {number|null} The node ID with the most connections, or null if cluster is empty
+ */
+export const getClusterHubNode = (cluster, adjacency) => {
+  if (!cluster?.length || !adjacency) return null
+
+  const clusterSet = new Set(cluster)
+  let maxConnections = -1
+  let hubNodeId = null
+
+  cluster.forEach((nodeId) => {
+    const neighbors = adjacency.get(nodeId) || []
+    const connectionsWithinCluster = neighbors.filter((n) => clusterSet.has(n)).length
+
+    if (connectionsWithinCluster > maxConnections) {
+      maxConnections = connectionsWithinCluster
+      hubNodeId = nodeId
+    }
+  })
+
+  return hubNodeId
+}
+
+/**
  * Position nodes in clusters for Global View
  * @param {Array} nodeEntriesInfo - Array of node entry info objects
  * @param {Array} allConnections - Array of all connections
  * @param {Array} clusters - Array of clusters (arrays of node IDs)
  * @param {Function} dispatch - Redux dispatch function
- * @param {number} targetNodeId - The main node ID to center on (default: 990)
+ * @param {number} targetNodeId - The main node ID to center on
+ * @param {THREE.Vector3} [clusterCenterOverride] - Optional center position for this cluster on the globe
  * @returns {Promise<Object>} Promise resolving to { allNodePositions: Array, connectionsMap: Map }
  */
-export const positionGlobalNodes = async (nodeEntriesInfo, allConnections, clusters, dispatch, targetNodeId = 990) => {
+export const positionGlobalNodes = async (
+  nodeEntriesInfo,
+  allConnections,
+  clusters,
+  dispatch,
+  targetNodeId,
+  clusterCenterOverride = null
+) => {
   if (!nodeEntriesInfo || !allConnections || clusters.length === 0) {
     return { allNodePositions: [], connectionsMap: new Map() }
   }
@@ -136,9 +170,11 @@ export const positionGlobalNodes = async (nodeEntriesInfo, allConnections, clust
   const allNodePositions = []
   const mainCluster = clusters[mainNodeClusterIndex]
 
-  // Position the main cluster at the equator
   const radius = 3
-  const clusterCenter = new THREE.Vector3(radius, 0, 0)
+  const clusterCenter =
+    clusterCenterOverride && clusterCenterOverride instanceof THREE.Vector3
+      ? clusterCenterOverride
+      : new THREE.Vector3(radius, 0, 0)
 
   // Validate clusterCenter before calling
   if (!clusterCenter || !(clusterCenter instanceof THREE.Vector3)) {
@@ -146,7 +182,13 @@ export const positionGlobalNodes = async (nodeEntriesInfo, allConnections, clust
     return { allNodePositions: [], connectionsMap: new Map() }
   }
 
-  const positions = await calculateGlobalClusterPositions(mainCluster, clusterCenter, nodeEntriesInfo, dispatch)
+  const positions = await calculateGlobalClusterPositions(
+    mainCluster,
+    clusterCenter,
+    nodeEntriesInfo,
+    dispatch,
+    targetNodeId
+  )
 
   // Track all connections for line drawing
   const connectionsMap = new Map() // Map of nodeId -> Set of connected node IDs

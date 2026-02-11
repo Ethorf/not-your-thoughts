@@ -6,7 +6,6 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 
 import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
-import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 
 // Redux
 import { setEntryById, setGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
@@ -16,16 +15,19 @@ import { fetchAllConnections } from '@redux/reducers/connectionsReducer'
 import styles from './GlobalView.module.scss'
 import TextButton from '@components/Shared/TextButton/TextButton'
 
-// Constants
-import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES } from '@constants/spheres'
-
 // Components
 import CameraController from './CameraController'
 import GradientGlobe from './GradientGlobe'
-import GlobalFirstOrderNodes from './GlobalFirstOrderNodes'
+import GlobalClusterView from './GlobalClusterView'
 
 // Utils
-import { buildGlobalNodeSphereTextures, buildClusters, positionGlobalNodes } from '@utils/globalViewHelpers'
+import {
+  buildGlobalNodeSphereTextures,
+  buildClusters,
+  generateClusterPositions,
+  getClusterHubNode,
+  positionGlobalNodes,
+} from '@utils/globalViewHelpers'
 
 const GlobalView = () => {
   const nodeEntriesInfo = useNodeEntriesInfo()
@@ -35,10 +37,7 @@ const GlobalView = () => {
   const { allConnections } = useSelector((state) => state.connections)
   const { entryId } = useSelector((state) => state.currentEntry)
   const [cameraRotation, setCameraRotation] = useState({ azimuth: 0, polar: 0 })
-  const [mainNode, setMainNode] = useState(null)
-  const [firstOrderNodes, setFirstOrderNodes] = useState([])
-  const [secondOrderNodes, setSecondOrderNodes] = useState([])
-  const [firstOrderConnectionsMap, setFirstOrderConnectionsMap] = useState(new Map())
+  const [clusterViews, setClusterViews] = useState([])
   const [hoverInfo, setHoverInfo] = useState(null)
   const controlsRef = useRef()
 
@@ -72,40 +71,71 @@ const GlobalView = () => {
   }, [])
 
   // Build clusters and place them on globe
-  const { clusters } = useMemo(() => {
+  const { clusters, adjacency } = useMemo(() => {
     if (!nodeEntriesInfo || !allConnections) {
       return { clusters: [], adjacency: new Map() }
     }
 
-    const { clusters, adjacency } = buildClusters(nodeEntriesInfo, allConnections)
-
-    return { clusters, adjacency }
+    const result = buildClusters(nodeEntriesInfo, allConnections)
+    return result
   }, [nodeEntriesInfo, allConnections])
 
-  // Handle async positioning of nodes in clusters
+  // Handle async positioning of nodes for each cluster (hub = node with most connections)
   useEffect(() => {
-    const positionNodes = async () => {
-      const result = await positionGlobalNodes(nodeEntriesInfo, allConnections, clusters, dispatch, 990)
-      setMainNode(result.mainNode)
-      setFirstOrderNodes(result.firstOrderNodes)
-      setSecondOrderNodes(result.secondOrderNodes)
-      setFirstOrderConnectionsMap(result.firstOrderConnectionsMap)
-      dispatch(setGlobalRenderOwners(result.renderOwnerMap || {}))
+    const positionAllClusters = async () => {
+      if (!clusters?.length || !adjacency) {
+        setClusterViews([])
+        return
+      }
+
+      const clusterCenters = generateClusterPositions(clusters.length, 3)
+      const results = []
+
+      for (let index = 0; index < clusters.length; index++) {
+        const cluster = clusters[index]
+        const hubNodeId = getClusterHubNode(cluster, adjacency)
+        if (!hubNodeId) continue
+
+        const clusterCenter = clusterCenters[index] ?? null
+        const result = await positionGlobalNodes(
+          nodeEntriesInfo,
+          allConnections,
+          clusters,
+          dispatch,
+          hubNodeId,
+          clusterCenter
+        )
+        results.push(result)
+      }
+
+      const validResults = results
+      const views = validResults.map((r) => ({
+        mainNode: r.mainNode,
+        firstOrderNodes: r.firstOrderNodes,
+        secondOrderNodes: r.secondOrderNodes || [],
+        firstOrderConnectionsMap: r.firstOrderConnectionsMap,
+      }))
+
+      setClusterViews(views)
+
+      // Merge renderOwnerMap from all clusters
+      const mergedRenderOwners = validResults.reduce((acc, r) => ({ ...acc, ...(r.renderOwnerMap || {}) }), {})
+      dispatch(setGlobalRenderOwners(mergedRenderOwners))
     }
 
-    positionNodes()
-  }, [nodeEntriesInfo, allConnections, clusters, dispatch])
+    positionAllClusters()
+  }, [nodeEntriesInfo, allConnections, clusters, adjacency, dispatch])
 
-  // Combine all nodes for texture generation
+  // Combine all nodes from all clusters for texture generation and camera framing
   const allNodesForTextures = useMemo(() => {
     const nodes = []
-    if (mainNode) nodes.push(mainNode)
-    nodes.push(...firstOrderNodes)
-    nodes.push(...secondOrderNodes)
+    clusterViews.forEach((view) => {
+      if (view.mainNode) nodes.push(view.mainNode)
+      nodes.push(...(view.firstOrderNodes || []))
+      nodes.push(...(view.secondOrderNodes || []))
+    })
     return nodes
-  }, [mainNode, firstOrderNodes, secondOrderNodes])
-
-  const clusterCenterTitle = mainNode?.node?.title || 'Unknown'
+  }, [clusterViews])
 
   // Create texture for each node
   const nodeTextures = useMemo(() => buildGlobalNodeSphereTextures(allNodesForTextures), [allNodesForTextures])
@@ -118,7 +148,7 @@ const GlobalView = () => {
 
     return [0, angle + 4.5, 0] // Add base offset of 4.7
   }, [])
-  console.log({ firstOrderNodes })
+  console.log({ clusterViews })
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
@@ -141,38 +171,18 @@ const GlobalView = () => {
 
             <GradientGlobe />
 
-            {/* Main node */}
-            {mainNode && (
-              <SphereWithEffects
-                key={mainNode.node.id}
-                id={mainNode.node.id}
-                pos={mainNode.position.toArray()}
-                title={mainNode.node.title}
-                size={GLOBAL_SPHERE_SIZES[SPHERE_TYPES.MAIN]}
-                mainTexture={nodeTextures.get(mainNode.node.id)}
-                onClick={() => handleNodeClick(mainNode.node.id)}
-                onHover={handleNodeHover}
-                hoverInfo={{
-                  nodeTitle: mainNode.node.title,
-                  clusterCenterTitle,
-                  connectionType: 'main',
-                  parentTitle: null,
-                }}
-                rotation={getSphereRotation(mainNode.position)}
+            {clusterViews.map((view, index) => (
+              <GlobalClusterView
+                key={view.mainNode?.node?.id ?? `cluster-${index}`}
+                mainNode={view.mainNode}
+                firstOrderNodes={view.firstOrderNodes}
+                firstOrderConnectionsMap={view.firstOrderConnectionsMap}
+                nodeTextures={nodeTextures}
+                onNodeClick={handleNodeClick}
+                onNodeHover={handleNodeHover}
+                getSphereRotation={getSphereRotation}
               />
-            )}
-
-            {/* First-order nodes + their connection lines */}
-            <GlobalFirstOrderNodes
-              mainNode={mainNode}
-              firstOrderNodes={firstOrderNodes}
-              firstOrderConnectionsMap={firstOrderConnectionsMap}
-              nodeTextures={nodeTextures}
-              onNodeClick={handleNodeClick}
-              getSphereRotation={getSphereRotation}
-              onNodeHover={handleNodeHover}
-              clusterCenterTitle={clusterCenterTitle}
-            />
+            ))}
           </Suspense>
 
           <OrbitControls

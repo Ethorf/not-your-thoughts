@@ -79,7 +79,8 @@ export const positionNodeConnections = async (
   }
 
   // Fetch connections for the node
-  const allConnections = await dispatch(fetchConnectionsDirect(nodeId)).unwrap()
+  const rawConnections = await dispatch(fetchConnectionsDirect(nodeId)).unwrap()
+  const allConnections = Array.isArray(rawConnections) ? rawConnections : []
   const normalizedConnections = allConnections
     .map((conn) => ({
       ...conn,
@@ -185,9 +186,10 @@ export const positionNodeConnections = async (
  * @param {THREE.Vector3} clusterCenter - Center position of the cluster on the sphere
  * @param {Array} nodeEntries - All node entries
  * @param {Function} dispatch - Redux dispatch function
+ * @param {number} centerNodeId - ID of the hub/main node to center the cluster around
  * @returns {Array} - Array of { node, position } objects
  */
-const calculateGlobalClusterPositions = async (cluster, clusterCenter, nodeEntries, dispatch) => {
+const calculateGlobalClusterPositions = async (cluster, clusterCenter, nodeEntries, dispatch, centerNodeId) => {
   // CRITICAL: Validate clusterCenter FIRST before any operations
   if (!clusterCenter || !(clusterCenter instanceof THREE.Vector3)) {
     console.warn('calculateGlobalClusterPositions: clusterCenter is undefined or not a Vector3', { clusterCenter })
@@ -221,19 +223,23 @@ const calculateGlobalClusterPositions = async (cluster, clusterCenter, nodeEntri
     tangent2.negate()
   }
 
-  // Fetch connections for the cluster main node
-  const clusterMainNodeId = 990
+  if (!centerNodeId) {
+    console.warn('calculateGlobalClusterPositions: centerNodeId is required', { centerNodeId })
+    return []
+  }
 
   // Add the main/center node at the cluster center
-  const mainNode = nodeEntries.find((n) => n.id === clusterMainNodeId)
-
+  let mainNode = nodeEntries.find((n) => n.id === centerNodeId)
+  if (!mainNode) {
+    mainNode = await fetchNodeEntryById(centerNodeId)
+  }
   if (mainNode) {
     positions.push({ node: mainNode, position: clusterCenter })
   }
 
   // Use the reusable function to position connections
   const connectionPositions = await positionNodeConnections(
-    clusterMainNodeId,
+    centerNodeId,
     clusterCenter,
     nodeEntries,
     dispatch,
