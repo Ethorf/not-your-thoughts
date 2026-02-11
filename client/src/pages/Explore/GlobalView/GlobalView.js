@@ -19,6 +19,7 @@ import TextButton from '@components/Shared/TextButton/TextButton'
 import CameraController from './CameraController'
 import GradientGlobe from './GradientGlobe'
 import GlobalClusterView from './GlobalClusterView'
+import { FaceCameraProvider } from '@components/Spheres/SphereWithEffects'
 
 // Utils
 import {
@@ -148,7 +149,7 @@ const GlobalView = () => {
 
     return [0, angle + 4.5, 0] // Add base offset of 4.7
   }, [])
-  console.log({ clusterViews })
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
@@ -167,22 +168,24 @@ const GlobalView = () => {
           <directionalLight position={[5, 5, 5]} intensity={0.6} />
 
           <Suspense fallback={null}>
-            <CameraController nodePositions={allNodesForTextures} entryId={entryId} controlsRef={controlsRef} />
+            <FaceCameraProvider>
+              <CameraController nodePositions={allNodesForTextures} entryId={entryId} controlsRef={controlsRef} />
 
-            <GradientGlobe />
+              <GradientGlobe />
 
-            {clusterViews.map((view, index) => (
-              <GlobalClusterView
-                key={view.mainNode?.node?.id ?? `cluster-${index}`}
-                mainNode={view.mainNode}
-                firstOrderNodes={view.firstOrderNodes}
-                firstOrderConnectionsMap={view.firstOrderConnectionsMap}
-                nodeTextures={nodeTextures}
-                onNodeClick={handleNodeClick}
-                onNodeHover={handleNodeHover}
-                getSphereRotation={getSphereRotation}
-              />
-            ))}
+              {clusterViews.map((view, index) => (
+                <GlobalClusterView
+                  key={view.mainNode?.node?.id ?? `cluster-${index}`}
+                  mainNode={view.mainNode}
+                  firstOrderNodes={view.firstOrderNodes}
+                  firstOrderConnectionsMap={view.firstOrderConnectionsMap}
+                  nodeTextures={nodeTextures}
+                  onNodeClick={handleNodeClick}
+                  onNodeHover={handleNodeHover}
+                  getSphereRotation={getSphereRotation}
+                />
+              ))}
+            </FaceCameraProvider>
           </Suspense>
 
           <OrbitControls
@@ -198,7 +201,7 @@ const GlobalView = () => {
       </div>
 
       <div className={`${styles.info} ${hoverInfo ? '' : styles.infoHidden}`}>
-        <p>Node: {hoverInfo?.nodeTitle || ''}</p>
+        <h2 className={styles.nodeTitle}>{hoverInfo?.nodeTitle}</h2>
         <p>Cluster Center: {hoverInfo?.clusterCenterTitle || ''}</p>
         <p>Connection: {hoverInfo?.connectionType || ''}</p>
         <p>

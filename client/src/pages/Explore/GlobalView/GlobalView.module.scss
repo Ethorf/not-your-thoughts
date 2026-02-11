@@ -76,20 +76,10 @@
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.1);
 
-  p {
-    margin: 0;
-    font-size: 14px;
-    color: #ccc;
-
-    &:first-child {
-      color: #4caf50;
-      font-weight: 600;
-    }
-
-    &:last-child {
-      color: #2196f3;
-      font-weight: 600;
-    }
+  .nodeTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: #4caf50;
   }
 }
 

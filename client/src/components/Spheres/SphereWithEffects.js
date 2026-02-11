@@ -1,5 +1,5 @@
-import React, { useRef, useState, useMemo, useCallback, useEffect } from 'react'
-import { useFrame } from '@react-three/fiber'
+import React, { useRef, useState, useMemo, useCallback, useEffect, createContext, useContext } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 
@@ -13,6 +13,14 @@ const {
   FRONTEND: { EXTERNAL },
 } = CONNECTION_TYPES
 
+/** Set to false to disable sphere titles always facing the camera in Global View */
+const ENABLE_GLOBAL_VIEW_BILLBOARDING = false
+
+const FaceCameraContext = createContext(false)
+export const FaceCameraProvider = ({ children }) => (
+  <FaceCameraContext.Provider value={ENABLE_GLOBAL_VIEW_BILLBOARDING}>{children}</FaceCameraContext.Provider>
+)
+
 const SphereWithEffects = ({
   id,
   pos,
@@ -25,7 +33,10 @@ const SphereWithEffects = ({
   hoverInfo,
   rotation = [0, 4.7, 0],
   nodeStatus = null,
+  faceCamera: faceCameraProp = null,
 }) => {
+  const faceCameraFromContext = useContext(FaceCameraContext)
+  const faceCamera = faceCameraProp ?? faceCameraFromContext
   const [localHovered, setLocalHovered] = useState(false)
   const [localTooltip, setLocalTooltip] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
@@ -34,6 +45,7 @@ const SphereWithEffects = ({
   const sphereRef = useRef()
   const haloRef = useRef()
   const isMobile = useIsMobile()
+  const { camera } = useThree()
 
   // Memoized tooltip text generation
   const getTooltipText = useCallback(
@@ -168,9 +180,17 @@ const SphereWithEffects = ({
     return 0.2 // Subtle silver border for read nodes
   }, [nodeStatus])
 
-  // hover animation
+  // Compensate for sphere UV mapping so title appears centered when billboarding.
+  // If titles appear offset right, increase; if offset left, decrease (radians).
+  const BILLBOARD_AZIMUTH_OFFSET = -1.6
+
+  // hover animation + billboard to face camera when faceCamera is enabled
   useFrame(() => {
     if (!sphereRef.current || !haloRef.current) return
+    if (faceCamera) {
+      sphereRef.current.lookAt(camera.position)
+      sphereRef.current.rotateY(BILLBOARD_AZIMUTH_OFFSET)
+    }
     const targetScale = localHovered ? 1.1 : 1
     sphereRef.current.scale.lerp(new THREE.Vector3(size * targetScale, size * targetScale, size * targetScale), 0.08)
     const targetOpacity = localHovered ? 1 : baseHaloOpacity
