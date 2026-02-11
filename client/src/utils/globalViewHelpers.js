@@ -169,6 +169,7 @@ export const positionGlobalNodes = async (
 
   const allNodePositions = []
   const mainCluster = clusters[mainNodeClusterIndex]
+  const mainClusterSet = new Set(mainCluster)
 
   const radius = 3
   const clusterCenter =
@@ -310,7 +311,11 @@ export const positionGlobalNodes = async (
       const isWestOfMain = biasSignX < 0
 
       subPositions.forEach(({ node, position, connectionType }) => {
-        if (!seenNodeIds.has(node.id)) {
+        // Only add nodes that belong to this cluster (prevents cross-cluster duplication)
+        const isInCluster = isExternalNodeId(node.id) || mainClusterSet.has(node.id)
+        if (!isInCluster || seenNodeIds.has(node.id)) return
+
+        {
           const finalPosition = shouldPreventOverlap
             ? resolvePositionWithOverlapPrevention(
                 position,

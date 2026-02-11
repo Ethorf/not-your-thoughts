@@ -30,6 +30,55 @@ import {
   positionGlobalNodes,
 } from '@utils/globalViewHelpers'
 
+/** Set to true to hide clusters with no connections (isolated single-node clusters) */
+const FILTER_EMPTY_CLUSTERS = false
+
+/**
+ * Deduplicate nodes across cluster views - each node appears in exactly one cluster.
+ * Also optionally filters out clusters with no connections.
+ */
+const deduplicateClusterViews = (views) => {
+  const seenNodeIds = new Set()
+  const deduplicated = []
+
+  for (const view of views) {
+    if (FILTER_EMPTY_CLUSTERS) {
+      const hasConnections =
+        (view.firstOrderNodes?.length ?? 0) > 0 || (view.secondOrderNodes?.length ?? 0) > 0
+      if (!hasConnections && view.mainNode) continue
+    }
+
+    // Main node is always kept - each cluster's hub is unique to that cluster
+    const mainNode = view.mainNode ?? null
+    if (mainNode?.node?.id) seenNodeIds.add(mainNode.node.id)
+
+    const firstOrderNodes = (view.firstOrderNodes || []).filter((entry) => {
+      const id = entry?.node?.id
+      if (!id || seenNodeIds.has(id)) return false
+      seenNodeIds.add(id)
+      return true
+    })
+
+    const secondOrderNodes = (view.secondOrderNodes || []).filter((entry) => {
+      const id = entry?.node?.id
+      if (!id || seenNodeIds.has(id)) return false
+      seenNodeIds.add(id)
+      return true
+    })
+
+    if (!mainNode && !firstOrderNodes.length && !secondOrderNodes.length) continue
+
+    deduplicated.push({
+      ...view,
+      mainNode,
+      firstOrderNodes,
+      secondOrderNodes,
+    })
+  }
+
+  return deduplicated
+}
+
 const GlobalView = () => {
   const nodeEntriesInfo = useNodeEntriesInfo()
   const history = useHistory()
@@ -117,7 +166,7 @@ const GlobalView = () => {
         firstOrderConnectionsMap: r.firstOrderConnectionsMap,
       }))
 
-      setClusterViews(views)
+      setClusterViews(deduplicateClusterViews(views))
 
       // Merge renderOwnerMap from all clusters
       const mergedRenderOwners = validResults.reduce((acc, r) => ({ ...acc, ...(r.renderOwnerMap || {}) }), {})
