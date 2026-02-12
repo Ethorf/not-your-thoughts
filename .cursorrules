@@ -8,7 +8,7 @@
 - ESLint catches many common errors including React Hooks violations, unused variables, and code quality issues
 - Before submitting code, ensure there are no ESLint errors or warnings
 - If ESLint flags an issue, fix it rather than ignoring it
-- Use `read_lints` tool to check for linting errors before finalizing changes
+- **MANDATORY WORKFLOW**: Always run `read_lints` on every file you modify BEFORE proposing or finalizing changes. Never consider an edit complete until lints are clear.
 
 ### 1. No Unused Variables
 

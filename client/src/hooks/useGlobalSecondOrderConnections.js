@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import axiosInstance from '@utils/axiosInstance'
 import { fetchConnectionsDirect } from '@redux/reducers/connectionsReducer'
 import { transformConnection } from '@utils/transformConnection'
@@ -44,11 +44,24 @@ const fetchNodeEntryById = async (entryId) => {
 const useGlobalSecondOrderConnections = (nodes) => {
   const dispatch = useDispatch()
   const nodeEntriesInfo = useNodeEntriesInfo()
+  const { allConnections } = useSelector((state) => state.connections)
   const [connectionsById, setConnectionsById] = useState(new Map())
 
   const entriesById = useMemo(() => {
     return new Map((nodeEntriesInfo || []).map((entry) => [entry.id, entry]))
   }, [nodeEntriesInfo])
+
+  const totalConnectionCountMap = useMemo(() => {
+    const map = new Map()
+    if (!allConnections?.length) return map
+    allConnections.forEach((conn) => {
+      const a = conn.entry_id
+      const b = conn.foreign_entry_id
+      if (a != null) map.set(a, (map.get(a) || 0) + 1)
+      if (b != null && typeof b === 'number') map.set(b, (map.get(b) || 0) + 1)
+    })
+    return map
+  }, [allConnections])
 
   useEffect(() => {
     let isActive = true
@@ -92,14 +105,18 @@ const useGlobalSecondOrderConnections = (nodes) => {
                     date_last_modified: new Date(),
                   },
                   connectionType: conn.connection_type,
+                  totalConnectionCount: 0,
                 }
               }
               const transformed = transformConnection(nodeId, conn)
               const entryInfo = entriesById.get(transformed.id) || (await fetchNodeEntryById(transformed.id))
               if (!entryInfo) return null
+              const totalConnectionCount =
+                typeof entryInfo.id === 'number' ? totalConnectionCountMap.get(entryInfo.id) ?? 0 : 0
               return {
                 node: entryInfo,
                 connectionType: conn.connection_type,
+                totalConnectionCount,
               }
             })
           )
@@ -124,7 +141,7 @@ const useGlobalSecondOrderConnections = (nodes) => {
     return () => {
       isActive = false
     }
-  }, [dispatch, entriesById, nodes])
+  }, [dispatch, entriesById, nodes, totalConnectionCountMap])
 
   return connectionsById
 }

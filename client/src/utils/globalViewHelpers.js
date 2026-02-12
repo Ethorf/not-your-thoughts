@@ -171,6 +171,16 @@ export const positionGlobalNodes = async (
   const mainCluster = clusters[mainNodeClusterIndex]
   const mainClusterSet = new Set(mainCluster)
 
+  // Total connection count per node (from allConnections) - used for sphere sizing.
+  // connectionsMap only has expanded connections; this reflects true total degree.
+  const totalConnectionCountMap = new Map()
+  allConnections.forEach((conn) => {
+    const a = conn.entry_id
+    const b = conn.foreign_entry_id
+    if (a != null) totalConnectionCountMap.set(a, (totalConnectionCountMap.get(a) || 0) + 1)
+    if (b != null && typeof b === 'number') totalConnectionCountMap.set(b, (totalConnectionCountMap.get(b) || 0) + 1)
+  })
+
   const radius = 3
   const clusterCenter =
     clusterCenterOverride && clusterCenterOverride instanceof THREE.Vector3
@@ -488,16 +498,25 @@ export const positionGlobalNodes = async (
         const baseEntry = nodeEntryById.get(id)
         if (!baseEntry) return null
         const edgeType = connectionTypeMap.get(entry.node.id)?.get(id)
-        if (!edgeType) return baseEntry
+        const totalConnectionCount =
+          typeof baseEntry.node?.id === 'number'
+            ? totalConnectionCountMap.get(baseEntry.node.id) ?? 0
+            : 0
         return {
           ...baseEntry,
-          connectionType: edgeType,
+          connectionType: edgeType ?? baseEntry.connectionType,
+          totalConnectionCount,
         }
       })
       .filter(Boolean)
+    const totalConnectionCount =
+      typeof entry.node.id === 'number'
+        ? totalConnectionCountMap.get(entry.node.id) ?? connectedNodes.length
+        : connectedNodes.length
     return {
       ...entry,
       connectedNodes,
+      totalConnectionCount,
     }
   })
   const withConnectedById = new Map(withConnectedNodes.map((entry) => [entry.node.id, entry]))

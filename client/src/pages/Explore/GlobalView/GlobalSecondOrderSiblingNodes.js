@@ -2,7 +2,13 @@ import React, { useMemo, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
-import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES, SECOND_ORDER_SIBLING_CONNECTION_SPHERE_DISTANCE } from '@constants/spheres'
+import {
+  SPHERE_TYPES,
+  GLOBAL_SPHERE_SIZES,
+  getGlobalConnectionSphereSize,
+  getEffectiveConnectionDistance,
+  SECOND_ORDER_SIBLING_CONNECTION_SPHERE_DISTANCE,
+} from '@constants/spheres'
 import useGlobalSecondOrderConnections from '@hooks/useGlobalSecondOrderConnections'
 import { claimGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
 import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
@@ -41,7 +47,7 @@ const buildSolidLines = (anchorNode, positionedNodes) => {
   return lines
 }
 
-export const positionSecondOrderSiblings = (anchorNode, siblingNodes) => {
+export const positionSecondOrderSiblings = (anchorNode, siblingNodes, depth = 1) => {
   if (!anchorNode || !siblingNodes?.length) return []
 
   const parentPosition =
@@ -56,13 +62,29 @@ export const positionSecondOrderSiblings = (anchorNode, siblingNodes) => {
     tangent2.negate()
   }
 
+  const anchorBaseSize =
+    depth > 1 ? GLOBAL_SPHERE_SIZES[SPHERE_TYPES.SECOND_ORDER_CONNECTION] : GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
+  const anchorSize = getGlobalConnectionSphereSize(
+    anchorNode?.totalConnectionCount ?? anchorNode?.connectedNodes?.length ?? 0,
+    anchorBaseSize
+  )
+
   return siblingNodes.map((entry, i) => {
     const nonZeroI = i + 1
     const alternatingXSides = nonZeroI % 2 === 0 ? -1 : 1
     const sideSign =
       typeof anchorNode?.sideSign === 'number' && anchorNode.sideSign !== 0 ? anchorNode.sideSign : alternatingXSides
 
-    const offsetX = sideSign * SECOND_ORDER_SIBLING_CONNECTION_SPHERE_DISTANCE
+    const nodeSize = getGlobalConnectionSphereSize(
+      entry.totalConnectionCount ?? entry.connectedNodes?.length ?? 0,
+      GLOBAL_SPHERE_SIZES[SPHERE_TYPES.SECOND_ORDER_CONNECTION]
+    )
+    const effectiveDist = getEffectiveConnectionDistance(
+      SECOND_ORDER_SIBLING_CONNECTION_SPHERE_DISTANCE,
+      anchorSize,
+      nodeSize
+    )
+    const offsetX = sideSign * effectiveDist
     const offsetY = 0
     const offsetZ = i * 0.11 - 0.18
 
@@ -145,23 +167,26 @@ const GlobalSecondOrderSiblingNodes = ({
   return (
     <>
       {connectionLines}
-      {renderableNodes.map(({ node, position }) => (
+      {renderableNodes.map((entry) => (
         <SphereWithEffects
-          key={node.id}
-          id={node.id}
-          pos={position.toArray()}
-          title={node.title}
-          size={GLOBAL_SPHERE_SIZES[SPHERE_TYPES.SECOND_ORDER_CONNECTION]}
-          mainTexture={nodeTextures.get(node.id)}
-          onClick={() => onNodeClick(node.id)}
+          key={entry.node.id}
+          id={entry.node.id}
+          pos={entry.position.toArray()}
+          title={entry.node.title}
+          size={getGlobalConnectionSphereSize(
+            entry.totalConnectionCount ?? entry.connectedNodes?.length ?? 0,
+            GLOBAL_SPHERE_SIZES[SPHERE_TYPES.SECOND_ORDER_CONNECTION]
+          )}
+          mainTexture={nodeTextures.get(entry.node.id)}
+          onClick={() => onNodeClick(entry.node.id)}
           onHover={onNodeHover}
           hoverInfo={{
-            nodeTitle: node.title,
+            nodeTitle: entry.node.title,
             clusterCenterTitle,
-            connectionType: node.connectionType,
+            connectionType: entry.connectionType || entry.node?.connectionType,
             parentTitle: anchorNode?.node?.title || null,
           }}
-          rotation={getSphereRotation(position)}
+          rotation={getSphereRotation(entry.position)}
         />
       ))}
       {depth < maxDepth &&

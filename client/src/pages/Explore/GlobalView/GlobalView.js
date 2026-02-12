@@ -131,30 +131,33 @@ const GlobalView = () => {
 
   // Handle async positioning of nodes for each cluster (hub = node with most connections).
   // Sort clusters by size (largest first) so they get positions closest to the equator.
+  // Use stable tiebreaker (hub ID) so cluster assignments don't flip when effect re-runs.
   useEffect(() => {
+    let isMounted = true
+
     const positionAllClusters = async () => {
       if (!clusters?.length || !adjacency) {
-        setClusterViews([])
+        if (isMounted) setClusterViews([])
         return
       }
 
       const singleNodeCount = clusters.filter((c) => c.length === 1).length
       const clusterCenters = generateClusterPositions(clusters.length, 3, singleNodeCount)
       const sortedBySize = clusters
-        .map((cluster) => ({ cluster }))
+        .map((cluster) => ({ cluster, hubId: getClusterHubNode(cluster, adjacency) }))
+        .filter((item) => item.hubId)
         .sort((a, b) => {
           const aConnected = a.cluster.length > 1 ? 1 : 0
           const bConnected = b.cluster.length > 1 ? 1 : 0
           if (aConnected !== bConnected) return bConnected - aConnected
-          return b.cluster.length - a.cluster.length
+          if (b.cluster.length !== a.cluster.length) return b.cluster.length - a.cluster.length
+          // Stable tiebreaker: use hub ID so same cluster always gets same position
+          return (a.hubId ?? 0) - (b.hubId ?? 0)
         })
       const results = []
 
       for (let i = 0; i < sortedBySize.length; i++) {
-        const { cluster } = sortedBySize[i]
-        const hubNodeId = getClusterHubNode(cluster, adjacency)
-        if (!hubNodeId) continue
-
+        const { hubId: hubNodeId } = sortedBySize[i]
         const clusterCenter = clusterCenters[i] ?? null
         const result = await positionGlobalNodes(
           nodeEntriesInfo,
@@ -175,6 +178,7 @@ const GlobalView = () => {
         firstOrderConnectionsMap: r.firstOrderConnectionsMap,
       }))
 
+      if (!isMounted) return
       setClusterViews(deduplicateClusterViews(views))
 
       // Merge renderOwnerMap from all clusters
@@ -183,6 +187,9 @@ const GlobalView = () => {
     }
 
     positionAllClusters()
+    return () => {
+      isMounted = false
+    }
   }, [nodeEntriesInfo, allConnections, clusters, adjacency, dispatch])
 
   // Combine all nodes from all clusters for texture generation and camera framing

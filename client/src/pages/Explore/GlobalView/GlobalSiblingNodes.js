@@ -2,7 +2,13 @@ import React, { useMemo, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
-import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES, DEFAULT_CONNECTION_SPHERE_DISTANCE } from '@constants/spheres'
+import {
+  SPHERE_TYPES,
+  GLOBAL_SPHERE_SIZES,
+  getGlobalConnectionSphereSize,
+  getEffectiveConnectionDistance,
+  DEFAULT_CONNECTION_SPHERE_DISTANCE,
+} from '@constants/spheres'
 import { buildConnectionLinesForNodes } from '@utils/globalViewHelpers'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
 import { claimGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
@@ -30,6 +36,16 @@ export const positionSiblingNodes = (mainNode, siblingNodes) => {
     tangent2.negate()
   }
 
+  const mainSize = GLOBAL_SPHERE_SIZES[SPHERE_TYPES.MAIN]
+  const siblingSizes = siblingNodes.map((e) =>
+    getGlobalConnectionSphereSize(
+      e.totalConnectionCount ?? e.connectedNodes?.length ?? 0,
+      GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
+    )
+  )
+  const maxSiblingSize = siblingSizes.length ? Math.max(...siblingSizes) : GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
+  const effectiveSiblingDist = getEffectiveConnectionDistance(DEFAULT_CONNECTION_SPHERE_DISTANCE, mainSize, maxSiblingSize)
+
   const positionedSiblings = siblingNodes.map((entry, i) => {
     // Start with main node's position (siblings default to being on top of main node)
     let worldPos = mainPosition.clone()
@@ -41,7 +57,7 @@ export const positionSiblingNodes = (mainNode, siblingNodes) => {
       typeof mainNode?.sideSign === 'number' && mainNode.sideSign !== 0 ? mainNode.sideSign : alternatingXSides
 
     // Simple XYZ-style knobs (x = radial, y = vertical, z = phase)
-    let offsetX = sideSign * DEFAULT_CONNECTION_SPHERE_DISTANCE
+    let offsetX = sideSign * effectiveSiblingDist
     let offsetY = 0
     let offsetZ = 0.7
     const angleStep = (2 * Math.PI) / siblingNodes.length
@@ -148,23 +164,26 @@ const GlobalSiblingNodes = ({
       {connectionLines}
 
       {/* Sibling node spheres */}
-      {renderableNodes.map(({ node, position }) => (
+      {renderableNodes.map((entry) => (
         <SphereWithEffects
-          key={node.id}
-          id={node.id}
-          pos={position.toArray()}
-          title={node.title}
-          size={GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]}
-          mainTexture={nodeTextures.get(node.id)}
-          onClick={() => onNodeClick(node.id)}
+          key={entry.node.id}
+          id={entry.node.id}
+          pos={entry.position.toArray()}
+          title={entry.node.title}
+          size={getGlobalConnectionSphereSize(
+            entry.totalConnectionCount ?? entry.connectedNodes?.length ?? 0,
+            GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
+          )}
+          mainTexture={nodeTextures.get(entry.node.id)}
+          onClick={() => onNodeClick(entry.node.id)}
           onHover={onNodeHover}
           hoverInfo={{
-            nodeTitle: node.title,
+            nodeTitle: entry.node.title,
             clusterCenterTitle,
-            connectionType: node.connectionType || CONNECTION_TYPES.FRONTEND.SIBLING,
+            connectionType: entry.node.connectionType || CONNECTION_TYPES.FRONTEND.SIBLING,
             parentTitle: mainNode?.node?.title || null,
           }}
-          rotation={getSphereRotation(position)}
+          rotation={getSphereRotation(entry.position)}
         />
       ))}
       {/* THIRD ORDER AND HIGHER ORDER NODES */}

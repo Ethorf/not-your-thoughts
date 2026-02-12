@@ -2,7 +2,13 @@ import React, { useMemo, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
-import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES, DEFAULT_CONNECTION_SPHERE_DISTANCE } from '@constants/spheres'
+import {
+  SPHERE_TYPES,
+  GLOBAL_SPHERE_SIZES,
+  getGlobalConnectionSphereSize,
+  getEffectiveConnectionDistance,
+  DEFAULT_CONNECTION_SPHERE_DISTANCE,
+} from '@constants/spheres'
 import { buildConnectionLinesForNodes } from '@utils/globalViewHelpers'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
 import { claimGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
@@ -28,8 +34,19 @@ export const positionParentNodes = (mainNode, parentNodes) => {
     tangent2.negate()
   }
 
+  const mainSize = GLOBAL_SPHERE_SIZES[SPHERE_TYPES.MAIN]
+  const parentSizes = parentNodes.map((e) =>
+    getGlobalConnectionSphereSize(
+      e.totalConnectionCount ?? e.connectedNodes?.length ?? 0,
+      GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
+    )
+  )
+  const maxParentSize = parentSizes.length ? Math.max(...parentSizes) : GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
+  const baseDist = parentNodes.length > 1 ? DEFAULT_CONNECTION_SPHERE_DISTANCE : 0
+  const effectiveDist = baseDist ? getEffectiveConnectionDistance(baseDist, mainSize, maxParentSize) : 0
+
   const positionedParents = parentNodes.map((entry, i) => {
-    let offsetX = parentNodes.length > 1 ? DEFAULT_CONNECTION_SPHERE_DISTANCE : 0
+    let offsetX = effectiveDist
     let offsetY = 0.5
     let offsetZ = i * 0.11 - 0.2
 
@@ -134,23 +151,26 @@ const GlobalParentNodes = ({
       {connectionLines}
 
       {/* Parent node spheres */}
-      {renderableNodes.map(({ node, position }) => (
+      {renderableNodes.map((entry) => (
         <SphereWithEffects
-          key={node.id}
-          id={node.id}
-          pos={position.toArray()}
-          title={node.title}
-          size={GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_PARENT]}
-          mainTexture={nodeTextures.get(node.id)}
-          onClick={() => onNodeClick(node.id)}
+          key={entry.node.id}
+          id={entry.node.id}
+          pos={entry.position.toArray()}
+          title={entry.node.title}
+          size={getGlobalConnectionSphereSize(
+            entry.totalConnectionCount ?? entry.connectedNodes?.length ?? 0,
+            GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_PARENT]
+          )}
+          mainTexture={nodeTextures.get(entry.node.id)}
+          onClick={() => onNodeClick(entry.node.id)}
           onHover={onNodeHover}
           hoverInfo={{
-            nodeTitle: node.title,
+            nodeTitle: entry.node.title,
             clusterCenterTitle,
-            connectionType: node.connectionType || CONNECTION_TYPES.FRONTEND.PARENT,
+            connectionType: entry.node.connectionType || CONNECTION_TYPES.FRONTEND.PARENT,
             parentTitle: mainNode?.node?.title || null,
           }}
-          rotation={getSphereRotation(position)}
+          rotation={getSphereRotation(entry.position)}
         />
       ))}
 

@@ -49,8 +49,8 @@ const GlobalSecondOrderNodes = ({
 
   const positionedSiblingNodes = useMemo(() => {
     if (!anchorNode || !siblingNodes?.length) return []
-    return positionSecondOrderSiblings(anchorNode, siblingNodes)
-  }, [anchorNode, siblingNodes])
+    return positionSecondOrderSiblings(anchorNode, siblingNodes, depth)
+  }, [anchorNode, siblingNodes, depth])
 
   const positionedParentNodes = useMemo(() => {
     if (!anchorNode || !parentNodes?.length) return []
