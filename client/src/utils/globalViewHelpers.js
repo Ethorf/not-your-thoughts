@@ -13,61 +13,45 @@ const {
 } = CONNECTION_TYPES
 
 /**
- * Generate cluster positions on a sphere. Positions are ordered so index 0 is
- * closest to the equator (y ≈ 0), index N-1 is farthest (near poles).
- * Caller should sort clusters by size (largest first) and assign position[i]
- * to the ith-largest cluster.
+ * Generate cluster positions on a sphere using a Fibonacci/golden-spiral layout.
+ * Positions are ordered: index 0 = equator (largest/connected clusters), index N-1 = poles.
+ * Single-node clusters get the last positions, pushed further toward the poles.
  * @param {number} numClusters - Number of clusters to generate
  * @param {number} radius - Radius of the sphere (default: 3)
+ * @param {number} [singleNodeCount=0] - Number of single-node clusters; these get extra pole bias
  * @returns {Array} Array of THREE.Vector3 positions (equator-first order)
  */
-export const generateClusterPositions = (numClusters, radius = 3) => {
+export const generateClusterPositions = (numClusters, radius = 3, singleNodeCount = 0) => {
+  if (numClusters <= 0) return []
+
+  const goldenRatio = (1 + Math.sqrt(5)) / 2
+  const goldenAngle = (Math.PI * 2) / goldenRatio
   const positions = []
-  const minDistance = 0.8
-  const goldenAngle = Math.PI * 2 * 0.618 // Spread azimuth evenly
 
   for (let i = 0; i < numClusters; i++) {
-    let attempts = 0
-    let validPosition = false
+    const y = 1 - (2 * i + 1) / numClusters
+    const r = Math.sqrt(1 - y * y)
+    const theta = goldenAngle * i
+    positions.push(
+      new THREE.Vector3(radius * r * Math.cos(theta), radius * y, radius * r * Math.sin(theta))
+    )
+  }
 
-    // phi = π/2 is equator. Index 0 = tight equatorial band, higher indices spread toward poles.
-    const poleProgress = numClusters <= 1 ? 0 : i / (numClusters - 1)
-    const phiHalfWidth = 0.15 + poleProgress * 1.2
-    const phiCenter = Math.PI / 2
+  // Sort by distance from equator (|y| ascending): index 0 = equator, N-1 = pole
+  positions.sort((a, b) => Math.abs(a.y) - Math.abs(b.y))
 
-    while (!validPosition && attempts < 150) {
-      const theta = (i * goldenAngle + Math.random() * 0.5) % (Math.PI * 2)
-      const phi = phiCenter + (Math.random() - 0.5) * 2 * phiHalfWidth
-      const clampedPhi = Math.max(0.15, Math.min(Math.PI - 0.15, phi))
-
-      const candidatePosition = new THREE.Vector3(
-        radius * Math.sin(clampedPhi) * Math.cos(theta),
-        radius * Math.cos(clampedPhi),
-        radius * Math.sin(clampedPhi) * Math.sin(theta)
-      )
-
-      const isValidDistance = positions.every(
-        (existingPos) => candidatePosition.distanceTo(existingPos) >= minDistance
-      )
-
-      if (isValidDistance) {
-        positions.push(candidatePosition)
-        validPosition = true
-      }
-      attempts++
-    }
-
-    if (!validPosition) {
-      const theta = Math.random() * Math.PI * 2
-      const phi = Math.PI / 2 + (i / numClusters) * Math.PI * 0.8
-      positions.push(
-        new THREE.Vector3(
-          radius * Math.sin(phi) * Math.cos(theta),
-          radius * Math.cos(phi),
-          radius * Math.sin(phi) * Math.sin(theta)
-        )
-      )
-    }
+  // Push single-node cluster positions (last singleNodeCount) further toward the poles
+  const poleBias = 1.3
+  const poleStart = Math.max(0, numClusters - singleNodeCount)
+  for (let i = poleStart; i < numClusters; i++) {
+    const p = positions[i]
+    const sign = p.y >= 0 ? 1 : -1
+    const unitY = p.y / radius
+    const newUnitY = sign * Math.min(0.98, Math.abs(unitY) * poleBias)
+    const newUnitHoriz = Math.sqrt(1 - newUnitY * newUnitY)
+    const horizLen = Math.sqrt(p.x * p.x + p.z * p.z)
+    const scale = horizLen > 1e-6 ? (radius * newUnitHoriz) / horizLen : radius * newUnitHoriz
+    positions[i].set(p.x * scale, radius * newUnitY, p.z * scale)
   }
 
   return positions
@@ -757,7 +741,7 @@ export const buildGlobalNodeSphereTextures = (nodePositions) => {
       const line2 = line2Words.length > 0 ? line2Words.join(' ') + (needsEllipsis ? '...' : '') : ''
 
       // Draw title with better visibility
-      ctx.font = 'bold 26px Syncopate'
+      ctx.font = 'bold 22px Syncopate'
       ctx.fillStyle = 'white'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'

@@ -138,10 +138,16 @@ const GlobalView = () => {
         return
       }
 
-      const clusterCenters = generateClusterPositions(clusters.length, 3)
+      const singleNodeCount = clusters.filter((c) => c.length === 1).length
+      const clusterCenters = generateClusterPositions(clusters.length, 3, singleNodeCount)
       const sortedBySize = clusters
-        .map((cluster, index) => ({ cluster, index }))
-        .sort((a, b) => b.cluster.length - a.cluster.length)
+        .map((cluster) => ({ cluster }))
+        .sort((a, b) => {
+          const aConnected = a.cluster.length > 1 ? 1 : 0
+          const bConnected = b.cluster.length > 1 ? 1 : 0
+          if (aConnected !== bConnected) return bConnected - aConnected
+          return b.cluster.length - a.cluster.length
+        })
       const results = []
 
       for (let i = 0; i < sortedBySize.length; i++) {

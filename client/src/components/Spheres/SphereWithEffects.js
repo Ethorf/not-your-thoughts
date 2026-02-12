@@ -76,7 +76,7 @@ const SphereWithEffects = ({
 
     // Add lorem ipsum background text (similar to main sphere)
     ctx.fillStyle = 'silver'
-    ctx.font = '12px Syncopate'
+    ctx.font = '10px Syncopate'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
 
