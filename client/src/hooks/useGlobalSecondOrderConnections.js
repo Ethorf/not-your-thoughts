@@ -112,7 +112,7 @@ const useGlobalSecondOrderConnections = (nodes) => {
               const entryInfo = entriesById.get(transformed.id) || (await fetchNodeEntryById(transformed.id))
               if (!entryInfo) return null
               const totalConnectionCount =
-                typeof entryInfo.id === 'number' ? totalConnectionCountMap.get(entryInfo.id) ?? 0 : 0
+                typeof entryInfo.id === 'number' ? (totalConnectionCountMap.get(entryInfo.id) ?? 0) : 0
               return {
                 node: entryInfo,
                 connectionType: conn.connection_type,

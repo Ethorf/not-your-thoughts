@@ -71,6 +71,9 @@ export const getEffectiveConnectionDistance = (baseDistance, sizeA, sizeB) => {
   return baseDistance + sizeContribution
 }
 
+/** Radius of the center wireframe globe in Global View. Nodes are positioned at radius 3; this is purely visual. */
+export const GLOBAL_CENTER_GLOBE_RADIUS = 2.2
+
 // Backwards-compatible export – keep existing imports working.
 // Treat the previous default as the local view sizes.
 export const DEFAULT_SPHERE_SIZES = LOCAL_SPHERE_SIZES

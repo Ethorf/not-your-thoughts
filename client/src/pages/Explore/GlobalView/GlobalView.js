@@ -31,10 +31,7 @@ import {
   getClusterConnectionScore,
   positionGlobalNodes,
 } from '@utils/globalViewHelpers'
-import {
-  getGlobalViewCacheKey,
-  deserializeClusterView,
-} from '@utils/globalViewCacheSerialization'
+import { getGlobalViewCacheKey, deserializeClusterView } from '@utils/globalViewCacheSerialization'
 
 /** Set to true to hide clusters with no connections (isolated single-node clusters) */
 const FILTER_EMPTY_CLUSTERS = false
@@ -90,11 +87,11 @@ const GlobalView = () => {
   const dispatch = useDispatch()
 
   const { allConnections, connectionsLoading } = useSelector((state) => state.connections)
-  const { entryId } = useSelector((state) => state.currentEntry)
-  const { cache: globalViewCache, invalidated: globalViewInvalidated } = useSelector(
-    (state) => state.globalViewCache
-  )
+  const { entryId, entriesLoading } = useSelector((state) => state.currentEntry)
+  const { cache: globalViewCache, invalidated: globalViewInvalidated } = useSelector((state) => state.globalViewCache)
   const [clusterViews, setClusterViews] = useState([])
+  const [isPositioningClusters, setIsPositioningClusters] = useState(false)
+  const [positioningProgress, setPositioningProgress] = useState(0)
   const [hoverInfo, setHoverInfo] = useState(null)
   const controlsRef = useRef()
 
@@ -140,7 +137,11 @@ const GlobalView = () => {
 
     const positionAllClusters = async () => {
       if (!clusters?.length || !adjacency) {
-        if (isMounted) setClusterViews([])
+        if (isMounted) {
+          setClusterViews([])
+          setIsPositioningClusters(false)
+          setPositioningProgress(0)
+        }
         return
       }
 
@@ -150,11 +151,7 @@ const GlobalView = () => {
       }
 
       // Check for valid cache: same data, not invalidated
-      if (
-        globalViewCache?.clusterViews?.length &&
-        globalViewCache.cacheKey === cacheKey &&
-        !globalViewInvalidated
-      ) {
+      if (globalViewCache?.clusterViews?.length && globalViewCache.cacheKey === cacheKey && !globalViewInvalidated) {
         const views = globalViewCache.clusterViews.map(deserializeClusterView).filter(Boolean)
         if (isMounted && views.length) {
           setClusterViews(views)
@@ -163,6 +160,11 @@ const GlobalView = () => {
           }
         }
         return
+      }
+
+      if (isMounted) {
+        setIsPositioningClusters(true)
+        setPositioningProgress(0)
       }
 
       const sortedByConnections = clusters
@@ -180,12 +182,11 @@ const GlobalView = () => {
           // Stable: hub ID
           return (a.hubId ?? 0) - (b.hubId ?? 0)
         })
-      const clusterCenters = generateClusterPositions(
-        sortedByConnections.map((s) => s.connectionScore)
-      )
+      const clusterCenters = generateClusterPositions(sortedByConnections.map((s) => s.connectionScore))
       const results = []
 
-      for (let i = 0; i < sortedByConnections.length; i++) {
+      const totalClusters = sortedByConnections.length
+      for (let i = 0; i < totalClusters; i++) {
         const { hubId: hubNodeId } = sortedByConnections[i]
         const clusterCenter = clusterCenters[i] ?? null
         const result = await positionGlobalNodes(
@@ -197,6 +198,9 @@ const GlobalView = () => {
           clusterCenter
         )
         results.push(result)
+        if (isMounted) {
+          setPositioningProgress((i + 1) / totalClusters)
+        }
       }
 
       const validResults = results
@@ -210,6 +214,7 @@ const GlobalView = () => {
       if (!isMounted) return
       const deduplicated = deduplicateClusterViews(views)
       setClusterViews(deduplicated)
+      setIsPositioningClusters(false)
 
       // Merge renderOwnerMap from all clusters
       const mergedRenderOwners = validResults.reduce((acc, r) => ({ ...acc, ...(r.renderOwnerMap || {}) }), {})
@@ -228,6 +233,8 @@ const GlobalView = () => {
     positionAllClusters()
     return () => {
       isMounted = false
+      setIsPositioningClusters(false)
+      setPositioningProgress(0)
     }
   }, [
     nodeEntriesInfo,
@@ -254,6 +261,20 @@ const GlobalView = () => {
   // Create texture for each node
   const nodeTextures = useMemo(() => buildGlobalNodeSphereTextures(allNodesForTextures), [allNodesForTextures])
 
+  const isLoading =
+    entriesLoading ||
+    (connectionsLoading && (!allConnections?.length || globalViewInvalidated)) ||
+    isPositioningClusters
+
+  // Loading progress: entries 0-25%, connections 25-45%, positioning 45-100%
+  const loadingPercent = isLoading
+    ? entriesLoading
+      ? 15
+      : connectionsLoading && (!allConnections?.length || globalViewInvalidated)
+        ? 35
+        : Math.round(45 + positioningProgress * 55)
+    : 100
+
   // Calculate rotation so sphere texture faces the camera
   const getSphereRotation = useCallback((spherePosition) => {
     // Calculate the angle from the sphere to the camera view
@@ -276,6 +297,15 @@ const GlobalView = () => {
         </TextButton>
       </div>
       <div className={styles.globeContainer}>
+        {isLoading && (
+          <div className={styles.loadingOverlay}>
+            <span className={styles.loadingText}>Mapping your mind network...</span>
+            <div className={styles.loadingBar}>
+              <div className={styles.loadingBarFill} style={{ width: `${loadingPercent}%` }} />
+            </div>
+            <span className={styles.loadingPercent}>{loadingPercent}%</span>
+          </div>
+        )}
         <Canvas camera={{ position: [0, 0, 5] }}>
           <ambientLight intensity={0.4} />
           <directionalLight position={[5, 5, 5]} intensity={0.6} />
@@ -284,7 +314,7 @@ const GlobalView = () => {
             <FaceCameraProvider>
               <CameraController nodePositions={allNodesForTextures} entryId={entryId} controlsRef={controlsRef} />
 
-              <GradientGlobe />
+              <GradientGlobe isLoading={isLoading} />
 
               {clusterViews.map((view, index) => (
                 <GlobalClusterView
