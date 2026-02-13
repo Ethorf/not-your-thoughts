@@ -197,8 +197,11 @@ export const fetchNodeEntriesInfo = createAsyncThunk(
 
       return response.data.nodeEntries
     } catch (error) {
-      dispatch(showToast('Error fetching node entries', 'error'))
-      return rejectWithValue(error.response.data)
+      // Skip toast for 401 - user may have just logged out
+      if (error.response?.status !== 401) {
+        dispatch(showToast('Error fetching node entries', 'error'))
+      }
+      return rejectWithValue(error.response?.data)
     }
   }
 )
