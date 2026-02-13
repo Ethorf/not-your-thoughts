@@ -99,9 +99,17 @@ const AppContent = () => {
   )
 }
 
-const App = () => {
+const App = ({ loadUser }) => {
   useEffect(() => {
     checkServerStatus('/api/health', 5000)
+  }, [])
+
+  // Restore auth state on mount when token exists (e.g. after page refresh)
+  useEffect(() => {
+    if (localStorage.token) {
+      loadUser()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, [])
 
   const mode = useSelector((state) => state.modes.mode)

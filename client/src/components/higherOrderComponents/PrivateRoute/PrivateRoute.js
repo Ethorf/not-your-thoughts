@@ -5,23 +5,24 @@ import { connect } from 'react-redux'
 import { loadUser } from '../../../redux/actions/authActions'
 import Spinner from '../../Shared/Spinner/Spinner'
 
-const PrivateRoute = ({ component: Component, auth: { isAuthenticated, user }, loadUser, ...rest }) => {
+const PrivateRoute = ({ component: Component, auth: { isAuthenticated, user, token }, loadUser, ...rest }) => {
   useEffect(() => {
-    if (!user) {
+    if (token && !user) {
       loadUser()
     }
-  }, [user, loadUser])
+  }, [token, user, loadUser])
 
-  if (!isAuthenticated) {
+  // No token: not logged in
+  if (!token) {
     return <Redirect to="/login" />
   }
-  if (user === null) {
+
+  // Token exists but user not loaded yet: restoring session (e.g. after refresh)
+  if (!user) {
     return <Spinner />
   }
 
-  return (
-    <Route {...rest} render={(props) => (!isAuthenticated ? <Redirect to="/login" /> : <Component {...props} />)} />
-  )
+  return <Route {...rest} render={(props) => (isAuthenticated ? <Component {...props} /> : <Redirect to="/login" />)} />
 }
 
 PrivateRoute.propTypes = {
