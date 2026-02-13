@@ -10,6 +10,7 @@ import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
 // Redux
 import { setEntryById, setGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
 import { fetchAllConnections } from '@redux/reducers/connectionsReducer'
+import { setGlobalViewCache } from '@redux/reducers/globalViewCacheReducer'
 
 // Styles
 import styles from './GlobalView.module.scss'
@@ -30,6 +31,10 @@ import {
   getClusterConnectionScore,
   positionGlobalNodes,
 } from '@utils/globalViewHelpers'
+import {
+  getGlobalViewCacheKey,
+  deserializeClusterView,
+} from '@utils/globalViewCacheSerialization'
 
 /** Set to true to hide clusters with no connections (isolated single-node clusters) */
 const FILTER_EMPTY_CLUSTERS = false
@@ -84,28 +89,25 @@ const GlobalView = () => {
   const history = useHistory()
   const dispatch = useDispatch()
 
-  const { allConnections } = useSelector((state) => state.connections)
+  const { allConnections, connectionsLoading } = useSelector((state) => state.connections)
   const { entryId } = useSelector((state) => state.currentEntry)
-  const [cameraRotation, setCameraRotation] = useState({ azimuth: 0, polar: 0 })
+  const { cache: globalViewCache, invalidated: globalViewInvalidated } = useSelector(
+    (state) => state.globalViewCache
+  )
   const [clusterViews, setClusterViews] = useState([])
   const [hoverInfo, setHoverInfo] = useState(null)
   const controlsRef = useRef()
 
-  // Fetch all connections on mount
+  // Fetch all connections only when empty or cache invalidated (e.g. after creating node/connection)
   useEffect(() => {
-    dispatch(fetchAllConnections())
-  }, [dispatch])
-
-  // Track camera rotation
-  const handleCameraChange = useCallback(() => {
-    if (controlsRef.current) {
-      const azimuthalAngle = controlsRef.current.getAzimuthalAngle()
-      const polarAngle = controlsRef.current.getPolarAngle()
-      setCameraRotation({
-        azimuth: ((azimuthalAngle * 180) / Math.PI).toFixed(1),
-        polar: ((polarAngle * 180) / Math.PI).toFixed(1),
-      })
+    const needsFetch = !allConnections?.length || globalViewInvalidated
+    if (needsFetch) {
+      dispatch(fetchAllConnections())
     }
+  }, [dispatch, allConnections?.length, globalViewInvalidated])
+
+  const handleCameraChange = useCallback(() => {
+    // Kept for OrbitControls onChange; can extend for camera position display
   }, [])
 
   const handleNodeClick = useCallback(
@@ -131,14 +133,35 @@ const GlobalView = () => {
   }, [nodeEntriesInfo, allConnections])
 
   // Handle async positioning of nodes for each cluster (hub = node with most connections).
-  // Sort clusters by size (largest first) so they get positions closest to the equator.
-  // Use stable tiebreaker (hub ID) so cluster assignments don't flip when effect re-runs.
+  // Use cache when valid to avoid recomputation when returning to Global View.
   useEffect(() => {
     let isMounted = true
+    const cacheKey = getGlobalViewCacheKey(nodeEntriesInfo, allConnections)
 
     const positionAllClusters = async () => {
       if (!clusters?.length || !adjacency) {
         if (isMounted) setClusterViews([])
+        return
+      }
+
+      // When invalidated, wait for fresh allConnections before computing
+      if (globalViewInvalidated && connectionsLoading) {
+        return
+      }
+
+      // Check for valid cache: same data, not invalidated
+      if (
+        globalViewCache?.clusterViews?.length &&
+        globalViewCache.cacheKey === cacheKey &&
+        !globalViewInvalidated
+      ) {
+        const views = globalViewCache.clusterViews.map(deserializeClusterView).filter(Boolean)
+        if (isMounted && views.length) {
+          setClusterViews(views)
+          if (globalViewCache.mergedRenderOwners) {
+            dispatch(setGlobalRenderOwners(globalViewCache.mergedRenderOwners))
+          }
+        }
         return
       }
 
@@ -185,18 +208,37 @@ const GlobalView = () => {
       }))
 
       if (!isMounted) return
-      setClusterViews(deduplicateClusterViews(views))
+      const deduplicated = deduplicateClusterViews(views)
+      setClusterViews(deduplicated)
 
       // Merge renderOwnerMap from all clusters
       const mergedRenderOwners = validResults.reduce((acc, r) => ({ ...acc, ...(r.renderOwnerMap || {}) }), {})
       dispatch(setGlobalRenderOwners(mergedRenderOwners))
+
+      // Cache for next visit
+      dispatch(
+        setGlobalViewCache({
+          clusterViews: deduplicated,
+          cacheKey,
+          mergedRenderOwners,
+        })
+      )
     }
 
     positionAllClusters()
     return () => {
       isMounted = false
     }
-  }, [nodeEntriesInfo, allConnections, clusters, adjacency, dispatch])
+  }, [
+    nodeEntriesInfo,
+    allConnections,
+    clusters,
+    adjacency,
+    dispatch,
+    globalViewCache,
+    globalViewInvalidated,
+    connectionsLoading,
+  ])
 
   // Combine all nodes from all clusters for texture generation and camera framing
   const allNodesForTextures = useMemo(() => {

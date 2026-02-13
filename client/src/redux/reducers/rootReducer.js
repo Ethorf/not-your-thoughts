@@ -6,6 +6,7 @@ import categoriesReducer from './categoriesReducer'
 import connectionsReducer from './connectionsReducer'
 import currentEntryReducer from './currentEntryReducer'
 import customPromptsReducer from './customPromptsReducer'
+import globalViewCacheReducer from './globalViewCacheReducer'
 import journalEntriesReducer from './journalEntriesReducer'
 import leftSidebarReducer from './leftSidebarReducer'
 import modalsReducer from './modalsReducer'
@@ -22,6 +23,7 @@ export default combineReducers({
   connections: connectionsReducer,
   currentEntry: currentEntryReducer,
   customPrompts: customPromptsReducer,
+  globalViewCache: globalViewCacheReducer,
   journalEntries: journalEntriesReducer,
   leftSidebar: leftSidebarReducer,
   modals: modalsReducer,
