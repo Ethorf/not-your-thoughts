@@ -13,48 +13,101 @@ const {
 } = CONNECTION_TYPES
 
 /**
- * Generate cluster positions on a sphere using a Fibonacci/golden-spiral layout.
- * Positions are ordered: index 0 = equator (largest/connected clusters), index N-1 = poles.
- * Single-node clusters get the last positions, pushed further toward the poles.
- * @param {number} numClusters - Number of clusters to generate
- * @param {number} radius - Radius of the sphere (default: 3)
- * @param {number} [singleNodeCount=0] - Number of single-node clusters; these get extra pole bias
- * @returns {Array} Array of THREE.Vector3 positions (equator-first order)
+ * Seeded random for deterministic, reproducible positions
  */
-export const generateClusterPositions = (numClusters, radius = 3, singleNodeCount = 0) => {
+const seededRandom = (seed) => {
+  const x = Math.sin(seed * 9999) * 10000
+  return x - Math.floor(x)
+}
+
+/**
+ * Generate cluster positions using a Fibonacci sphere. Most connected at equator.
+ * Low-connection (score 1-2) pushed poleward to avoid overlap. Unconnected (score 0)
+ * get random distribution toward poles (no ring).
+ * @param {number[]} connectionScores - Connection score per cluster (higher = more connected), pre-sorted descending
+ * @param {number} [radius=3] - Radius of the sphere
+ * @returns {Array} Array of THREE.Vector3 positions, index matches connectionScores order
+ */
+export const generateClusterPositions = (connectionScores, radius = 3) => {
+  const numClusters = connectionScores?.length ?? 0
   if (numClusters <= 0) return []
 
   const goldenRatio = (1 + Math.sqrt(5)) / 2
   const goldenAngle = (Math.PI * 2) / goldenRatio
-  const positions = []
+  const maxYEquator = Math.cos((45 * Math.PI) / 180) // ~0.7 - equator band for high-conn
 
+  // Generate N evenly-spaced points via Fibonacci spiral
+  const rawPoints = []
   for (let i = 0; i < numClusters; i++) {
     const y = 1 - (2 * i + 1) / numClusters
     const r = Math.sqrt(1 - y * y)
     const theta = goldenAngle * i
-    positions.push(
-      new THREE.Vector3(radius * r * Math.cos(theta), radius * y, radius * r * Math.sin(theta))
+    rawPoints.push(new THREE.Vector3(r * Math.cos(theta), y, r * Math.sin(theta)))
+  }
+
+  // Sort by |y| ascending: equator first
+  rawPoints.sort((a, b) => Math.abs(a.y) - Math.abs(b.y))
+
+  // Pre-generate evenly-spaced-but-jittered positions for unconnected (score 0)
+  const unconnectedIndices = connectionScores
+    .map((s, i) => (s === 0 ? i : -1))
+    .filter((i) => i >= 0)
+  const numUnconnected = unconnectedIndices.length
+  const unconnectedPositions = []
+  if (numUnconnected > 0) {
+    const baseSeed = connectionScores.reduce((a, s) => a + s, 0)
+    const unconnectedGoldenAngle = (Math.PI * 2) / ((1 + Math.sqrt(5)) / 2)
+    for (let j = 0; j < numUnconnected; j++) {
+      // Fibonacci-like spacing in 50-75° band for even spread, jitter for sporadic feel
+      const hemisphere = seededRandom(baseSeed + j * 19) > 0.5 ? 1 : -1
+      const bandIndex = (j + 0.5) / numUnconnected // 0..1
+      const baseLatDeg = 50 + bandIndex * 25 // 50-75°
+      const latJitter = (seededRandom(baseSeed + j * 13) - 0.5) * 10 // ±5°
+      const latDeg = Math.max(48, Math.min(77, baseLatDeg + latJitter))
+      const latRad = (latDeg * Math.PI) / 180
+      const unitY = hemisphere * Math.cos(latRad)
+      const horizR = Math.sin(latRad)
+      const lon = unconnectedGoldenAngle * j + (seededRandom(baseSeed + j * 17 + 1) - 0.5) * 1.5 // golden + jitter
+      unconnectedPositions.push(
+        new THREE.Vector3(
+          radius * horizR * Math.cos(lon),
+          radius * unitY,
+          radius * horizR * Math.sin(lon)
+        )
+      )
+    }
+  }
+
+  let unconnectedIdx = 0
+  let connectedIdx = 0
+  return connectionScores.map((score) => {
+    if (score === 0) {
+      return unconnectedPositions[unconnectedIdx++]
+    }
+
+    const p = rawPoints[connectedIdx++]
+    let effectiveY = p.y
+
+    if (score <= 2) {
+      // Low-connection (1-2): push further from equator toward poles (avoid overlap)
+      const sign = p.y >= 0 ? 1 : -1
+      const absY = Math.abs(p.y)
+      const pushedAbsY = 0.55 + 0.35 * Math.min(1, absY * 2) // ~55-75° latitude band
+      effectiveY = sign * Math.min(pushedAbsY, 0.92)
+    } else {
+      // High-connection: keep in equator band (±45°)
+      effectiveY = Math.max(-maxYEquator, Math.min(maxYEquator, p.y))
+    }
+
+    const horizR = Math.sqrt(Math.max(0, 1 - effectiveY * effectiveY))
+    const oldHoriz = Math.sqrt(p.x * p.x + p.z * p.z)
+    const scale = oldHoriz > 1e-6 ? horizR / oldHoriz : 1
+    return new THREE.Vector3(
+      radius * p.x * scale,
+      radius * effectiveY,
+      radius * p.z * scale
     )
-  }
-
-  // Sort by distance from equator (|y| ascending): index 0 = equator, N-1 = pole
-  positions.sort((a, b) => Math.abs(a.y) - Math.abs(b.y))
-
-  // Push single-node cluster positions (last singleNodeCount) further toward the poles
-  const poleBias = 1.3
-  const poleStart = Math.max(0, numClusters - singleNodeCount)
-  for (let i = poleStart; i < numClusters; i++) {
-    const p = positions[i]
-    const sign = p.y >= 0 ? 1 : -1
-    const unitY = p.y / radius
-    const newUnitY = sign * Math.min(0.98, Math.abs(unitY) * poleBias)
-    const newUnitHoriz = Math.sqrt(1 - newUnitY * newUnitY)
-    const horizLen = Math.sqrt(p.x * p.x + p.z * p.z)
-    const scale = horizLen > 1e-6 ? (radius * newUnitHoriz) / horizLen : radius * newUnitHoriz
-    positions[i].set(p.x * scale, radius * newUnitY, p.z * scale)
-  }
-
-  return positions
+  })
 }
 
 /**
@@ -108,6 +161,25 @@ export const buildClusters = (nodeEntries, connections) => {
   })
 
   return { clusters, adjacency: graph }
+}
+
+/**
+ * Total number of connections (edges) within a cluster. Higher = more connected.
+ * @param {Array} cluster - Array of node IDs in the cluster
+ * @param {Map} adjacency - Map of nodeId -> array of connected node IDs
+ * @returns {number} Total connections (each edge counted once)
+ */
+export const getClusterConnectionScore = (cluster, adjacency) => {
+  if (!cluster?.length || !adjacency) return 0
+  const clusterSet = new Set(cluster)
+  let total = 0
+  cluster.forEach((nodeId) => {
+    const neighbors = adjacency.get(nodeId) || []
+    neighbors.forEach((n) => {
+      if (clusterSet.has(n) && n > nodeId) total += 1 // Count each edge once
+    })
+  })
+  return total
 }
 
 /**

@@ -27,6 +27,7 @@ import {
   buildClusters,
   generateClusterPositions,
   getClusterHubNode,
+  getClusterConnectionScore,
   positionGlobalNodes,
 } from '@utils/globalViewHelpers'
 
@@ -141,23 +142,28 @@ const GlobalView = () => {
         return
       }
 
-      const singleNodeCount = clusters.filter((c) => c.length === 1).length
-      const clusterCenters = generateClusterPositions(clusters.length, 3, singleNodeCount)
-      const sortedBySize = clusters
-        .map((cluster) => ({ cluster, hubId: getClusterHubNode(cluster, adjacency) }))
+      const sortedByConnections = clusters
+        .map((cluster) => ({
+          cluster,
+          hubId: getClusterHubNode(cluster, adjacency),
+          connectionScore: getClusterConnectionScore(cluster, adjacency),
+        }))
         .filter((item) => item.hubId)
         .sort((a, b) => {
-          const aConnected = a.cluster.length > 1 ? 1 : 0
-          const bConnected = b.cluster.length > 1 ? 1 : 0
-          if (aConnected !== bConnected) return bConnected - aConnected
+          // Primary: most connections first (equator)
+          if (b.connectionScore !== a.connectionScore) return b.connectionScore - a.connectionScore
+          // Tiebreaker: larger cluster first
           if (b.cluster.length !== a.cluster.length) return b.cluster.length - a.cluster.length
-          // Stable tiebreaker: use hub ID so same cluster always gets same position
+          // Stable: hub ID
           return (a.hubId ?? 0) - (b.hubId ?? 0)
         })
+      const clusterCenters = generateClusterPositions(
+        sortedByConnections.map((s) => s.connectionScore)
+      )
       const results = []
 
-      for (let i = 0; i < sortedBySize.length; i++) {
-        const { hubId: hubNodeId } = sortedBySize[i]
+      for (let i = 0; i < sortedByConnections.length; i++) {
+        const { hubId: hubNodeId } = sortedByConnections[i]
         const clusterCenter = clusterCenters[i] ?? null
         const result = await positionGlobalNodes(
           nodeEntriesInfo,
