@@ -49,9 +49,7 @@ export const generateClusterPositions = (connectionScores, radius = 3) => {
   rawPoints.sort((a, b) => Math.abs(a.y) - Math.abs(b.y))
 
   // Pre-generate evenly-spaced-but-jittered positions for unconnected (score 0)
-  const unconnectedIndices = connectionScores
-    .map((s, i) => (s === 0 ? i : -1))
-    .filter((i) => i >= 0)
+  const unconnectedIndices = connectionScores.map((s, i) => (s === 0 ? i : -1)).filter((i) => i >= 0)
   const numUnconnected = unconnectedIndices.length
   const unconnectedPositions = []
   if (numUnconnected > 0) {
@@ -69,11 +67,7 @@ export const generateClusterPositions = (connectionScores, radius = 3) => {
       const horizR = Math.sin(latRad)
       const lon = unconnectedGoldenAngle * j + (seededRandom(baseSeed + j * 17 + 1) - 0.5) * 1.5 // golden + jitter
       unconnectedPositions.push(
-        new THREE.Vector3(
-          radius * horizR * Math.cos(lon),
-          radius * unitY,
-          radius * horizR * Math.sin(lon)
-        )
+        new THREE.Vector3(radius * horizR * Math.cos(lon), radius * unitY, radius * horizR * Math.sin(lon))
       )
     }
   }
@@ -102,11 +96,7 @@ export const generateClusterPositions = (connectionScores, radius = 3) => {
     const horizR = Math.sqrt(Math.max(0, 1 - effectiveY * effectiveY))
     const oldHoriz = Math.sqrt(p.x * p.x + p.z * p.z)
     const scale = oldHoriz > 1e-6 ? horizR / oldHoriz : 1
-    return new THREE.Vector3(
-      radius * p.x * scale,
-      radius * effectiveY,
-      radius * p.z * scale
-    )
+    return new THREE.Vector3(radius * p.x * scale, radius * effectiveY, radius * p.z * scale)
   })
 }
 
@@ -571,9 +561,7 @@ export const positionGlobalNodes = async (
         if (!baseEntry) return null
         const edgeType = connectionTypeMap.get(entry.node.id)?.get(id)
         const totalConnectionCount =
-          typeof baseEntry.node?.id === 'number'
-            ? totalConnectionCountMap.get(baseEntry.node.id) ?? 0
-            : 0
+          typeof baseEntry.node?.id === 'number' ? (totalConnectionCountMap.get(baseEntry.node.id) ?? 0) : 0
         return {
           ...baseEntry,
           connectionType: edgeType ?? baseEntry.connectionType,
@@ -583,7 +571,7 @@ export const positionGlobalNodes = async (
       .filter(Boolean)
     const totalConnectionCount =
       typeof entry.node.id === 'number'
-        ? totalConnectionCountMap.get(entry.node.id) ?? connectedNodes.length
+        ? (totalConnectionCountMap.get(entry.node.id) ?? connectedNodes.length)
         : connectedNodes.length
     return {
       ...entry,

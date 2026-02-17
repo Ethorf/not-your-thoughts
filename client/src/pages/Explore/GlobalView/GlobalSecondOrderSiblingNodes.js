@@ -63,7 +63,9 @@ export const positionSecondOrderSiblings = (anchorNode, siblingNodes, depth = 1)
   }
 
   const anchorBaseSize =
-    depth > 1 ? GLOBAL_SPHERE_SIZES[SPHERE_TYPES.SECOND_ORDER_CONNECTION] : GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
+    depth > 1
+      ? GLOBAL_SPHERE_SIZES[SPHERE_TYPES.SECOND_ORDER_CONNECTION]
+      : GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
   const anchorSize = getGlobalConnectionSphereSize(
     anchorNode?.totalConnectionCount ?? anchorNode?.connectedNodes?.length ?? 0,
     anchorBaseSize
@@ -84,9 +86,9 @@ export const positionSecondOrderSiblings = (anchorNode, siblingNodes, depth = 1)
       anchorSize,
       nodeSize
     )
-    const offsetX = sideSign * effectiveDist
+    const offsetX = sideSign * effectiveDist * 1.2
     const offsetY = 0
-    const offsetZ = i * 0.11 - 0.18
+    const offsetZ = i * 0.11 - 0.1
 
     const offsetVector = new THREE.Vector3()
     offsetVector.addScaledVector(tangent1, offsetX)

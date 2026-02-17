@@ -85,6 +85,7 @@ const GlobalView = () => {
   const nodeEntriesInfo = useNodeEntriesInfo()
   const history = useHistory()
   const dispatch = useDispatch()
+  const { user } = useSelector((state) => state.auth)
 
   const { allConnections, connectionsLoading } = useSelector((state) => state.connections)
   const { entryId, entriesLoading } = useSelector((state) => state.currentEntry)
@@ -287,10 +288,12 @@ const GlobalView = () => {
     return [0, angle + 4.5, 0] // Add base offset of 4.7
   }, [])
 
+  console.log('user', user)
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
-        <h1>Global Mind Map</h1>
+        <h1>{user.name}'s Global Mind Map</h1>
         <TextButton
           className={styles.backButton}
           onClick={() => history.push('/explore')}
