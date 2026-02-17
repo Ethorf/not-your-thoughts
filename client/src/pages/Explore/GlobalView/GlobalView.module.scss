@@ -134,6 +134,13 @@
 
   .nodeInfo {
     display: flex;
+    gap: 10px;
+  }
+
+  .infoValue {
+    font-family: 'Syncopate', sans-serif;
+    font-weight: 700;
+    color: white;
   }
 }
 

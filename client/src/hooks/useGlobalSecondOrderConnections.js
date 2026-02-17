@@ -51,16 +51,28 @@ const useGlobalSecondOrderConnections = (nodes) => {
     return new Map((nodeEntriesInfo || []).map((entry) => [entry.id, entry]))
   }, [nodeEntriesInfo])
 
-  const totalConnectionCountMap = useMemo(() => {
-    const map = new Map()
-    if (!allConnections?.length) return map
+  const directConnectionCountMap = useMemo(() => {
+    const neighborSets = new Map()
+    if (!allConnections?.length) return new Map()
+
+    const ensureSet = (id) => {
+      if (!neighborSets.has(id)) neighborSets.set(id, new Set())
+      return neighborSets.get(id)
+    }
+
     allConnections.forEach((conn) => {
       const a = conn.entry_id
       const b = conn.foreign_entry_id
-      if (a != null) map.set(a, (map.get(a) || 0) + 1)
-      if (b != null && typeof b === 'number') map.set(b, (map.get(b) || 0) + 1)
+      if (a == null || b == null) return
+      ensureSet(a).add(b)
+      ensureSet(b).add(a)
     })
-    return map
+
+    const counts = new Map()
+    neighborSets.forEach((set, id) => {
+      counts.set(id, set.size)
+    })
+    return counts
   }, [allConnections])
 
   useEffect(() => {
@@ -111,12 +123,13 @@ const useGlobalSecondOrderConnections = (nodes) => {
               const transformed = transformConnection(nodeId, conn)
               const entryInfo = entriesById.get(transformed.id) || (await fetchNodeEntryById(transformed.id))
               if (!entryInfo) return null
-              const totalConnectionCount =
-                typeof entryInfo.id === 'number' ? (totalConnectionCountMap.get(entryInfo.id) ?? 0) : 0
+              const directConnectionCount =
+                typeof entryInfo.id === 'number' ? (directConnectionCountMap.get(entryInfo.id) ?? 0) : 0
               return {
                 node: entryInfo,
                 connectionType: conn.connection_type,
-                totalConnectionCount,
+                totalConnectionCount: directConnectionCount,
+                directConnectionCount,
               }
             })
           )
@@ -141,7 +154,7 @@ const useGlobalSecondOrderConnections = (nodes) => {
     return () => {
       isActive = false
     }
-  }, [dispatch, entriesById, nodes, totalConnectionCountMap])
+  }, [dispatch, entriesById, nodes, directConnectionCountMap])
 
   return connectionsById
 }

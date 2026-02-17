@@ -12,6 +12,7 @@ import {
 import useGlobalSecondOrderConnections from '@hooks/useGlobalSecondOrderConnections'
 import { claimGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
 import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
+import { buildGlobalHoverInfo } from './hoverInfoHelpers'
 
 const DashedLine = ({ lineKey, points, color = 'white', dashSize = 0.03, gapSize = 0.02 }) => {
   const lineRef = useRef(null)
@@ -194,12 +195,12 @@ const GlobalSecondOrderExternalNodes = ({
           mainTexture={nodeTextures.get(entry.node.id)}
           onClick={() => onNodeClick(entry.node.id)}
           onHover={onNodeHover}
-          hoverInfo={{
-            nodeTitle: entry.node.title,
+          hoverInfo={buildGlobalHoverInfo({
+            entry,
             clusterCenterTitle,
             connectionType: entry.connectionType || entry.node?.connectionType,
             parentTitle: anchorNode?.node?.title || null,
-          }}
+          })}
           rotation={getSphereRotation(entry.position)}
         />
       ))}

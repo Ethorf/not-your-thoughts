@@ -12,6 +12,7 @@ import {
 import useGlobalSecondOrderConnections from '@hooks/useGlobalSecondOrderConnections'
 import { claimGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
 import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
+import { buildGlobalHoverInfo } from './hoverInfoHelpers'
 
 const buildSolidLines = (anchorNode, positionedNodes) => {
   if (!anchorNode || !positionedNodes?.length) return []
@@ -178,12 +179,12 @@ const GlobalSecondOrderChildNodes = ({
           mainTexture={nodeTextures.get(entry.node.id)}
           onClick={() => onNodeClick(entry.node.id)}
           onHover={onNodeHover}
-          hoverInfo={{
-            nodeTitle: entry.node.title,
+          hoverInfo={buildGlobalHoverInfo({
+            entry,
             clusterCenterTitle,
             connectionType: entry.connectionType || entry.node?.connectionType,
             parentTitle: anchorNode?.node?.title || null,
-          }}
+          })}
           rotation={getSphereRotation(entry.position)}
         />
       ))}

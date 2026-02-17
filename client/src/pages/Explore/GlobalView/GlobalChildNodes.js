@@ -13,6 +13,7 @@ import { buildConnectionLinesForNodes } from '@utils/globalViewHelpers'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
 import { claimGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
 import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
+import { buildGlobalHoverInfo } from './hoverInfoHelpers'
 
 export const positionChildNodes = (mainNode, childNodes) => {
   if (!mainNode || !childNodes?.length) return []
@@ -163,12 +164,12 @@ const GlobalChildNodes = ({
           mainTexture={nodeTextures.get(entry.node.id)}
           onClick={() => onNodeClick(entry.node.id)}
           onHover={onNodeHover}
-          hoverInfo={{
-            nodeTitle: entry.node.title,
+          hoverInfo={buildGlobalHoverInfo({
+            entry,
             clusterCenterTitle,
             connectionType: entry.node.connectionType || CONNECTION_TYPES.FRONTEND.CHILD,
             parentTitle: mainNode?.node?.title || null,
-          }}
+          })}
           rotation={getSphereRotation(entry.position)}
         />
       ))}

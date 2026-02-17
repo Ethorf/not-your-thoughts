@@ -32,9 +32,32 @@ import {
   positionGlobalNodes,
 } from '@utils/globalViewHelpers'
 import { getGlobalViewCacheKey, deserializeClusterView } from '@utils/globalViewCacheSerialization'
+import extractTextFromHTML from '@utils/extractTextFromHTML'
 
 /** Set to true to hide clusters with no connections (isolated single-node clusters) */
 const FILTER_EMPTY_CLUSTERS = false
+
+const formatHoverDate = (value) => {
+  if (!value) return 'N/A'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return 'N/A'
+  return date.toLocaleDateString()
+}
+
+const getWordCount = (content) => {
+  if (!content) return 0
+  const rawText = Array.isArray(content) ? content.join(' ') : content
+  const cleanText = extractTextFromHTML(String(rawText))
+  if (!cleanText.trim()) return 0
+  return cleanText.trim().split(/\s+/).filter(Boolean).length
+}
+
+const formatConnectionType = (value) => {
+  if (!value) return 'Unknown'
+  const normalized = String(value).replace(/_/g, ' ').trim()
+  if (!normalized) return 'Unknown'
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1)
+}
 
 /**
  * Deduplicate nodes across cluster views - each node appears in exactly one cluster.
@@ -278,6 +301,10 @@ const GlobalView = () => {
         ? 10
         : Math.round(positioningProgress * 100)
     : 100
+  const hoverConnectionCount = hoverInfo?.connectionCount ?? 0
+  const hoverWordCount = getWordCount(hoverInfo?.content)
+  const hoverTitle = hoverInfo?.nodeTitle || hoverInfo?.clusterCenterTitle || 'Untitled'
+  const hoverConnectionType = formatConnectionType(hoverInfo?.connectionType)
 
   // Calculate rotation so sphere texture faces the camera
   const getSphereRotation = useCallback((spherePosition) => {
@@ -350,13 +377,35 @@ const GlobalView = () => {
       </div>
 
       <div className={`${styles.info} ${hoverInfo ? '' : styles.infoHidden}`}>
-        <h2 className={styles.nodeTitle}>{hoverInfo?.nodeTitle}</h2>
+        <h2 className={styles.nodeTitle}>{hoverTitle}</h2>
         <div className={styles.nodeInfo}>
-          <p>Cluster Center: {hoverInfo?.clusterCenterTitle || ''}</p>
-          <p>Connection: {hoverInfo?.connectionType || ''}</p>
+          {hoverConnectionCount > 0 && (
+            <>
+              <p>
+                Cluster Center: <span className={styles.infoValue}>{hoverInfo?.clusterCenterTitle || ''}</span>
+              </p>
+              <p>
+                Connections: <span className={styles.infoValue}>{hoverConnectionCount}</span>
+              </p>
+            </>
+          )}
           <p>
-            Nearest: {hoverInfo?.parentTitle || ''} {hoverInfo?.connectionType ? `(${hoverInfo.connectionType})` : ''}
+            Date Created: <span className={styles.infoValue}>{formatHoverDate(hoverInfo?.dateCreated)}</span>
           </p>
+          <p>
+            Date Updated: <span className={styles.infoValue}>{formatHoverDate(hoverInfo?.dateUpdated)}</span>
+          </p>
+          <p>
+            Words: <span className={styles.infoValue}>{hoverWordCount}</span>
+          </p>
+          {hoverConnectionCount > 0 && (
+            <p>
+              Nearest:{' '}
+              <span className={styles.infoValue}>
+                {hoverInfo?.parentTitle || ''} {hoverInfo?.connectionType ? `(${hoverConnectionType})` : ''}
+              </span>
+            </p>
+          )}
         </div>
       </div>
     </div>
