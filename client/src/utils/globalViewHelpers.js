@@ -1,10 +1,10 @@
 import React from 'react'
 import * as THREE from 'three'
-import extractTextFromHTML from './extractTextFromHTML'
 import calculateGlobalClusterPositions, { positionNodeConnections } from './calculateGlobalClusterPositions'
 import { resolvePositionOriginal } from './resolvePositionOriginal'
 import { resolvePositionWithOverlapPrevention } from './resolvePositionWithOverlapPrevention'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
+import { GLOBAL_NODE_BACKGROUND_TEXT } from '@constants/globalNodeText'
 import { transformConnection } from '@utils/transformConnection'
 import { transformBackendToFrontendConnectionType } from './connectionTypeHelpers'
 
@@ -776,38 +776,35 @@ export const buildGlobalNodeSphereTextures = (nodePositions) => {
     ctx.fillStyle = 'black'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    if (node.content) {
-      const text = extractTextFromHTML(node.content)
-      ctx.fillStyle = 'silver'
-      ctx.font = '12px Syncopate'
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
+    ctx.fillStyle = 'silver'
+    ctx.font = '12px Syncopate'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
 
-      const words = text.split(' ')
-      let line = ''
-      const maxWidth = canvas.width - 50
-      const lines = []
+    const words = GLOBAL_NODE_BACKGROUND_TEXT.split(' ')
+    let line = ''
+    const maxWidth = canvas.width - 50
+    const lines = []
 
-      for (let i = 0; i < words.length; i++) {
-        const testLine = line + words[i] + ' '
-        const metrics = ctx.measureText(testLine)
-        if (metrics.width > maxWidth && i > 0) {
-          lines.push(line.trim())
-          line = words[i] + ' '
-        } else {
-          line = testLine
-        }
+    for (let i = 0; i < words.length; i++) {
+      const testLine = line + words[i] + ' '
+      const metrics = ctx.measureText(testLine)
+      if (metrics.width > maxWidth && i > 0) {
+        lines.push(line.trim())
+        line = words[i] + ' '
+      } else {
+        line = testLine
       }
-      lines.push(line.trim())
-
-      const lineHeight = 26
-      let y = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2
-
-      lines.forEach((l) => {
-        ctx.fillText(l, canvas.width / 2, y)
-        y += lineHeight
-      })
     }
+    lines.push(line.trim())
+
+    const lineHeight = 26
+    let y = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2
+
+    lines.forEach((l) => {
+      ctx.fillText(l, canvas.width / 2, y)
+      y += lineHeight
+    })
 
     if (node.title) {
       // Truncate title to max 4 words, 2 words per line
