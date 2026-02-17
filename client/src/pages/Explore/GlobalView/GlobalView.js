@@ -261,18 +261,21 @@ const GlobalView = () => {
   // Create texture for each node
   const nodeTextures = useMemo(() => buildGlobalNodeSphereTextures(allNodesForTextures), [allNodesForTextures])
 
+  // Show loading when fetching data, positioning, or when we have clusters to process but no views yet (prevents first-frame flash)
+  const hasClustersToProcess = clusters?.length > 0 && adjacency?.size !== undefined
   const isLoading =
     entriesLoading ||
     (connectionsLoading && (!allConnections?.length || globalViewInvalidated)) ||
-    isPositioningClusters
+    isPositioningClusters ||
+    (hasClustersToProcess && clusterViews.length === 0)
 
-  // Loading progress: entries 0-25%, connections 25-45%, positioning 45-100%
+  // Loading progress: entries 0%, connections 10%, positioning 0-100%
   const loadingPercent = isLoading
     ? entriesLoading
-      ? 15
+      ? 0
       : connectionsLoading && (!allConnections?.length || globalViewInvalidated)
-        ? 35
-        : Math.round(45 + positioningProgress * 55)
+        ? 10
+        : Math.round(positioningProgress * 100)
     : 100
 
   // Calculate rotation so sphere texture faces the camera

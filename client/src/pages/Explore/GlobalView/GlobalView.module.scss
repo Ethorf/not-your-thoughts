@@ -74,18 +74,8 @@
   gap: 16px;
   z-index: 10;
   pointer-events: none;
-  background: linear-gradient(135deg, rgba(10, 10, 10, 0.7) 0%, rgba(26, 26, 26, 0.5) 100%);
+  background: linear-gradient(135deg, rgba(10, 10, 10, 0.95) 0%, rgba(26, 26, 26, 0.9) 100%);
   border-radius: 12px;
-  animation: fadeIn 0.4s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
 }
 
 .loadingText {
@@ -107,7 +97,7 @@
 
 .loadingBarFill {
   height: 100%;
-  background: linear-gradient(90deg, #4a90e2, rgba(255, 255, 255, 0.9));
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.9));
   border-radius: 2px;
   transition: width 0.2s ease-out;
 }
