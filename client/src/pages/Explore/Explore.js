@@ -1,4 +1,5 @@
-import React, { Suspense, useEffect, useMemo } from 'react'
+import React, { Suspense, useEffect, useMemo, useCallback } from 'react'
+import { unwrapResult } from '@reduxjs/toolkit'
 import { useDispatch, useSelector } from 'react-redux'
 import { useHistory, useLocation } from 'react-router-dom'
 import classNames from 'classnames'
@@ -10,11 +11,13 @@ import ConnectionSpheres from '@components/Spheres/ConnectionSpheres.js'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 import NodeSearch from '@components/Shared/NodeSearch/NodeSearch'
 import TextButton from '@components/Shared/TextButton/TextButton'
+import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import GlobalView from './GlobalView/GlobalView'
 
 // Redux
 import { setEntryById } from '@redux/reducers/currentEntryReducer'
-import { fetchConnections } from '@redux/reducers/connectionsReducer'
+import { fetchConnections, getSelectedText } from '@redux/reducers/connectionsReducer'
+import { openModal } from '@redux/reducers/modalsReducer'
 
 // Styles
 import styles from './Explore.module.scss'
@@ -22,6 +25,8 @@ import sharedStyles from '@styles/sharedClassnames.module.scss'
 
 // Constants
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
+import { MODAL_NAMES } from '@constants/modalNames'
+import { CONNECTION_ENTRY_SOURCES } from '@constants/connectionEntrySources'
 import {
   SPHERE_TYPES,
   LOCAL_SPHERE_SIZES,
@@ -40,6 +45,7 @@ import calculateSpherePositions from '@utils/calculateSpherePositions'
 const {
   FRONTEND: { PARENT, EXTERNAL, CHILD, SIBLING },
 } = CONNECTION_TYPES
+const { PRIMARY } = CONNECTION_ENTRY_SOURCES
 
 const getConnectionDistanceScale = (connectionType) => {
   if (connectionType === CHILD) return LOCAL_EXPLORE_CHILD_DISTANCE_SCALE
@@ -83,10 +89,7 @@ const Explore = () => {
     CHILD,
     SIBLING,
   })
-  const mainNodePosition = useMemo(
-    () => [center[0], center[1] + LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET, center[2]],
-    [center]
-  )
+  const mainNodePosition = useMemo(() => [center[0], center[1] + LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET, center[2]], [center])
   const uniqueConnections = useMemo(() => {
     const seenNodeKeys = new Set()
     return (connections || []).filter((conn) => {
@@ -184,6 +187,27 @@ const Explore = () => {
     }
   }
 
+  const handleOpenConnectionsWithSelectedText = useCallback(async () => {
+    if (!entryId) return
+
+    const handleOpenConnectionsModal = async () => {
+      try {
+        const fetchConnRes = await dispatch(fetchConnections(entryId))
+        unwrapResult(fetchConnRes)
+        dispatch(openModal(MODAL_NAMES.CONNECTIONS))
+      } catch (error) {
+        console.error('Failed to fetch connections:', error)
+      }
+    }
+
+    try {
+      dispatch(getSelectedText(PRIMARY))
+      await handleOpenConnectionsModal()
+    } catch (error) {
+      console.error('Get selected text failure', error)
+    }
+  }, [dispatch, entryId])
+
   function getMostRecentlyModifiedItem(items) {
     if (!Array.isArray(items) || items.length === 0) return null
     const validItems = items.filter((item) => item && item.date_last_modified)
@@ -236,6 +260,9 @@ const Explore = () => {
           Global View
         </TextButton>
         <NodeSearch mode="navigate" placeholder="Search to explore..." className={styles.searchComponent} />
+        <DefaultButton tooltip="Open connections menu" onClick={handleOpenConnectionsWithSelectedText}>
+          Connections
+        </DefaultButton>
       </div>
       <div className={styles.nodesWrapper}>
         <Canvas camera={{ position: [0, 0, 8] }}>
@@ -337,10 +364,9 @@ const Explore = () => {
                   .add(new THREE.Vector3(0, LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET, 0))
 
                 const nodeInfo = nodeEntriesInfo.find((n) => n.id === transformed.id)
-                const sphereSize = getScaledSphereSize(
-                  LOCAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION],
-                  nodeInfo?.wdWordCount
-                ) * LOCAL_EXPLORE_CONNECTION_SIZE_SCALE
+                const sphereSize =
+                  getScaledSphereSize(LOCAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION], nodeInfo?.wdWordCount) *
+                  LOCAL_EXPLORE_CONNECTION_SIZE_SCALE
 
                 return (
                   <React.Fragment key={conn.id}>

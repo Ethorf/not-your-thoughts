@@ -1,4 +1,5 @@
 import React, { Suspense, useMemo, useCallback, useEffect, useState, useRef } from 'react'
+import { unwrapResult } from '@reduxjs/toolkit'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
@@ -9,12 +10,14 @@ import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
 
 // Redux
 import { setEntryById, setGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
-import { fetchAllConnections } from '@redux/reducers/connectionsReducer'
+import { fetchAllConnections, fetchConnections } from '@redux/reducers/connectionsReducer'
 import { setGlobalViewCache } from '@redux/reducers/globalViewCacheReducer'
+import { openModal } from '@redux/reducers/modalsReducer'
 
 // Styles
 import styles from './GlobalView.module.scss'
 import TextButton from '@components/Shared/TextButton/TextButton'
+import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 
 // Components
 import CameraController from './CameraController'
@@ -34,6 +37,7 @@ import {
 } from '@utils/globalViewHelpers'
 import { getGlobalViewCacheKey, deserializeClusterView } from '@utils/globalViewCacheSerialization'
 import extractTextFromHTML from '@utils/extractTextFromHTML'
+import { MODAL_NAMES } from '@constants/modalNames'
 
 /** Set to true to hide clusters with no connections (isolated single-node clusters) */
 const FILTER_EMPTY_CLUSTERS = false
@@ -113,6 +117,7 @@ const GlobalView = () => {
   const [hoverInfo, setHoverInfo] = useState(null)
   const [focusDismissSignal, setFocusDismissSignal] = useState(0)
   const controlsRef = useRef()
+  const hoverClearTimeoutRef = useRef(null)
 
   // Fetch all connections only when empty or cache invalidated (e.g. after creating node/connection)
   useEffect(() => {
@@ -139,13 +144,58 @@ const GlobalView = () => {
     [dismissFocusedRing, dispatch, history]
   )
 
-  const handleNodeHover = useCallback((info) => {
-    setHoverInfo(info)
+  const clearPendingHoverClear = useCallback(() => {
+    if (!hoverClearTimeoutRef.current) return
+    clearTimeout(hoverClearTimeoutRef.current)
+    hoverClearTimeoutRef.current = null
   }, [])
+
+  const handleNodeHover = useCallback(
+    (info) => {
+      clearPendingHoverClear()
+      if (info) {
+        setHoverInfo(info)
+        return
+      }
+
+      hoverClearTimeoutRef.current = setTimeout(() => {
+        setHoverInfo(null)
+        hoverClearTimeoutRef.current = null
+      }, 500)
+    },
+    [clearPendingHoverClear]
+  )
+
+  const handleInfoMouseEnter = useCallback(() => {
+    clearPendingHoverClear()
+  }, [clearPendingHoverClear])
+
+  const handleInfoMouseLeave = useCallback(() => {
+    clearPendingHoverClear()
+    hoverClearTimeoutRef.current = setTimeout(() => {
+      setHoverInfo(null)
+      hoverClearTimeoutRef.current = null
+    }, 200)
+  }, [clearPendingHoverClear])
 
   const handleUserCameraInteraction = useCallback(() => {
     dismissFocusedRing()
   }, [dismissFocusedRing])
+
+  const handleOpenConnectionsModalForNode = useCallback(
+    async (targetNodeId) => {
+      if (typeof targetNodeId !== 'number') return
+      try {
+        await dispatch(setEntryById(targetNodeId))
+        const fetchConnRes = await dispatch(fetchConnections(targetNodeId))
+        unwrapResult(fetchConnRes)
+        dispatch(openModal(MODAL_NAMES.CONNECTIONS))
+      } catch (error) {
+        console.error('Failed to open connections modal for node:', error)
+      }
+    },
+    [dispatch]
+  )
 
   // Build clusters and place them on globe
   const { clusters, adjacency } = useMemo(() => {
@@ -308,6 +358,15 @@ const GlobalView = () => {
   const hoverConnectionCount = hoverInfo?.connectionCount ?? 0
   const hoverWordCount = getWordCount(hoverInfo?.content)
   const hoverTitle = hoverInfo?.nodeTitle || hoverInfo?.clusterCenterTitle || 'Untitled'
+  const hoverNodeId = hoverInfo?.nodeId
+  const canOpenHoverConnections = typeof hoverNodeId === 'number'
+
+  useEffect(
+    () => () => {
+      clearPendingHoverClear()
+    },
+    [clearPendingHoverClear]
+  )
 
   // Calculate rotation so sphere texture faces the camera
   const getSphereRotation = useCallback((spherePosition) => {
@@ -382,7 +441,11 @@ const GlobalView = () => {
         </Canvas>
       </div>
 
-      <div className={`${styles.info} ${hoverInfo ? '' : styles.infoHidden}`}>
+      <div
+        className={`${styles.info} ${hoverInfo ? '' : styles.infoHidden}`}
+        onMouseEnter={handleInfoMouseEnter}
+        onMouseLeave={handleInfoMouseLeave}
+      >
         <h2 className={styles.nodeTitle}>{hoverTitle}</h2>
         <div className={styles.nodeInfo}>
           {hoverConnectionCount > 0 && (
@@ -404,6 +467,13 @@ const GlobalView = () => {
           <p>
             Words: <span className={styles.infoValue}>{hoverWordCount}</span>
           </p>
+          {/* <DefaultButton
+            tooltip="Open connections menu"
+            onClick={() => handleOpenConnectionsModalForNode(hoverNodeId)}
+            disabled={!canOpenHoverConnections}
+          >
+            Connections
+          </DefaultButton> */}
         </div>
       </div>
     </div>

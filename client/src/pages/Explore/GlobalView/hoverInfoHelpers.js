@@ -24,6 +24,7 @@ const getConnectionCount = (entry, connectionType, parentTitle, clusterCenterTit
 }
 
 export const buildGlobalHoverInfo = ({ entry, clusterCenterTitle, connectionType, parentTitle = null }) => ({
+  nodeId: entry?.node?.id ?? null,
   nodeTitle: entry?.node?.title || 'Untitled',
   clusterCenterTitle: clusterCenterTitle || null,
   connectionType: connectionType || null,
