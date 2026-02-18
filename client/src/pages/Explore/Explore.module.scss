@@ -9,13 +9,14 @@
 
 .viewToggle {
   display: flex;
+  align-items: center;
   gap: 10px;
-  margin: 20px 0;
+  margin: 12px 0;
   z-index: 10;
 }
 
 .toggleButton {
-  padding: 8px 16px;
+  padding: 8px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
@@ -23,7 +24,8 @@
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: 'Poppins', sans-serif;
-  font-size: 14px;
+  font-size: 12px;
+  width: 180px;
 
   &:hover {
     background: rgba(255, 255, 255, 0.2);
@@ -37,22 +39,8 @@
   }
 }
 
-.searchSection {
-  margin: 20px 0;
-  width: 70%;
-  text-align: center;
-  z-index: 10;
-  position: relative;
-
-  h2 {
-    margin-bottom: 10px;
-    color: #333;
-  }
-}
-
 .searchComponent {
   max-width: 400px;
-  margin: 0 auto;
 }
 
 .loadingIndicator {
@@ -66,7 +54,7 @@
 }
 
 .nodesWrapper {
-  width: 70vw;
+  width: 100vw;
   height: 80vw;
   // border: 1px solid silver;
   border-radius: 6px;

@@ -48,10 +48,12 @@ const calculateSpherePositions = (connections, connectionTypes) => {
 
   // Position siblings
   siblings.forEach((s, i) => {
-    // Alternate left and right sides
+    // Keep siblings directly east/west of center node (no depth/z and no vertical offset).
+    // Additional siblings extend farther along X while staying on same Y.
     const side = i % 2 === 0 ? -1 : 1
-    const x = side * (SPHERE_DIAMETER + SIBLING_DISTANCE_FROM_CENTER_SPHERE)
-    const y = Math.floor(i / 2) * MIN_SEPARATION * (i % 2 === 0 ? 1 : -1)
+    const ringIndex = Math.floor(i / 2)
+    const x = side * (SPHERE_DIAMETER + SIBLING_DISTANCE_FROM_CENTER_SPHERE + ringIndex * MIN_SEPARATION)
+    const y = 0
 
     // Set horizontal rotation based on side
     horizontalRotation[s.id] = HORIZONTAL_ROTATION[side]

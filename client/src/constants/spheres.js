@@ -11,7 +11,7 @@ export const SPHERE_TYPES = enumify([
 
 // Base/local (per-entry) view sphere sizes
 export const LOCAL_SPHERE_SIZES = {
-  [SPHERE_TYPES.MAIN]: 1.3,
+  [SPHERE_TYPES.MAIN]: 1.2,
   [SPHERE_TYPES.FIRST_ORDER_CONNECTION]: 0.9,
   [SPHERE_TYPES.SECOND_ORDER_CONNECTION]: 0.7,
 }
@@ -77,6 +77,13 @@ export const GLOBAL_CENTER_GLOBE_RADIUS = 2.2
 // Backwards-compatible export – keep existing imports working.
 // Treat the previous default as the local view sizes.
 export const DEFAULT_SPHERE_SIZES = LOCAL_SPHERE_SIZES
+
+// Local Explore view tuning constants
+export const LOCAL_EXPLORE_CONNECTION_DISTANCE_SCALE = 0.88
+export const LOCAL_EXPLORE_CONNECTION_SIZE_SCALE = 0.9
+export const LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET = 0.45
+export const LOCAL_EXPLORE_CHILD_DISTANCE_SCALE = 0.86
+export const LOCAL_EXPLORE_PARENT_DISTANCE_SCALE = 0.9
 
 // Line width constants
 export const LINE_WIDTHS = {
