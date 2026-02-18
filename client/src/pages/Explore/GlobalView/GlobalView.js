@@ -20,6 +20,7 @@ import TextButton from '@components/Shared/TextButton/TextButton'
 import CameraController from './CameraController'
 import GradientGlobe from './GradientGlobe'
 import GlobalClusterView from './GlobalClusterView'
+import FocusedEntryRing from './FocusedEntryRing'
 import { FaceCameraProvider } from '@components/Spheres/SphereWithEffects'
 
 // Utils
@@ -50,13 +51,6 @@ const getWordCount = (content) => {
   const cleanText = extractTextFromHTML(String(rawText))
   if (!cleanText.trim()) return 0
   return cleanText.trim().split(/\s+/).filter(Boolean).length
-}
-
-const formatConnectionType = (value) => {
-  if (!value) return 'Unknown'
-  const normalized = String(value).replace(/_/g, ' ').trim()
-  if (!normalized) return 'Unknown'
-  return normalized.charAt(0).toUpperCase() + normalized.slice(1)
 }
 
 /**
@@ -117,6 +111,7 @@ const GlobalView = () => {
   const [isPositioningClusters, setIsPositioningClusters] = useState(false)
   const [positioningProgress, setPositioningProgress] = useState(0)
   const [hoverInfo, setHoverInfo] = useState(null)
+  const [focusDismissSignal, setFocusDismissSignal] = useState(0)
   const controlsRef = useRef()
 
   // Fetch all connections only when empty or cache invalidated (e.g. after creating node/connection)
@@ -131,17 +126,26 @@ const GlobalView = () => {
     // Kept for OrbitControls onChange; can extend for camera position display
   }, [])
 
+  const dismissFocusedRing = useCallback(() => {
+    setFocusDismissSignal((value) => value + 1)
+  }, [])
+
   const handleNodeClick = useCallback(
     async (nodeId) => {
+      dismissFocusedRing()
       await dispatch(setEntryById(nodeId))
       history.push(`/explore?entryId=${nodeId}`)
     },
-    [dispatch, history]
+    [dismissFocusedRing, dispatch, history]
   )
 
   const handleNodeHover = useCallback((info) => {
     setHoverInfo(info)
   }, [])
+
+  const handleUserCameraInteraction = useCallback(() => {
+    dismissFocusedRing()
+  }, [dismissFocusedRing])
 
   // Build clusters and place them on globe
   const { clusters, adjacency } = useMemo(() => {
@@ -304,7 +308,6 @@ const GlobalView = () => {
   const hoverConnectionCount = hoverInfo?.connectionCount ?? 0
   const hoverWordCount = getWordCount(hoverInfo?.content)
   const hoverTitle = hoverInfo?.nodeTitle || hoverInfo?.clusterCenterTitle || 'Untitled'
-  const hoverConnectionType = formatConnectionType(hoverInfo?.connectionType)
 
   // Calculate rotation so sphere texture faces the camera
   const getSphereRotation = useCallback((spherePosition) => {
@@ -332,14 +335,14 @@ const GlobalView = () => {
       <div className={styles.globeContainer}>
         {isLoading && (
           <div className={styles.loadingOverlay}>
-            <span className={styles.loadingText}>Mapping your mind network...</span>
+            <span className={styles.loadingText}>Mapping mind network...</span>
             <div className={styles.loadingBar}>
               <div className={styles.loadingBarFill} style={{ width: `${loadingPercent}%` }} />
             </div>
             <span className={styles.loadingPercent}>{loadingPercent}%</span>
           </div>
         )}
-        <Canvas camera={{ position: [0, 0, 5] }}>
+        <Canvas camera={{ position: [0, 0, 5] }} onPointerDown={handleUserCameraInteraction}>
           <ambientLight intensity={0.4} />
           <directionalLight position={[5, 5, 5]} intensity={0.6} />
 
@@ -348,6 +351,8 @@ const GlobalView = () => {
               <CameraController nodePositions={allNodesForTextures} entryId={entryId} controlsRef={controlsRef} />
 
               <GradientGlobe isLoading={isLoading} />
+
+              <FocusedEntryRing entryId={entryId} clusterViews={clusterViews} dismissSignal={focusDismissSignal} />
 
               {clusterViews.map((view, index) => (
                 <GlobalClusterView
@@ -372,6 +377,7 @@ const GlobalView = () => {
             minDistance={3}
             maxDistance={12}
             onChange={handleCameraChange}
+            onStart={handleUserCameraInteraction}
           />
         </Canvas>
       </div>
@@ -398,14 +404,6 @@ const GlobalView = () => {
           <p>
             Words: <span className={styles.infoValue}>{hoverWordCount}</span>
           </p>
-          {hoverConnectionCount > 0 && (
-            <p>
-              Nearest:{' '}
-              <span className={styles.infoValue}>
-                {hoverInfo?.parentTitle || ''} {hoverInfo?.connectionType ? `(${hoverConnectionType})` : ''}
-              </span>
-            </p>
-          )}
         </div>
       </div>
     </div>

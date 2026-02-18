@@ -9,8 +9,9 @@ const CameraController = ({ nodePositions, entryId, controlsRef }) => {
   const { camera } = useThree()
 
   useEffect(() => {
-    if (nodePositions.length > 0 && entryId && controlsRef.current) {
-      const targetNodePosition = nodePositions.find(({ node }) => node.id === entryId)
+    if (nodePositions.length > 0 && entryId) {
+      const normalizedEntryId = String(entryId)
+      const targetNodePosition = nodePositions.find(({ node }) => String(node.id) === normalizedEntryId)
 
       if (targetNodePosition) {
         const position = targetNodePosition.position
@@ -29,7 +30,11 @@ const CameraController = ({ nodePositions, entryId, controlsRef }) => {
 
         camera.position.copy(newCameraPos)
         camera.lookAt(0, 0, 0)
-        controlsRef.current.update()
+
+        if (controlsRef.current) {
+          controlsRef.current.target.set(0, 0, 0)
+          controlsRef.current.update()
+        }
       }
     }
   }, [nodePositions, entryId, camera, controlsRef])
