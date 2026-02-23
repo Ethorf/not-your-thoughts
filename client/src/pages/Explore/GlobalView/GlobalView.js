@@ -1,5 +1,4 @@
 import React, { Suspense, useMemo, useCallback, useEffect, useState, useRef } from 'react'
-import { unwrapResult } from '@reduxjs/toolkit'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
@@ -10,14 +9,13 @@ import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
 
 // Redux
 import { setEntryById, setGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
-import { fetchAllConnections, fetchConnections } from '@redux/reducers/connectionsReducer'
+import { fetchAllConnections } from '@redux/reducers/connectionsReducer'
 import { setGlobalViewCache } from '@redux/reducers/globalViewCacheReducer'
-import { openModal } from '@redux/reducers/modalsReducer'
 
 // Styles
 import styles from './GlobalView.module.scss'
 import TextButton from '@components/Shared/TextButton/TextButton'
-import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
+import NodeSearch from '@components/Shared/NodeSearch/NodeSearch'
 
 // Components
 import CameraController from './CameraController'
@@ -37,7 +35,6 @@ import {
 } from '@utils/globalViewHelpers'
 import { getGlobalViewCacheKey, deserializeClusterView } from '@utils/globalViewCacheSerialization'
 import extractTextFromHTML from '@utils/extractTextFromHTML'
-import { MODAL_NAMES } from '@constants/modalNames'
 
 /** Set to true to hide clusters with no connections (isolated single-node clusters) */
 const FILTER_EMPTY_CLUSTERS = false
@@ -144,6 +141,15 @@ const GlobalView = () => {
     [dismissFocusedRing, dispatch, history]
   )
 
+  const handleNodeFocus = useCallback(
+    async (nodeId) => {
+      if (typeof nodeId !== 'number') return
+      dismissFocusedRing()
+      await dispatch(setEntryById(nodeId))
+    },
+    [dismissFocusedRing, dispatch]
+  )
+
   const clearPendingHoverClear = useCallback(() => {
     if (!hoverClearTimeoutRef.current) return
     clearTimeout(hoverClearTimeoutRef.current)
@@ -181,21 +187,6 @@ const GlobalView = () => {
   const handleUserCameraInteraction = useCallback(() => {
     dismissFocusedRing()
   }, [dismissFocusedRing])
-
-  const handleOpenConnectionsModalForNode = useCallback(
-    async (targetNodeId) => {
-      if (typeof targetNodeId !== 'number') return
-      try {
-        await dispatch(setEntryById(targetNodeId))
-        const fetchConnRes = await dispatch(fetchConnections(targetNodeId))
-        unwrapResult(fetchConnRes)
-        dispatch(openModal(MODAL_NAMES.CONNECTIONS))
-      } catch (error) {
-        console.error('Failed to open connections modal for node:', error)
-      }
-    },
-    [dispatch]
-  )
 
   // Build clusters and place them on globe
   const { clusters, adjacency } = useMemo(() => {
@@ -358,8 +349,6 @@ const GlobalView = () => {
   const hoverConnectionCount = hoverInfo?.connectionCount ?? 0
   const hoverWordCount = getWordCount(hoverInfo?.content)
   const hoverTitle = hoverInfo?.nodeTitle || hoverInfo?.clusterCenterTitle || 'Untitled'
-  const hoverNodeId = hoverInfo?.nodeId
-  const canOpenHoverConnections = typeof hoverNodeId === 'number'
 
   useEffect(
     () => () => {
@@ -390,6 +379,12 @@ const GlobalView = () => {
         >
           ← Local View
         </TextButton>
+        <NodeSearch
+          mode="focus"
+          placeholder="Search to focus..."
+          className={styles.searchComponent}
+          onNodeSelect={(node) => handleNodeFocus(node?.id)}
+        />
       </div>
       <div className={styles.globeContainer}>
         {isLoading && (
