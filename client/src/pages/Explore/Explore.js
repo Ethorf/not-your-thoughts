@@ -259,7 +259,12 @@ const Explore = () => {
         >
           Global View
         </TextButton>
-        <NodeSearch mode="navigate" placeholder="Search to explore..." className={styles.searchComponent} />
+        <NodeSearch
+          mode="navigate"
+          placeholder="Search to explore..."
+          className={styles.searchComponent}
+          isGlobalMode={true}
+        />
         <DefaultButton tooltip="Open connections menu" onClick={handleOpenConnectionsWithSelectedText}>
           Connections
         </DefaultButton>

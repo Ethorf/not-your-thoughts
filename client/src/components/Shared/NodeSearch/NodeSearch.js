@@ -16,6 +16,7 @@ const NodeSearch = ({
   className = '',
   showResults = true,
   maxResults = 10,
+  isGlobalMode = false,
 }) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [isOpen, setIsOpen] = useState(false)
@@ -37,14 +38,16 @@ const NodeSearch = ({
     if (!searchTerm.trim() || !nodeEntriesInfo) return []
 
     const term = searchTerm.toLowerCase()
+
     return nodeEntriesInfo
       .filter((node) => {
+        if (isGlobalMode && node?.isPrivate !== false) return false
         const titleLower = toSearchableLower(node?.title)
         const contentLower = toSearchableLower(node?.content)
         return titleLower.includes(term) || contentLower.includes(term)
       })
       .slice(0, maxResults)
-  }, [searchTerm, nodeEntriesInfo, maxResults])
+  }, [searchTerm, nodeEntriesInfo, maxResults, isGlobalMode])
 
   // Handle input change
   const handleInputChange = (e) => {

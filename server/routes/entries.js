@@ -356,6 +356,7 @@ router.get('/node_entries_info', authorize, async (req, res) => {
     entries.title, 
     entries.starred,
     entries.is_top_level,
+    entries.is_private,
     entries.date_originally_created,
     -- Only fetch the latest content (most efficient)
     (SELECT content 
@@ -886,6 +887,7 @@ router.get('/public/node_entries_info/:userId', async (req, res) => {
     entries.title, 
     entries.starred,
     entries.is_top_level,
+    entries.is_private,
     entries.date_originally_created,
     -- Only fetch the latest content (most efficient)
     (SELECT content 
