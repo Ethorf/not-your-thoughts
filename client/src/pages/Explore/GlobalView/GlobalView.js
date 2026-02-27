@@ -122,10 +122,11 @@ const GlobalView = () => {
   const handleNodeHover = useCallback(
     (info) => {
       if (info) {
+        dismissFocusedRing()
         setHoverInfo(info)
       }
     },
-    []
+    [dismissFocusedRing]
   )
 
   useEffect(() => {

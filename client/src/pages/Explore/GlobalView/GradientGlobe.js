@@ -1,51 +1,43 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { GLOBAL_CENTER_GLOBE_RADIUS } from '@constants/spheres'
 
-/**
- * Globe mesh with gradient from north (blue) to south (white).
- * Spins when isLoading is true.
- */
 const GradientGlobe = ({ isLoading = false }) => {
-  const meshRef = useRef()
+  const innerRef = useRef()
+  const glowRef = useRef()
 
   useFrame((_, delta) => {
-    if (isLoading && meshRef.current) {
-      meshRef.current.rotation.y += delta * 0.8
+    if (isLoading) {
+      if (innerRef.current) innerRef.current.rotation.y += delta * 0.8
+      if (glowRef.current) glowRef.current.rotation.y += delta * 0.8
     }
   })
 
-  useEffect(() => {
-    if (meshRef.current) {
-      const geometry = meshRef.current.geometry
-      const count = geometry.attributes.position.count
-      const colors = new Float32Array(count * 3)
-      const diameter = GLOBAL_CENTER_GLOBE_RADIUS * 2
-
-      for (let i = 0; i < count; i++) {
-        const y = geometry.attributes.position.getY(i)
-        const normalizedY = (y + GLOBAL_CENTER_GLOBE_RADIUS) / diameter
-
-        // Blue at north (top), white at south (bottom)
-        const blue = new THREE.Color(0x4a90e2)
-        const white = new THREE.Color(0xffffff)
-        const color = new THREE.Color().lerpColors(white, blue, normalizedY)
-
-        colors[i * 3] = color.r
-        colors[i * 3 + 1] = color.g
-        colors[i * 3 + 2] = color.b
-      }
-
-      geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
-    }
-  }, [])
-
   return (
-    <mesh ref={meshRef}>
-      <sphereGeometry args={[GLOBAL_CENTER_GLOBE_RADIUS, 64, 64]} />
-      <meshBasicMaterial wireframe={true} transparent opacity={0.3} vertexColors={true} />
-    </mesh>
+    <group>
+      <mesh ref={innerRef}>
+        <sphereGeometry args={[GLOBAL_CENTER_GLOBE_RADIUS, 64, 64]} />
+        <meshBasicMaterial
+          color={0x888888}
+          transparent
+          opacity={0.12}
+          side={THREE.FrontSide}
+          depthWrite={false}
+        />
+      </mesh>
+
+      <mesh ref={glowRef}>
+        <sphereGeometry args={[GLOBAL_CENTER_GLOBE_RADIUS * 1.03, 64, 64]} />
+        <meshBasicMaterial
+          color={0xaaaaaa}
+          transparent
+          opacity={0.06}
+          side={THREE.BackSide}
+          depthWrite={false}
+        />
+      </mesh>
+    </group>
   )
 }
 
