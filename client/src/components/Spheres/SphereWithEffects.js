@@ -205,6 +205,7 @@ const SphereWithEffects = ({
   return (
     <group>
       <mesh
+        name={id != null ? `node-sphere-${id}` : undefined}
         ref={sphereRef}
         onClick={handleClick}
         rotation={rotation}
