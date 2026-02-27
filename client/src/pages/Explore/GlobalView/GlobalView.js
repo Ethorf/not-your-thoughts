@@ -234,7 +234,7 @@ const GlobalView = () => {
 
               <GradientGlobe isLoading={isLoading} />
 
-              <FocusedEntryRing entryId={entryId} clusterViews={clusterViews} dismissSignal={focusDismissSignal} />
+              <FocusedEntryRing entryId={entryId} dismissSignal={focusDismissSignal} />
 
               {clusterViews.map((view, index) => (
                 <GlobalClusterView
