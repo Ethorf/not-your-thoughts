@@ -25,6 +25,7 @@ import { FaceCameraProvider } from '@components/Spheres/SphereWithEffects'
 
 // Utils
 import extractTextFromHTML from '@utils/extractTextFromHTML'
+import { buildGlobalHoverInfo } from './hoverInfoHelpers'
 
 const formatHoverDate = (value) => {
   if (!value) return 'N/A'
@@ -75,7 +76,6 @@ const GlobalView = () => {
   const [hoverInfo, setHoverInfo] = useState(null)
   const [focusDismissSignal, setFocusDismissSignal] = useState(0)
   const controlsRef = useRef()
-  const hoverClearTimeoutRef = useRef(null)
   const sceneDebugRef = useRef({ cameraPos: null, nodeWorldPos: null })
   const {
     clusterViews,
@@ -119,39 +119,47 @@ const GlobalView = () => {
     [dismissFocusedRing, dispatch]
   )
 
-  const clearPendingHoverClear = useCallback(() => {
-    if (!hoverClearTimeoutRef.current) return
-    clearTimeout(hoverClearTimeoutRef.current)
-    hoverClearTimeoutRef.current = null
-  }, [])
-
   const handleNodeHover = useCallback(
     (info) => {
-      clearPendingHoverClear()
       if (info) {
         setHoverInfo(info)
+      }
+    },
+    []
+  )
+
+  useEffect(() => {
+    if (hoverInfo || !entryId || !clusterViews?.length) return
+
+    const entryIdStr = String(entryId)
+    for (const view of clusterViews) {
+      const mainMatch = view?.mainNode?.node?.id != null && String(view.mainNode.node.id) === entryIdStr
+        ? view.mainNode
+        : null
+      if (mainMatch) {
+        setHoverInfo(buildGlobalHoverInfo({
+          entry: mainMatch,
+          clusterCenterTitle: mainMatch.node?.title,
+          connectionType: 'main',
+          parentTitle: null,
+        }))
         return
       }
 
-      hoverClearTimeoutRef.current = setTimeout(() => {
-        setHoverInfo(null)
-        hoverClearTimeoutRef.current = null
-      }, 500)
-    },
-    [clearPendingHoverClear]
-  )
-
-  const handleInfoMouseEnter = useCallback(() => {
-    clearPendingHoverClear()
-  }, [clearPendingHoverClear])
-
-  const handleInfoMouseLeave = useCallback(() => {
-    clearPendingHoverClear()
-    hoverClearTimeoutRef.current = setTimeout(() => {
-      setHoverInfo(null)
-      hoverClearTimeoutRef.current = null
-    }, 200)
-  }, [clearPendingHoverClear])
+      const firstOrderMatch = (view?.firstOrderNodes || []).find(
+        (e) => e?.node?.id != null && String(e.node.id) === entryIdStr
+      )
+      if (firstOrderMatch) {
+        setHoverInfo(buildGlobalHoverInfo({
+          entry: firstOrderMatch,
+          clusterCenterTitle: view?.mainNode?.node?.title,
+          connectionType: firstOrderMatch.connectionType || null,
+          parentTitle: view?.mainNode?.node?.title || null,
+        }))
+        return
+      }
+    }
+  }, [entryId, clusterViews, hoverInfo])
 
   const handleUserCameraInteraction = useCallback(() => {
     dismissFocusedRing()
@@ -178,13 +186,6 @@ const GlobalView = () => {
 
   const formatVec = (v) => (v ? `(${v.x.toFixed(2)}, ${v.y.toFixed(2)}, ${v.z.toFixed(2)})` : 'N/A')
   const debugData = sceneDebugRef.current
-
-  useEffect(
-    () => () => {
-      clearPendingHoverClear()
-    },
-    [clearPendingHoverClear]
-  )
 
   // Calculate rotation so sphere texture faces the camera
   const getSphereRotation = useCallback((spherePosition) => {
@@ -264,11 +265,7 @@ const GlobalView = () => {
         </Canvas>
       </div>
 
-      <div
-        className={`${styles.info} ${hoverInfo ? '' : styles.infoHidden}`}
-        onMouseEnter={handleInfoMouseEnter}
-        onMouseLeave={handleInfoMouseLeave}
-      >
+      <div className={`${styles.info} ${hoverInfo ? '' : styles.infoHidden}`}>
         <h2 className={styles.nodeTitle}>{hoverTitle}</h2>
         <div className={styles.nodeInfo}>
           {hoverConnectionCount > 0 && (
