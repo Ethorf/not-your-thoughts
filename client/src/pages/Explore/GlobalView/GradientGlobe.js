@@ -24,17 +24,20 @@ const createBrainTexture = () => {
   const w = canvas.width
   const h = canvas.height
 
+  const margin = Math.round(w * 0.12)
+
   const drawWrap = (startY, baseAngle, lineWidth, alpha) => {
     ctx.beginPath()
     ctx.strokeStyle = `rgba(95, 95, 95, ${alpha})`
     ctx.lineWidth = lineWidth
     ctx.lineCap = 'round'
 
-    let x = 0
+    let x = -margin
     let y = startY
     ctx.moveTo(x, y)
 
-    while (x < w) {
+    const endX = w + margin
+    while (x < endX) {
       const wobble = (rand() - 0.5) * 0.7
       const angle = baseAngle + wobble
       const len = 8 + rand() * 18
