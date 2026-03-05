@@ -5,11 +5,11 @@
   color: $silver-default;
   background: black;
   outline: none;
-  padding: 8px;
-  min-width: 52px;
+  padding: 0.5rem;
+  min-width: 3.25rem;
   width: auto;
   font-size: 1.2rem;
-  margin-right: 8px;
+  margin-right: 0.5rem;
 
   @include default-hover-border();
 }

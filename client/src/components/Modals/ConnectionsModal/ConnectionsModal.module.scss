@@ -2,7 +2,7 @@
 
 .titleWrapper {
   margin: 0;
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
 }
 
 .title {
@@ -31,7 +31,7 @@
 
 .nodeSelect {
   width: 60%;
-  margin: 0 10px;
+  margin: 0 0.625rem;
 }
 
 .connectionDisplay {
@@ -46,8 +46,8 @@
 }
 
 .createDropdown {
-  height: 32px;
-  margin: 0 10px;
+  height: 2rem;
+  margin: 0 0.625rem;
 }
 
 .flexContainer {
@@ -65,7 +65,7 @@
 }
 
 .entrySource {
-  padding: 0 12px;
+  padding: 0 0.75rem;
   width: 90%;
   max-height: 25vh;
   font-size: 0.8rem;
@@ -82,12 +82,12 @@
 }
 
 .sourceSelectContainer {
-  margin-top: 8px;
+  margin-top: 0.5rem;
   display: flex;
   align-items: center;
 }
 .getSourceButton {
-  margin-left: 12px;
+  margin-left: 0.75rem;
   font-size: 1rem;
 }
 
@@ -99,8 +99,8 @@
   resize: none;
   color: $silver-default;
   width: 60%;
-  height: 100px;
-  padding: 12px;
+  height: 6.25rem;
+  padding: 0.75rem;
 }
 
 .externalConnectionInput {
@@ -109,6 +109,6 @@
 
 @include mobile-all {
   .title {
-    margin-left: 10px;
+    margin-left: 0.625rem;
   }
 }

@@ -11,9 +11,9 @@
 
 .aka {
   border: 1px solid rgba(192, 192, 192, 0.5);
-  border-radius: 8px;
-  padding: 4px 4px;
-  margin-right: 4px;
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.25rem;
+  margin-right: 0.25rem;
   color: black;
   background-color: rgba(192, 192, 192, 0.5);
 }
@@ -26,7 +26,7 @@
 }
 
 .akasLabel {
-  margin-right: 8px;
+  margin-right: 0.5rem;
 }
 
 .akasInputContainer {
@@ -34,8 +34,8 @@
   align-items: center;
   z-index: 3;
   background-color: black;
-  padding: 8px;
-  border-radius: 8px;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
 }
 
 .akasInput {
@@ -43,12 +43,12 @@
 }
 
 .akasElipsis {
-  color: 1px solid rgba(255, 255, 255, 0.9);
+  color: 0.0625rem solid rgba(255, 255, 255, 0.9);
   font-size: 2rem;
 }
 
 .akasInputSectionButton {
   border: none;
   font-size: 1.5rem;
-  padding: 4px;
+  padding: 0.25rem;
 }

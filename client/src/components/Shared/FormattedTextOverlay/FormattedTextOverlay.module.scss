@@ -54,12 +54,12 @@
     word-wrap: break-word;
     overflow-wrap: break-word;
     position: relative;
-    padding-left: 30px !important; // Space for marker (::before) - matches Quill
+    padding-left: 1.875rem !important; // Space for marker (::before) - matches Quill
   }
 
   // Adjust padding for ordered lists which may have wider markers - matches Quill
   ol li {
-    padding-left: 16px !important; // More space for numbers like "10. ", "100. "
+    padding-left: 1rem !important; // More space for numbers like "10. ", "100. "
   }
 
   ul,
@@ -93,7 +93,7 @@
         content: counter(list-counter) '.';
         color: silver;
         position: absolute;
-        left: -3px;
+        left: -0.1875rem;
         width: auto;
       }
     }
@@ -111,7 +111,7 @@
     margin-bottom: 0 !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
-    height: 0px;
+    height: 0;
   }
 
   /* Collapse empty blocks with only line breaks */

@@ -7,7 +7,7 @@
 	color: silver;
 	flex-direction: column;
 	height: 100vh;
-	margin-bottom: 400px;
+	margin-bottom: 25rem;
 	@include main-page-global-styles();
 
 	&__bg {
@@ -45,8 +45,8 @@
 		margin-right: 2%;
 	}
 	&__rubber-ducky-title {
-		margin-right: 20px;
-		text-shadow: 2px 2px 2px black;
+		margin-right: 1.25rem;
+		text-shadow: 0.125rem 0.125rem 0.125rem black;
 		font-family: 'Syncopate', sans-serif;
 
 		color: yellow;
@@ -61,12 +61,12 @@
 		font-size: 0.9rem;
 		font-family: 'Syncopate', sans-serif;
 		border-radius: 9%;
-		padding-left: 20px;
-		padding-right: 20px;
-		height: 40px;
+		padding-left: 1.25rem;
+		padding-right: 1.25rem;
+		height: 2.5rem;
 		transition: all 1s;
 		&:hover {
-			text-shadow: 3px 3px 3px black;
+			text-shadow: 0.1875rem 0.1875rem 0.1875rem black;
 			font-size: 1.2rem;
 			background-color: yellow;
 			transition: all 2s;
@@ -75,7 +75,7 @@
 	&__bottom-chunk {
 		display: flex;
 		background-color: red;
-		width: 100px;
+		width: 6.25rem;
 	}
 	&__light-mode-button {
 		@include main-button-style();

@@ -1,5 +1,5 @@
-import React, { Suspense, useCallback, useEffect, useState, useRef, useMemo } from 'react'
-import { Canvas, useThree } from '@react-three/fiber'
+import React, { Suspense, useCallback, useEffect, useState, useRef } from 'react'
+import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { useSelector, useDispatch } from 'react-redux'
@@ -42,28 +42,6 @@ const getWordCount = (content) => {
   return cleanText.trim().split(/\s+/).filter(Boolean).length
 }
 
-const SceneDebugReader = ({ hoveredNodeId, debugRef }) => {
-  const { camera, scene } = useThree()
-
-  const pos = useMemo(() => {
-    if (!hoveredNodeId) return null
-    const obj = scene.getObjectByName(`node-sphere-${hoveredNodeId}`)
-    if (!obj) return null
-    const wp = new THREE.Vector3()
-    obj.getWorldPosition(wp)
-    return wp
-  }, [hoveredNodeId, scene])
-
-  if (debugRef) {
-    debugRef.current = {
-      cameraPos: camera.position.clone(),
-      nodeWorldPos: pos,
-    }
-  }
-
-  return null
-}
-
 const GlobalView = () => {
   const nodeEntriesInfo = useNodeEntriesInfo()
   const history = useHistory()
@@ -76,7 +54,6 @@ const GlobalView = () => {
   const [hoverInfo, setHoverInfo] = useState(null)
   const [focusDismissSignal, setFocusDismissSignal] = useState(0)
   const controlsRef = useRef()
-  const sceneDebugRef = useRef({ cameraPos: null, nodeWorldPos: null })
   const {
     clusterViews,
     nodeTextures,
@@ -185,8 +162,6 @@ const GlobalView = () => {
   const hoverWordCount = getWordCount(hoverInfo?.content)
   const hoverTitle = hoverInfo?.nodeTitle || hoverInfo?.clusterCenterTitle || 'Untitled'
 
-  const formatVec = (v) => (v ? `(${v.x.toFixed(2)}, ${v.y.toFixed(2)}, ${v.z.toFixed(2)})` : 'N/A')
-  const debugData = sceneDebugRef.current
 
   // Calculate rotation so sphere texture faces the camera
   const getSphereRotation = useCallback((spherePosition) => {
@@ -232,8 +207,6 @@ const GlobalView = () => {
           <Suspense fallback={null}>
             <FaceCameraProvider>
               <CameraController nodePositions={allNodesForTextures} entryId={entryId} controlsRef={controlsRef} />
-              <SceneDebugReader hoveredNodeId={hoverInfo?.nodeId} debugRef={sceneDebugRef} />
-
               <GradientGlobe isLoading={isLoading} />
 
               <FocusedEntryRing entryId={entryId} dismissSignal={focusDismissSignal} />
@@ -287,12 +260,6 @@ const GlobalView = () => {
           </p>
           <p>
             Words: <span className={styles.infoValue}>{hoverWordCount}</span>
-          </p>
-          <p>
-            Node World Pos: <span className={styles.infoValue}>{formatVec(debugData?.nodeWorldPos)}</span>
-          </p>
-          <p>
-            Camera Pos: <span className={styles.infoValue}>{formatVec(debugData?.cameraPos)}</span>
           </p>
           {/* <DefaultButton
             tooltip="Open connections menu"

@@ -3,7 +3,7 @@
 
 // Modal-specific overrides (base styles come from BaseModalWrapper)
 .connectionsModal {
-  min-width: 350px;
+  min-width: 21.875rem;
 
   @include mobile-only {
     min-width: auto;
@@ -13,35 +13,35 @@
 .content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .title {
   font-size: 1.5rem;
   font-weight: bold;
   color: white;
-  margin: 0 0 16px 0;
+  margin: 0 0 1rem 0;
 }
 
 .emptyMessage {
   color: rgba(192, 192, 192, 0.7);
   text-align: center;
-  padding: 40px 0;
+  padding: 2.5rem 0;
 }
 
 .connectionsList {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 .connectionItem {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 12px;
+  gap: 0.5rem;
+  padding: 0.75rem;
   border: 1px solid rgba(192, 192, 192, 0.3);
-  border-radius: 4px;
+  border-radius: 0.25rem;
   background-color: rgba(0, 0, 0, 0.5);
 }
 
@@ -88,6 +88,6 @@
 
 @include mobile-all {
   .title {
-    margin-left: 10px;
+    margin-left: 0.625rem;
   }
 }

@@ -9,12 +9,12 @@
 
 .topBar {
   width: 80%;
-  max-width: 1100px;
+  max-width: 68.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  margin: 20px 0;
+  gap: 1rem;
+  margin: 1.25rem 0;
   min-width: 0;
 
   h1 {
@@ -31,13 +31,13 @@
 
 .searchComponent {
   width: 100%;
-  max-width: 360px;
+  max-width: 22.5rem;
   margin-left: auto;
 }
 
 .loading,
 .error {
-  padding: 40px;
+  padding: 2.5rem;
   color: silver;
   font-size: 1.2rem;
   text-align: center;
@@ -50,7 +50,7 @@
 .nodesWrapper {
   width: 70vw;
   height: 80vw;
-  border-radius: 6px;
+  border-radius: 0.375rem;
   display: flex;
   justify-content: center;
   flex-direction: column;

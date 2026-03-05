@@ -17,29 +17,29 @@ $buttons-z-index: 2;
 $dropdown-z-index: 100;
 
 // Mobile search expanded offset
-$mobile-search-expanded-offset: 50px;
+$mobile-search-expanded-offset: 3.125rem;
 // Borders
 $silver-border-default: 1px solid rgba(192, 192, 192, 0.5);
 $silver-border-active: 1px solid rgba(192, 192, 192, 0.5);
-$default-border-radius: 8px;
+$default-border-radius: 0.5rem;
 
 // Grid
 $entries-list-columns: 25% 12% 12% 15% 10% 20%;
 $dashboard-nodes-columns: 5% 18% 40% 15% 10% 12%;
-// $dashboard-nodes-columns: repeat(auto-fit, minmax(16px, max-content));
+// $dashboard-nodes-columns: repeat(auto-fit, minmax(1rem, max-content));
 
 // Transition Time
 $default-transition: all 250ms ease-in-out;
 
 // Main Text and overlay Variables
-$main-text-font-size: 19px;
-$main-text-line-height: 24px;
-$main-text-padding-left: 26px;
-$main-text-padding-bottom: 26px;
-$main-text-padding-right: 46px;
+$main-text-font-size: 1.1875rem;
+$main-text-line-height: 1.5rem;
+$main-text-padding-left: 1.625rem;
+$main-text-padding-bottom: 1.625rem;
+$main-text-padding-right: 2.875rem;
 $main-text-box-sizing: border-box;
-$main-top-offset: 16px;
-$li-padding-bottom: 18px;
+$main-top-offset: 1rem;
+$li-padding-bottom: 1.125rem;
 
 // MISC
 $divider-color: #e1e1e1;
@@ -49,15 +49,15 @@ $header-text-size: 2.5rem;
 $not-main-margin-left: 16%;
 
 // Breakpoints
-$mobile-small-max: 425px;
-$mobile-min: 426px;
-$mobile-max: 767px;
-$tablet-min: 768px;
-$tablet-max: 992px;
-$laptop-small-min: 993px;
-$laptop-small-max: 1199px;
-$laptop-large-min: 1200px;
-$laptop-xl-min: 1500px;
+$mobile-small-max: 26.5625rem;
+$mobile-min: 26.625rem;
+$mobile-max: 47.9375rem;
+$tablet-min: 48rem;
+$tablet-max: 62rem;
+$laptop-small-min: 62.0625rem;
+$laptop-small-max: 74.9375rem;
+$laptop-large-min: 75rem;
+$laptop-xl-min: 93.75rem;
 
 $mobile-all: 'screen and (max-width:#{$mobile-max})';
 $mobile-small-only: 'screen and (max-width:#{$mobile-max})';

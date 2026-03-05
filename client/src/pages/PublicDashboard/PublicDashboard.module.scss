@@ -10,7 +10,7 @@
 
 h1 {
   color: silver;
-  margin-bottom: 30px;
+  margin-bottom: 1.875rem;
   font-size: 2rem;
 }
 
@@ -18,13 +18,13 @@ h1 {
   width: 85%;
   max-width: 100%;
   min-width: 0;
-  padding: 0 20px; // Add padding to prevent edge cutoff
+  padding: 0 1.25rem; // Add padding to prevent edge cutoff
   box-sizing: border-box;
 }
 
 .loading,
 .error {
-  padding: 40px;
+  padding: 2.5rem;
   color: silver;
   font-size: 1.2rem;
   text-align: center;
@@ -39,11 +39,11 @@ h1 {
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    padding: 0 20px; // Add padding to prevent edge cutoff
+    padding: 0 1.25rem; // Add padding to prevent edge cutoff
     box-sizing: border-box;
   }
   .title {
     font-size: 1.1rem;
-    margin-top: 80px;
+    margin-top: 5rem;
   }
 }

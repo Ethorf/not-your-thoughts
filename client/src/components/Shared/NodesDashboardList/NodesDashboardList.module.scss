@@ -8,13 +8,13 @@
 .sortControls {
   background: black;
   font-family: 'Syncopate', sans-serif;
-  border: 2px solid rgba(192, 192, 192, 0.8);
-  border-radius: 12px;
-  padding: 8px 12px;
+  border: 0.125rem solid rgba(192, 192, 192, 0.8);
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
   color: rgba(192, 192, 192, 0.8);
   text-transform: uppercase;
   outline: none;
-  margin-left: 8px;
+  margin-left: 0.5rem;
   cursor: pointer;
 }
 
@@ -22,15 +22,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 0.9375rem;
 }
 
 .searchContainer {
   flex: 1;
-  max-width: 300px;
-  min-width: 200px;
+  max-width: 18.75rem;
+  min-width: 12.5rem;
 }
 
 .searchComponent {

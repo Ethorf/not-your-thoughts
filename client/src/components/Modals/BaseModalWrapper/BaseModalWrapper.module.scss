@@ -19,16 +19,16 @@
 .modal {
   background: #0a0a0a;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
+  border-radius: 0.75rem;
   color: rgba(192, 192, 192, 1);
-  padding: 24px;
+  padding: 1.5rem;
   font-family: 'Poppins', sans-serif;
   max-width: 90vw;
   max-height: 85vh;
   overflow-y: auto;
   overflow-x: hidden;
   z-index: 10000 !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.5);
 }
 
 // Bottom sheet styling for mobile
@@ -39,7 +39,7 @@
     max-height: 85vh !important;
     height: auto !important;
     min-height: 40vh;
-    border-radius: 20px 20px 0 0 !important;
+    border-radius: 1.25rem 1.25rem 0 0 !important;
     border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
     margin: 0 !important;
     bottom: 0 !important;
@@ -47,7 +47,7 @@
     right: 0 !important;
     top: auto !important;
     transform: none !important;
-    padding: 24px 12px calc(20px + env(safe-area-inset-bottom)) 12px;
+    padding: 1.5rem 0.75rem calc(1.25rem + env(safe-area-inset-bottom)) 0.75rem;
     position: fixed !important;
     -webkit-overflow-scrolling: touch;
     animation: slideUp 0.3s ease-out;
@@ -68,7 +68,7 @@
 .overlay {
   background: rgba(0, 0, 0, 0.75);
   z-index: 9999;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(0.25rem);
 
   @include mobile-only {
     padding: 0 !important;
@@ -84,8 +84,8 @@
   fill: rgba(192, 192, 192, 0.8);
   transition: all 200ms ease-in-out;
   z-index: 10001;
-  top: 12px !important;
-  right: 12px !important;
+  top: 0.75rem !important;
+  right: 0.75rem !important;
 
   &:hover {
     fill: white;
@@ -93,12 +93,12 @@
   }
 
   @include mobile-only {
-    top: 16px !important;
-    right: 16px !important;
+    top: 1rem !important;
+    right: 1rem !important;
 
     svg {
-      width: 24px;
-      height: 24px;
+      width: 1.5rem;
+      height: 1.5rem;
     }
   }
 }
@@ -114,11 +114,11 @@
 
   @include mobile-only {
     display: block;
-    width: 40px;
-    height: 4px;
+    width: 2.5rem;
+    height: 0.25rem;
     background: rgba(192, 192, 192, 0.4);
-    border-radius: 2px;
-    margin: 0 auto 16px;
+    border-radius: 0.125rem;
+    margin: 0 auto 1rem;
     flex-shrink: 0;
   }
 }

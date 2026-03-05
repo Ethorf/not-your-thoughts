@@ -11,14 +11,14 @@
 	justify-items: space-between;
 	flex-direction: row;
 	width: 10%;
-	height: 40px;
+	height: 2.5rem;
 	color: silver;
 	font-family: 'Maven Pro', sans-serif;
 	z-index: 12;
 
 	&__speaker {
-		height: 30px;
-		width: 30px;
+		height: 1.875rem;
+		width: 1.875rem;
 		margin-right: 1vw;
 		&:hover {
 			cursor: pointer;
@@ -36,12 +36,12 @@
 	&__play-pause {
 		background-color: transparent;
 		color: black;
-		height: 48px;
-		width: 30px;
+		height: 3rem;
+		width: 1.875rem;
 		border: none;
-		margin-left: 10px;
+		margin-left: 0.625rem;
 		outline: none;
-		margin-right: 11px;
+		margin-right: 0.6875rem;
 		&:hover {
 			color: white;
 			cursor: pointer;
@@ -49,18 +49,18 @@
 	}
 	&__play-pause-img-light {
 		color: black;
-		height: 32px;
-		width: 32px;
-		margin-right: 40px;
+		height: 2rem;
+		width: 2rem;
+		margin-right: 2.5rem;
 	}
 	&__vol {
 		color: silver;
 		font-size: 1.8rem;
 		border: 1px solid black;
-		border-radius: 10px;
+		border-radius: 0.625rem;
 		outline: none;
 		background-color: black;
-		margin-right: 10px;
+		margin-right: 0.625rem;
 		&:hover {
 			color: white;
 			cursor: pointer;
@@ -71,9 +71,9 @@
 		color: black;
 		font-size: 1.3rem;
 		outline: none;
-		border: 2px solid black;
+		border: 0.125rem solid black;
 		border-radius: 50%;
-		margin-left: 8px;
+		margin-left: 0.5rem;
 
 		&:hover {
 			color: white;
@@ -83,16 +83,16 @@
 	@include mobile-only {
 		display: none;
 		&__play-pause-img-light {
-			height: 32px;
-			width: 32px;
+			height: 2rem;
+			width: 2rem;
 			margin-top: 0.4vh;
 		}
 	}
 	@include mobile-small-only {
 		display: none;
 		&__play-pause-img-light {
-			height: 32px;
-			width: 32px;
+			height: 2rem;
+			width: 2rem;
 			margin-top: 0.4vh;
 		}
 		&__controls-container {

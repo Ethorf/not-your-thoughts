@@ -18,19 +18,19 @@
     font-family: 'Syncopate', sans-serif;
     font-size: $header-text-size;
     margin-top: $top-margin-not-main;
-    margin-bottom: 30px;
+    margin-bottom: 1.875rem;
     color: white;
   }
   &__sub-header {
     font-family: 'Syncopate', sans-serif;
     font-size: 1.9em;
-    margin-bottom: 30px;
+    margin-bottom: 1.875rem;
     color: white;
   }
   &__user {
     font-size: 1.9rem;
-    margin-bottom: 27px;
-    margin-top: 7px;
+    margin-bottom: 1.6875rem;
+    margin-top: 0.4375rem;
     color: white;
   }
   &__stats-container {
@@ -43,13 +43,13 @@
     display: flex;
     align-items: center;
     margin-top: 0;
-    margin-bottom: 20px;
+    margin-bottom: 1.25rem;
     margin-right: 5%;
     font-size: 1.5rem;
   }
   &__day-number {
     margin: 0;
-    margin-left: 10px;
+    margin-left: 0.625rem;
     font-size: 1.6rem;
     color: white;
   }
@@ -64,7 +64,7 @@
     height: 100%;
     padding: 0.3%;
     margin-left: 1%;
-    border-radius: 7px;
+    border-radius: 0.4375rem;
     font-size: 0.8rem;
     outline: none;
     transition: all 0.5s;
@@ -80,9 +80,9 @@
     width: 17%;
     height: 100%;
     border: 1px solid silver;
-    border-radius: 3px;
+    border-radius: 0.1875rem;
     font-size: 1.1rem;
-    padding: 5px;
+    padding: 0.3125rem;
     outline: none;
     text-align: center;
   }
@@ -119,7 +119,7 @@
   }
   &__active {
     border: 1px solid white;
-    border-radius: 10px;
+    border-radius: 0.625rem;
     background-color: white;
     color: black;
     transition: all 0.2s;
@@ -132,17 +132,17 @@
     cursor: pointer;
   }
   &__off-button {
-    margin-left: 5px;
-    padding-right: 5px;
+    margin-left: 0.3125rem;
+    padding-right: 0.3125rem;
     cursor: pointer;
   }
   &__on-button {
-    padding-right: 5px;
+    padding-right: 0.3125rem;
     cursor: pointer;
   }
   &__inactive {
     border: 1px solid black;
-    border-radius: 10px;
+    border-radius: 0.625rem;
   }
 
   @include mobile-small-only() {
@@ -191,7 +191,7 @@
     &__goal-input {
       width: 27%;
       font-size: 1.9rem;
-      border-radius: 5px;
+      border-radius: 0.3125rem;
     }
     &__day-number,
     &__stats-text {

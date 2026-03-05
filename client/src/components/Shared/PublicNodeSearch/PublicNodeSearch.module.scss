@@ -13,8 +13,8 @@
 }
 
 .searchIcon {
-  width: 40px;
-  height: 40px;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 50%;
   background: rgba(192, 192, 192, 0.1);
   border: none;
@@ -32,13 +32,13 @@
   }
 
   &:focus {
-    outline: 2px solid $silver-active;
-    outline-offset: 2px;
+    outline: 0.125rem solid $silver-active;
+    outline-offset: 0.125rem;
   }
 
   svg {
-    width: 20px;
-    height: 20px;
+    width: 1.25rem;
+    height: 1.25rem;
   }
 }
 
@@ -50,24 +50,24 @@
   transition: all 0.3s ease-in-out;
 
   &.expanded {
-    width: 400px;
-    max-width: 400px;
+    width: 25rem;
+    max-width: 25rem;
     opacity: 1;
-    margin-left: 10px;
+    margin-left: 0.625rem;
   }
 }
 
 .searchInput {
   width: 100%;
-  padding: 10px 15px;
+  padding: 0.625rem 0.9375rem;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
+  border-radius: 0.375rem;
   color: #ccc;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-family: 'Syncopate', sans-serif;
   transition: all 0.3s ease;
-  min-width: 300px;
+  min-width: 18.75rem;
 
   &:focus {
     outline: none;
@@ -86,18 +86,18 @@
   top: 100%;
   left: 0;
   right: 0;
-  margin-top: 5px;
+  margin-top: 0.3125rem;
   background: rgba(0, 0, 0, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  max-height: 300px;
+  border-radius: 0.375rem;
+  max-height: 18.75rem;
   overflow-y: auto;
   z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.5);
 }
 
 .resultItem {
-  padding: 12px 15px;
+  padding: 0.75rem 0.9375rem;
   cursor: pointer;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.2s ease;
@@ -115,21 +115,21 @@
 .nodeTitle {
   color: white;
   font-weight: 500;
-  font-size: 14px;
-  margin-bottom: 4px;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
 }
 
 .nodePreview {
   color: rgba(255, 255, 255, 0.6);
-  font-size: 12px;
+  font-size: 0.75rem;
   line-height: 1.4;
 }
 
 .noResults {
-  padding: 15px;
+  padding: 0.9375rem;
   color: rgba(255, 255, 255, 0.6);
   text-align: center;
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 
 @media (max-width: 680px) {
@@ -138,14 +138,14 @@
   }
 
   .nodeSearch.isExpanded {
-    transform: translateY($mobile-search-expanded-offset) translateX(-10px);
+    transform: translateY($mobile-search-expanded-offset) translateX(-0.625rem);
     transition: transform 0.3s ease-in-out;
   }
 
   .expanded .searchInput {
     min-width: 30vw;
     width: 70vw;
-    margin-left: 8px;
+    margin-left: 0.5rem;
   }
 
   .nodeSearch {
@@ -154,10 +154,10 @@
 
   // Keep search icon as a perfect circle
   .searchIcon {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    min-height: 40px;
+    width: 2.5rem;
+    height: 2.5rem;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
     flex-shrink: 0;
   }
 }
