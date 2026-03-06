@@ -15,7 +15,7 @@ const HORIZONTAL_ROTATION = {
 // These control how far connection spheres (and their lines) sit from the main sphere.
 // With larger local sphere sizes, we push connections further out to keep lines from overlapping.
 const LINE_EXTENSION_FACTOR = 2.4
-const EXTERNAL_DISTANCE_FACTOR = 2.9 // Controls both external sphere distance and line length
+const EXTERNAL_DISTANCE_FACTOR = 1.8 // Controls both external sphere distance and line length (local view)
 
 // Center point
 const CENTER = [0, 0, 0]
@@ -70,7 +70,7 @@ const calculateSpherePositions = (connections, connectionTypes) => {
 
   // Position externals - closer to pointing directly up
   externals.forEach((e, i) => {
-    const baseVerticalDistance = SPHERE_DIAMETER * 2.5 // Distance above center
+    const baseVerticalDistance = SPHERE_DIAMETER * 2.0 // Distance above center
     const horizontalOffset = (i % 2 === 0 ? -1 : 1) * SPHERE_DIAMETER * 0.8 // Small left/right offset
     const verticalOffset = Math.floor(i / 2) * SPHERE_DIAMETER * 0.6 // Stack vertically
 

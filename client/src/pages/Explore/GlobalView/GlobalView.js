@@ -178,6 +178,13 @@ const GlobalView = () => {
         <h1>{user.name}'s Global Mind Map</h1>
         <TextButton
           className={styles.backButton}
+          onClick={() => history.push('/dashboard')}
+          tooltip="Go to Dashboard"
+        >
+          Dashboard
+        </TextButton>
+        <TextButton
+          className={styles.backButton}
           onClick={() => history.push('/explore')}
           tooltip="Return to Local View"
         >
