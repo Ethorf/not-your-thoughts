@@ -1,5 +1,4 @@
-import React, { useMemo, useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import React, { useMemo } from 'react'
 import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 import {
@@ -11,7 +10,6 @@ import {
 } from '@constants/spheres'
 import { buildConnectionLinesForNodes } from '@utils/globalViewHelpers'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
-import { claimGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
 import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
 import { buildGlobalHoverInfo } from './hoverInfoHelpers'
 
@@ -47,41 +45,34 @@ export const positionSiblingNodes = (mainNode, siblingNodes) => {
   const maxSiblingSize = siblingSizes.length ? Math.max(...siblingSizes) : GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
   const effectiveSiblingDist = getEffectiveConnectionDistance(DEFAULT_CONNECTION_SPHERE_DISTANCE, mainSize, maxSiblingSize)
 
+  // Use consistent offset direction and spread purely by angle (like child/external nodes).
+  // Alternating offsetX + rotation caused overlap when n=2: -dist rotated by π equals +dist.
+  const angleStep = (2 * Math.PI) / siblingNodes.length
+  const basePhase = 0.7 // Slight phase so first node isn't exactly on tangent1
+  const sideSign =
+    typeof mainNode?.sideSign === 'number' && mainNode.sideSign !== 0 ? mainNode.sideSign : 1
+
   const positionedSiblings = siblingNodes.map((entry, i) => {
-    // Start with main node's position (siblings default to being on top of main node)
-    let worldPos = mainPosition.clone()
+    const offsetX = sideSign * effectiveSiblingDist
+    const offsetY = 0
+    const angle = basePhase + i * angleStep
 
-    const nonZeroI = i + 1
-    const alternatingXSides = nonZeroI % 2 === 0 ? -1 : 1
-    // sideSign keeps children on the same left/right as their parent
-    const sideSign =
-      typeof mainNode?.sideSign === 'number' && mainNode.sideSign !== 0 ? mainNode.sideSign : alternatingXSides
-
-    // Simple XYZ-style knobs (x = radial, y = vertical, z = phase)
-    let offsetX = sideSign * effectiveSiblingDist
-    let offsetY = 0
-    let offsetZ = 0.7
-    const angleStep = (2 * Math.PI) / siblingNodes.length
-    const rotationAngle = offsetZ + i * angleStep
-
-    // Apply offsetX and offsetY in the tangent plane (left/right, up/down)
+    // Apply offset in the tangent plane (left/right, up/down)
     const offsetVector = new THREE.Vector3()
     offsetVector.addScaledVector(tangent1, offsetX)
     offsetVector.addScaledVector(tangent2, offsetY)
 
-    // Rotate around the main node's equator (horizontal plane at mainPosition.y).
-    // This keeps the same horizontal distance from the main node while rotating.
+    // Rotate around the main node's equator so siblings are equidistant.
     const basePos = mainPosition.clone().add(offsetVector)
-    if (Math.abs(rotationAngle) > 0.001) {
-      const yAxis = new THREE.Vector3(0, 1, 0)
+    const yAxis = new THREE.Vector3(0, 1, 0)
+    const horizontalOffset = new THREE.Vector3(basePos.x - mainPosition.x, 0, basePos.z - mainPosition.z)
+    horizontalOffset.applyAxisAngle(yAxis, angle)
 
-      const horizontalOffset = new THREE.Vector3(basePos.x - mainPosition.x, 0, basePos.z - mainPosition.z)
-      horizontalOffset.applyAxisAngle(yAxis, rotationAngle)
-
-      worldPos = new THREE.Vector3(mainPosition.x + horizontalOffset.x, basePos.y, mainPosition.z + horizontalOffset.z)
-    } else {
-      worldPos = basePos
-    }
+    const worldPos = new THREE.Vector3(
+      mainPosition.x + horizontalOffset.x,
+      basePos.y,
+      mainPosition.z + horizontalOffset.z
+    )
 
     return {
       ...entry,
@@ -114,33 +105,11 @@ const GlobalSiblingNodes = ({
     return positionSiblingNodes(mainNode, nodes)
   }, [mainNode, nodes])
 
-  const dispatch = useDispatch()
-  const globalRenderOwners = useSelector((state) => state.currentEntry.globalRenderOwners || {})
-  const ownerId = mainNode?.node?.id
-  const nodeIds = useMemo(() => positionedNodes.map((entry) => entry?.node?.id).filter(Boolean), [positionedNodes])
-
-  useEffect(() => {
-    if (!ownerId || !nodeIds.length) return
-    const unowned = nodeIds.filter((id) => !globalRenderOwners[id])
-    if (!unowned.length) return
-    dispatch(claimGlobalRenderOwners({ ownerId, nodeIds: unowned }))
-  }, [dispatch, ownerId, nodeIds, globalRenderOwners])
-
-  const renderableNodes = useMemo(() => {
-    if (!positionedNodes?.length || !ownerId) return []
-    return positionedNodes.filter((entry) => {
-      const nodeId = entry?.node?.id
-      if (!nodeId) return false
-      const owner = globalRenderOwners[nodeId]
-      return !owner || owner === ownerId
-    })
-  }, [positionedNodes, globalRenderOwners, ownerId])
-
   // Build connection lines between main node and sibling nodes
   const connectionLines = useMemo(() => {
-    if (!mainNode || !renderableNodes?.length) return []
-    return buildConnectionLinesForNodes(mainNode, renderableNodes, firstOrderConnectionsMap)
-  }, [mainNode, renderableNodes, firstOrderConnectionsMap])
+    if (!mainNode || !positionedNodes?.length) return []
+    return buildConnectionLinesForNodes(mainNode, positionedNodes, firstOrderConnectionsMap)
+  }, [mainNode, positionedNodes, firstOrderConnectionsMap])
 
   const secondOrderByParentId = useMemo(() => {
     if (!positionedNodes?.length) return new Map()
@@ -165,7 +134,7 @@ const GlobalSiblingNodes = ({
       {connectionLines}
 
       {/* Sibling node spheres */}
-      {renderableNodes.map((entry) => (
+      {positionedNodes.map((entry) => (
         <SphereWithEffects
           key={entry.node.id}
           id={entry.node.id}
@@ -188,7 +157,7 @@ const GlobalSiblingNodes = ({
         />
       ))}
       {/* THIRD ORDER AND HIGHER ORDER NODES */}
-      {renderableNodes.map((parentEntry) => {
+      {positionedNodes.map((parentEntry) => {
         const secondOrderNodesForParent = secondOrderByParentId.get(parentEntry.node.id)
         if (!secondOrderNodesForParent?.length) return null
 

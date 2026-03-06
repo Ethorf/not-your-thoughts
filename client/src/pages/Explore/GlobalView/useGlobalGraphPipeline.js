@@ -28,11 +28,9 @@ const deduplicateClusterViews = (views) => {
     const mainNode = view.mainNode ?? null
     if (mainNode?.node?.id) seenNodeIds.add(mainNode.node.id)
 
-    const firstOrderNodes = (view.firstOrderNodes || []).filter((entry) => {
-      const id = entry?.node?.id
-      if (!id || seenNodeIds.has(id)) return false
-      seenNodeIds.add(id)
-      return true
+    const firstOrderNodes = view.firstOrderNodes || []
+    firstOrderNodes.forEach((entry) => {
+      if (entry?.node?.id) seenNodeIds.add(entry.node.id)
     })
 
     const secondOrderNodes = (view.secondOrderNodes || []).filter((entry) => {
@@ -103,6 +101,18 @@ const useGlobalGraphPipeline = ({
       const targetId = conn?.foreign_entry_id
       return graphNodeIds.has(sourceId) && graphNodeIds.has(targetId)
     })
+
+    // DEBUG: trace node 1003
+    const DEBUG_ID = 1003
+    const inGraphNodes = graphNodeIds.has(DEBUG_ID)
+    const rawConns = allConnections.filter(
+      (c) => c?.entry_id === DEBUG_ID || c?.foreign_entry_id === DEBUG_ID
+    )
+    const survivingConns = normalizedConnections.filter(
+      (c) => c?.entry_id === DEBUG_ID || c?.foreign_entry_id === DEBUG_ID
+    )
+    console.log(`[DEBUG 1003] In graphNodes: ${inGraphNodes}, raw connections: ${rawConns.length}, surviving connections: ${survivingConns.length}`, { rawConns, survivingConns })
+
     setGraphConnections(normalizedConnections)
   }, [allConnections, graphNodes.length, graphNodeIds])
 
@@ -111,7 +121,15 @@ const useGlobalGraphPipeline = ({
     if (!graphNodes || !graphConnections) {
       return { clusters: [], adjacency: new Map() }
     }
-    return buildClusters(graphNodes, graphConnections)
+    const result = buildClusters(graphNodes, graphConnections)
+    // DEBUG: check which cluster 1003 is in
+    const clusterIdx = result.clusters.findIndex((c) => c.includes(1003))
+    const neighbors = result.adjacency.get(1003) || []
+    console.log(`[DEBUG 1003] Cluster index: ${clusterIdx}, adjacency neighbors: [${neighbors.join(',')}]`)
+    if (clusterIdx >= 0) {
+      console.log(`[DEBUG 1003] Cluster members: [${result.clusters[clusterIdx].join(',')}]`)
+    }
+    return result
   }, [graphNodes, graphConnections])
 
   useEffect(() => {
@@ -191,7 +209,28 @@ const useGlobalGraphPipeline = ({
         firstOrderConnectionsMap: result.firstOrderConnectionsMap,
       }))
 
+      // DEBUG: trace 1003 through pipeline results
+      views.forEach((v, i) => {
+        const mainId = v.mainNode?.node?.id
+        const inFirst = (v.firstOrderNodes || []).some((e) => e?.node?.id === 1003)
+        const inSecond = (v.secondOrderNodes || []).some((e) => e?.node?.id === 1003)
+        if (mainId === 1003 || inFirst || inSecond) {
+          console.log(`[DEBUG 1003] Found in view[${i}] (hub=${mainId}): firstOrder=${inFirst}, secondOrder=${inSecond}`)
+        }
+      })
+
       const deduplicated = deduplicateClusterViews(views)
+
+      // DEBUG: trace 1003 after dedup
+      deduplicated.forEach((v, i) => {
+        const mainId = v.mainNode?.node?.id
+        const inFirst = (v.firstOrderNodes || []).some((e) => e?.node?.id === 1003)
+        const inSecond = (v.secondOrderNodes || []).some((e) => e?.node?.id === 1003)
+        if (mainId === 1003 || inFirst || inSecond) {
+          console.log(`[DEBUG 1003] After dedup view[${i}] (hub=${mainId}): firstOrder=${inFirst}, secondOrder=${inSecond}`)
+        }
+      })
+
       setClusterViews(deduplicated)
       setIsPositioningClusters(false)
 

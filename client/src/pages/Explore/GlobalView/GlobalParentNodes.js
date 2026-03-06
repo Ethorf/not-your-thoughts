@@ -1,5 +1,4 @@
-import React, { useMemo, useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import React, { useMemo } from 'react'
 import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 import {
@@ -11,7 +10,6 @@ import {
 } from '@constants/spheres'
 import { buildConnectionLinesForNodes } from '@utils/globalViewHelpers'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
-import { claimGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
 import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
 import { buildGlobalHoverInfo } from './hoverInfoHelpers'
 
@@ -101,33 +99,11 @@ const GlobalParentNodes = ({
     return positionParentNodes(mainNode, nodes)
   }, [mainNode, nodes])
 
-  const dispatch = useDispatch()
-  const globalRenderOwners = useSelector((state) => state.currentEntry.globalRenderOwners || {})
-  const ownerId = mainNode?.node?.id
-  const nodeIds = useMemo(() => positionedNodes.map((entry) => entry?.node?.id).filter(Boolean), [positionedNodes])
-
-  useEffect(() => {
-    if (!ownerId || !nodeIds.length) return
-    const unowned = nodeIds.filter((id) => !globalRenderOwners[id])
-    if (!unowned.length) return
-    dispatch(claimGlobalRenderOwners({ ownerId, nodeIds: unowned }))
-  }, [dispatch, ownerId, nodeIds, globalRenderOwners])
-
-  const renderableNodes = useMemo(() => {
-    if (!positionedNodes?.length || !ownerId) return []
-    return positionedNodes.filter((entry) => {
-      const nodeId = entry?.node?.id
-      if (!nodeId) return false
-      const owner = globalRenderOwners[nodeId]
-      return !owner || owner === ownerId
-    })
-  }, [positionedNodes, globalRenderOwners, ownerId])
-
   // Build connection lines between main node and parent nodes
   const connectionLines = useMemo(() => {
-    if (!mainNode || !renderableNodes?.length) return []
-    return buildConnectionLinesForNodes(mainNode, renderableNodes, firstOrderConnectionsMap)
-  }, [mainNode, renderableNodes, firstOrderConnectionsMap])
+    if (!mainNode || !positionedNodes?.length) return []
+    return buildConnectionLinesForNodes(mainNode, positionedNodes, firstOrderConnectionsMap)
+  }, [mainNode, positionedNodes, firstOrderConnectionsMap])
 
   const secondOrderByParentId = useMemo(() => {
     if (!positionedNodes?.length) return new Map()
@@ -152,7 +128,7 @@ const GlobalParentNodes = ({
       {connectionLines}
 
       {/* Parent node spheres */}
-      {renderableNodes.map((entry) => (
+      {positionedNodes.map((entry) => (
         <SphereWithEffects
           key={entry.node.id}
           id={entry.node.id}
@@ -175,7 +151,7 @@ const GlobalParentNodes = ({
         />
       ))}
 
-      {renderableNodes.map((parentEntry) => {
+      {positionedNodes.map((parentEntry) => {
         const secondOrderNodesForParent = secondOrderByParentId.get(parentEntry.node.id)
         if (!secondOrderNodesForParent?.length) return null
 

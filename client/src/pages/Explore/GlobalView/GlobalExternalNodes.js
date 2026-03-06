@@ -1,5 +1,4 @@
 import React, { useMemo, useEffect, useRef } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 import {
@@ -10,7 +9,6 @@ import {
   DEFAULT_CONNECTION_SPHERE_DISTANCE,
 } from '@constants/spheres'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
-import { claimGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
 import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
 import { buildGlobalHoverInfo } from './hoverInfoHelpers'
 
@@ -105,7 +103,9 @@ export const positionExternalNodes = (mainNode, externalNodes) => {
       GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
     )
   )
-  const maxExternalSize = externalSizes.length ? Math.max(...externalSizes) : GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
+  const maxExternalSize = externalSizes.length
+    ? Math.max(...externalSizes)
+    : GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
   const externalDistance = getEffectiveConnectionDistance(baseExternalDistance, mainSize, maxExternalSize)
   const angleStep = (2 * Math.PI) / externalNodes.length
 
@@ -160,33 +160,11 @@ const GlobalExternalNodes = ({
     return positionExternalNodes(mainNode, nodes)
   }, [mainNode, nodes])
 
-  const dispatch = useDispatch()
-  const globalRenderOwners = useSelector((state) => state.currentEntry.globalRenderOwners || {})
-  const ownerId = mainNode?.node?.id
-  const nodeIds = useMemo(() => positionedNodes.map((entry) => entry?.node?.id).filter(Boolean), [positionedNodes])
-
-  useEffect(() => {
-    if (!ownerId || !nodeIds.length) return
-    const unowned = nodeIds.filter((id) => !globalRenderOwners[id])
-    if (!unowned.length) return
-    dispatch(claimGlobalRenderOwners({ ownerId, nodeIds: unowned }))
-  }, [dispatch, ownerId, nodeIds, globalRenderOwners])
-
-  const renderableNodes = useMemo(() => {
-    if (!positionedNodes?.length || !ownerId) return []
-    return positionedNodes.filter((entry) => {
-      const nodeId = entry?.node?.id
-      if (!nodeId) return false
-      const owner = globalRenderOwners[nodeId]
-      return !owner || owner === ownerId
-    })
-  }, [positionedNodes, globalRenderOwners, ownerId])
-
   // Build connection lines between main node and external nodes
   const connectionLines = useMemo(() => {
-    if (!mainNode || !renderableNodes?.length) return []
-    return buildDashedConnectionLinesForNodes(mainNode, renderableNodes, firstOrderConnectionsMap)
-  }, [mainNode, renderableNodes, firstOrderConnectionsMap])
+    if (!mainNode || !positionedNodes?.length) return []
+    return buildDashedConnectionLinesForNodes(mainNode, positionedNodes, firstOrderConnectionsMap)
+  }, [mainNode, positionedNodes, firstOrderConnectionsMap])
 
   const secondOrderByParentId = useMemo(() => {
     if (!positionedNodes?.length) return new Map()
@@ -211,7 +189,7 @@ const GlobalExternalNodes = ({
       {connectionLines}
 
       {/* External node spheres */}
-      {renderableNodes.map((entry) => (
+      {positionedNodes.map((entry) => (
         <SphereWithEffects
           key={entry.node.id}
           id={entry.node.id}
@@ -234,7 +212,7 @@ const GlobalExternalNodes = ({
         />
       ))}
 
-      {renderableNodes.map((parentEntry) => {
+      {positionedNodes.map((parentEntry) => {
         const secondOrderNodesForParent = secondOrderByParentId.get(parentEntry.node.id)
         if (!secondOrderNodesForParent?.length) return null
 

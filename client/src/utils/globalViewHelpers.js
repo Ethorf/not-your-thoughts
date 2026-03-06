@@ -275,6 +275,10 @@ export const positionGlobalNodes = async (
 
   // Add initial positions, preserving center node at clusterCenter
   const centerNodeId = targetNodeId
+  const has1003 = positions.some(({ node }) => node.id === 1003)
+  if (has1003 || centerNodeId === 1003) {
+    console.log(`[DEBUG 1003] In initial positions for hub ${centerNodeId}: ${has1003}. Total positions: ${positions.length}`)
+  }
   positions.forEach(({ node, position }) => {
     // Always keep center node at exact cluster center
     if (node.id === centerNodeId) {
@@ -385,6 +389,9 @@ export const positionGlobalNodes = async (
       subPositions.forEach(({ node, position, connectionType }) => {
         // Only add nodes that belong to this cluster (prevents cross-cluster duplication)
         const isInCluster = isExternalNodeId(node.id) || mainClusterSet.has(node.id)
+        if (node.id === 1003) {
+          console.log(`[DEBUG 1003] BFS check: expanding=${nodeToExpand.id}, isInCluster=${isInCluster}, alreadySeen=${seenNodeIds.has(node.id)}, mainClusterHas=${mainClusterSet.has(node.id)}, connType=${connectionType}`)
+        }
         if (!isInCluster || seenNodeIds.has(node.id)) return
 
         {
