@@ -46,7 +46,7 @@ export const getGlobalConnectionSphereSize = (
 }
 
 // Base distance for first-order connection spheres in global view (minimum gap between sphere surfaces)
-export const DEFAULT_CONNECTION_SPHERE_DISTANCE = 0.35
+export const DEFAULT_CONNECTION_SPHERE_DISTANCE = 0.42
 
 export const SECOND_ORDER_CONNECTION_SPHERE_DISTANCE = 0.12
 
@@ -71,8 +71,21 @@ export const getEffectiveConnectionDistance = (baseDistance, sizeA, sizeB) => {
   return baseDistance + sizeContribution
 }
 
-/** Radius of the center wireframe globe in Global View. Nodes are positioned at radius 3; this is purely visual. */
+/** Radius of the center wireframe globe in Global View. Nodes are positioned at GLOBAL_NODE_SPHERE_RADIUS; this is purely visual. */
 export const GLOBAL_CENTER_GLOBE_RADIUS = 2.2
+
+/** Radius at which nodes are positioned on the globe in Global Explore. Higher = more space between clusters. */
+export const GLOBAL_NODE_SPHERE_RADIUS = 3.5
+
+/** Minimum distance between nodes for overlap prevention in Global View. Higher = more separation. */
+export const GLOBAL_OVERLAP_MIN_DISTANCE = 0.5
+
+/** Latitude band (degrees) for unconnected clusters. Further from equator = more separation from connected clusters. */
+export const GLOBAL_UNCONNECTED_CLUSTER_LAT_MIN = 72
+export const GLOBAL_UNCONNECTED_CLUSTER_LAT_MAX = 88
+
+/** Minimum distance between cluster centers. Prevents clusters from overlapping when many exist. */
+export const GLOBAL_MIN_CLUSTER_CENTER_DISTANCE = 1.3
 
 // Backwards-compatible export – keep existing imports working.
 // Treat the previous default as the local view sizes.

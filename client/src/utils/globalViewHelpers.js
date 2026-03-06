@@ -5,6 +5,13 @@ import { resolvePositionOriginal } from './resolvePositionOriginal'
 import { resolvePositionWithOverlapPrevention } from './resolvePositionWithOverlapPrevention'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
 import { GLOBAL_NODE_BACKGROUND_TEXT } from '@constants/globalNodeText'
+import {
+  GLOBAL_NODE_SPHERE_RADIUS,
+  GLOBAL_OVERLAP_MIN_DISTANCE,
+  GLOBAL_UNCONNECTED_CLUSTER_LAT_MIN,
+  GLOBAL_UNCONNECTED_CLUSTER_LAT_MAX,
+  GLOBAL_MIN_CLUSTER_CENTER_DISTANCE,
+} from '@constants/spheres'
 import { transformConnection } from '@utils/transformConnection'
 import { transformBackendToFrontendConnectionType } from './connectionTypeHelpers'
 
@@ -25,10 +32,10 @@ const seededRandom = (seed) => {
  * Low-connection (score 1-2) pushed poleward to avoid overlap. Unconnected (score 0)
  * get random distribution toward poles (no ring).
  * @param {number[]} connectionScores - Connection score per cluster (higher = more connected), pre-sorted descending
- * @param {number} [radius=3] - Radius of the sphere
+ * @param {number} [radius] - Radius of the sphere (defaults to GLOBAL_NODE_SPHERE_RADIUS)
  * @returns {Array} Array of THREE.Vector3 positions, index matches connectionScores order
  */
-export const generateClusterPositions = (connectionScores, radius = 3) => {
+export const generateClusterPositions = (connectionScores, radius = GLOBAL_NODE_SPHERE_RADIUS) => {
   const numClusters = connectionScores?.length ?? 0
   if (numClusters <= 0) return []
 
@@ -56,12 +63,16 @@ export const generateClusterPositions = (connectionScores, radius = 3) => {
     const baseSeed = connectionScores.reduce((a, s) => a + s, 0)
     const unconnectedGoldenAngle = (Math.PI * 2) / ((1 + Math.sqrt(5)) / 2)
     for (let j = 0; j < numUnconnected; j++) {
-      // Fibonacci-like spacing in 50-75° band for even spread, jitter for sporadic feel
+      // Fibonacci-like spacing in poleward band for even spread, well separated from connected clusters
       const hemisphere = seededRandom(baseSeed + j * 19) > 0.5 ? 1 : -1
       const bandIndex = (j + 0.5) / numUnconnected // 0..1
-      const baseLatDeg = 50 + bandIndex * 25 // 50-75°
-      const latJitter = (seededRandom(baseSeed + j * 13) - 0.5) * 10 // ±5°
-      const latDeg = Math.max(48, Math.min(77, baseLatDeg + latJitter))
+      const latRange = GLOBAL_UNCONNECTED_CLUSTER_LAT_MAX - GLOBAL_UNCONNECTED_CLUSTER_LAT_MIN
+      const baseLatDeg = GLOBAL_UNCONNECTED_CLUSTER_LAT_MIN + bandIndex * latRange
+      const latJitter = (seededRandom(baseSeed + j * 13) - 0.5) * 8 // ±4°
+      const latDeg = Math.max(
+        GLOBAL_UNCONNECTED_CLUSTER_LAT_MIN - 4,
+        Math.min(GLOBAL_UNCONNECTED_CLUSTER_LAT_MAX + 4, baseLatDeg + latJitter)
+      )
       const latRad = (latDeg * Math.PI) / 180
       const unitY = hemisphere * Math.cos(latRad)
       const horizR = Math.sin(latRad)
@@ -74,7 +85,7 @@ export const generateClusterPositions = (connectionScores, radius = 3) => {
 
   let unconnectedIdx = 0
   let connectedIdx = 0
-  return connectionScores.map((score) => {
+  const result = connectionScores.map((score) => {
     if (score === 0) {
       return unconnectedPositions[unconnectedIdx++]
     }
@@ -98,6 +109,31 @@ export const generateClusterPositions = (connectionScores, radius = 3) => {
     const scale = oldHoriz > 1e-6 ? horizR / oldHoriz : 1
     return new THREE.Vector3(radius * p.x * scale, radius * effectiveY, radius * p.z * scale)
   })
+
+  // Push apart cluster centers that are too close (iterative repulsion)
+  const minDist = GLOBAL_MIN_CLUSTER_CENTER_DISTANCE
+  for (let iter = 0; iter < 8; iter++) {
+    let moved = false
+    for (let i = 0; i < result.length; i++) {
+      for (let j = i + 1; j < result.length; j++) {
+        const a = result[i]
+        const b = result[j]
+        const d = a.distanceTo(b)
+        if (d < minDist && d > 1e-6) {
+          const axis = new THREE.Vector3().subVectors(b, a).normalize()
+          const push = (minDist - d) / 2
+          a.sub(axis.clone().multiplyScalar(push))
+          b.add(axis.multiplyScalar(push))
+          a.normalize().multiplyScalar(radius)
+          b.normalize().multiplyScalar(radius)
+          moved = true
+        }
+      }
+    }
+    if (!moved) break
+  }
+
+  return result
 }
 
 /**
@@ -243,7 +279,7 @@ export const positionGlobalNodes = async (
     if (b != null && typeof b === 'number') totalConnectionCountMap.set(b, (totalConnectionCountMap.get(b) || 0) + 1)
   })
 
-  const radius = 3
+  const radius = GLOBAL_NODE_SPHERE_RADIUS
   const clusterCenter =
     clusterCenterOverride && clusterCenterOverride instanceof THREE.Vector3
       ? clusterCenterOverride
@@ -271,7 +307,7 @@ export const positionGlobalNodes = async (
   const existingPositions = new Map() // Map of nodeId -> position
   const firstOrderNodeIds = new Set() // Track 1st order connections (direct to target node)
   const firstOrderConnectionTypes = new Map() // Map of first-order nodeId -> connection_type
-  const minDistance = 0.4 // Minimum distance to check for overlaps
+  const minDistance = GLOBAL_OVERLAP_MIN_DISTANCE
 
   // Add initial positions, preserving center node at clusterCenter
   const centerNodeId = targetNodeId
@@ -382,16 +418,13 @@ export const positionGlobalNodes = async (
       })
 
       // Only add nodes we haven't seen yet
-      // Use overlap prevention only for first expansion layer
-      const shouldPreventOverlap = depth === 0 && firstOrderNodeIds.has(nodeToExpand.id)
+      // Use overlap prevention for all expansion layers to avoid node overlap
+      const shouldPreventOverlap = true
       const isWestOfMain = biasSignX < 0
 
       subPositions.forEach(({ node, position, connectionType }) => {
         // Only add nodes that belong to this cluster (prevents cross-cluster duplication)
         const isInCluster = isExternalNodeId(node.id) || mainClusterSet.has(node.id)
-        if (node.id === 1003) {
-          console.log(`[DEBUG 1003] BFS check: expanding=${nodeToExpand.id}, isInCluster=${isInCluster}, alreadySeen=${seenNodeIds.has(node.id)}, mainClusterHas=${mainClusterSet.has(node.id)}, connType=${connectionType}`)
-        }
         if (!isInCluster || seenNodeIds.has(node.id)) return
 
         {

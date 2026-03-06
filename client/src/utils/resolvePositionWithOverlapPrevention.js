@@ -1,8 +1,21 @@
 import * as THREE from 'three'
 
+/** Offset magnitude for overlap prevention - must be large enough to achieve minDistance separation */
+const OVERLAP_OFFSET_MAGNITUDE = 0.45
+
+/**
+ * Check if a candidate position is at least minDistance from all existing positions
+ */
+const isClear = (candidate, existingPositions, minDistance) => {
+  for (const existingPos of existingPositions) {
+    if (candidate.distanceTo(existingPos) < minDistance) return false
+  }
+  return true
+}
+
 /**
  * With overlap prevention for 2nd order connections
- * Attempts to offset in z-direction or lateral direction to prevent overlaps
+ * Attempts to offset along the sphere surface in multiple directions to prevent overlaps
  * @param {THREE.Vector3} desiredPos - The desired position from the positioning algorithm
  * @param {THREE.Vector3} nodePosition - The position of the parent node
  * @param {boolean} isWestOfMain - Whether the parent node is west of the main center
@@ -19,53 +32,32 @@ export const resolvePositionWithOverlapPrevention = (
   existingPositions,
   minDistance = 0.4
 ) => {
-  // Check if too close to any existing position
-  let tooClose = false
-  for (const existingPos of existingPositions) {
-    if (desiredPos.distanceTo(existingPos) < minDistance) {
-      tooClose = true
-      break
-    }
-  }
+  const positionsArray = [...existingPositions]
+  if (isClear(desiredPos, positionsArray, minDistance)) return desiredPos
 
-  if (!tooClose) return desiredPos
-
-  // Try z-direction offset first
   const radius = clusterCenter.length()
-  const zOffset = new THREE.Vector3(0, 0, 1) // Try positive z
-  const candidateZ = desiredPos.clone().add(zOffset.clone().multiplyScalar(0.15)).normalize().multiplyScalar(radius)
-
-  let stillTooClose = false
-  for (const existingPos of existingPositions) {
-    if (candidateZ.distanceTo(existingPos) < minDistance) {
-      stillTooClose = true
-      break
-    }
-  }
-
-  if (!stillTooClose) return candidateZ
-
-  // If z doesn't work, offset in the same lateral direction as the node relative to main center
-  const mainNormal = clusterCenter.clone().normalize()
+  const normal = desiredPos.clone().normalize()
   const northPole = new THREE.Vector3(0, 1, 0)
-  const mainTangent1 = new THREE.Vector3().crossVectors(northPole, mainNormal).normalize()
+  const tangent1 = new THREE.Vector3().crossVectors(northPole, normal).normalize()
+  const tangent2 = new THREE.Vector3().crossVectors(normal, tangent1).normalize()
+  if (tangent2.dot(northPole) < 0) tangent2.negate()
 
-  // Offset in the west direction if node is west, east if east
-  const lateralOffset = mainTangent1.clone().multiplyScalar(isWestOfMain ? -0.2 : 0.2)
-  const candidateLateral = desiredPos.clone().add(lateralOffset).normalize().multiplyScalar(radius)
+  const offset = OVERLAP_OFFSET_MAGNITUDE
+  const mainTangent = new THREE.Vector3().crossVectors(northPole, clusterCenter.clone().normalize()).normalize()
+  const lateralSign = isWestOfMain ? -1 : 1
 
-  stillTooClose = false
-  for (const existingPos of existingPositions) {
-    if (candidateLateral.distanceTo(existingPos) < minDistance) {
-      stillTooClose = true
-      break
-    }
+  const candidates = [
+    desiredPos.clone().add(tangent1.clone().multiplyScalar(offset)).normalize().multiplyScalar(radius),
+    desiredPos.clone().add(tangent1.clone().multiplyScalar(-offset)).normalize().multiplyScalar(radius),
+    desiredPos.clone().add(tangent2.clone().multiplyScalar(offset)).normalize().multiplyScalar(radius),
+    desiredPos.clone().add(tangent2.clone().multiplyScalar(-offset)).normalize().multiplyScalar(radius),
+    desiredPos.clone().add(mainTangent.clone().multiplyScalar(lateralSign * offset)).normalize().multiplyScalar(radius),
+    desiredPos.clone().add(tangent1.clone().multiplyScalar(0.7 * offset)).add(tangent2.clone().multiplyScalar(0.7 * offset)).normalize().multiplyScalar(radius),
+  ]
+
+  for (const candidate of candidates) {
+    if (isClear(candidate, positionsArray, minDistance)) return candidate
   }
 
-  if (!stillTooClose) return candidateLateral
-
-  // If both fail, try a combined offset
-  const combinedOffset = lateralOffset.clone().add(zOffset.clone().multiplyScalar(0.1))
-  const candidateCombined = desiredPos.clone().add(combinedOffset).normalize().multiplyScalar(radius)
-  return candidateCombined
+  return candidates[0]
 }
