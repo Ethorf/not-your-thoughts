@@ -1,8 +1,13 @@
 .wrapper {
+  width: 70%;
+  margin-top: 18px;
+}
+
+.nodesList {
   padding: 0;
   overflow: auto;
   overflow-x: hidden;
-  max-height: 72vh;
+  max-height: 74vh;
 }
 
 .sortControls {
@@ -21,7 +26,7 @@
 .topContainer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   margin-bottom: 1.25rem;
   flex-wrap: wrap;
   gap: 0.9375rem;

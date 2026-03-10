@@ -4,6 +4,10 @@
   justify-content: center;
   flex-direction: column;
   align-items: center;
+
+  h1 {
+    margin: 36px 0;
+  }
 }
 
 .searchSection {
@@ -24,12 +28,18 @@
 
 .newEntry {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  width: 70%;
-  height: 4.375rem;
+  justify-content: flex-end;
+  width: 50%;
+
+  h2 {
+    margin: 0;
+  }
 }
 
-.customPromptsList {
+.actionsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   width: 70%;
 }

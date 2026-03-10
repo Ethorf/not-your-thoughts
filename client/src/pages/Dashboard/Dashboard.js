@@ -35,20 +35,17 @@ const Dashboard = () => {
   return (
     <div className={classNames(styles.wrapper, sharedStyles.flexColumnCenter)}>
       <h1>Dashboard</h1>
-      <div className={classNames(styles.newEntry)}>
-        <DefaultButton
-          onClick={() => history.push('/explore?view=global')}
-          tooltip="View global mind map"
-        >
+      <div className={styles.actionsContainer}>
+        <DefaultButton onClick={() => history.push('/explore?view=global')} tooltip="View global mind map">
           Global View
         </DefaultButton>
-        <h2>New Entry:</h2>
-        <DefaultButton onClick={handleNewNodeEntryClick}>Node</DefaultButton>
-        <DefaultButton onClick={handleNewJournalEntryClick}>Journal</DefaultButton>
+        <div className={classNames(styles.newEntry)}>
+          <h2>New Entry:</h2>
+          <DefaultButton onClick={handleNewNodeEntryClick}>Node</DefaultButton>
+          <DefaultButton onClick={handleNewJournalEntryClick}>Journal</DefaultButton>
+        </div>
       </div>
-      <div className={styles.customPromptsList}>
-        <NodesDashboardList />
-      </div>
+      <NodesDashboardList />
     </div>
   )
 }
