@@ -6,7 +6,13 @@ const authorize = require('../middleware/authorize')
 // Route to get all connections for all nodes (for Global view)
 router.get('/all_connections', authorize, async (req, res) => {
   try {
-    const userId = req.user.id
+    const requestedUserId = req.query.userId
+    const userId = requestedUserId != null ? requestedUserId : req.user.id
+
+    // Only allow fetching connections for the authenticated user
+    if (String(userId) !== String(req.user.id)) {
+      return res.status(403).json({ msg: 'Forbidden: cannot fetch connections for another user' })
+    }
 
     const query = `
       SELECT c.id, c.connection_type, c.primary_entry_id as entry_id, c.foreign_entry_id,

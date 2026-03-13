@@ -89,9 +89,10 @@ export const fetchConnections = createAsyncThunk('connections/', async (entry_id
 
 export const fetchAllConnections = createAsyncThunk(
   'connections/fetchAllConnections',
-  async (_, { rejectWithValue }) => {
+  async (userId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get('api/connections/all_connections')
+      const params = userId != null ? { userId } : {}
+      const response = await axiosInstance.get('api/connections/all_connections', { params })
       return response.data.connections
     } catch (error) {
       return rejectWithValue(error.response.data)

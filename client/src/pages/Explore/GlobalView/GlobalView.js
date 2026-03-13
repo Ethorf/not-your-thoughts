@@ -68,6 +68,7 @@ const GlobalView = () => {
     globalViewCache,
     globalViewInvalidated,
     dispatch,
+    userId: user?.id,
   })
 
   const handleCameraChange = useCallback(() => {

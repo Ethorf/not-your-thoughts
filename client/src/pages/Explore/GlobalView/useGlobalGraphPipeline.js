@@ -60,6 +60,7 @@ const useGlobalGraphPipeline = ({
   globalViewCache,
   globalViewInvalidated,
   dispatch,
+  userId,
 }) => {
   const [graphNodes, setGraphNodes] = useState([])
   const [graphConnections, setGraphConnections] = useState([])
@@ -74,16 +75,16 @@ const useGlobalGraphPipeline = ({
 
   // Stage 2a: fetch the global connection set.
   useEffect(() => {
-    if (!graphNodes.length) {
+    if (!graphNodes.length || userId == null) {
       setGraphConnections([])
       return
     }
 
     const needsFetch = !allConnections?.length || globalViewInvalidated
     if (needsFetch) {
-      dispatch(fetchAllConnections())
+      dispatch(fetchAllConnections(userId))
     }
-  }, [dispatch, graphNodes.length, allConnections?.length, globalViewInvalidated])
+  }, [dispatch, graphNodes.length, allConnections?.length, globalViewInvalidated, userId])
 
   // Stage 2b: keep only connections that attach to known nodes.
   const graphNodeIds = useMemo(
