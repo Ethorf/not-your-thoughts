@@ -2,17 +2,12 @@ const express = require('express')
 const router = express.Router()
 const pool = require('../config/neonDb')
 const authorize = require('../middleware/authorize')
+const GLOBAL_GRAPH_USER_ID = '4fd36f0e-9159-4561-af4e-e5841994c873'
 
 // Route to get all connections for all nodes (for Global view)
 router.get('/all_connections', authorize, async (req, res) => {
   try {
-    const requestedUserId = req.query.userId
-    const userId = requestedUserId != null ? requestedUserId : req.user.id
-
-    // Only allow fetching connections for the authenticated user
-    if (String(userId) !== String(req.user.id)) {
-      return res.status(403).json({ msg: 'Forbidden: cannot fetch connections for another user' })
-    }
+    const userId = GLOBAL_GRAPH_USER_ID
 
     const query = `
       SELECT c.id, c.connection_type, c.primary_entry_id as entry_id, c.foreign_entry_id,

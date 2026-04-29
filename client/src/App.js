@@ -34,7 +34,6 @@ import PublicNodeEntry from '@pages/PublicNodeEntry/PublicNodeEntry.js'
 import PublicDashboard from '@pages/PublicDashboard/PublicDashboard.js'
 
 //Redux
-import store from './redux/store/index'
 import { loadUser } from './redux/actions/authActions'
 import setAuthToken from './utils/setAuthToken'
 import { ModalsContainer } from './components/Modals/ModalsContainer/ModalsContainer.js'
