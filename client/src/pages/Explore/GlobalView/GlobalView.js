@@ -112,16 +112,17 @@ const GlobalView = () => {
 
     const entryIdStr = String(entryId)
     for (const view of clusterViews) {
-      const mainMatch = view?.mainNode?.node?.id != null && String(view.mainNode.node.id) === entryIdStr
-        ? view.mainNode
-        : null
+      const mainMatch =
+        view?.mainNode?.node?.id != null && String(view.mainNode.node.id) === entryIdStr ? view.mainNode : null
       if (mainMatch) {
-        setHoverInfo(buildGlobalHoverInfo({
-          entry: mainMatch,
-          clusterCenterTitle: mainMatch.node?.title,
-          connectionType: 'main',
-          parentTitle: null,
-        }))
+        setHoverInfo(
+          buildGlobalHoverInfo({
+            entry: mainMatch,
+            clusterCenterTitle: mainMatch.node?.title,
+            connectionType: 'main',
+            parentTitle: null,
+          })
+        )
         return
       }
 
@@ -129,12 +130,14 @@ const GlobalView = () => {
         (e) => e?.node?.id != null && String(e.node.id) === entryIdStr
       )
       if (firstOrderMatch) {
-        setHoverInfo(buildGlobalHoverInfo({
-          entry: firstOrderMatch,
-          clusterCenterTitle: view?.mainNode?.node?.title,
-          connectionType: firstOrderMatch.connectionType || null,
-          parentTitle: view?.mainNode?.node?.title || null,
-        }))
+        setHoverInfo(
+          buildGlobalHoverInfo({
+            entry: firstOrderMatch,
+            clusterCenterTitle: view?.mainNode?.node?.title,
+            connectionType: firstOrderMatch.connectionType || null,
+            parentTitle: view?.mainNode?.node?.title || null,
+          })
+        )
         return
       }
     }
@@ -163,7 +166,6 @@ const GlobalView = () => {
   const hoverWordCount = getWordCount(hoverInfo?.content)
   const hoverTitle = hoverInfo?.nodeTitle || hoverInfo?.clusterCenterTitle || 'Untitled'
 
-
   // Calculate rotation so sphere texture faces the camera
   const getSphereRotation = useCallback((spherePosition) => {
     // Calculate the angle from the sphere to the camera view
@@ -176,12 +178,8 @@ const GlobalView = () => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
-        <h1>{user.name}'s Global Mind Map</h1>
-        <TextButton
-          className={styles.backButton}
-          onClick={() => history.push('/dashboard')}
-          tooltip="Go to Dashboard"
-        >
+        <h1>{user ? user.name : "Eric Thorfinnson's"}'s Global Mind Map</h1>
+        <TextButton className={styles.backButton} onClick={() => history.push('/dashboard')} tooltip="Go to Dashboard">
           Dashboard
         </TextButton>
         <TextButton

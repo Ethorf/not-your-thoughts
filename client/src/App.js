@@ -75,7 +75,7 @@ const AppContent = () => {
           {({ match }) => <Register show={match !== null} />}
         </Route>
         <PrivateRoute path="/dashboard" exact component={Dashboard} />
-        <PrivateRoute path="/explore" exact component={Explore} />
+        <Route path="/explore" exact component={Explore} />
         <PrivateRoute path="/create-journal-entry" exact component={CreateJournalEntry} />
         <PrivateRoute path="/profile" exact component={ProfilePage} />
         <PrivateRoute path="/edit-node-entry" component={EditNodeEntry} />

@@ -5,7 +5,7 @@ const authorize = require('../middleware/authorize')
 const GLOBAL_GRAPH_USER_ID = '4fd36f0e-9159-4561-af4e-e5841994c873'
 
 // Route to get all connections for all nodes (for Global view)
-router.get('/all_connections', authorize, async (req, res) => {
+router.get('/all_connections', async (req, res) => {
   try {
     const userId = GLOBAL_GRAPH_USER_ID
 
@@ -28,7 +28,7 @@ router.get('/all_connections', authorize, async (req, res) => {
 })
 
 // Route to retrieve all connections for an entry
-router.get('/:entry_id', authorize, async (req, res) => {
+router.get('/:entry_id', async (req, res) => {
   const { entry_id } = req.params
 
   try {
