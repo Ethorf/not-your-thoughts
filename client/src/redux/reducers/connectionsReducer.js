@@ -129,14 +129,27 @@ export const fetchPublicConnections = createAsyncThunk(
 
 export const fetchConnectionsDirect = createAsyncThunk(
   'connections/fetchConnectionsDirect',
-  async (entry_id, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.get(`api/connections/${entry_id}`)
+  async (entry_id) => {
+    const normalizedEntryId =
+      typeof entry_id === 'string' || typeof entry_id === 'number' ? String(entry_id).trim() : ''
 
-      return response.data.connections
-    } catch (error) {
-      return rejectWithValue(error.response?.data || error.message)
+    // External/invalid ids should never hit the backend.
+    if (!normalizedEntryId || normalizedEntryId.startsWith('external-')) {
+      clearPendingRequest('connections/fetchConnectionsDirect', entry_id)
+      return []
     }
+
+    try {
+      const response = await axiosInstance.get(`api/connections/${normalizedEntryId}`)
+      return response?.data?.connections || []
+    } catch (error) {
+      return []
+    } finally {
+      clearPendingRequest('connections/fetchConnectionsDirect', normalizedEntryId)
+    }
+  },
+  {
+    condition: createDeduplicationCondition('connections/fetchConnectionsDirect'),
   }
 )
 

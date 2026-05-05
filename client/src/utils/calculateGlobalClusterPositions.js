@@ -79,7 +79,9 @@ export const positionNodeConnections = async (
   }
 
   // Fetch connections for the node
-  const rawConnections = await dispatch(fetchConnectionsDirect(nodeId)).unwrap()
+  const rawConnections = await dispatch(fetchConnectionsDirect(nodeId))
+    .unwrap()
+    .catch(() => [])
   const allConnections = Array.isArray(rawConnections) ? rawConnections : []
   const normalizedConnections = allConnections
     .map((conn) => ({

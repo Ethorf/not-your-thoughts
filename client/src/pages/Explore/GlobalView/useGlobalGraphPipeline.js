@@ -14,6 +14,10 @@ import { fetchAllConnections } from '@redux/reducers/connectionsReducer'
 import { setGlobalViewCache } from '@redux/reducers/globalViewCacheReducer'
 
 const FILTER_EMPTY_CLUSTERS = false
+const toNumericId = (value) => {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : null
+}
 
 const deduplicateClusterViews = (views) => {
   const seenNodeIds = new Set()
@@ -70,12 +74,21 @@ const useGlobalGraphPipeline = ({
 
   // Stage 1: source all nodes used by the global graph.
   useEffect(() => {
-    setGraphNodes(nodeEntriesInfo.filter((node) => node.isPrivate === false) ?? [])
+    const normalizedNodes = (nodeEntriesInfo || [])
+      .filter((node) => node.isPrivate === false)
+      .map((node) => {
+        const normalizedId = toNumericId(node?.id)
+        return normalizedId == null ? null : { ...node, id: normalizedId }
+      })
+      .filter(Boolean)
+
+    setGraphNodes(normalizedNodes)
   }, [nodeEntriesInfo])
 
   // Stage 2a: fetch the global connection set.
+  // Runs for anonymous sessions too; `/all_connections` resolves the canonical graph owner on the server.
   useEffect(() => {
-    if (!graphNodes.length || userId == null) {
+    if (!graphNodes.length) {
       setGraphConnections([])
       return
     }
@@ -97,11 +110,19 @@ const useGlobalGraphPipeline = ({
       return
     }
 
-    const normalizedConnections = allConnections.filter((conn) => {
-      const sourceId = conn?.entry_id
-      const targetId = conn?.foreign_entry_id
-      return graphNodeIds.has(sourceId) && graphNodeIds.has(targetId)
-    })
+    const normalizedConnections = (allConnections || [])
+      .map((conn) => {
+        const sourceId = toNumericId(conn?.entry_id)
+        const targetId = toNumericId(conn?.foreign_entry_id)
+        if (sourceId == null || targetId == null) return null
+        return {
+          ...conn,
+          entry_id: sourceId,
+          foreign_entry_id: targetId,
+        }
+      })
+      .filter(Boolean)
+      .filter((conn) => graphNodeIds.has(conn.entry_id) && graphNodeIds.has(conn.foreign_entry_id))
 
     // DEBUG: trace node 1003
     const DEBUG_ID = 1003

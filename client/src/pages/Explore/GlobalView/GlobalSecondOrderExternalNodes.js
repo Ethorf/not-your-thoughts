@@ -143,9 +143,11 @@ const GlobalSecondOrderExternalNodes = ({
   getSphereRotation,
   depth = 1,
   maxDepth = Number.POSITIVE_INFINITY,
+  visitedNodeIds = [],
   onNodeHover,
   clusterCenterTitle,
 }) => {
+  const visitedNodeIdSet = useMemo(() => new Set(visitedNodeIds), [visitedNodeIds])
   const computedNodes = useMemo(() => {
     if (!anchorNode || !nodes?.length) return []
     return positionSecondOrderExternals(anchorNode, nodes, depth)
@@ -206,7 +208,9 @@ const GlobalSecondOrderExternalNodes = ({
       ))}
       {depth < maxDepth &&
         renderableNodes.map((parentEntry) => {
-          const connectedNodes = connectionsByNodeId.get(parentEntry.node.id)
+          const connectedNodes = (connectionsByNodeId.get(parentEntry.node.id) || []).filter(
+            (entry) => !visitedNodeIdSet.has(entry?.node?.id)
+          )
           if (!connectedNodes?.length) return null
           return (
             <GlobalSecondOrderNodes
@@ -215,6 +219,7 @@ const GlobalSecondOrderExternalNodes = ({
               nodes={connectedNodes}
               depth={depth + 1}
               maxDepth={maxDepth}
+              visitedNodeIds={[...visitedNodeIds, parentEntry.node.id]}
               nodeTextures={nodeTextures}
               onNodeClick={onNodeClick}
               getSphereRotation={getSphereRotation}

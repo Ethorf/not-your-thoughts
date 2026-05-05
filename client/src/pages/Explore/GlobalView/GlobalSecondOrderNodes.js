@@ -13,19 +13,34 @@ const GlobalSecondOrderNodes = ({
   nodes,
   depth = 1,
   maxDepth = Number.POSITIVE_INFINITY,
+  visitedNodeIds = [],
   nodeTextures,
   onNodeClick,
   getSphereRotation,
   onNodeHover,
   clusterCenterTitle,
 }) => {
+  const visitedNodeIdSet = useMemo(() => {
+    const next = new Set(visitedNodeIds)
+    const anchorId = anchorNode?.node?.id
+    if (anchorId != null) {
+      next.add(anchorId)
+    }
+    return next
+  }, [visitedNodeIds, anchorNode])
+
+  const unvisitedNodes = useMemo(
+    () => (nodes || []).filter((entry) => !visitedNodeIdSet.has(entry?.node?.id)),
+    [nodes, visitedNodeIdSet]
+  )
+
   const { externalNodes, siblingNodes, parentNodes, childNodes } = useMemo(() => {
     const external = []
     const sibling = []
     const parent = []
     const child = []
 
-    nodes?.forEach((entry) => {
+    unvisitedNodes.forEach((entry) => {
       const { connectionType } = entry
 
       if (connectionType === CONNECTION_TYPES.FRONTEND.EXTERNAL) {
@@ -45,7 +60,7 @@ const GlobalSecondOrderNodes = ({
       parentNodes: parent,
       childNodes: child,
     }
-  }, [nodes])
+  }, [unvisitedNodes])
 
   const positionedSiblingNodes = useMemo(() => {
     if (!anchorNode || !siblingNodes?.length) return []
@@ -80,6 +95,7 @@ const GlobalSecondOrderNodes = ({
         getSphereRotation={getSphereRotation}
         depth={depth}
         maxDepth={maxDepth}
+        visitedNodeIds={[...visitedNodeIdSet]}
         onNodeHover={onNodeHover}
         clusterCenterTitle={clusterCenterTitle}
       />
@@ -93,6 +109,7 @@ const GlobalSecondOrderNodes = ({
         getSphereRotation={getSphereRotation}
         depth={depth}
         maxDepth={maxDepth}
+        visitedNodeIds={[...visitedNodeIdSet]}
         onNodeHover={onNodeHover}
         clusterCenterTitle={clusterCenterTitle}
       />
@@ -106,6 +123,7 @@ const GlobalSecondOrderNodes = ({
         getSphereRotation={getSphereRotation}
         depth={depth}
         maxDepth={maxDepth}
+        visitedNodeIds={[...visitedNodeIdSet]}
         onNodeHover={onNodeHover}
         clusterCenterTitle={clusterCenterTitle}
       />
@@ -119,6 +137,7 @@ const GlobalSecondOrderNodes = ({
         getSphereRotation={getSphereRotation}
         depth={depth}
         maxDepth={maxDepth}
+        visitedNodeIds={[...visitedNodeIdSet]}
         onNodeHover={onNodeHover}
         clusterCenterTitle={clusterCenterTitle}
       />

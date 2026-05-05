@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import axiosInstance from '@utils/axiosInstance'
 import { fetchConnectionsDirect } from '@redux/reducers/connectionsReducer'
@@ -9,6 +9,8 @@ import useNodeEntriesInfo from './useNodeEntriesInfo'
 
 const cachedNodeEntries = new Map()
 const inflightNodeEntryRequests = new Map()
+const cachedConnectionsByNodeId = new Map()
+const inflightConnectionsByNodeId = new Map()
 const {
   FRONTEND: { EXTERNAL },
 } = CONNECTION_TYPES
@@ -41,11 +43,38 @@ const fetchNodeEntryById = async (entryId) => {
   return request
 }
 
+const fetchConnectionsForNode = async (dispatch, nodeId) => {
+  if (cachedConnectionsByNodeId.has(nodeId)) {
+    return cachedConnectionsByNodeId.get(nodeId)
+  }
+
+  if (inflightConnectionsByNodeId.has(nodeId)) {
+    return inflightConnectionsByNodeId.get(nodeId)
+  }
+
+  const request = dispatch(fetchConnectionsDirect(nodeId))
+    .unwrap()
+    .then((connections) => {
+      const normalized = Array.isArray(connections) ? connections : []
+      cachedConnectionsByNodeId.set(nodeId, normalized)
+      inflightConnectionsByNodeId.delete(nodeId)
+      return normalized
+    })
+    .catch(() => {
+      inflightConnectionsByNodeId.delete(nodeId)
+      return []
+    })
+
+  inflightConnectionsByNodeId.set(nodeId, request)
+  return request
+}
+
 const useGlobalSecondOrderConnections = (nodes) => {
   const dispatch = useDispatch()
   const nodeEntriesInfo = useNodeEntriesInfo()
   const { allConnections } = useSelector((state) => state.connections)
   const [connectionsById, setConnectionsById] = useState(new Map())
+  const fetchedNodeIdsRef = useRef(new Set())
 
   const entriesById = useMemo(() => {
     return new Map((nodeEntriesInfo || []).map((entry) => [entry.id, entry]))
@@ -86,15 +115,29 @@ const useGlobalSecondOrderConnections = (nodes) => {
         return
       }
 
-      const results = await Promise.all(
-        nodes.map(async (entry) => {
-          const nodeId = entry?.node?.id
-          if (!nodeId) return [nodeId, []]
-          if (typeof nodeId !== 'number') return [nodeId, []]
+      const targetNodeIds = nodes
+        .map((entry) => entry?.node?.id)
+        .filter((nodeId) => typeof nodeId === 'number' && Number.isFinite(nodeId))
+      const nextTargetIdSet = new Set(targetNodeIds)
 
-          const rawConnections = await dispatch(fetchConnectionsDirect(nodeId))
-            .unwrap()
-            .catch(() => [])
+      // Prune stale ids so we only retain/fetch what this render tree needs.
+      fetchedNodeIdsRef.current.forEach((existingId) => {
+        if (!nextTargetIdSet.has(existingId)) {
+          fetchedNodeIdsRef.current.delete(existingId)
+        }
+      })
+
+      const idsToFetch = targetNodeIds.filter((nodeId) => !fetchedNodeIdsRef.current.has(nodeId))
+      if (!idsToFetch.length) {
+        return
+      }
+
+      const results = await Promise.all(
+        idsToFetch.map(async (nodeId) => {
+          const entry = nodes.find((candidate) => candidate?.node?.id === nodeId)
+          if (!entry) return [nodeId, []]
+
+          const rawConnections = await fetchConnectionsForNode(dispatch, nodeId)
 
           const normalizedConnections = rawConnections
             .map((conn) => ({
@@ -140,13 +183,18 @@ const useGlobalSecondOrderConnections = (nodes) => {
 
       if (!isActive) return
 
-      const nextMap = new Map()
-      results.forEach(([nodeId, connectedEntries]) => {
-        if (nodeId && connectedEntries?.length) {
-          nextMap.set(nodeId, connectedEntries)
-        }
+      setConnectionsById((prevMap) => {
+        const nextMap = new Map(prevMap)
+        results.forEach(([nodeId, connectedEntries]) => {
+          fetchedNodeIdsRef.current.add(nodeId)
+          if (nodeId && connectedEntries?.length) {
+            nextMap.set(nodeId, connectedEntries)
+          } else {
+            nextMap.delete(nodeId)
+          }
+        })
+        return nextMap
       })
-      setConnectionsById(nextMap)
     }
 
     fetchConnections()
