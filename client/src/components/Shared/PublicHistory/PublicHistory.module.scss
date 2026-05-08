@@ -19,16 +19,16 @@
     overflow: hidden;
     position: relative;
     top: 0;
-    margin-top: 26px;
+    margin-top: 1.625rem;
   }
 
   .versionList {
     max-height: 75vh;
-    padding-right: 4px;
+    padding-right: 0.25rem;
   }
 
   .versionButton {
-    padding: 10px;
+    padding: 0.625rem;
   }
 
   .versionNumber {
@@ -47,17 +47,17 @@
 .versionList {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.625rem;
   max-height: 70vh;
   overflow-y: auto;
-  padding-right: 8px;
+  padding-right: 0.5rem;
 }
 
 .versionButton {
   background: black;
   border: $silver-border-default;
   border-radius: $default-border-radius;
-  padding: 12px;
+  padding: 0.75rem;
   color: $silver-default;
   cursor: pointer;
   text-align: left;
@@ -79,7 +79,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
 }
 
 .versionNumber {
@@ -102,6 +102,6 @@
 .emptyMessage {
   color: $silver-faded;
   font-style: italic;
-  padding: 20px;
+  padding: 1.25rem;
   text-align: center;
 }

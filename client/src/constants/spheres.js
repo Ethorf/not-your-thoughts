@@ -6,11 +6,12 @@ export const SPHERE_TYPES = enumify([
   'first_order_connection',
   'first_order_parent',
   'second_order_connection',
+  'second_order_connection_max_size',
 ])
 
 // Base/local (per-entry) view sphere sizes
 export const LOCAL_SPHERE_SIZES = {
-  [SPHERE_TYPES.MAIN]: 1.3,
+  [SPHERE_TYPES.MAIN]: 1.2,
   [SPHERE_TYPES.FIRST_ORDER_CONNECTION]: 0.9,
   [SPHERE_TYPES.SECOND_ORDER_CONNECTION]: 0.7,
 }
@@ -21,15 +22,82 @@ export const GLOBAL_SPHERE_SIZES = {
   [SPHERE_TYPES.FIRST_ORDER_CONNECTION]: 0.26,
   [SPHERE_TYPES.SECOND_ORDER_CONNECTION]: 0.2,
   [SPHERE_TYPES.FIRST_ORDER_PARENT]: 0.3,
+  [SPHERE_TYPES.SECOND_ORDER_CONNECTION_MAX_SIZE]: 0.3,
 }
 
-// Default distance for first-order connection spheres in global view
-export const DEFAULT_CONNECTION_SPHERE_DISTANCE = 0.35
+/** Number of connections at which a non-main sphere reaches max (main) size */
+export const GLOBAL_CONNECTIONS_FOR_MAX_SIZE = 10
+
+/**
+ * Scale non-main sphere size by connection count. More connections = larger sphere, up to main size.
+ * @param {number} connectionCount - Number of connections the node has
+ * @param {number} baseSize - Min size (from GLOBAL_SPHERE_SIZES for connection type)
+ * @param {number} [maxSize] - Max size (defaults to GLOBAL_SPHERE_SIZES.MAIN)
+ * @returns {number} Scaled size between baseSize and maxSize
+ */
+export const getGlobalConnectionSphereSize = (
+  connectionCount,
+  baseSize,
+  maxSize = GLOBAL_SPHERE_SIZES[SPHERE_TYPES.SECOND_ORDER_CONNECTION_MAX_SIZE]
+) => {
+  if (connectionCount <= 0) return baseSize
+  const t = Math.min(1, connectionCount / GLOBAL_CONNECTIONS_FOR_MAX_SIZE)
+  return baseSize + (maxSize - baseSize) * t
+}
+
+// Base distance for first-order connection spheres in global view (minimum gap between sphere surfaces)
+export const DEFAULT_CONNECTION_SPHERE_DISTANCE = 0.42
+
+export const SECOND_ORDER_CONNECTION_SPHERE_DISTANCE = 0.12
+
+export const SECOND_ORDER_SIBLING_CONNECTION_SPHERE_DISTANCE = 0.3
+
+/**
+ * Scale factor for size contribution to connection distance. Lower = tighter spacing.
+ * Full radii (1.0) was too far; 0.3 adds modest spacing for larger spheres.
+ */
+export const SIZE_TO_DISTANCE_SCALE = 0.2
+
+/**
+ * Effective center-to-center distance so sphere surfaces don't overlap when larger.
+ * Adds a scaled portion of both radii to avoid overlap without pushing nodes too far apart.
+ * @param {number} baseDistance - Base gap between sphere centers
+ * @param {number} sizeA - Radius of first sphere
+ * @param {number} sizeB - Radius of second sphere
+ * @returns {number} Effective distance between sphere centers
+ */
+export const getEffectiveConnectionDistance = (baseDistance, sizeA, sizeB) => {
+  const sizeContribution = SIZE_TO_DISTANCE_SCALE * ((sizeA || 0) + (sizeB || 0))
+  return baseDistance + sizeContribution
+}
+
+/** Radius of the center wireframe globe in Global View. Nodes are positioned at GLOBAL_NODE_SPHERE_RADIUS; this is purely visual. */
+export const GLOBAL_CENTER_GLOBE_RADIUS = 2.2
+
+/** Radius at which nodes are positioned on the globe in Global Explore. Higher = more space between clusters. */
+export const GLOBAL_NODE_SPHERE_RADIUS = 3.5
+
+/** Minimum distance between nodes for overlap prevention in Global View. Higher = more separation. */
+export const GLOBAL_OVERLAP_MIN_DISTANCE = 0.5
+
+/** Latitude band (degrees) for unconnected clusters. Further from equator = more separation from connected clusters. */
+export const GLOBAL_UNCONNECTED_CLUSTER_LAT_MIN = 72
+export const GLOBAL_UNCONNECTED_CLUSTER_LAT_MAX = 88
+
+/** Minimum distance between cluster centers. Prevents clusters from overlapping when many exist. */
+export const GLOBAL_MIN_CLUSTER_CENTER_DISTANCE = 1.3
 
 // Backwards-compatible export – keep existing imports working.
 // Treat the previous default as the local view sizes.
 export const DEFAULT_SPHERE_SIZES = LOCAL_SPHERE_SIZES
-// jeff
+
+// Local Explore view tuning constants
+export const LOCAL_EXPLORE_CONNECTION_DISTANCE_SCALE = 0.88
+export const LOCAL_EXPLORE_CONNECTION_SIZE_SCALE = 0.9
+export const LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET = 0.45
+export const LOCAL_EXPLORE_CHILD_DISTANCE_SCALE = 0.86
+export const LOCAL_EXPLORE_PARENT_DISTANCE_SCALE = 0.9
+
 // Line width constants
 export const LINE_WIDTHS = {
   MAIN_CONNECTION: 1.2,

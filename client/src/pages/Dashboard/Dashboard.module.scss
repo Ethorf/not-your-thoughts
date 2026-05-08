@@ -4,30 +4,42 @@
   justify-content: center;
   flex-direction: column;
   align-items: center;
+
+  h1 {
+    margin: 36px 0;
+  }
 }
 
 .searchSection {
-  margin: 20px 0;
+  margin: 1.25rem 0;
   width: 70%;
   text-align: center;
 
   h2 {
-    margin-bottom: 10px;
+    margin-bottom: 0.625rem;
     color: #333;
   }
 }
 
 .searchComponent {
-  max-width: 400px;
+  max-width: 25rem;
   margin: 0 auto;
 }
 
 .newEntry {
   display: flex;
-  height: 70px;
   align-items: center;
+  justify-content: flex-end;
+  width: 50%;
+
+  h2 {
+    margin: 0;
+  }
 }
 
-.customPromptsList {
+.actionsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   width: 70%;
 }

@@ -52,7 +52,7 @@
     background-color: black;
     color: silver;
     border: 1px solid silver;
-    padding: 4px;
+    padding: 0.25rem;
     outline: none;
     width: 13vw;
     font-size: 1rem;
@@ -80,7 +80,7 @@
       transition: all 0.4s;
       background-color: white;
       color: black;
-      text-shadow: 3px 3px 3px silver;
+      text-shadow: 0.1875rem 0.1875rem 0.1875rem silver;
     }
   }
   @include laptop-small() {

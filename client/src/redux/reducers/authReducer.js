@@ -49,6 +49,7 @@ function authReducer(state = initialState, action) {
       return {
         ...state,
         ...payload,
+        token: payload.jwtToken,
         isAuthenticated: true,
         loading: true,
       }

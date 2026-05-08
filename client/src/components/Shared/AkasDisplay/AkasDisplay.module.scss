@@ -19,21 +19,21 @@
 
   border: 1px solid $silver-default;
   position: absolute;
-  top: 46px;
+  top: 2.875rem;
   background-color: black;
-  border-radius: 8px;
-  padding: 12px;
-  min-width: 120px;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  min-width: 7.5rem;
   text-align: center;
 }
 
 .aka {
   color: $silver-faded;
-  margin: 8px;
+  margin: 0.5rem;
 }
 
 .noAkas {
   display: flex;
-  width: 100px;
-  margin: 12px 0;
+  width: 6.25rem;
+  margin: 0.75rem 0;
 }

@@ -39,9 +39,8 @@ export const NodesDashboardList = () => {
   }, [nodeEntriesInfo, sortBy, searchFilter])
 
   return (
-    <>
+    <div className={styles.wrapper}>
       <div className={styles.topContainer}>
-        <h3>Nodes</h3>
         <div className={styles.searchContainer}>
           <NodeSearch
             mode="filter"
@@ -60,7 +59,7 @@ export const NodesDashboardList = () => {
       </div>
 
       {filteredAndSortedNodes.length ? (
-        <ul className={styles.wrapper}>
+        <ul className={styles.nodesList}>
           {filteredAndSortedNodes.map((node) => (
             <DashboardNodeEntry key={node.id} nodeEntriesInfo={nodeEntriesInfo} node={node} />
           ))}
@@ -70,6 +69,6 @@ export const NodesDashboardList = () => {
       ) : (
         <h3>No nodes created yet...</h3>
       )}
-    </>
+    </div>
   )
 }

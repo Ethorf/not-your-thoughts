@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo, useCallback, useEffect, useState, useRef } from 'react'
+import React, { Suspense, useCallback, useEffect, useState, useRef } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
@@ -6,101 +6,165 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 
 import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
-import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 
 // Redux
 import { setEntryById } from '@redux/reducers/currentEntryReducer'
-import { fetchAllConnections } from '@redux/reducers/connectionsReducer'
 
 // Styles
 import styles from './GlobalView.module.scss'
 import TextButton from '@components/Shared/TextButton/TextButton'
-
-// Constants
-import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES } from '@constants/spheres'
+import NodeSearch from '@components/Shared/NodeSearch/NodeSearch'
 
 // Components
 import CameraController from './CameraController'
 import GradientGlobe from './GradientGlobe'
-import GlobalFirstOrderNodes from './GlobalFirstOrderNodes'
+import GlobalClusterView from './GlobalClusterView'
+import FocusedEntryRing from './FocusedEntryRing'
+import useGlobalGraphPipeline from './useGlobalGraphPipeline'
+import { FaceCameraProvider } from '@components/Spheres/SphereWithEffects'
 
 // Utils
-import { buildGlobalNodeSphereTextures, buildClusters, positionGlobalNodes } from '@utils/globalViewHelpers'
+import extractTextFromHTML from '@utils/extractTextFromHTML'
+import { buildGlobalHoverInfo } from './hoverInfoHelpers'
+
+const formatHoverDate = (value) => {
+  if (!value) return 'N/A'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return 'N/A'
+  return date.toLocaleDateString()
+}
+
+const getWordCount = (content) => {
+  if (!content) return 0
+  const rawText = Array.isArray(content) ? content.join(' ') : content
+  const cleanText = extractTextFromHTML(String(rawText))
+  if (!cleanText.trim()) return 0
+  return cleanText.trim().split(/\s+/).filter(Boolean).length
+}
 
 const GlobalView = () => {
   const nodeEntriesInfo = useNodeEntriesInfo()
   const history = useHistory()
   const dispatch = useDispatch()
+  const { user } = useSelector((state) => state.auth)
 
-  const { allConnections } = useSelector((state) => state.connections)
-  const { entryId } = useSelector((state) => state.currentEntry)
-  const [cameraRotation, setCameraRotation] = useState({ azimuth: 0, polar: 0 })
-  const [mainNode, setMainNode] = useState(null)
-  const [firstOrderNodes, setFirstOrderNodes] = useState([])
-  const [secondOrderNodes, setSecondOrderNodes] = useState([])
-  const [firstOrderConnectionsMap, setFirstOrderConnectionsMap] = useState(new Map())
+  const { allConnections, connectionsLoading } = useSelector((state) => state.connections)
+  const { entryId, entriesLoading } = useSelector((state) => state.currentEntry)
+  const { cache: globalViewCache, invalidated: globalViewInvalidated } = useSelector((state) => state.globalViewCache)
+  const [hoverInfo, setHoverInfo] = useState(null)
+  const [focusDismissSignal, setFocusDismissSignal] = useState(0)
   const controlsRef = useRef()
+  const {
+    clusterViews,
+    nodeTextures,
+    allNodesForTextures,
+    hasClustersToProcess,
+    isPositioningClusters,
+    positioningProgress,
+  } = useGlobalGraphPipeline({
+    nodeEntriesInfo,
+    allConnections,
+    connectionsLoading,
+    globalViewCache,
+    globalViewInvalidated,
+    dispatch,
+    userId: user?.id,
+  })
 
-  // Fetch all connections on mount
-  useEffect(() => {
-    dispatch(fetchAllConnections())
-  }, [dispatch])
-
-  // Track camera rotation
   const handleCameraChange = useCallback(() => {
-    if (controlsRef.current) {
-      const azimuthalAngle = controlsRef.current.getAzimuthalAngle()
-      const polarAngle = controlsRef.current.getPolarAngle()
-      setCameraRotation({
-        azimuth: ((azimuthalAngle * 180) / Math.PI).toFixed(1),
-        polar: ((polarAngle * 180) / Math.PI).toFixed(1),
-      })
-    }
+    // Kept for OrbitControls onChange; can extend for camera position display
+  }, [])
+
+  const dismissFocusedRing = useCallback(() => {
+    setFocusDismissSignal((value) => value + 1)
   }, [])
 
   const handleNodeClick = useCallback(
     async (nodeId) => {
+      dismissFocusedRing()
       await dispatch(setEntryById(nodeId))
       history.push(`/explore?entryId=${nodeId}`)
     },
-    [dispatch, history]
+    [dismissFocusedRing, dispatch, history]
   )
 
-  // Build clusters and place them on globe
-  const { clusters } = useMemo(() => {
-    if (!nodeEntriesInfo || !allConnections) {
-      return { clusters: [], adjacency: new Map() }
-    }
+  const handleNodeFocus = useCallback(
+    async (nodeId) => {
+      if (typeof nodeId !== 'number') return
+      dismissFocusedRing()
+      await dispatch(setEntryById(nodeId))
+    },
+    [dismissFocusedRing, dispatch]
+  )
 
-    const { clusters, adjacency } = buildClusters(nodeEntriesInfo, allConnections)
+  const handleNodeHover = useCallback(
+    (info) => {
+      if (info) {
+        dismissFocusedRing()
+        setHoverInfo(info)
+      }
+    },
+    [dismissFocusedRing]
+  )
 
-    return { clusters, adjacency }
-  }, [nodeEntriesInfo, allConnections])
-
-  // Handle async positioning of nodes in clusters
   useEffect(() => {
-    const positionNodes = async () => {
-      const result = await positionGlobalNodes(nodeEntriesInfo, allConnections, clusters, dispatch, 990)
-      setMainNode(result.mainNode)
-      setFirstOrderNodes(result.firstOrderNodes)
-      setSecondOrderNodes(result.secondOrderNodes)
-      setFirstOrderConnectionsMap(result.firstOrderConnectionsMap)
+    if (hoverInfo || !entryId || !clusterViews?.length) return
+
+    const entryIdStr = String(entryId)
+    for (const view of clusterViews) {
+      const mainMatch =
+        view?.mainNode?.node?.id != null && String(view.mainNode.node.id) === entryIdStr ? view.mainNode : null
+      if (mainMatch) {
+        setHoverInfo(
+          buildGlobalHoverInfo({
+            entry: mainMatch,
+            clusterCenterTitle: mainMatch.node?.title,
+            connectionType: 'main',
+            parentTitle: null,
+          })
+        )
+        return
+      }
+
+      const firstOrderMatch = (view?.firstOrderNodes || []).find(
+        (e) => e?.node?.id != null && String(e.node.id) === entryIdStr
+      )
+      if (firstOrderMatch) {
+        setHoverInfo(
+          buildGlobalHoverInfo({
+            entry: firstOrderMatch,
+            clusterCenterTitle: view?.mainNode?.node?.title,
+            connectionType: firstOrderMatch.connectionType || null,
+            parentTitle: view?.mainNode?.node?.title || null,
+          })
+        )
+        return
+      }
     }
+  }, [entryId, clusterViews, hoverInfo])
 
-    positionNodes()
-  }, [nodeEntriesInfo, allConnections, clusters, dispatch])
+  const handleUserCameraInteraction = useCallback(() => {
+    dismissFocusedRing()
+  }, [dismissFocusedRing])
 
-  // Combine all nodes for texture generation
-  const allNodesForTextures = useMemo(() => {
-    const nodes = []
-    if (mainNode) nodes.push(mainNode)
-    nodes.push(...firstOrderNodes)
-    nodes.push(...secondOrderNodes)
-    return nodes
-  }, [mainNode, firstOrderNodes, secondOrderNodes])
+  // Show loading when fetching data, positioning, or when we have clusters to process but no views yet (prevents first-frame flash)
+  const isLoading =
+    entriesLoading ||
+    (connectionsLoading && (!allConnections?.length || globalViewInvalidated)) ||
+    isPositioningClusters ||
+    (hasClustersToProcess && clusterViews.length === 0)
 
-  // Create texture for each node
-  const nodeTextures = useMemo(() => buildGlobalNodeSphereTextures(allNodesForTextures), [allNodesForTextures])
+  // Loading progress: entries 0%, connections 10%, positioning 0-100%
+  const loadingPercent = isLoading
+    ? entriesLoading
+      ? 0
+      : connectionsLoading && (!allConnections?.length || globalViewInvalidated)
+        ? 10
+        : Math.round(positioningProgress * 100)
+    : 100
+  const hoverConnectionCount = hoverInfo?.connectionCount ?? 0
+  const hoverWordCount = getWordCount(hoverInfo?.content)
+  const hoverTitle = hoverInfo?.nodeTitle || hoverInfo?.clusterCenterTitle || 'Untitled'
 
   // Calculate rotation so sphere texture faces the camera
   const getSphereRotation = useCallback((spherePosition) => {
@@ -114,7 +178,10 @@ const GlobalView = () => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
-        <h1>Global Mind Map</h1>
+        <h1>{user ? user.name : "Eric Thorfinnson's"}'s Global Mind Map</h1>
+        <TextButton className={styles.backButton} onClick={() => history.push('/dashboard')} tooltip="Go to Dashboard">
+          Dashboard
+        </TextButton>
         <TextButton
           className={styles.backButton}
           onClick={() => history.push('/explore')}
@@ -122,57 +189,47 @@ const GlobalView = () => {
         >
           ← Local View
         </TextButton>
+        <NodeSearch
+          mode="focus"
+          placeholder="Search to focus..."
+          className={styles.searchComponent}
+          onNodeSelect={(node) => handleNodeFocus(node?.id)}
+        />
       </div>
-      <p className={styles.subtitle}>All nodes clustered by connections. Rotate the globe to explore.</p>
-
       <div className={styles.globeContainer}>
-        <Canvas camera={{ position: [0, 0, 5] }}>
+        {isLoading && (
+          <div className={styles.loadingOverlay}>
+            <span className={styles.loadingText}>Mapping mind network...</span>
+            <div className={styles.loadingBar}>
+              <div className={styles.loadingBarFill} style={{ width: `${loadingPercent}%` }} />
+            </div>
+            <span className={styles.loadingPercent}>{loadingPercent}%</span>
+          </div>
+        )}
+        <Canvas camera={{ position: [0, 0, 5] }} onPointerDown={handleUserCameraInteraction}>
           <ambientLight intensity={0.4} />
           <directionalLight position={[5, 5, 5]} intensity={0.6} />
 
           <Suspense fallback={null}>
-            <CameraController nodePositions={allNodesForTextures} entryId={entryId} controlsRef={controlsRef} />
+            <FaceCameraProvider>
+              <CameraController nodePositions={allNodesForTextures} entryId={entryId} controlsRef={controlsRef} />
+              <GradientGlobe isLoading={isLoading} />
 
-            <GradientGlobe />
+              <FocusedEntryRing entryId={entryId} dismissSignal={focusDismissSignal} />
 
-            {/* Main node */}
-            {mainNode && (
-              <SphereWithEffects
-                key={mainNode.node.id}
-                id={mainNode.node.id}
-                pos={mainNode.position.toArray()}
-                title={mainNode.node.title}
-                size={GLOBAL_SPHERE_SIZES[SPHERE_TYPES.MAIN]}
-                mainTexture={nodeTextures.get(mainNode.node.id)}
-                onClick={() => handleNodeClick(mainNode.node.id)}
-                rotation={getSphereRotation(mainNode.position)}
-              />
-            )}
-
-            {/* First-order nodes + their connection lines */}
-            <GlobalFirstOrderNodes
-              mainNode={mainNode}
-              firstOrderNodes={firstOrderNodes}
-              firstOrderConnectionsMap={firstOrderConnectionsMap}
-              nodeTextures={nodeTextures}
-              onNodeClick={handleNodeClick}
-              getSphereRotation={getSphereRotation}
-            />
-            {/* Second order nodes */}
-            {/* {secondOrderNodes.map(({ node, position }) => (
-              <SphereWithEffects
-                key={node.id}
-                id={node.id}
-                pos={position.toArray()}
-                title={node.title}
-                size={GLOBAL_SPHERE_SIZES[SPHERE_TYPES.SECOND_ORDER_CONNECTION]}
-                mainTexture={nodeTextures.get(node.id)}
-                onClick={() => handleNodeClick(node.id)}
-                rotation={getSphereRotation(position)}
-              />
-            ))} */}
-            {/* Second order connection lines */}
-            {/* {secondOrderConnectionLines} */}
+              {clusterViews.map((view, index) => (
+                <GlobalClusterView
+                  key={view.mainNode?.node?.id ?? `cluster-${index}`}
+                  mainNode={view.mainNode}
+                  firstOrderNodes={view.firstOrderNodes}
+                  firstOrderConnectionsMap={view.firstOrderConnectionsMap}
+                  nodeTextures={nodeTextures}
+                  onNodeClick={handleNodeClick}
+                  onNodeHover={handleNodeHover}
+                  getSphereRotation={getSphereRotation}
+                />
+              ))}
+            </FaceCameraProvider>
           </Suspense>
 
           <OrbitControls
@@ -180,21 +237,44 @@ const GlobalView = () => {
             enablePan={false}
             enableZoom={true}
             enableRotate={true}
-            minDistance={4}
+            minDistance={3}
             maxDistance={12}
             onChange={handleCameraChange}
+            onStart={handleUserCameraInteraction}
           />
         </Canvas>
       </div>
 
-      <div className={styles.info}>
-        <p>Clusters: {clusters.length}</p>
-        <p>Total Nodes: {allNodesForTextures.length}</p>
-        <p>First Order: {firstOrderNodes.length}</p>
-        <p>Second Order: {secondOrderNodes.length}</p>
-        <p>
-          Camera: Azimuth {cameraRotation.azimuth} | Polar {cameraRotation.polar}
-        </p>
+      <div className={`${styles.info} ${hoverInfo ? '' : styles.infoHidden}`}>
+        <h2 className={styles.nodeTitle}>{hoverTitle}</h2>
+        <div className={styles.nodeInfo}>
+          {hoverConnectionCount > 0 && (
+            <>
+              <p>
+                Cluster Center: <span className={styles.infoValue}>{hoverInfo?.clusterCenterTitle || ''}</span>
+              </p>
+              <p>
+                Connections: <span className={styles.infoValue}>{hoverConnectionCount}</span>
+              </p>
+            </>
+          )}
+          <p>
+            Date Created: <span className={styles.infoValue}>{formatHoverDate(hoverInfo?.dateCreated)}</span>
+          </p>
+          <p>
+            Date Updated: <span className={styles.infoValue}>{formatHoverDate(hoverInfo?.dateUpdated)}</span>
+          </p>
+          <p>
+            Words: <span className={styles.infoValue}>{hoverWordCount}</span>
+          </p>
+          {/* <DefaultButton
+            tooltip="Open connections menu"
+            onClick={() => handleOpenConnectionsModalForNode(hoverNodeId)}
+            disabled={!canOpenHoverConnections}
+          >
+            Connections
+          </DefaultButton> */}
+        </div>
       </div>
     </div>
   )

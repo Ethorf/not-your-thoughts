@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import * as THREE from 'three'
 
@@ -11,6 +11,7 @@ import { fetchConnectionsDirect } from '@redux/reducers/connectionsReducer'
 
 // Utils
 import { transformConnection } from '@utils/transformConnection'
+import { transformBackendToFrontendConnectionType } from '@utils/connectionTypeHelpers'
 
 // Components
 import SphereWithEffects from './SphereWithEffects'
@@ -29,6 +30,7 @@ const ConnectionSpheres = ({
   verticalOffset = 0,
   horizontalOffset = 0,
   currentEntryId = null, // Allow passing from parent for public views
+  excludedNodeIds = [],
 }) => {
   const dispatch = useDispatch()
   const [subConnections, setSubConnections] = useState(null)
@@ -60,18 +62,50 @@ const ConnectionSpheres = ({
   }, [connId, dispatch])
 
   const ORBITAL_RADIUS = size * 3
+  const excludedNodeIdSet = useMemo(
+    () => new Set((excludedNodeIds || []).filter((id) => id != null).map((id) => String(id))),
+    [excludedNodeIds]
+  )
+  const visibleSubConnections = useMemo(() => {
+    if (conn?.connection_type === EXTERNAL || fetchError || !subConnections?.length) return []
+
+    const seenNodeKeys = new Set()
+    const visible = []
+
+    for (const sub of subConnections) {
+      if (effectiveEntryId && (sub.foreign_entry_id === effectiveEntryId || sub.primary_entry_id === effectiveEntryId)) {
+        continue
+      }
+
+      const transformed = transformConnection(connId, sub)
+      const nodeId = transformed?.id
+      const isExternalSub = sub.connection_type === EXTERNAL
+      const dedupeKey = isExternalSub ? `external-${sub.id}` : nodeId != null ? String(nodeId) : `sub-${sub.id}`
+
+      if (!isExternalSub && nodeId != null && excludedNodeIdSet.has(String(nodeId))) continue
+      if (seenNodeKeys.has(dedupeKey)) continue
+      seenNodeKeys.add(dedupeKey)
+
+      visible.push({ sub, transformed })
+    }
+
+    return visible
+  }, [conn, fetchError, subConnections, effectiveEntryId, connId, excludedNodeIdSet])
+  const visibleSiblingSubConnections = useMemo(
+    () =>
+      visibleSubConnections.filter(
+        ({ sub }) =>
+          transformBackendToFrontendConnectionType(sub.connection_type, connId, sub) === CONNECTION_TYPES.FRONTEND.SIBLING
+      ),
+    [visibleSubConnections, connId]
+  )
 
   return (
     <>
       {/* Sub-connections with orbital lines */}
-      {conn?.connection_type !== EXTERNAL &&
-        !fetchError &&
-        subConnections
-          ?.filter((conn) => {
-            if (!effectiveEntryId) return true // If no entryId, show all
-            return conn.foreign_entry_id !== effectiveEntryId && conn.primary_entry_id !== effectiveEntryId
-          })
-          .map((sub, i) => {
+      {visibleSubConnections.map(({ sub, transformed }, i) => {
+            const subConnectionType = transformBackendToFrontendConnectionType(sub.connection_type, connId, sub)
+
             // Create orbital position around the main sphere
             const angle = (i / subConnections.length) * Math.PI * 2 // Distribute evenly around circle
 
@@ -83,14 +117,25 @@ const ConnectionSpheres = ({
             const right = new THREE.Vector3().crossVectors(direction, up).normalize()
             const forward = new THREE.Vector3().crossVectors(right, direction).normalize()
 
-            // Calculate orbital position
-            let orbitalOffset = new THREE.Vector3()
-              .addScaledVector(right, Math.cos(angle) * ORBITAL_RADIUS)
-              .addScaledVector(forward, Math.sin(angle) * ORBITAL_RADIUS)
-              // Add additional offset in the direction away from origin to ensure no overlap
-              .addScaledVector(direction, ORBITAL_RADIUS * 0.3)
-              // Apply vertical offset based on connection type
-              .addScaledVector(up, verticalOffset)
+            const siblingIndex = visibleSiblingSubConnections.findIndex((candidate) => candidate.sub.id === sub.id)
+            const isSiblingConnection = subConnectionType === CONNECTION_TYPES.FRONTEND.SIBLING
+
+            // Calculate orbital position.
+            // Sibling sub-connections are constrained to direct east/west offsets from the connected node.
+            let orbitalOffset
+            if (isSiblingConnection) {
+              const nonNegativeSiblingIndex = siblingIndex >= 0 ? siblingIndex : i
+              const siblingSide = nonNegativeSiblingIndex % 2 === 0 ? -1 : 1
+              orbitalOffset = new THREE.Vector3(siblingSide * ORBITAL_RADIUS, 0, 0)
+            } else {
+              orbitalOffset = new THREE.Vector3()
+                .addScaledVector(right, Math.cos(angle) * ORBITAL_RADIUS)
+                .addScaledVector(forward, Math.sin(angle) * ORBITAL_RADIUS)
+                // Add additional offset in the direction away from origin to ensure no overlap
+                .addScaledVector(direction, ORBITAL_RADIUS * 0.3)
+                // Apply vertical offset based on connection type
+                .addScaledVector(up, verticalOffset)
+            }
 
             // If the main connection is a PARENT type and this sub-connection is also a PARENT type,
             // render it directly above the main sphere
@@ -108,9 +153,9 @@ const ConnectionSpheres = ({
             }
             const isParentToParent = conn?.connection_type === PARENT && sub.connection_type === PARENT
 
-            // For parent spheres, apply horizontal offset to create left/right alternating pattern
-            // But NOT for parent-to-parent connections which should be directly above
-            if (horizontalOffset !== 0 && !isParentToParent) {
+            // For parent spheres, apply horizontal offset to create left/right alternating pattern.
+            // But NOT for parent-to-parent (vertical) or sibling (strict east/west) sub-connections.
+            if (horizontalOffset !== 0 && !isParentToParent && !isSiblingConnection) {
               // Create a world-space right vector for horizontal offset
               const worldRight = new THREE.Vector3(1, 0, 0)
               orbitalOffset.addScaledVector(worldRight, horizontalOffset)
@@ -125,8 +170,6 @@ const ConnectionSpheres = ({
             // For parent-to-parent connections, use a shorter line radius
             const lineRadius = 0.008 // Thicker line for parent-to-parent
             const geometry = new THREE.TubeGeometry(curve, 8, lineRadius, 4, false)
-
-            const transformed = transformConnection(connId, sub)
 
             return (
               <group key={sub.id}>

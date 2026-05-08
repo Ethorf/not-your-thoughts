@@ -1,12 +1,21 @@
 import React, { useMemo } from 'react'
 import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
-import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES, DEFAULT_CONNECTION_SPHERE_DISTANCE } from '@constants/spheres'
+import {
+  SPHERE_TYPES,
+  GLOBAL_SPHERE_SIZES,
+  getGlobalConnectionSphereSize,
+  getEffectiveConnectionDistance,
+  DEFAULT_CONNECTION_SPHERE_DISTANCE,
+} from '@constants/spheres'
 import { buildConnectionLinesForNodes } from '@utils/globalViewHelpers'
+import { CONNECTION_TYPES } from '@constants/connectionTypes'
+import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
+import { buildGlobalHoverInfo } from './hoverInfoHelpers'
 
 // Positioning constants for siblings (if needed for offset calculations)
 
-const positionSiblingNodes = (mainNode, siblingNodes) => {
+export const positionSiblingNodes = (mainNode, siblingNodes) => {
   if (!mainNode || !siblingNodes?.length) return []
 
   const mainPosition =
@@ -26,46 +35,49 @@ const positionSiblingNodes = (mainNode, siblingNodes) => {
     tangent2.negate()
   }
 
+  const mainSize = GLOBAL_SPHERE_SIZES[SPHERE_TYPES.MAIN]
+  const siblingSizes = siblingNodes.map((e) =>
+    getGlobalConnectionSphereSize(
+      e.totalConnectionCount ?? e.connectedNodes?.length ?? 0,
+      GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
+    )
+  )
+  const maxSiblingSize = siblingSizes.length ? Math.max(...siblingSizes) : GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
+  const effectiveSiblingDist = getEffectiveConnectionDistance(DEFAULT_CONNECTION_SPHERE_DISTANCE, mainSize, maxSiblingSize)
+
+  // Use consistent offset direction and spread purely by angle (like child/external nodes).
+  // Alternating offsetX + rotation caused overlap when n=2: -dist rotated by π equals +dist.
+  const angleStep = (2 * Math.PI) / siblingNodes.length
+  const basePhase = 0.7 // Slight phase so first node isn't exactly on tangent1
+  const sideSign =
+    typeof mainNode?.sideSign === 'number' && mainNode.sideSign !== 0 ? mainNode.sideSign : 1
+
   const positionedSiblings = siblingNodes.map((entry, i) => {
-    const { node } = entry
+    const offsetX = sideSign * effectiveSiblingDist
+    const offsetY = 0
+    const angle = basePhase + i * angleStep
 
-    // Start with main node's position (siblings default to being on top of main node)
-    let worldPos = mainPosition.clone()
-
-    let nonZeroI = i + 1
-
-    const getLeftRightOffset = (nonZeroI) => {
-      return nonZeroI % 2 === 0 ? '-' : ''
-    }
-
-    let offsetX = Number(`${getLeftRightOffset(nonZeroI)}${DEFAULT_CONNECTION_SPHERE_DISTANCE}`)
-    let offsetY = 0
-    let offsetZ = i * 0.11 - 0.2
-
-    // Apply offsetX and offsetY in the tangent plane (left/right, up/down)
+    // Apply offset in the tangent plane (left/right, up/down)
     const offsetVector = new THREE.Vector3()
     offsetVector.addScaledVector(tangent1, offsetX)
     offsetVector.addScaledVector(tangent2, offsetY)
 
-    // Rotate around the main node's equator (horizontal plane at mainPosition.y).
-    // This keeps the same horizontal distance from the main node while rotating.
+    // Rotate around the main node's equator so siblings are equidistant.
     const basePos = mainPosition.clone().add(offsetVector)
-    if (Math.abs(offsetZ) > 0.001) {
-      const rotationScale = Math.PI // 1.0 offsetZ = 180 degrees
-      const rotationAngle = offsetZ * rotationScale
-      const yAxis = new THREE.Vector3(0, 1, 0)
+    const yAxis = new THREE.Vector3(0, 1, 0)
+    const horizontalOffset = new THREE.Vector3(basePos.x - mainPosition.x, 0, basePos.z - mainPosition.z)
+    horizontalOffset.applyAxisAngle(yAxis, angle)
 
-      const horizontalOffset = new THREE.Vector3(basePos.x - mainPosition.x, 0, basePos.z - mainPosition.z)
-      horizontalOffset.applyAxisAngle(yAxis, rotationAngle)
-
-      worldPos = new THREE.Vector3(mainPosition.x + horizontalOffset.x, basePos.y, mainPosition.z + horizontalOffset.z)
-    } else {
-      worldPos = basePos
-    }
+    const worldPos = new THREE.Vector3(
+      mainPosition.x + horizontalOffset.x,
+      basePos.y,
+      mainPosition.z + horizontalOffset.z
+    )
 
     return {
-      node,
+      ...entry,
       position: worldPos,
+      sideSign,
     }
   })
 
@@ -83,6 +95,8 @@ const GlobalSiblingNodes = ({
   nodeTextures,
   onNodeClick,
   getSphereRotation,
+  onNodeHover,
+  clusterCenterTitle,
 }) => {
   // Position sibling nodes around the main node
   // NOTE: React Hooks must be called unconditionally and before any early returns
@@ -97,6 +111,21 @@ const GlobalSiblingNodes = ({
     return buildConnectionLinesForNodes(mainNode, positionedNodes, firstOrderConnectionsMap)
   }, [mainNode, positionedNodes, firstOrderConnectionsMap])
 
+  const secondOrderByParentId = useMemo(() => {
+    if (!positionedNodes?.length) return new Map()
+
+    const map = new Map()
+    positionedNodes.forEach((entry) => {
+      const connectedNodes = entry.connectedNodes || []
+      const filtered = connectedNodes.filter((nodeEntry) => !mainNode || nodeEntry.node.id !== mainNode.node.id)
+      if (filtered.length) {
+        map.set(entry.node.id, filtered)
+      }
+    })
+
+    return map
+  }, [positionedNodes, mainNode])
+
   if (!nodes?.length) return null
 
   return (
@@ -105,18 +134,46 @@ const GlobalSiblingNodes = ({
       {connectionLines}
 
       {/* Sibling node spheres */}
-      {positionedNodes.map(({ node, position }) => (
+      {positionedNodes.map((entry) => (
         <SphereWithEffects
-          key={node.id}
-          id={node.id}
-          pos={position.toArray()}
-          title={node.title}
-          size={GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]}
-          mainTexture={nodeTextures.get(node.id)}
-          onClick={() => onNodeClick(node.id)}
-          rotation={getSphereRotation(position)}
+          key={entry.node.id}
+          id={entry.node.id}
+          pos={entry.position.toArray()}
+          title={entry.node.title}
+          size={getGlobalConnectionSphereSize(
+            entry.totalConnectionCount ?? entry.connectedNodes?.length ?? 0,
+            GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
+          )}
+          mainTexture={nodeTextures.get(entry.node.id)}
+          onClick={() => onNodeClick(entry.node.id)}
+          onHover={onNodeHover}
+          hoverInfo={buildGlobalHoverInfo({
+            entry,
+            clusterCenterTitle,
+            connectionType: entry.node.connectionType || CONNECTION_TYPES.FRONTEND.SIBLING,
+            parentTitle: mainNode?.node?.title || null,
+          })}
+          rotation={getSphereRotation(entry.position)}
         />
       ))}
+      {/* THIRD ORDER AND HIGHER ORDER NODES */}
+      {positionedNodes.map((parentEntry) => {
+        const secondOrderNodesForParent = secondOrderByParentId.get(parentEntry.node.id)
+        if (!secondOrderNodesForParent?.length) return null
+
+        return (
+          <GlobalSecondOrderNodes
+            key={`second-order-siblings-${parentEntry.node.id}`}
+            anchorNode={parentEntry}
+            nodes={secondOrderNodesForParent}
+            nodeTextures={nodeTextures}
+            onNodeClick={onNodeClick}
+            getSphereRotation={getSphereRotation}
+            onNodeHover={onNodeHover}
+            clusterCenterTitle={clusterCenterTitle}
+          />
+        )
+      })}
     </>
   )
 }

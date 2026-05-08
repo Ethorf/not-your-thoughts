@@ -29,13 +29,13 @@
 	}
 	&__goal {
 		margin-top: 0;
-		margin-bottom: 10px;
+		margin-bottom: 0.625rem;
 	}
 	&__close-button {
 		@include main-button-style();
-		margin-top: 15px;
+		margin-top: 0.9375rem;
 		padding: 1% 4%;
-		border-radius: 20px;
+		border-radius: 1.25rem;
 	}
 	&__gratitude-prompt {
 		font-size: 1.2rem;

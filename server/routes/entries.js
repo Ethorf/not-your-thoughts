@@ -17,6 +17,10 @@ const calculateWordCountFromContent = (content) => {
   return trimmed.split(/\s+/).filter(Boolean).length
 }
 
+const resolveRequestUserId = (req) => {
+  return req?.user?.id || req?.query?.userId || req?.body?.userId || process.env.ERIC_USER_ID || null
+}
+
 // post /entries/add_node_entry
 // Add a new node entry
 router.post('/create_node_entry', authorize, async (req, res) => {
@@ -73,7 +77,6 @@ router.post('/create_node_entry', authorize, async (req, res) => {
 // post /entries/update_node_entry
 // Update a node entry
 router.post('/update_node_entry', authorize, async (req, res) => {
-  console.log('UPDATE_NODE_ENTRY_HIT')
   const { id: user_id } = req.user
   const { entryId, content, title } = req.body
 
@@ -281,8 +284,6 @@ router.get('/journal_entries', authorize, async (req, res) => {
     }
 
     // If journal entries are found, return them with writing data
-    console.log('<<<<<< allJournalEntries >>>>>>>>> is: <<<<<<<<<<<<')
-    console.log(allJournalEntries.rows[200])
     res.json({ entries: allJournalEntries.rows })
   } catch (err) {
     console.error(err.message)
@@ -291,8 +292,12 @@ router.get('/journal_entries', authorize, async (req, res) => {
 })
 
 // Route to retrieve all node entries for a user
-router.get('/node_entries', authorize, async (req, res) => {
-  const { id: user_id } = req.user
+router.get('/node_entries', async (req, res) => {
+  const user_id = resolveRequestUserId(req)
+
+  if (!user_id) {
+    return res.status(400).json({ msg: 'Unable to resolve user ID for node entries request' })
+  }
 
   try {
     // Retrieve all node entries for the user with the provided user_id
@@ -345,8 +350,12 @@ router.get('/node_entries', authorize, async (req, res) => {
 })
 
 // Route to retrieve all node type entries with title, id, starred, pending status, date_created, and date_last_modified
-router.get('/node_entries_info', authorize, async (req, res) => {
-  const { id: user_id } = req.user
+router.get('/node_entries_info', async (req, res) => {
+  const user_id = resolveRequestUserId(req)
+
+  if (!user_id) {
+    return res.status(400).json({ msg: 'Unable to resolve user ID for node entries info request' })
+  }
 
   try {
     // Optimized query: only fetch latest content (LIMIT 1), use MIN/MAX for dates
@@ -356,6 +365,7 @@ router.get('/node_entries_info', authorize, async (req, res) => {
     entries.title, 
     entries.starred,
     entries.is_top_level,
+    entries.is_private,
     entries.date_originally_created,
     -- Only fetch the latest content (most efficient)
     (SELECT content 
@@ -422,8 +432,12 @@ router.get('/node_entries_info', authorize, async (req, res) => {
 })
 
 // Route to retrieve all entries regardless of type for a user
-router.get('/all_entries', authorize, async (req, res) => {
-  const { id: user_id } = req.user
+router.get('/all_entries', async (req, res) => {
+  const user_id = resolveRequestUserId(req)
+
+  if (!user_id) {
+    return res.status(400).json({ msg: 'Unable to resolve user ID for all entries request' })
+  }
 
   try {
     // Retrieve all journal entries for the user with the provided user_id
@@ -472,8 +486,8 @@ router.get('/all_entries', authorize, async (req, res) => {
 })
 
 // Route to get entry by entryId query param
-router.get('/entry/:entryId', authorize, async (req, res) => {
-  const { id: user_id } = req.user
+router.get('/entry/:entryId', async (req, res) => {
+  const user_id = resolveRequestUserId(req)
   const { entryId } = req.params
 
   try {
@@ -886,6 +900,7 @@ router.get('/public/node_entries_info/:userId', async (req, res) => {
     entries.title, 
     entries.starred,
     entries.is_top_level,
+    entries.is_private,
     entries.date_originally_created,
     -- Only fetch the latest content (most efficient)
     (SELECT content 

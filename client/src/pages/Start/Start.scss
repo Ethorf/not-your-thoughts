@@ -29,9 +29,9 @@
 		font-size: 3rem;
 		opacity: 1;
 		position: relative;
-		margin-top: 90px;
+		margin-top: 5.625rem;
 		width: 23%;
-		height: 50px;
+		height: 3.125rem;
 		display: flex;
 		justify-content: space-between;
 	}
@@ -63,7 +63,7 @@
 		width: 50%;
 		color: silver;
 		margin: 0;
-		margin-bottom: 30px;
+		margin-bottom: 1.875rem;
 		font-family: 'Poppins', sans-serif;
 		line-height: 1.1;
 		transition: opacity 0.6s;
@@ -77,7 +77,7 @@
 	&__login-button,
 	&__register-button {
 		@include main-button-style-landing();
-		padding: 10px 17px;
+		padding: 0.625rem 1.0625rem;
 		text-decoration: none;
 		opacity: 0;
 	}
@@ -140,7 +140,7 @@
 		}
 		&__all-buttons-container {
 			width: 85%;
-			margin-bottom: 40px;
+			margin-bottom: 2.5rem;
 		}
 		&__register-button,
 		&__login-button {

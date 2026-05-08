@@ -11,13 +11,13 @@
   &.added {
     background: rgba(0, 255, 0, 0.2);
     color: #90ee90;
-    border-radius: 3px;
+    border-radius: 0.1875rem;
   }
 
   &.removed {
     background: rgba(255, 0, 0, 0.2);
     color: #ffb6c1;
-    border-radius: 3px;
+    border-radius: 0.1875rem;
     text-decoration: line-through;
   }
 

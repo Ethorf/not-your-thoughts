@@ -8,7 +8,7 @@
 - ESLint catches many common errors including React Hooks violations, unused variables, and code quality issues
 - Before submitting code, ensure there are no ESLint errors or warnings
 - If ESLint flags an issue, fix it rather than ignoring it
-- Use `read_lints` tool to check for linting errors before finalizing changes
+- **MANDATORY WORKFLOW**: Always run `read_lints` on every file you modify BEFORE proposing or finalizing changes. Never consider an edit complete until lints are clear.
 
 ### 1. No Unused Variables
 
@@ -92,3 +92,10 @@
   }
   ```
 - **When in doubt**: Move ALL hooks to the very top of the component, before any logic or early returns
+
+### 7. Never Revert User Changes
+
+- **CRITICAL**: Never undo, remove, or overwrite user-implemented changes unless the user explicitly asks for that exact revert.
+- If the user has modified code, preserve their edits and build on top of them.
+- If there is a conflict between previous assistant edits and new user edits, prioritize the user's latest code.
+- Before editing a file the user just changed, re-read the current file contents and work from that version.

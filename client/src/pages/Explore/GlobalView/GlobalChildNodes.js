@@ -1,11 +1,19 @@
 import React, { useMemo } from 'react'
 import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
-import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES, DEFAULT_CONNECTION_SPHERE_DISTANCE } from '@constants/spheres'
-
+import {
+  SPHERE_TYPES,
+  GLOBAL_SPHERE_SIZES,
+  getGlobalConnectionSphereSize,
+  getEffectiveConnectionDistance,
+  DEFAULT_CONNECTION_SPHERE_DISTANCE,
+} from '@constants/spheres'
 import { buildConnectionLinesForNodes } from '@utils/globalViewHelpers'
+import { CONNECTION_TYPES } from '@constants/connectionTypes'
+import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
+import { buildGlobalHoverInfo } from './hoverInfoHelpers'
 
-const positionChildNodes = (mainNode, childNodes) => {
+export const positionChildNodes = (mainNode, childNodes) => {
   if (!mainNode || !childNodes?.length) return []
 
   const mainPosition =
@@ -25,12 +33,19 @@ const positionChildNodes = (mainNode, childNodes) => {
     tangent2.negate()
   }
 
-  const childDistance = DEFAULT_CONNECTION_SPHERE_DISTANCE - 0.2
+  const mainSize = GLOBAL_SPHERE_SIZES[SPHERE_TYPES.MAIN]
+  const baseChildDistance = DEFAULT_CONNECTION_SPHERE_DISTANCE - 0.2
+  const childSizes = childNodes.map((e) =>
+    getGlobalConnectionSphereSize(
+      e.totalConnectionCount ?? e.connectedNodes?.length ?? 0,
+      GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
+    )
+  )
+  const maxChildSize = childSizes.length ? Math.max(...childSizes) : GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
+  const childDistance = getEffectiveConnectionDistance(baseChildDistance, mainSize, maxChildSize)
   const angleStep = (2 * Math.PI) / childNodes.length
 
   const positionedChildren = childNodes.map((entry, i) => {
-    const { node } = entry
-
     const offsetX = childDistance
     const offsetY = -0.4
     const angle = i * angleStep
@@ -53,7 +68,7 @@ const positionChildNodes = (mainNode, childNodes) => {
     )
 
     return {
-      node,
+      ...entry,
       position: worldPos,
     }
   })
@@ -73,6 +88,8 @@ const GlobalChildNodes = ({
   nodeTextures,
   onNodeClick,
   getSphereRotation,
+  onNodeHover,
+  clusterCenterTitle,
 }) => {
   // Position child nodes around the main node
   // NOTE: React Hooks must be called unconditionally and before any early returns
@@ -87,6 +104,21 @@ const GlobalChildNodes = ({
     return buildConnectionLinesForNodes(mainNode, positionedNodes, firstOrderConnectionsMap)
   }, [mainNode, positionedNodes, firstOrderConnectionsMap])
 
+  const secondOrderByParentId = useMemo(() => {
+    if (!positionedNodes?.length) return new Map()
+
+    const map = new Map()
+    positionedNodes.forEach((entry) => {
+      const connectedNodes = entry.connectedNodes || []
+      const filtered = connectedNodes.filter((nodeEntry) => !mainNode || nodeEntry.node.id !== mainNode.node.id)
+      if (filtered.length) {
+        map.set(entry.node.id, filtered)
+      }
+    })
+
+    return map
+  }, [positionedNodes, mainNode])
+
   if (!nodes?.length) return null
 
   return (
@@ -95,18 +127,46 @@ const GlobalChildNodes = ({
       {connectionLines}
 
       {/* Child node spheres */}
-      {positionedNodes.map(({ node, position }) => (
+      {positionedNodes.map((entry) => (
         <SphereWithEffects
-          key={node.id}
-          id={node.id}
-          pos={position.toArray()}
-          title={node.title}
-          size={GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]}
-          mainTexture={nodeTextures.get(node.id)}
-          onClick={() => onNodeClick(node.id)}
-          rotation={getSphereRotation(position)}
+          key={entry.node.id}
+          id={entry.node.id}
+          pos={entry.position.toArray()}
+          title={entry.node.title}
+          size={getGlobalConnectionSphereSize(
+            entry.totalConnectionCount ?? entry.connectedNodes?.length ?? 0,
+            GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
+          )}
+          mainTexture={nodeTextures.get(entry.node.id)}
+          onClick={() => onNodeClick(entry.node.id)}
+          onHover={onNodeHover}
+          hoverInfo={buildGlobalHoverInfo({
+            entry,
+            clusterCenterTitle,
+            connectionType: entry.node.connectionType || CONNECTION_TYPES.FRONTEND.CHILD,
+            parentTitle: mainNode?.node?.title || null,
+          })}
+          rotation={getSphereRotation(entry.position)}
         />
       ))}
+
+      {positionedNodes.map((parentEntry) => {
+        const secondOrderNodesForParent = secondOrderByParentId.get(parentEntry.node.id)
+        if (!secondOrderNodesForParent?.length) return null
+
+        return (
+          <GlobalSecondOrderNodes
+            key={`second-order-children-${parentEntry.node.id}`}
+            anchorNode={parentEntry}
+            nodes={secondOrderNodesForParent}
+            nodeTextures={nodeTextures}
+            onNodeClick={onNodeClick}
+            getSphereRotation={getSphereRotation}
+            onNodeHover={onNodeHover}
+            clusterCenterTitle={clusterCenterTitle}
+          />
+        )
+      })}
     </>
   )
 }

@@ -2,7 +2,7 @@
 
 .wrapper {
   width: 100%;
-  margin-top: 12px;
+  margin-top: 0.75rem;
 
   @include flex-center-column;
 }
@@ -11,7 +11,7 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   width: 50%;
-  max-width: 320px;
+  max-width: 20rem;
 }
 
 .topContainer {
@@ -28,7 +28,7 @@
 }
 
 .controlsButton {
-  width: 20px;
+  width: 1.25rem;
 }
 
 .firstButton {

@@ -3,12 +3,12 @@
 
 // Modal-specific overrides (base styles come from BaseModalWrapper)
 .historyModal {
-  min-width: 350px;
+  min-width: 21.875rem;
 
   @include mobile-all {
     min-width: auto;
     overflow: hidden;
-    padding-right: 8px;
+    padding-right: 0.5rem;
   }
 }
 
@@ -16,8 +16,8 @@
   color: white;
   font-size: 1.25rem;
   font-weight: 600;
-  margin: 0 0 16px 0;
-  padding-bottom: 12px;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.75rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 

@@ -4,7 +4,7 @@
   display: grid;
   grid-template-columns: 10% 1fr 12% 12% 10% 12%;
   align-items: center;
-  gap: 12px;
+  gap: 0.75rem;
   min-width: 0; // Allow grid to shrink below content size
 }
 
@@ -76,8 +76,8 @@
     display: grid;
     grid-template-columns: 25% 75%;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 0.625rem;
+    margin-bottom: 0.625rem;
   }
 
   .titleButton {

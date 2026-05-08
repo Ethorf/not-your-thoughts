@@ -17,17 +17,17 @@
     align-items: center;
     position: absolute;
     z-index: 20;
-    top: 0px;
+    top: 0;
     left: 20%;
     right: 20%;
     bottom: 30%;
     border: 1px solid silver;
-    border-radius: 100px;
+    border-radius: 6.25rem;
     background-color: black;
     color: white;
-    border-radius: 4px;
+    border-radius: 0.25rem;
     outline: none;
-    padding: 20px;
+    padding: 1.25rem;
     transition: all 1s;
   }
   &__modalClosed {
@@ -59,10 +59,10 @@
   }
 
   &__close-button {
-    margin-top: 15px;
+    margin-top: 0.9375rem;
     color: black;
     padding: 1vh 1vh;
-    border-radius: 20px;
+    border-radius: 1.25rem;
     width: 10%;
     outline: none;
     transition: all 0.7s;

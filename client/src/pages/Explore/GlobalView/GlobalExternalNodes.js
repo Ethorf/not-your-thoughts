@@ -1,7 +1,16 @@
 import React, { useMemo, useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
-import { SPHERE_TYPES, GLOBAL_SPHERE_SIZES, DEFAULT_CONNECTION_SPHERE_DISTANCE } from '@constants/spheres'
+import {
+  SPHERE_TYPES,
+  GLOBAL_SPHERE_SIZES,
+  getGlobalConnectionSphereSize,
+  getEffectiveConnectionDistance,
+  DEFAULT_CONNECTION_SPHERE_DISTANCE,
+} from '@constants/spheres'
+import { CONNECTION_TYPES } from '@constants/connectionTypes'
+import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
+import { buildGlobalHoverInfo } from './hoverInfoHelpers'
 
 const DashedLine = ({ lineKey, points, color = 'white', dashSize = 0.03, gapSize = 0.02 }) => {
   const lineRef = useRef(null)
@@ -66,7 +75,7 @@ const buildDashedConnectionLinesForNodes = (mainNode, targetNodes, firstOrderCon
   return lines
 }
 
-const positionExternalNodes = (mainNode, externalNodes) => {
+export const positionExternalNodes = (mainNode, externalNodes) => {
   if (!mainNode || !externalNodes?.length) return []
 
   const mainPosition =
@@ -86,12 +95,21 @@ const positionExternalNodes = (mainNode, externalNodes) => {
     tangent2.negate()
   }
 
-  const externalDistance = DEFAULT_CONNECTION_SPHERE_DISTANCE - 0.1
+  const mainSize = GLOBAL_SPHERE_SIZES[SPHERE_TYPES.MAIN]
+  const baseExternalDistance = DEFAULT_CONNECTION_SPHERE_DISTANCE - 0.1
+  const externalSizes = externalNodes.map((e) =>
+    getGlobalConnectionSphereSize(
+      e.totalConnectionCount ?? e.connectedNodes?.length ?? 0,
+      GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
+    )
+  )
+  const maxExternalSize = externalSizes.length
+    ? Math.max(...externalSizes)
+    : GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
+  const externalDistance = getEffectiveConnectionDistance(baseExternalDistance, mainSize, maxExternalSize)
   const angleStep = (2 * Math.PI) / externalNodes.length
 
   const positionedExternal = externalNodes.map((entry, i) => {
-    const { node } = entry
-
     const offsetX = externalDistance
     const offsetY = 0.4
     const angle = i * angleStep
@@ -114,7 +132,7 @@ const positionExternalNodes = (mainNode, externalNodes) => {
     )
 
     return {
-      node,
+      ...entry,
       position: worldPos,
     }
   })
@@ -132,6 +150,8 @@ const GlobalExternalNodes = ({
   nodeTextures,
   onNodeClick,
   getSphereRotation,
+  onNodeHover,
+  clusterCenterTitle,
 }) => {
   // Position external nodes around the main node
   // NOTE: React Hooks must be called unconditionally and before any early returns
@@ -146,6 +166,21 @@ const GlobalExternalNodes = ({
     return buildDashedConnectionLinesForNodes(mainNode, positionedNodes, firstOrderConnectionsMap)
   }, [mainNode, positionedNodes, firstOrderConnectionsMap])
 
+  const secondOrderByParentId = useMemo(() => {
+    if (!positionedNodes?.length) return new Map()
+
+    const map = new Map()
+    positionedNodes.forEach((entry) => {
+      const connectedNodes = entry.connectedNodes || []
+      const filtered = connectedNodes.filter((nodeEntry) => !mainNode || nodeEntry.node.id !== mainNode.node.id)
+      if (filtered.length) {
+        map.set(entry.node.id, filtered)
+      }
+    })
+
+    return map
+  }, [positionedNodes, mainNode])
+
   if (!nodes?.length) return null
 
   return (
@@ -154,18 +189,46 @@ const GlobalExternalNodes = ({
       {connectionLines}
 
       {/* External node spheres */}
-      {positionedNodes.map(({ node, position }) => (
+      {positionedNodes.map((entry) => (
         <SphereWithEffects
-          key={node.id}
-          id={node.id}
-          pos={position.toArray()}
-          title={node.title}
-          size={GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]}
-          mainTexture={nodeTextures.get(node.id)}
-          onClick={() => onNodeClick(node.id)}
-          rotation={getSphereRotation(position)}
+          key={entry.node.id}
+          id={entry.node.id}
+          pos={entry.position.toArray()}
+          title={entry.node.title}
+          size={getGlobalConnectionSphereSize(
+            entry.totalConnectionCount ?? entry.connectedNodes?.length ?? 0,
+            GLOBAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION]
+          )}
+          mainTexture={nodeTextures.get(entry.node.id)}
+          onClick={() => onNodeClick(entry.node.id)}
+          onHover={onNodeHover}
+          hoverInfo={buildGlobalHoverInfo({
+            entry,
+            clusterCenterTitle,
+            connectionType: entry.node.connectionType || CONNECTION_TYPES.FRONTEND.EXTERNAL,
+            parentTitle: mainNode?.node?.title || null,
+          })}
+          rotation={getSphereRotation(entry.position)}
         />
       ))}
+
+      {positionedNodes.map((parentEntry) => {
+        const secondOrderNodesForParent = secondOrderByParentId.get(parentEntry.node.id)
+        if (!secondOrderNodesForParent?.length) return null
+
+        return (
+          <GlobalSecondOrderNodes
+            key={`second-order-externals-${parentEntry.node.id}`}
+            anchorNode={parentEntry}
+            nodes={secondOrderNodesForParent}
+            nodeTextures={nodeTextures}
+            onNodeClick={onNodeClick}
+            getSphereRotation={getSphereRotation}
+            onNodeHover={onNodeHover}
+            clusterCenterTitle={clusterCenterTitle}
+          />
+        )
+      })}
     </>
   )
 }

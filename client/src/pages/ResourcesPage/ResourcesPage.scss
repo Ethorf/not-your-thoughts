@@ -6,7 +6,7 @@
 	color: silver;
 	flex-direction: column;
 	@include main-page-global-styles();
-	margin-bottom: 150px;
+	margin-bottom: 9.375rem;
 
 	&__content-container {
 		display: flex;
@@ -40,7 +40,7 @@
 	}
 	&__link {
 		font-size: 1.3rem;
-		margin-bottom: 15px;
+		margin-bottom: 0.9375rem;
 		text-decoration: none;
 		color: silver;
 	}
@@ -91,7 +91,7 @@
 		}
 		&__link {
 			font-size: 1.1rem;
-			margin-bottom: 10px;
+			margin-bottom: 0.625rem;
 		}
 	}
 }

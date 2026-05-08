@@ -1,4 +1,5 @@
-import React, { Suspense, useEffect, useMemo } from 'react'
+import React, { Suspense, useEffect, useMemo, useCallback } from 'react'
+import { unwrapResult } from '@reduxjs/toolkit'
 import { useDispatch, useSelector } from 'react-redux'
 import { useHistory, useLocation } from 'react-router-dom'
 import classNames from 'classnames'
@@ -10,11 +11,13 @@ import ConnectionSpheres from '@components/Spheres/ConnectionSpheres.js'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 import NodeSearch from '@components/Shared/NodeSearch/NodeSearch'
 import TextButton from '@components/Shared/TextButton/TextButton'
+import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import GlobalView from './GlobalView/GlobalView'
 
 // Redux
 import { setEntryById } from '@redux/reducers/currentEntryReducer'
-import { fetchConnections } from '@redux/reducers/connectionsReducer'
+import { fetchConnections, getSelectedText } from '@redux/reducers/connectionsReducer'
+import { openModal } from '@redux/reducers/modalsReducer'
 
 // Styles
 import styles from './Explore.module.scss'
@@ -22,7 +25,17 @@ import sharedStyles from '@styles/sharedClassnames.module.scss'
 
 // Constants
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
-import { SPHERE_TYPES, LOCAL_SPHERE_SIZES } from '@constants/spheres'
+import { MODAL_NAMES } from '@constants/modalNames'
+import { CONNECTION_ENTRY_SOURCES } from '@constants/connectionEntrySources'
+import {
+  SPHERE_TYPES,
+  LOCAL_SPHERE_SIZES,
+  LOCAL_EXPLORE_CONNECTION_DISTANCE_SCALE,
+  LOCAL_EXPLORE_CONNECTION_SIZE_SCALE,
+  LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET,
+  LOCAL_EXPLORE_CHILD_DISTANCE_SCALE,
+  LOCAL_EXPLORE_PARENT_DISTANCE_SCALE,
+} from '@constants/spheres'
 
 // Utils
 import { transformConnection } from '@utils/transformConnection'
@@ -32,7 +45,18 @@ import calculateSpherePositions from '@utils/calculateSpherePositions'
 const {
   FRONTEND: { PARENT, EXTERNAL, CHILD, SIBLING },
 } = CONNECTION_TYPES
+const { PRIMARY } = CONNECTION_ENTRY_SOURCES
 
+const getConnectionDistanceScale = (connectionType) => {
+  if (connectionType === CHILD) return LOCAL_EXPLORE_CHILD_DISTANCE_SCALE
+  if (connectionType === PARENT) return LOCAL_EXPLORE_PARENT_DISTANCE_SCALE
+  return 1
+}
+
+const getLocalNodeRenderKey = (conn, transformed) => {
+  if (conn?.connection_type === EXTERNAL) return `external-${conn.id}`
+  return transformed?.id != null ? String(transformed.id) : `conn-${conn?.id}`
+}
 const Explore = () => {
   const nodeEntriesInfo = useNodeEntriesInfo()
   const history = useHistory()
@@ -65,6 +89,25 @@ const Explore = () => {
     CHILD,
     SIBLING,
   })
+  const mainNodePosition = useMemo(() => [center[0], center[1] + LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET, center[2]], [center])
+  const uniqueConnections = useMemo(() => {
+    const seenNodeKeys = new Set()
+    return (connections || []).filter((conn) => {
+      const transformed = transformConnection(entryId, conn)
+      const nodeKey = getLocalNodeRenderKey(conn, transformed)
+      if (seenNodeKeys.has(nodeKey)) return false
+      seenNodeKeys.add(nodeKey)
+      return true
+    })
+  }, [connections, entryId])
+  const renderedFirstOrderNodeIds = useMemo(
+    () =>
+      uniqueConnections
+        .filter((conn) => conn?.connection_type !== EXTERNAL)
+        .map((conn) => transformConnection(entryId, conn)?.id)
+        .filter((id) => id != null),
+    [uniqueConnections, entryId]
+  )
 
   // Create main sphere texture with text + title
   const mainTexture = useMemo(() => {
@@ -123,21 +166,6 @@ const Explore = () => {
     return tex
   }, [content, title])
 
-  // **** Handle query parameters for entryId
-  // useEffect(() => {
-  //   const urlParams = new URLSearchParams(location.search)
-  //   const queryEntryId = urlParams.get('entryId')
-
-  //   if (queryEntryId && queryEntryId !== entryId) {
-  //     // If there's a query param entryId and it's different from current, set it
-  //     dispatch(setEntryById(queryEntryId))
-  //   } else if (!queryEntryId && entryId) {
-  //     // If there's no query param but we have an entryId, add it to the URL
-  //     const newUrl = `${location.pathname}?entryId=${entryId}`
-  //     history.replace(newUrl)
-  //   }
-  // }, [location.search, entryId, dispatch, history, location.pathname])
-
   const handleMainNodeClick = async () => {
     history.push(`/edit-node-entry?entryId=${entryId}`)
   }
@@ -158,6 +186,27 @@ const Explore = () => {
       history.replace(newUrl)
     }
   }
+
+  const handleOpenConnectionsWithSelectedText = useCallback(async () => {
+    if (!entryId) return
+
+    const handleOpenConnectionsModal = async () => {
+      try {
+        const fetchConnRes = await dispatch(fetchConnections(entryId))
+        unwrapResult(fetchConnRes)
+        dispatch(openModal(MODAL_NAMES.CONNECTIONS))
+      } catch (error) {
+        console.error('Failed to fetch connections:', error)
+      }
+    }
+
+    try {
+      dispatch(getSelectedText(PRIMARY))
+      await handleOpenConnectionsModal()
+    } catch (error) {
+      console.error('Get selected text failure', error)
+    }
+  }, [dispatch, entryId])
 
   function getMostRecentlyModifiedItem(items) {
     if (!Array.isArray(items) || items.length === 0) return null
@@ -195,7 +244,6 @@ const Explore = () => {
   return (
     <div className={classNames(styles.wrapper, sharedStyles.flexColumnCenter)}>
       <h1>Explore</h1>
-
       <div className={styles.viewToggle}>
         <TextButton
           className={classNames(styles.toggleButton, { [styles.active]: !isGlobalView })}
@@ -211,12 +259,16 @@ const Explore = () => {
         >
           Global View
         </TextButton>
+        <NodeSearch
+          mode="navigate"
+          placeholder="Search to explore..."
+          className={styles.searchComponent}
+          isGlobalMode={true}
+        />
+        <DefaultButton tooltip="Open connections menu" onClick={handleOpenConnectionsWithSelectedText}>
+          Connections
+        </DefaultButton>
       </div>
-
-      <div className={styles.searchSection}>
-        {/* <NodeSearch mode="navigate" placeholder="Search to explore..." className={styles.searchComponent} /> */}
-      </div>
-
       <div className={styles.nodesWrapper}>
         <Canvas camera={{ position: [0, 0, 8] }}>
           <ambientLight />
@@ -227,7 +279,7 @@ const Explore = () => {
               {/* Main Node sphere */}
               <SphereWithEffects
                 id={entryId}
-                pos={center}
+                pos={mainNodePosition}
                 title={title}
                 size={LOCAL_SPHERE_SIZES[SPHERE_TYPES.MAIN]}
                 mainTexture={mainTexture}
@@ -238,15 +290,21 @@ const Explore = () => {
 
             {/* LINES Connection to main - render first */}
             <group>
-              {connections?.map((conn) => {
+              {uniqueConnections?.map((conn) => {
                 const pos = positions[conn.id]
                 if (!pos) return null
 
                 // Calculate line start/end points to avoid overlapping spheres
                 const isExternal = conn.connection_type === EXTERNAL
-                const extensionFactor = isExternal ? externalDistanceFactor : lineExtensionFactor
-                const endPos = new THREE.Vector3(...pos).multiplyScalar(extensionFactor)
-                const startPos = new THREE.Vector3(...center)
+                const connectionTypeScale = getConnectionDistanceScale(conn.connection_type)
+                const extensionFactor =
+                  (isExternal ? externalDistanceFactor : lineExtensionFactor) *
+                  LOCAL_EXPLORE_CONNECTION_DISTANCE_SCALE *
+                  connectionTypeScale
+                const endPos = new THREE.Vector3(...pos)
+                  .multiplyScalar(extensionFactor)
+                  .add(new THREE.Vector3(0, LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET, 0))
+                const startPos = new THREE.Vector3(...mainNodePosition)
 
                 // Use different geometry based on connection type
                 const points = [startPos, endPos]
@@ -293,7 +351,7 @@ const Explore = () => {
 
             {/* CONNECTION SPHERES + their sub spheres - render second */}
             <group>
-              {connections?.map((conn) => {
+              {uniqueConnections?.map((conn) => {
                 const transformed = transformConnection(entryId, conn)
                 const pos = positions[conn.id]
                 const hRotation = horizontalRotation[conn.id]
@@ -301,14 +359,19 @@ const Explore = () => {
                 if (!pos) return null
 
                 const isExternal = conn.connection_type === EXTERNAL
-                const extensionFactor = isExternal ? externalDistanceFactor : lineExtensionFactor
-                const endPos = new THREE.Vector3(...pos).multiplyScalar(extensionFactor)
+                const connectionTypeScale = getConnectionDistanceScale(conn.connection_type)
+                const extensionFactor =
+                  (isExternal ? externalDistanceFactor : lineExtensionFactor) *
+                  LOCAL_EXPLORE_CONNECTION_DISTANCE_SCALE *
+                  connectionTypeScale
+                const endPos = new THREE.Vector3(...pos)
+                  .multiplyScalar(extensionFactor)
+                  .add(new THREE.Vector3(0, LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET, 0))
 
                 const nodeInfo = nodeEntriesInfo.find((n) => n.id === transformed.id)
-                const sphereSize = getScaledSphereSize(
-                  LOCAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION],
-                  nodeInfo?.wdWordCount
-                )
+                const sphereSize =
+                  getScaledSphereSize(LOCAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION], nodeInfo?.wdWordCount) *
+                  LOCAL_EXPLORE_CONNECTION_SIZE_SCALE
 
                 return (
                   <React.Fragment key={conn.id}>
@@ -333,6 +396,7 @@ const Explore = () => {
                       rotation={[vRotation, hRotation, 0]}
                       verticalOffset={subConnectionVerticalOffset[conn.id] || 0}
                       horizontalOffset={subConnectionHorizontalOffset[conn.id] || 0}
+                      excludedNodeIds={[entryId, ...renderedFirstOrderNodeIds]}
                     />
                   </React.Fragment>
                 )

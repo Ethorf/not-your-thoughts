@@ -21,10 +21,10 @@
   border: none;
   background: black;
   color: $silver-default;
-  padding-left: 8px;
+  padding-left: 0.5rem;
   font-size: 1.2rem;
   font-family: 'Syncopate', sans-serif;
-  margin: 8px;
+  margin: 0.5rem;
 
   &:hover {
     color: $silver-active;
@@ -54,7 +54,7 @@
   border: $silver-border-default;
   border-radius: $default-border-radius;
   width: fit-content;
-  padding: 12px 4px;
+  padding: 0.75rem 0.25rem;
   max-height: 40vh;
   overflow-y: scroll;
   z-index: $dropdown-z-index;
@@ -66,7 +66,7 @@
 
 .highlightedOption {
   border: 1px solid white;
-  padding: 8px;
+  padding: 0.5rem;
   border-radius: $default-border-radius;
   background-color: white;
   color: black;

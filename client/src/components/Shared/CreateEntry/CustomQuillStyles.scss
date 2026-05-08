@@ -53,7 +53,7 @@
 .textArea {
   min-width: 100%;
   height: 100%;
-  border-radius: 12px;
+  border-radius: 0.75rem;
 }
 
 .noScroll .ql-editor {
@@ -63,7 +63,7 @@
 .toolbar-hidden {
   .ql-toolbar {
     transition: all 500ms;
-    height: 0px;
+    height: 0;
     padding: 0;
     border: none;
     opacity: 0;
@@ -74,7 +74,7 @@
   .ql-toolbar {
     transition: all 500ms;
     opacity: 1;
-    margin-bottom: 10px;
+    margin-bottom: 0.625rem;
   }
 }
 
@@ -112,7 +112,7 @@
   li {
     padding-bottom: $li-padding-bottom;
     position: relative;
-    padding-left: 30px !important; // Space for marker (::before) - adjust based on marker width
+    padding-left: 1.875rem !important; // Space for marker (::before) - adjust based on marker width
 
     &::before {
       position: absolute;
@@ -123,7 +123,7 @@
 
   // Adjust padding for ordered lists which may have wider markers
   ol li {
-    padding-left: 16px !important; // More space for numbers like "10. ", "100. "
+    padding-left: 1rem !important; // More space for numbers like "10. ", "100. "
   }
   ul,
   ol {
@@ -140,7 +140,7 @@
   margin-bottom: 0 !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
-  height: 0px;
+  height: 0;
 }
 /* Collapse Quill’s empty blocks */
 .ql-editor p:has(> br:only-child),

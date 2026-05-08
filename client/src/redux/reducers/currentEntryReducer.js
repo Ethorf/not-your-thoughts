@@ -31,6 +31,7 @@ const initialState = {
   isPrivate: false,
   entryContents: [],
   entryContentsLoading: false,
+  globalRenderOwners: {},
 }
 
 export const addAka = createAsyncThunk(
@@ -196,8 +197,11 @@ export const fetchNodeEntriesInfo = createAsyncThunk(
 
       return response.data.nodeEntries
     } catch (error) {
-      dispatch(showToast('Error fetching node entries', 'error'))
-      return rejectWithValue(error.response.data)
+      // Skip toast for 401 - user may have just logged out
+      if (error.response?.status !== 401) {
+        dispatch(showToast('Error fetching node entries', 'error'))
+      }
+      return rejectWithValue(error.response?.data)
     }
   }
 )
@@ -425,6 +429,18 @@ const currentEntrySlice = createSlice({
     setWPM(state, action) {
       state.wpm = action.payload
     },
+    setGlobalRenderOwners: (state, action) => {
+      state.globalRenderOwners = action.payload || {}
+    },
+    claimGlobalRenderOwners: (state, action) => {
+      const { ownerId, nodeIds } = action.payload || {}
+      if (!ownerId || !nodeIds?.length) return
+      nodeIds.forEach((nodeId) => {
+        if (!state.globalRenderOwners[nodeId]) {
+          state.globalRenderOwners[nodeId] = ownerId
+        }
+      })
+    },
     resetCurrentEntryState: () => initialState,
     resetJournalEntryDraft: (state) => {
       return {
@@ -644,6 +660,8 @@ export const {
   setTypeJournal,
   setContent,
   setWPM,
+  setGlobalRenderOwners,
+  claimGlobalRenderOwners,
 } = currentEntrySlice.actions
 
 export default currentEntrySlice.reducer

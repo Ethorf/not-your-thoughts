@@ -1,38 +1,40 @@
-import React, { useEffect } from 'react'
-import { useThree } from '@react-three/fiber'
+import { useRef, useEffect } from 'react'
+import { useThree, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 
-/**
- * Helper component to position camera to face a specific sphere
- */
 const CameraController = ({ nodePositions, entryId, controlsRef }) => {
-  const { camera } = useThree()
+  const { camera, scene } = useThree()
+  const needsFocusRef = useRef(null)
 
   useEffect(() => {
-    if (nodePositions.length > 0 && entryId && controlsRef.current) {
-      const targetNodePosition = nodePositions.find(({ node }) => node.id === entryId)
-
-      if (targetNodePosition) {
-        const position = targetNodePosition.position
-
-        // Calculate spherical coordinates to position camera
-        const distance = camera.position.length()
-        const phi = Math.atan2(position.x, position.z)
-        const theta = Math.acos(position.y / position.length())
-
-        // Set camera position to face the target sphere
-        const newCameraPos = new THREE.Vector3(
-          distance * Math.sin(theta) * Math.sin(phi),
-          distance * Math.cos(theta),
-          distance * Math.sin(theta) * Math.cos(phi)
-        )
-
-        camera.position.copy(newCameraPos)
-        camera.lookAt(0, 0, 0)
-        controlsRef.current.update()
-      }
+    if (entryId) {
+      needsFocusRef.current = String(entryId)
     }
-  }, [nodePositions, entryId, camera, controlsRef])
+  }, [entryId, nodePositions])
+
+  useFrame(() => {
+    if (!needsFocusRef.current) return
+
+    const targetId = needsFocusRef.current
+    const mesh = scene.getObjectByName(`node-sphere-${targetId}`)
+    if (!mesh) return
+
+    const worldPos = new THREE.Vector3()
+    mesh.getWorldPosition(worldPos)
+    if (worldPos.lengthSq() === 0) return
+
+    needsFocusRef.current = null
+
+    const dir = worldPos.normalize()
+    const distance = camera.position.length()
+    camera.position.copy(dir.multiplyScalar(distance))
+    camera.lookAt(0, 0, 0)
+
+    if (controlsRef.current) {
+      controlsRef.current.target.set(0, 0, 0)
+      controlsRef.current.update()
+    }
+  })
 
   return null
 }

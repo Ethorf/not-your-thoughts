@@ -2,7 +2,7 @@
 
 .wrapper {
   min-height: 100vh;
-  padding: 20px;
+  padding: 1.25rem;
   background: black;
   color: $silver-default;
 }
@@ -17,8 +17,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
+  margin-bottom: 1.875rem;
+  padding-bottom: 1.25rem;
   border-bottom: $silver-border-default;
 
   h1 {
@@ -30,22 +30,22 @@
 .content {
   display: grid;
   grid-template-columns: 1fr 2fr;
-  gap: 30px;
-  max-width: 1400px;
+  gap: 1.875rem;
+  max-width: 87.5rem;
   width: 100%;
 }
 
 .versionSelector {
   h3 {
     color: $silver-active;
-    margin-bottom: 15px;
+    margin-bottom: 0.9375rem;
   }
 }
 
 .versionList {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.625rem;
   max-height: 70vh;
   overflow-y: auto;
 }
@@ -54,7 +54,7 @@
   background: transparent;
   border: $silver-border-default;
   border-radius: $default-border-radius;
-  padding: 15px;
+  padding: 0.9375rem;
   color: $silver-default;
   cursor: pointer;
   text-align: left;
@@ -75,7 +75,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
 }
 
 .versionNumber {
@@ -98,14 +98,14 @@
   font-style: italic;
   color: $silver-faded;
   text-align: center;
-  padding: 20px;
+  padding: 1.25rem;
   background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
+  border-radius: 0.25rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
 
   // Style HTML elements in version preview
   p {
-    margin: 0 0 5px 0;
+    margin: 0 0 0.3125rem 0;
 
     &:last-child {
       margin-bottom: 0;
@@ -114,12 +114,12 @@
 
   ul,
   ol {
-    margin: 0 0 5px 0;
-    padding-left: 15px;
+    margin: 0 0 0.3125rem 0;
+    padding-left: 0.9375rem;
   }
 
   li {
-    margin-bottom: 2px;
+    margin-bottom: 0.125rem;
   }
 
   strong,
@@ -137,9 +137,9 @@
   }
 
   blockquote {
-    border-left: 2px solid $silver-faded;
-    padding-left: 10px;
-    margin: 5px 0;
+    border-left: 0.125rem solid $silver-faded;
+    padding-left: 0.625rem;
+    margin: 0.3125rem 0;
     font-style: italic;
   }
 
@@ -152,7 +152,7 @@
 .diffContainer {
   h3 {
     color: $silver-active;
-    margin-bottom: 15px;
+    margin-bottom: 0.9375rem;
   }
 }
 
@@ -160,9 +160,9 @@
   background: rgba(0, 0, 0, 0.5);
   border: $silver-border-default;
   border-radius: $default-border-radius;
-  padding: 20px;
+  padding: 1.25rem;
   font-family: 'Poppins', sans-serif;
-  font-size: 14px;
+  font-size: 0.875rem;
   line-height: 1.6;
   word-wrap: break-word;
   max-height: 70vh;
@@ -170,7 +170,7 @@
 
   // Style HTML elements within diff content
   p {
-    margin: 0 0 10px 0;
+    margin: 0 0 0.625rem 0;
 
     &:last-child {
       margin-bottom: 0;
@@ -179,12 +179,12 @@
 
   ul,
   ol {
-    margin: 0 0 10px 0;
-    padding-left: 20px;
+    margin: 0 0 0.625rem 0;
+    padding-left: 1.25rem;
   }
 
   li {
-    margin-bottom: 5px;
+    margin-bottom: 0.3125rem;
   }
 
   strong,
@@ -202,9 +202,9 @@
   }
 
   blockquote {
-    border-left: 3px solid $silver-faded;
-    padding-left: 15px;
-    margin: 10px 0;
+    border-left: 0.1875rem solid $silver-faded;
+    padding-left: 0.9375rem;
+    margin: 0.625rem 0;
     font-style: italic;
   }
 
@@ -218,13 +218,13 @@
   &.added {
     background: rgba(0, 255, 0, 0.2);
     color: #90ee90;
-    border-radius: 3px;
+    border-radius: 0.1875rem;
   }
 
   &.removed {
     background: rgba(255, 0, 0, 0.2);
     color: #ffb6c1;
-    border-radius: 3px;
+    border-radius: 0.1875rem;
     text-decoration: line-through;
   }
 
@@ -235,7 +235,7 @@
 
 .error {
   color: #ff6b6b;
-  margin: 20px 0;
+  margin: 1.25rem 0;
   text-align: center;
 }
 
@@ -243,12 +243,12 @@
 @media (max-width: 768px) {
   .content {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 1.25rem;
   }
 
   .header {
     flex-direction: column;
-    gap: 15px;
+    gap: 0.9375rem;
     text-align: center;
   }
 
@@ -258,6 +258,6 @@
 
   .diffContent {
     max-height: 50vh;
-    font-size: 12px;
+    font-size: 0.75rem;
   }
 }

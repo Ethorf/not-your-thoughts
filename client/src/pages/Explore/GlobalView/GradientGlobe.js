@@ -1,41 +1,107 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useMemo } from 'react'
+import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { GLOBAL_CENTER_GLOBE_RADIUS } from '@constants/spheres'
 
-/**
- * Globe mesh with gradient from north (blue) to south (white)
- */
-const GradientGlobe = () => {
-  const meshRef = useRef()
+const seededRandom = (seed) => {
+  let s = seed
+  return () => {
+    s = (s * 16807 + 0) % 2147483647
+    return (s - 1) / 2147483646
+  }
+}
 
-  useEffect(() => {
-    if (meshRef.current) {
-      const geometry = meshRef.current.geometry
-      const count = geometry.attributes.position.count
-      const colors = new Float32Array(count * 3)
+const createBrainTexture = () => {
+  const canvas = document.createElement('canvas')
+  canvas.width = 2048
+  canvas.height = 1024
+  const ctx = canvas.getContext('2d')
 
-      for (let i = 0; i < count; i++) {
-        const y = geometry.attributes.position.getY(i)
-        const normalizedY = (y + 2.5) / 5 // Normalize from [-2.5, 2.5] to [0, 1]
+  ctx.fillStyle = '#2a2a2a'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-        // Blue at north (top), white at south (bottom)
-        const blue = new THREE.Color(0x4a90e2)
-        const white = new THREE.Color(0xffffff)
-        const color = new THREE.Color().lerpColors(white, blue, normalizedY)
+  const rand = seededRandom(42)
+  const w = canvas.width
+  const h = canvas.height
 
-        colors[i * 3] = color.r
-        colors[i * 3 + 1] = color.g
-        colors[i * 3 + 2] = color.b
-      }
+  const margin = Math.round(w * 0.12)
 
-      geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
+  const drawWrap = (startY, baseAngle, lineWidth, alpha) => {
+    ctx.beginPath()
+    ctx.strokeStyle = `rgba(95, 95, 95, ${alpha})`
+    ctx.lineWidth = lineWidth
+    ctx.lineCap = 'round'
+
+    let x = -margin
+    let y = startY
+    ctx.moveTo(x, y)
+
+    const endX = w + margin
+    while (x < endX) {
+      const wobble = (rand() - 0.5) * 0.7
+      const angle = baseAngle + wobble
+      const len = 8 + rand() * 18
+
+      const cx1 = x + Math.cos(angle + (rand() - 0.5) * 0.6) * len * 0.6
+      const cy1 = y + Math.sin(angle + (rand() - 0.5) * 0.6) * len * 0.6
+      x += Math.abs(Math.cos(angle)) * len + 4
+      y += Math.sin(angle) * len
+
+      y = Math.max(2, Math.min(h - 2, y))
+      ctx.quadraticCurveTo(cx1, cy1, x, y)
     }
-  }, [])
+    ctx.stroke()
+  }
+
+  for (let i = 0; i < 700; i++) {
+    const startY = rand() * h
+    const drift = (rand() - 0.5) * 0.4
+    drawWrap(startY, drift, 0.4 + rand() * 0.8, 0.25 + rand() * 0.3)
+  }
+
+  const tex = new THREE.CanvasTexture(canvas)
+  tex.wrapS = THREE.RepeatWrapping
+  tex.wrapT = THREE.ClampToEdgeWrapping
+  return tex
+}
+
+const GradientGlobe = ({ isLoading = false }) => {
+  const innerRef = useRef()
+  const glowRef = useRef()
+
+  const brainTexture = useMemo(() => createBrainTexture(), [])
+
+  useFrame((_, delta) => {
+    if (isLoading) {
+      if (innerRef.current) innerRef.current.rotation.y += delta * 0.8
+      if (glowRef.current) glowRef.current.rotation.y += delta * 0.8
+    }
+  })
 
   return (
-    <mesh ref={meshRef}>
-      <sphereGeometry args={[2.5, 64, 64]} />
-      <meshBasicMaterial wireframe={true} transparent opacity={0.3} vertexColors={true} />
-    </mesh>
+    <group>
+      <mesh ref={innerRef}>
+        <sphereGeometry args={[GLOBAL_CENTER_GLOBE_RADIUS, 64, 64]} />
+        <meshBasicMaterial
+          map={brainTexture}
+          transparent
+          opacity={0.35}
+          side={THREE.FrontSide}
+          depthWrite={false}
+        />
+      </mesh>
+
+      <mesh ref={glowRef}>
+        <sphereGeometry args={[GLOBAL_CENTER_GLOBE_RADIUS * 1.04, 64, 64]} />
+        <meshBasicMaterial
+          color={0x999999}
+          transparent
+          opacity={0.06}
+          side={THREE.BackSide}
+          depthWrite={false}
+        />
+      </mesh>
+    </group>
   )
 }
 

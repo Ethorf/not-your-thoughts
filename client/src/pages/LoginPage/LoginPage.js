@@ -18,8 +18,9 @@ import './LoginPage-RegisterPage.scss'
 
 import FadeInAnimationOnMount from '@components/higherOrderComponents/fadeInAnimationOnMount.js'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton.js'
+import Spinner from '@components/Shared/Spinner/Spinner'
 
-const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) => {
+const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode, token, user }) => {
   const dispatch = useDispatch()
   const history = useHistory()
   const [formData, setFormData] = useState({
@@ -58,6 +59,16 @@ const Login = ({ login, isAuthenticated, alert, toggleGuestMode, guestMode }) =>
 
   if (isAuthenticated) {
     return <Redirect to="/dashboard" />
+  }
+
+  // Token exists but user not loaded: restoring session after refresh
+  if (token && !user) {
+    return (
+      <div className="login-register">
+        <Spinner />
+        <p style={{ marginTop: '1rem' }}>Restoring session...</p>
+      </div>
+    )
   }
 
   return (
@@ -133,6 +144,8 @@ const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
   alert: state.alert,
   guestMode: state.auth.guestMode,
+  token: state.auth.token,
+  user: state.auth.user,
 })
 
 export default connect(mapStateToProps, { login, toggleGuestMode })(Login)

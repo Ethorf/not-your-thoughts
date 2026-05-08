@@ -34,7 +34,6 @@ import PublicNodeEntry from '@pages/PublicNodeEntry/PublicNodeEntry.js'
 import PublicDashboard from '@pages/PublicDashboard/PublicDashboard.js'
 
 //Redux
-import store from './redux/store/index'
 import { loadUser } from './redux/actions/authActions'
 import setAuthToken from './utils/setAuthToken'
 import { ModalsContainer } from './components/Modals/ModalsContainer/ModalsContainer.js'
@@ -76,7 +75,7 @@ const AppContent = () => {
           {({ match }) => <Register show={match !== null} />}
         </Route>
         <PrivateRoute path="/dashboard" exact component={Dashboard} />
-        <PrivateRoute path="/explore" exact component={Explore} />
+        <Route path="/explore" exact component={Explore} />
         <PrivateRoute path="/create-journal-entry" exact component={CreateJournalEntry} />
         <PrivateRoute path="/profile" exact component={ProfilePage} />
         <PrivateRoute path="/edit-node-entry" component={EditNodeEntry} />
@@ -99,9 +98,17 @@ const AppContent = () => {
   )
 }
 
-const App = () => {
+const App = ({ loadUser }) => {
   useEffect(() => {
     checkServerStatus('/api/health', 5000)
+  }, [])
+
+  // Restore auth state on mount when token exists (e.g. after page refresh)
+  useEffect(() => {
+    if (localStorage.token) {
+      loadUser()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, [])
 
   const mode = useSelector((state) => state.modes.mode)

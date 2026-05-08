@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import classNames from 'classnames'
 
@@ -11,10 +11,12 @@ import styles from './NodeSearch.module.scss'
 const NodeSearch = ({
   mode = 'filter', // 'filter' for dashboard, 'navigate' for explore
   onFilterChange = null, // callback for filter mode
+  onNodeSelect = null, // callback for custom node selection behavior
   placeholder = 'Search nodes...',
   className = '',
   showResults = true,
   maxResults = 10,
+  isGlobalMode = false,
 }) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [isOpen, setIsOpen] = useState(false)
@@ -36,14 +38,16 @@ const NodeSearch = ({
     if (!searchTerm.trim() || !nodeEntriesInfo) return []
 
     const term = searchTerm.toLowerCase()
+
     return nodeEntriesInfo
       .filter((node) => {
+        if (isGlobalMode && node?.isPrivate !== false) return false
         const titleLower = toSearchableLower(node?.title)
         const contentLower = toSearchableLower(node?.content)
         return titleLower.includes(term) || contentLower.includes(term)
       })
       .slice(0, maxResults)
-  }, [searchTerm, nodeEntriesInfo, maxResults])
+  }, [searchTerm, nodeEntriesInfo, maxResults, isGlobalMode])
 
   // Handle input change
   const handleInputChange = (e) => {
@@ -60,7 +64,9 @@ const NodeSearch = ({
 
   // Handle node selection
   const handleNodeSelect = (node) => {
-    if (mode === 'navigate') {
+    if (typeof onNodeSelect === 'function') {
+      onNodeSelect(node)
+    } else if (mode === 'navigate') {
       // Navigate to the selected node - dispatch first, then update URL
       dispatch(setEntryById(node.id))
       history.push(`/explore?entryId=${node.id}`)

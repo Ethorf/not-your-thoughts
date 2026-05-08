@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom'
 import classNames from 'classnames'
 
 // Styles
@@ -11,12 +11,14 @@ import { PublicNodesDashboardList } from '@components/Shared/PublicNodesDashboar
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import PublicLegend from '@components/Shared/PublicLegend/PublicLegend'
 import PublicModalsContainer from '@components/Shared/PublicModalsContainer/PublicModalsContainer'
+import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 
 // Utils
 import { checkAndUpdateNodeStatuses } from '@utils/nodeReadStatus'
 import { resolvePublicUserId } from '@utils/resolvePublicUserId'
 
 const PublicDashboard = () => {
+  const history = useHistory()
   const location = useLocation()
   const [nodeEntriesInfo, setNodeEntriesInfo] = useState([])
   const [loading, setLoading] = useState(true)
@@ -81,6 +83,14 @@ const PublicDashboard = () => {
       <PublicModalsContainer />
       <PublicLegend />
       <h1 className={styles.title}>Eric Thorfinnson's Nodes</h1>
+      <div className={styles.actionsContainer}>
+        <DefaultButton
+          onClick={() => history.push('/explore?view=global')}
+          tooltip="View global mode"
+        >
+          Global Mode
+        </DefaultButton>
+      </div>
       <div className={styles.nodesSection}>
         <PublicNodesDashboardList nodeEntriesInfo={nodeEntriesInfo} userId={userId} />
       </div>

@@ -10,13 +10,13 @@
 .sortControls {
   background: black;
   font-family: 'Syncopate', sans-serif;
-  border: 2px solid rgba(192, 192, 192, 0.8);
-  border-radius: 12px;
-  padding: 8px 12px;
+  border: 0.125rem solid rgba(192, 192, 192, 0.8);
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
   color: rgba(192, 192, 192, 0.8);
   text-transform: uppercase;
   outline: none;
-  margin-left: 8px;
+  margin-left: 0.5rem;
   cursor: pointer;
 }
 
@@ -24,9 +24,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 0.9375rem;
   width: 100%;
   min-width: 0; // Allow flex items to shrink
   padding-right: 0;
@@ -34,7 +34,7 @@
 
 .searchContainer {
   flex: 1 1 auto;
-  max-width: 350px;
+  max-width: 21.875rem;
   min-width: 0; // Allow shrinking, but can grow up to max-width
 }
 
@@ -50,8 +50,8 @@
   .sortControls {
     font-size: 0.7rem;
     margin-left: 0;
-    height: 36px;
-    padding-left: 8px;
+    height: 2.25rem;
+    padding-left: 0.5rem;
     width: 100vw;
   }
 }
