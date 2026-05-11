@@ -154,7 +154,7 @@ const EditNodeEntry = () => {
               value={title}
               onChange={handleTitleChange}
             />
-            <span className={sharedStyles.flexSpaceBetween}>
+            <span className={styles.topRightContainer}>
               <AkasDisplay />
               <div className={styles.rightButtons}>
                 {isAuthenticated && user?.id && (
