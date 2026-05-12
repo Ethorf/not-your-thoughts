@@ -190,7 +190,7 @@ const PublicNodeEntry = () => {
 
   const handleExploreNetwork = () => {
     if (entryId && userIdParam) {
-      history.push(`/view-network?userId=${userIdParam}&entryId=${entryId}`)
+      history.push(`/explore?userId=${userIdParam}&entryId=${entryId}`)
     }
   }
 

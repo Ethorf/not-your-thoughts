@@ -5,7 +5,7 @@ import { fetchNodeEntriesInfo } from '../redux/reducers/currentEntryReducer'
 // Module-level flag to prevent multiple simultaneous fetches across all hook instances
 let isFetchingGlobally = false
 
-const useNodeEntriesInfo = () => {
+const useNodeEntriesInfo = (enabled = true) => {
   const dispatch = useDispatch()
   const { nodeEntriesInfo, entriesLoading } = useSelector((state) => state.currentEntry)
 
@@ -14,6 +14,10 @@ const useNodeEntriesInfo = () => {
 
   // Effect to dispatch API call only if nodeEntriesInfo is empty and not already loading
   useEffect(() => {
+    if (!enabled) {
+      return
+    }
+
     const isNodeEntriesInfoEmpty = !nodeEntriesInfo || nodeEntriesInfo.length === 0
     
     // Only fetch if:
@@ -45,7 +49,7 @@ const useNodeEntriesInfo = () => {
       fetchAttemptedRef.current = false
       isFetchingGlobally = false
     }
-  }, [dispatch, nodeEntriesInfo, entriesLoading])
+  }, [dispatch, nodeEntriesInfo, entriesLoading, enabled])
 
   return nodeEntriesInfo
 }

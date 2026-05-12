@@ -102,7 +102,7 @@ const PublicNodeSearch = ({
   const handleNodeSelect = (node) => {
     if (mode === 'navigate' && userId) {
       if (navigateToNetwork) {
-        history.push(`/view-network?userId=${userId}&entryId=${node.id}`)
+        history.push(`/explore?userId=${userId}&entryId=${node.id}`)
       } else {
         history.push(`/show-node-entry?userId=${userId}&entryId=${node.id}`)
       }
