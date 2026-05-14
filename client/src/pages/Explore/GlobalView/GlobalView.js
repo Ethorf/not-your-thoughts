@@ -9,6 +9,7 @@ import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
 
 // Redux
 import { setEntryById, fetchPublicEntry, fetchPublicNodeEntriesInfo } from '@redux/reducers/currentEntryReducer'
+import { DEFAULT_PUBLIC_EXPLORE_USER_ALIAS, resolvePublicUserId } from '@utils/resolvePublicUserId'
 
 // Styles
 import styles from './GlobalView.module.scss'
@@ -46,39 +47,44 @@ const GlobalView = () => {
   const history = useHistory()
   const location = useLocation()
   const dispatch = useDispatch()
-  const { user } = useSelector((state) => state.auth)
+  const { user, isAuthenticated, token } = useSelector((state) => state.auth)
 
   const urlSearch = useMemo(() => new URLSearchParams(location.search), [location.search])
   const publicGraphUserId = urlSearch.get('userId')
+  const effectivePublicGraphUserId =
+    publicGraphUserId || (!isAuthenticated && !token ? DEFAULT_PUBLIC_EXPLORE_USER_ALIAS : null)
 
-  const nodeEntriesInfo = useNodeEntriesInfo(!publicGraphUserId)
+  const nodeEntriesInfo = useNodeEntriesInfo(!effectivePublicGraphUserId)
 
   const hasFetchedPublicNodesRef = useRef(false)
   const lastPublicGraphUserIdRef = useRef(null)
 
   useEffect(() => {
-    if (!publicGraphUserId) {
+    if (!effectivePublicGraphUserId) {
       hasFetchedPublicNodesRef.current = false
       lastPublicGraphUserIdRef.current = null
       return
     }
-    const userIdChanged = lastPublicGraphUserIdRef.current !== publicGraphUserId
+    const userIdChanged = lastPublicGraphUserIdRef.current !== effectivePublicGraphUserId
     if (userIdChanged) {
       hasFetchedPublicNodesRef.current = false
-      lastPublicGraphUserIdRef.current = publicGraphUserId
+      lastPublicGraphUserIdRef.current = effectivePublicGraphUserId
     }
     if (!hasFetchedPublicNodesRef.current || userIdChanged) {
       hasFetchedPublicNodesRef.current = true
-      dispatch(fetchPublicNodeEntriesInfo(publicGraphUserId)).catch((err) => {
+      dispatch(fetchPublicNodeEntriesInfo(effectivePublicGraphUserId)).catch((err) => {
         console.error('Error fetching public node entries for global view:', err)
         hasFetchedPublicNodesRef.current = false
       })
     }
-  }, [dispatch, publicGraphUserId])
+  }, [dispatch, effectivePublicGraphUserId])
 
-  const pipelineUserId = publicGraphUserId || user?.id
+  const pipelineUserId = effectivePublicGraphUserId
+    ? resolvePublicUserId(effectivePublicGraphUserId)
+    : user?.id
   const canUsePrivateNodeSearch =
-    !publicGraphUserId || (user?.id && String(user.id) === String(publicGraphUserId))
+    !effectivePublicGraphUserId ||
+    (user?.id && String(user.id) === String(resolvePublicUserId(effectivePublicGraphUserId)))
 
   const { allConnections, connectionsLoading } = useSelector((state) => state.connections)
   const { entryId, entriesLoading } = useSelector((state) => state.currentEntry)
@@ -114,14 +120,14 @@ const GlobalView = () => {
   const handleNodeClick = useCallback(
     async (nodeId) => {
       dismissFocusedRing()
-      if (publicGraphUserId) {
-        history.push(`/explore?userId=${publicGraphUserId}&entryId=${nodeId}`)
+      if (effectivePublicGraphUserId) {
+        history.push(`/explore?userId=${effectivePublicGraphUserId}&entryId=${nodeId}`)
         return
       }
       await dispatch(setEntryById(nodeId))
       history.push(`/explore?entryId=${nodeId}`)
     },
-    [dismissFocusedRing, dispatch, history, publicGraphUserId]
+    [dismissFocusedRing, dispatch, history, effectivePublicGraphUserId]
   )
 
   const handleNodeFocus = useCallback(
@@ -129,9 +135,9 @@ const GlobalView = () => {
       const id = typeof nodeId === 'string' ? Number(nodeId) : nodeId
       if (id == null || Number.isNaN(id)) return
       dismissFocusedRing()
-      if (publicGraphUserId) {
+      if (effectivePublicGraphUserId) {
         try {
-          await dispatch(fetchPublicEntry({ entryId: id, userId: publicGraphUserId })).unwrap()
+          await dispatch(fetchPublicEntry({ entryId: id, userId: effectivePublicGraphUserId })).unwrap()
         } catch (e) {
           console.error('Failed to load public entry for focus:', e)
         }
@@ -139,7 +145,7 @@ const GlobalView = () => {
       }
       await dispatch(setEntryById(id))
     },
-    [dismissFocusedRing, dispatch, publicGraphUserId]
+    [dismissFocusedRing, dispatch, effectivePublicGraphUserId]
   )
 
   const handleNodeHover = useCallback(
@@ -224,11 +230,11 @@ const GlobalView = () => {
     <div className={styles.wrapper}>
       <div className={styles.header}>
         <h1>
-          {publicGraphUserId
+          {effectivePublicGraphUserId
             ? 'Global Mind Map'
             : `${user ? user.name : "Eric Thorfinnson's"}'s Global Mind Map`}
         </h1>
-        {user && !publicGraphUserId ? (
+        {user && !effectivePublicGraphUserId ? (
           <TextButton className={styles.backButton} onClick={() => history.push('/dashboard')} tooltip="Go to Dashboard">
             Dashboard
           </TextButton>
@@ -236,9 +242,9 @@ const GlobalView = () => {
         <TextButton
           className={styles.backButton}
           onClick={() => {
-            if (publicGraphUserId) {
+            if (effectivePublicGraphUserId) {
               const entry = urlSearch.get('entryId')
-              const qs = new URLSearchParams({ userId: publicGraphUserId })
+              const qs = new URLSearchParams({ userId: effectivePublicGraphUserId })
               if (entry) qs.set('entryId', entry)
               history.push(`/explore?${qs.toString()}`)
             } else {
@@ -254,7 +260,7 @@ const GlobalView = () => {
             mode="focus"
             placeholder="Search to focus..."
             className={styles.searchComponent}
-            listFetchEnabled={!publicGraphUserId}
+            listFetchEnabled={!effectivePublicGraphUserId}
             onNodeSelect={(node) => handleNodeFocus(node?.id)}
             isGlobalMode
           />

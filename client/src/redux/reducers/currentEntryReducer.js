@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit'
 import axiosInstance from '@utils/axiosInstance'
 import { ENTRY_TYPES } from '@constants/entryTypes'
 import { SAVE_TYPES } from '@constants/saveTypes'
@@ -10,6 +10,9 @@ import { resolvePublicUserId } from '@utils/resolvePublicUserId'
 import { createDeduplicationCondition, clearPendingRequest } from '@utils/requestDeduplication'
 
 const { NODE, JOURNAL } = ENTRY_TYPES
+
+/** Dispatched after POST so Explore does not treat a transient null entryId as “pick latest node”. */
+export const applyNewJournalDraft = createAction('currentEntryReducer/applyNewJournalDraft')
 
 const initialState = {
   entryId: null,
@@ -143,10 +146,11 @@ export const createJournalEntry = createAsyncThunk(
   async (_, { rejectWithValue, dispatch }) => {
     try {
       const response = await axiosInstance.post('api/entries/create_journal_entry')
-
+      const entryId = response.data.entry_id
+      dispatch(applyNewJournalDraft({ entryId }))
       await dispatch(fetchNodeEntriesInfo())
 
-      return response.data.entry_id
+      return entryId
     } catch (error) {
       dispatch(showToast('Node creation error', 'error'))
       return rejectWithValue(error.response?.data)
@@ -224,20 +228,22 @@ export const setEntryById = createAsyncThunk(
         wdTimeElapsed,
         isTopLevel,
         is_private: isPrivate,
+        type: entryType,
       } = response.data
 
       return {
         wdWordCount,
         wdTimeElapsed,
-        content: content[0],
+        content: content && content[0] != null ? content[0] : '',
         connections,
         date,
         entryId,
         wordCount,
         starred,
-        title,
+        title: title ?? '',
         isTopLevel,
         isPrivate: isPrivate || false,
+        type: entryType === JOURNAL ? JOURNAL : NODE,
       }
     } catch (error) {
       return rejectWithValue(error.response.data)
@@ -442,16 +448,35 @@ const currentEntrySlice = createSlice({
       })
     },
     resetCurrentEntryState: () => initialState,
-    resetJournalEntryDraft: (state) => {
-      return {
-        ...initialState,
-        nodeEntriesInfo: state.nodeEntriesInfo,
-        type: JOURNAL,
-      }
-    },
+    resetJournalEntryDraft: (state) => ({
+      ...initialState,
+      nodeEntriesInfo: state.nodeEntriesInfo,
+      type: JOURNAL,
+      entryId: state.entryId,
+    }),
   },
   extraReducers: (builder) => {
     builder
+      .addCase(applyNewJournalDraft, (state, action) => {
+        const { entryId } = action.payload
+        state.entryId = entryId
+        state.content = ''
+        state.title = ''
+        state.type = JOURNAL
+        state.wordCount = 0
+        state.timeElapsed = 0
+        state.wpm = 0
+        state.wdWordCount = 0
+        state.wdTimeElapsed = 0
+        state.starred = false
+        state.isTopLevel = false
+        state.isPrivate = false
+        state.akas = []
+        state.entryContents = []
+        state.globalRenderOwners = {}
+        delete state.connections
+        delete state.date
+      })
       .addCase(fetchAkas.fulfilled, (state, action) => {
         state.akas = action.payload
       })
@@ -472,11 +497,18 @@ const currentEntrySlice = createSlice({
         state.entriesLoading = true
       })
       .addCase(createJournalEntry.fulfilled, (state, action) => {
-        return {
-          ...state,
-          entriesLoading: false,
-          entryId: action.payload,
-        }
+        state.entriesLoading = false
+        state.entryId = action.payload
+        state.content = ''
+        state.title = ''
+        state.type = JOURNAL
+        state.wordCount = 0
+        state.timeElapsed = 0
+        state.wpm = 0
+        state.wdWordCount = 0
+        state.wdTimeElapsed = 0
+        delete state.connections
+        delete state.date
       })
       .addCase(saveJournalEntry.pending, (state) => {
         state.entriesLoading = true
@@ -601,6 +633,7 @@ const currentEntrySlice = createSlice({
           content: content && content[0] ? content[0] : '',
           wordCount,
           entriesLoading: false,
+          type: NODE,
         }
       })
       .addCase(fetchPublicEntry.rejected, (state) => {

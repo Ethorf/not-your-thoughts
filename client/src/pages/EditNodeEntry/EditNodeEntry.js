@@ -148,10 +148,10 @@ const EditNodeEntry = () => {
             </div>
             <DefaultInput
               className={classNames(styles.titleInput, sharedStyles.flexCenter, {
-                [styles.titleInputNoBorder]: title.length,
+                [styles.titleInputNoBorder]: (title ?? '').length,
               })}
               placeholder={'Enter Title'}
-              value={title}
+              value={title ?? ''}
               onChange={handleTitleChange}
             />
             <span className={styles.topRightContainer}>

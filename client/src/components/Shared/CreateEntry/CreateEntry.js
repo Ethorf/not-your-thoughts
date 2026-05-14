@@ -49,14 +49,10 @@ const CreateEntry = ({ entryType }) => {
     setTotalWordCount()
   }
 
-  // Only sync local content from Redux when entryId changes (loading a new entry)
-  // or when content first loads for the current entry
+  // Sync local editor from Redux when entryId changes, including empty content (e.g. new journal vs prior node).
   useEffect(() => {
     if (entryId !== lastEntryIdRef.current) {
-      // Entry changed - update local content
-      if (content) {
-        setLocalContent(content)
-      }
+      setLocalContent(content ?? '')
       lastEntryIdRef.current = entryId
     } else if (entryId && content && !localContent) {
       // Same entry, but content loaded for the first time

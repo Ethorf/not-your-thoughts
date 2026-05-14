@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useCallback, useRef } from 'react'
 import { unwrapResult } from '@reduxjs/toolkit'
 import { useDispatch, useSelector } from 'react-redux'
-import { useHistory, useLocation, Link } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom'
 import classNames from 'classnames'
 
 import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
@@ -30,9 +30,12 @@ import sharedStyles from '@styles/sharedClassnames.module.scss'
 
 // Constants
 import { MODAL_NAMES } from '@constants/modalNames'
+import { ENTRY_TYPES } from '@constants/entryTypes'
 import { CONNECTION_ENTRY_SOURCES } from '@constants/connectionEntrySources'
+import { DEFAULT_PUBLIC_EXPLORE_USER_ALIAS, resolvePublicUserId } from '@utils/resolvePublicUserId'
 
 const { PRIMARY } = CONNECTION_ENTRY_SOURCES
+const { JOURNAL } = ENTRY_TYPES
 
 function getMostRecentlyModifiedItem(items) {
   if (!Array.isArray(items) || items.length === 0) return null
@@ -48,19 +51,23 @@ const Explore = () => {
   const location = useLocation()
   const dispatch = useDispatch()
 
+  const { user, isAuthenticated, token } = useSelector((state) => state.auth)
   const urlParams = useMemo(() => new URLSearchParams(location.search), [location.search])
   const isGlobalView = urlParams.get('view') === 'global'
-  const publicUserId = urlParams.get('userId')
+  const urlPublicUserId = urlParams.get('userId')
   const entryIdFromUrl = urlParams.get('entryId')
-  const isPublicNetworkMode = Boolean(publicUserId)
+  const effectivePublicUserId =
+    urlPublicUserId || (!isAuthenticated && !token ? DEFAULT_PUBLIC_EXPLORE_USER_ALIAS : null)
+  const isPublicNetworkMode = Boolean(effectivePublicUserId)
 
   const nodeEntriesInfo = useNodeEntriesInfo(!isPublicNetworkMode)
-  const { content, title, entryId, entriesLoading } = useSelector((state) => state.currentEntry)
+  const { content, title, entryId, entriesLoading, type: entryType } = useSelector((state) => state.currentEntry)
   const { connections, connectionsLoading } = useSelector((state) => state.connections)
-  const { user, isAuthenticated } = useSelector((state) => state.auth)
 
   const mainNodeGoesToEdit = Boolean(
-    isAuthenticated && (!isPublicNetworkMode || (user?.id && publicUserId === user.id))
+    isAuthenticated &&
+      (!isPublicNetworkMode ||
+        (user?.id && String(resolvePublicUserId(effectivePublicUserId)) === String(user.id)))
   )
 
   const hasFetchedNodeEntriesRef = useRef(false)
@@ -69,27 +76,27 @@ const Explore = () => {
 
   // Public network: load node list for search (same idea as ViewNetwork)
   useEffect(() => {
-    if (!isPublicNetworkMode || !publicUserId) {
+    if (!isPublicNetworkMode || !effectivePublicUserId) {
       return
     }
-    const userIdChanged = lastUserIdParamRef.current !== publicUserId
+    const userIdChanged = lastUserIdParamRef.current !== effectivePublicUserId
     if (userIdChanged) {
       hasFetchedNodeEntriesRef.current = false
-      lastUserIdParamRef.current = publicUserId
+      lastUserIdParamRef.current = effectivePublicUserId
     }
     const hasNodeEntries = nodeEntriesInfo && nodeEntriesInfo.length > 0
     if ((!hasFetchedNodeEntriesRef.current && !hasNodeEntries) || userIdChanged) {
       hasFetchedNodeEntriesRef.current = true
-      dispatch(fetchPublicNodeEntriesInfo(publicUserId)).catch((err) => {
+      dispatch(fetchPublicNodeEntriesInfo(effectivePublicUserId)).catch((err) => {
         console.error('Error fetching public node entries:', err)
         hasFetchedNodeEntriesRef.current = false
       })
     }
-  }, [dispatch, isPublicNetworkMode, publicUserId, nodeEntriesInfo])
+  }, [dispatch, isPublicNetworkMode, effectivePublicUserId, nodeEntriesInfo])
 
   // Public network: default to most recent entry when no entryId in URL
   useEffect(() => {
-    if (!isPublicNetworkMode || !publicUserId || !nodeEntriesInfo?.length) {
+    if (!isPublicNetworkMode || !effectivePublicUserId || !nodeEntriesInfo?.length) {
       return
     }
     if (entryIdFromUrl) {
@@ -102,41 +109,42 @@ const Explore = () => {
       return currentDate > latestDate ? current : latest
     }, null)
     if (mostRecent?.id) {
-      history.replace(`/explore?userId=${publicUserId}&entryId=${mostRecent.id}`)
+      history.replace(`/explore?userId=${effectivePublicUserId}&entryId=${mostRecent.id}`)
     }
-  }, [isPublicNetworkMode, publicUserId, nodeEntriesInfo, entryIdFromUrl, history])
+  }, [isPublicNetworkMode, effectivePublicUserId, nodeEntriesInfo, entryIdFromUrl, history])
 
   // Public network: load entry + connections
   useEffect(() => {
-    if (!isPublicNetworkMode || !publicUserId || !entryIdFromUrl) {
+    if (!isPublicNetworkMode || !effectivePublicUserId || !entryIdFromUrl) {
       return
     }
 
-    const entryChanged = lastEntryIdParamRef.current !== entryIdFromUrl || lastUserIdParamRef.current !== publicUserId
+    const entryChanged =
+      lastEntryIdParamRef.current !== entryIdFromUrl || lastUserIdParamRef.current !== effectivePublicUserId
 
     if (!entryChanged && entryId === entryIdFromUrl && title && content) {
-      dispatch(fetchPublicConnections({ entryId: entryIdFromUrl, userId: publicUserId })).catch((err) => {
+      dispatch(fetchPublicConnections({ entryId: entryIdFromUrl, userId: effectivePublicUserId })).catch((err) => {
         console.error('Error fetching public connections:', err)
       })
       lastEntryIdParamRef.current = entryIdFromUrl
-      lastUserIdParamRef.current = publicUserId
+      lastUserIdParamRef.current = effectivePublicUserId
       return
     }
 
     lastEntryIdParamRef.current = entryIdFromUrl
-    lastUserIdParamRef.current = publicUserId
+    lastUserIdParamRef.current = effectivePublicUserId
 
-    dispatch(fetchPublicEntry({ entryId: entryIdFromUrl, userId: publicUserId }))
+    dispatch(fetchPublicEntry({ entryId: entryIdFromUrl, userId: effectivePublicUserId }))
       .unwrap()
       .then(() => {
-        dispatch(fetchPublicConnections({ entryId: entryIdFromUrl, userId: publicUserId })).catch((err) => {
+        dispatch(fetchPublicConnections({ entryId: entryIdFromUrl, userId: effectivePublicUserId })).catch((err) => {
           console.error('Error fetching public connections:', err)
         })
       })
       .catch((err) => {
         console.error('Error fetching public entry:', err)
       })
-  }, [dispatch, isPublicNetworkMode, publicUserId, entryIdFromUrl, entryId, title, content])
+  }, [dispatch, isPublicNetworkMode, effectivePublicUserId, entryIdFromUrl, entryId, title, content])
 
   // Private network: refresh connections when entry changes
   useEffect(() => {
@@ -171,6 +179,10 @@ const Explore = () => {
     if (isPublicNetworkMode) {
       return
     }
+    // New journal flow briefly uses type journal + real entryId; do not replace with a node.
+    if (entryType === JOURNAL && entryId) {
+      return
+    }
     const shouldSetMostRecent = !entryId || (entryId && !nodeEntriesInfo?.some((node) => node.id === entryId))
 
     if (shouldSetMostRecent && Array.isArray(nodeEntriesInfo)) {
@@ -179,30 +191,10 @@ const Explore = () => {
         dispatch(setEntryById(mostRecent.id))
       }
     }
-  }, [dispatch, entryId, nodeEntriesInfo, isPublicNetworkMode])
+  }, [dispatch, entryId, nodeEntriesInfo, isPublicNetworkMode, entryType])
 
   if (isGlobalView) {
     return <GlobalView />
-  }
-
-  if (!isPublicNetworkMode && !isAuthenticated) {
-    return (
-      <div className={classNames(styles.wrapper, sharedStyles.flexColumnCenter)}>
-        <h1>Explore</h1>
-        <p className={styles.loggedOutHint}>Sign in to explore your node network, or open a shared network link.</p>
-        <Link to="/login" className={styles.loginLink}>
-          Log in
-        </Link>
-      </div>
-    )
-  }
-
-  if (isPublicNetworkMode && !publicUserId) {
-    return (
-      <div className={classNames(styles.wrapper, sharedStyles.flexColumnCenter)}>
-        <div className={styles.error}>User ID is required</div>
-      </div>
-    )
   }
 
   if (isPublicNetworkMode && (entriesLoading || connectionsLoading) && (!entryId || !title)) {
@@ -245,7 +237,7 @@ const Explore = () => {
               className={classNames(styles.toggleButton, { [styles.active]: !isGlobalView })}
               onClick={() => {
                 const q = new URLSearchParams()
-                q.set('userId', publicUserId)
+                q.set('userId', effectivePublicUserId)
                 if (entryIdFromUrl) q.set('entryId', entryIdFromUrl)
                 history.replace(`/explore?${q.toString()}`)
               }}
@@ -256,7 +248,7 @@ const Explore = () => {
             <TextButton
               className={classNames(styles.toggleButton, { [styles.active]: isGlobalView })}
               onClick={() => {
-                const q = new URLSearchParams({ view: 'global', userId: publicUserId })
+                const q = new URLSearchParams({ view: 'global', userId: effectivePublicUserId })
                 if (entryIdFromUrl) q.set('entryId', entryIdFromUrl)
                 history.push(`/explore?${q.toString()}`)
               }}
@@ -271,7 +263,7 @@ const Explore = () => {
               placeholder="Search to explore..."
               className={styles.searchComponent}
               nodeEntriesInfo={nodeEntriesInfo || []}
-              userId={publicUserId}
+              userId={effectivePublicUserId}
               collapsible
               navigateToNetwork
             />
@@ -314,7 +306,7 @@ const Explore = () => {
         content={content}
         connections={connections}
         nodeEntriesInfo={nodeEntriesInfo || []}
-        publicOwnerUserId={isPublicNetworkMode ? publicUserId : null}
+        publicOwnerUserId={isPublicNetworkMode ? effectivePublicUserId : null}
         mainNodeGoesToEdit={mainNodeGoesToEdit}
       />
     </div>
