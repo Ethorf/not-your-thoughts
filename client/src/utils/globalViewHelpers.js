@@ -311,10 +311,6 @@ export const positionGlobalNodes = async (
 
   // Add initial positions, preserving center node at clusterCenter
   const centerNodeId = targetNodeId
-  const has1003 = positions.some(({ node }) => node.id === 1003)
-  if (has1003 || centerNodeId === 1003) {
-    console.log(`[DEBUG 1003] In initial positions for hub ${centerNodeId}: ${has1003}. Total positions: ${positions.length}`)
-  }
   positions.forEach(({ node, position }) => {
     // Always keep center node at exact cluster center
     if (node.id === centerNodeId) {

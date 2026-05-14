@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 
 import {
   buildClusters,
@@ -72,6 +72,20 @@ const useGlobalGraphPipeline = ({
   const [isPositioningClusters, setIsPositioningClusters] = useState(false)
   const [positioningProgress, setPositioningProgress] = useState(0)
 
+  const graphOwnerKey = userId === undefined || userId === null ? '' : String(userId)
+
+  const graphNodesSignature = useMemo(
+    () =>
+      (graphNodes || [])
+        .map((n) => n.id)
+        .filter((id) => id != null)
+        .sort((a, b) => a - b)
+        .join(','),
+    [graphNodes]
+  )
+
+  const lastFetchContextRef = useRef({ signature: '', ownerKey: '' })
+
   // Stage 1: source all nodes used by the global graph.
   useEffect(() => {
     const normalizedNodes = (nodeEntriesInfo || [])
@@ -85,19 +99,49 @@ const useGlobalGraphPipeline = ({
     setGraphNodes(normalizedNodes)
   }, [nodeEntriesInfo])
 
-  // Stage 2a: fetch the global connection set.
-  // Runs for anonymous sessions too; `/all_connections` resolves the canonical graph owner on the server.
+  // Stage 2a: fetch the global connection set for the current graph owner + public node list.
+  // Re-fetch when the node set or owner changes, even if allConnections still has data from a prior graph
+  // (otherwise Stage 2b filters stale edges and clusters look incomplete).
   useEffect(() => {
     if (!graphNodes.length) {
-      setGraphConnections([])
+      lastFetchContextRef.current = { signature: '', ownerKey: '' }
       return
     }
 
-    const needsFetch = !allConnections?.length || globalViewInvalidated
-    if (needsFetch) {
-      dispatch(fetchAllConnections(userId))
+    const ownerKey = graphOwnerKey
+    const signature = graphNodesSignature
+    const contextChanged =
+      lastFetchContextRef.current.signature !== signature || lastFetchContextRef.current.ownerKey !== ownerKey
+
+    // Do not key off globalViewInvalidated here: it stays true until Global View finishes and writes cache,
+    // which would re-dispatch fetch in a loop while allConnections is already populated.
+    // Stale graphs are handled by clearing allConnections when connections mutate (see connectionsReducer).
+    const needsFetch = !allConnections?.length || contextChanged
+
+    if (!needsFetch) {
+      return
     }
-  }, [dispatch, graphNodes.length, allConnections?.length, globalViewInvalidated, userId])
+
+    // One in-flight fetch per graph context (shared connectionsLoading is also used by fetchConnections, etc.).
+    if (
+      connectionsLoading &&
+      lastFetchContextRef.current.signature === signature &&
+      lastFetchContextRef.current.ownerKey === ownerKey
+    ) {
+      return
+    }
+
+    lastFetchContextRef.current = { signature, ownerKey }
+    dispatch(fetchAllConnections(userId))
+  }, [
+    dispatch,
+    graphNodes.length,
+    graphNodesSignature,
+    graphOwnerKey,
+    allConnections?.length,
+    userId,
+    connectionsLoading,
+  ])
 
   // Stage 2b: keep only connections that attach to known nodes.
   const graphNodeIds = useMemo(
@@ -124,19 +168,8 @@ const useGlobalGraphPipeline = ({
       .filter(Boolean)
       .filter((conn) => graphNodeIds.has(conn.entry_id) && graphNodeIds.has(conn.foreign_entry_id))
 
-    // DEBUG: trace node 1003
-    const DEBUG_ID = 1003
-    const inGraphNodes = graphNodeIds.has(DEBUG_ID)
-    const rawConns = allConnections.filter(
-      (c) => c?.entry_id === DEBUG_ID || c?.foreign_entry_id === DEBUG_ID
-    )
-    const survivingConns = normalizedConnections.filter(
-      (c) => c?.entry_id === DEBUG_ID || c?.foreign_entry_id === DEBUG_ID
-    )
-    console.log(`[DEBUG 1003] In graphNodes: ${inGraphNodes}, raw connections: ${rawConns.length}, surviving connections: ${survivingConns.length}`, { rawConns, survivingConns })
-
     setGraphConnections(normalizedConnections)
-  }, [allConnections, graphNodes.length, graphNodeIds])
+  }, [allConnections, graphNodes, graphNodeIds])
 
   // Stage 3: build clusters and position spheres from the staged graph.
   const { clusters, adjacency } = useMemo(() => {
@@ -144,19 +177,12 @@ const useGlobalGraphPipeline = ({
       return { clusters: [], adjacency: new Map() }
     }
     const result = buildClusters(graphNodes, graphConnections)
-    // DEBUG: check which cluster 1003 is in
-    const clusterIdx = result.clusters.findIndex((c) => c.includes(1003))
-    const neighbors = result.adjacency.get(1003) || []
-    console.log(`[DEBUG 1003] Cluster index: ${clusterIdx}, adjacency neighbors: [${neighbors.join(',')}]`)
-    if (clusterIdx >= 0) {
-      console.log(`[DEBUG 1003] Cluster members: [${result.clusters[clusterIdx].join(',')}]`)
-    }
     return result
   }, [graphNodes, graphConnections])
 
   useEffect(() => {
     let isMounted = true
-    const cacheKey = getGlobalViewCacheKey(graphNodes, graphConnections)
+    const cacheKey = getGlobalViewCacheKey(graphNodes, graphConnections, graphOwnerKey)
 
     const positionAllClusters = async () => {
       if (!clusters?.length || !adjacency) {
@@ -168,7 +194,9 @@ const useGlobalGraphPipeline = ({
         return
       }
 
-      if (globalViewInvalidated && connectionsLoading) {
+      // connectionsLoading is shared (modal fetchConnections, etc.). Only wait when the *global* edge list
+      // is empty because fetchAllConnections is still in flight — never block solely on globalViewInvalidated.
+      if (connectionsLoading && (allConnections?.length ?? 0) === 0) {
         return
       }
 
@@ -231,27 +259,7 @@ const useGlobalGraphPipeline = ({
         firstOrderConnectionsMap: result.firstOrderConnectionsMap,
       }))
 
-      // DEBUG: trace 1003 through pipeline results
-      views.forEach((v, i) => {
-        const mainId = v.mainNode?.node?.id
-        const inFirst = (v.firstOrderNodes || []).some((e) => e?.node?.id === 1003)
-        const inSecond = (v.secondOrderNodes || []).some((e) => e?.node?.id === 1003)
-        if (mainId === 1003 || inFirst || inSecond) {
-          console.log(`[DEBUG 1003] Found in view[${i}] (hub=${mainId}): firstOrder=${inFirst}, secondOrder=${inSecond}`)
-        }
-      })
-
       const deduplicated = deduplicateClusterViews(views)
-
-      // DEBUG: trace 1003 after dedup
-      deduplicated.forEach((v, i) => {
-        const mainId = v.mainNode?.node?.id
-        const inFirst = (v.firstOrderNodes || []).some((e) => e?.node?.id === 1003)
-        const inSecond = (v.secondOrderNodes || []).some((e) => e?.node?.id === 1003)
-        if (mainId === 1003 || inFirst || inSecond) {
-          console.log(`[DEBUG 1003] After dedup view[${i}] (hub=${mainId}): firstOrder=${inFirst}, secondOrder=${inSecond}`)
-        }
-      })
 
       setClusterViews(deduplicated)
       setIsPositioningClusters(false)
@@ -282,6 +290,8 @@ const useGlobalGraphPipeline = ({
     globalViewCache,
     globalViewInvalidated,
     connectionsLoading,
+    allConnections,
+    graphOwnerKey,
   ])
 
   const allNodesForTextures = useMemo(() => {

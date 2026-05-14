@@ -1,17 +1,33 @@
 import * as THREE from 'three'
 
+const toConnEndpoint = (value) => {
+  const n = Number(value)
+  return Number.isFinite(n) ? n : null
+}
+
 /**
- * Generate a cache key from node and connection data to detect when cache is stale
+ * Generate a cache key from node and connection data to detect when cache is stale.
+ * Includes sorted edge list (not just counts) so different graphs with the same node count
+ * or same edge count do not incorrectly reuse cached cluster layouts.
  */
-export const getGlobalViewCacheKey = (nodeEntriesInfo, allConnections) => {
-  if (!nodeEntriesInfo?.length && !allConnections?.length) return ''
+export const getGlobalViewCacheKey = (nodeEntriesInfo, graphConnections, graphOwnerKey = '') => {
+  if (!nodeEntriesInfo?.length && !(graphConnections || []).length) return ''
   const nodeIds = (nodeEntriesInfo || [])
     .map((n) => n.id)
     .filter((id) => id != null)
     .sort((a, b) => a - b)
     .join(',')
-  const connCount = (allConnections || []).length
-  return `${nodeIds}|${connCount}`
+  const edges = (graphConnections || [])
+    .map((c) => {
+      const a = toConnEndpoint(c?.entry_id)
+      const b = toConnEndpoint(c?.foreign_entry_id)
+      if (a == null || b == null) return null
+      return a < b ? `${a}-${b}` : `${b}-${a}`
+    })
+    .filter(Boolean)
+    .sort()
+    .join(';')
+  return `${graphOwnerKey}|${nodeIds}|${edges}`
 }
 
 const posToArr = (p) =>

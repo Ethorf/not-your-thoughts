@@ -229,13 +229,16 @@ const connectionsSlice = createSlice({
           ...state,
           connections: action.payload.connections,
           connectionsLoading: false,
+          // Force Global View to refetch all_connections (see useGlobalGraphPipeline stage 2a).
+          allConnections: [],
         }
       })
       .addCase(createConnection.rejected, (state, action) => {
         return {
           ...state,
-          connections: action.payload.connections,
+          connections: action.payload?.connections ?? state.connections,
           connectionsLoading: false,
+          allConnections: [],
         }
       })
       .addCase(deleteConnection.pending, (state) => {
@@ -244,6 +247,7 @@ const connectionsSlice = createSlice({
       .addCase(deleteConnection.fulfilled, (state, action) => {
         state.connectionsLoading = false
         state.connections = state.connections.filter((connection) => connection.id !== action.payload.connectionId)
+        state.allConnections = []
       })
       .addCase(deleteConnection.rejected, (state, action) => {
         state.connectionsLoading = false
@@ -277,6 +281,8 @@ const connectionsSlice = createSlice({
       })
       .addCase(fetchAllConnections.pending, (state) => {
         state.connectionsLoading = true
+        // Avoid mixing a previous graph's edges with the current node list while the new fetch is in flight.
+        state.allConnections = []
       })
       .addCase(fetchAllConnections.fulfilled, (state, action) => {
         state.allConnections = action.payload
