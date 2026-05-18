@@ -3,11 +3,13 @@
 .titleWrapper {
   margin: 0;
   margin-bottom: 1rem;
+  user-select: none;
 }
 
 .title {
   font-family: 'Syncopate', sans-serif;
   color: white;
+  user-select: none;
 }
 .modal {
   min-height: 90vh;
@@ -72,6 +74,15 @@
   overflow: auto;
   border: $silver-border-default;
   border-radius: $default-border-radius;
+  user-select: text;
+  cursor: text;
+
+  :global(.connectionSourceHighlight) {
+    background-color: rgba(255, 220, 100, 0.35);
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
+  }
 }
 
 .entrySourceHeader {

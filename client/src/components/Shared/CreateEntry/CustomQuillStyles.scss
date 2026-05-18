@@ -47,7 +47,9 @@
 
 .ql-editor.ql-blank::before {
   color: rgba(192, 192, 192, 0.5);
-  text-align: center;
+  text-align: left;
+  left: $main-text-padding-left;
+  right: $main-text-padding-right;
 }
 
 .textArea {
@@ -84,7 +86,7 @@
 
 .hiddenText .ql-editor {
   color: transparent;
-  // color: red;
+  caret-color: $silver-active;
 
   // Main text Variables
   padding: 0;
@@ -133,21 +135,37 @@
   }
 }
 
-.ql-editor p:empty,
-.ql-editor p > br:only-child,
-.ql-editor li:empty {
+// Collapse extra empty blocks between content, but keep the active line visible for the caret.
+.ql-editor:not(.ql-blank):not(:focus) p:empty,
+.ql-editor:not(.ql-blank):not(:focus) p > br:only-child,
+.ql-editor:not(.ql-blank):not(:focus) li:empty {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
   height: 0;
 }
-/* Collapse Quill’s empty blocks */
-.ql-editor p:has(> br:only-child),
-.ql-editor li:has(> br:only-child),
-.ql-editor li > p:has(> br:only-child) {
+
+.ql-editor:not(.ql-blank):not(:focus) p:has(> br:only-child),
+.ql-editor:not(.ql-blank):not(:focus) li:has(> br:only-child),
+.ql-editor:not(.ql-blank):not(:focus) li > p:has(> br:only-child) {
   margin-block: 0 !important;
   padding-block: 0 !important;
   line-height: 0 !important;
   min-height: 0 !important;
+}
+
+.ql-editor.ql-blank p > br:only-child,
+.ql-editor:focus p > br:only-child {
+  height: auto;
+  min-height: $main-text-line-height;
+  line-height: $main-text-line-height !important;
+}
+
+.ql-editor.ql-blank p:has(> br:only-child),
+.ql-editor:focus p:has(> br:only-child) {
+  margin-block: initial !important;
+  padding-block: initial !important;
+  line-height: $main-text-line-height !important;
+  min-height: $main-text-line-height !important;
 }

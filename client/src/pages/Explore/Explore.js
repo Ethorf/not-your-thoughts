@@ -21,7 +21,7 @@ import {
   fetchPublicNodeEntriesInfo,
   fetchPublicEntry,
 } from '@redux/reducers/currentEntryReducer'
-import { fetchConnections, fetchPublicConnections, getSelectedText } from '@redux/reducers/connectionsReducer'
+import { fetchConnections, fetchPublicConnections } from '@redux/reducers/connectionsReducer'
 import { openModal } from '@redux/reducers/modalsReducer'
 
 // Styles
@@ -31,10 +31,8 @@ import sharedStyles from '@styles/sharedClassnames.module.scss'
 // Constants
 import { MODAL_NAMES } from '@constants/modalNames'
 import { ENTRY_TYPES } from '@constants/entryTypes'
-import { CONNECTION_ENTRY_SOURCES } from '@constants/connectionEntrySources'
 import { DEFAULT_PUBLIC_EXPLORE_USER_ALIAS, resolvePublicUserId } from '@utils/resolvePublicUserId'
 
-const { PRIMARY } = CONNECTION_ENTRY_SOURCES
 const { JOURNAL } = ENTRY_TYPES
 
 function getMostRecentlyModifiedItem(items) {
@@ -167,12 +165,7 @@ const Explore = () => {
       }
     }
 
-    try {
-      dispatch(getSelectedText(PRIMARY))
-      await handleOpenConnectionsModal()
-    } catch (error) {
-      console.error('Get selected text failure', error)
-    }
+    await handleOpenConnectionsModal()
   }, [dispatch, entryId, isPublicNetworkMode])
 
   useEffect(() => {

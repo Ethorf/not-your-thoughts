@@ -13,12 +13,11 @@ import {
   toggleEntryIsPrivate,
 } from '@redux/reducers/currentEntryReducer'
 import { openModal } from '@redux/reducers/modalsReducer.js'
-import { fetchConnections, getSelectedText } from '@redux/reducers/connectionsReducer'
+import { fetchConnections } from '@redux/reducers/connectionsReducer'
 
 // Constants
 import { SAVE_TYPES } from '@constants/saveTypes'
 import { MODAL_NAMES } from '@constants/modalNames.js'
-import { CONNECTION_ENTRY_SOURCES } from '@constants/connectionEntrySources'
 import { ENTRY_TYPES } from '@constants/entryTypes'
 
 // Components
@@ -33,8 +32,6 @@ import ConnectionLines from '@components/Shared/ConnectionLines/ConnectionLines'
 
 import styles from './EditNodeEntry.module.scss'
 import sharedStyles from '@styles/sharedClassnames.module.scss'
-
-const { PRIMARY } = CONNECTION_ENTRY_SOURCES
 
 const EditNodeEntry = () => {
   const dispatch = useDispatch()
@@ -84,25 +81,19 @@ const EditNodeEntry = () => {
     [dispatch]
   )
 
-  const handleOpenConnectionsWithSelectedText = useCallback(async () => {
-    const handleOpenConnectionsModal = async () => {
-      try {
-        const fetchConnRes = await dispatch(fetchConnections(entryId))
-        unwrapResult(fetchConnRes)
-        dispatch(openModal(MODAL_NAMES.CONNECTIONS))
-      } catch (error) {
-        console.error('Failed to fetch connections:', error)
-      }
-    }
-
+  const handleOpenConnectionsModal = useCallback(async () => {
     try {
-      const getSelectedTextRes = await dispatch(getSelectedText(PRIMARY))
-      unwrapResult(getSelectedTextRes)
-      await handleOpenConnectionsModal()
+      const fetchConnRes = await dispatch(fetchConnections(entryId))
+      unwrapResult(fetchConnRes)
+      dispatch(openModal(MODAL_NAMES.CONNECTIONS))
     } catch (error) {
-      console.error('Get selected text failure', error)
+      console.error('Failed to fetch connections:', error)
     }
   }, [dispatch, entryId])
+
+  const handleOpenConnectionsWithSelectedText = useCallback(async () => {
+    await handleOpenConnectionsModal()
+  }, [handleOpenConnectionsModal])
 
   useEffect(() => {
     const handleShortcuts = async (e) => {
@@ -130,7 +121,7 @@ const EditNodeEntry = () => {
             <div className={styles.connectStarContainer}>
               <DefaultButton
                 tooltip="Open connections menu"
-                onClick={handleOpenConnectionsWithSelectedText}
+                onClick={handleOpenConnectionsModal}
                 className={styles.saveButton}
               >
                 Connect
