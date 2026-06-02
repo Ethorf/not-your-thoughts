@@ -11,6 +11,9 @@ let lastQuillSelection = null
 /** Last selection inside a connections-modal content readout. */
 let lastModalReadoutSelection = null
 
+/** Editor selection captured immediately before the connections modal opens. */
+let pendingEditorSelectionForModal = null
+
 const isNodeInQuillEditor = (node) => {
   if (!node) return false
   return Array.from(document.querySelectorAll('.ql-editor')).some((editorEl) => editorEl.contains(node))
@@ -21,8 +24,37 @@ export const clearCapturedSelectionState = () => {
   lastQuillSelection = null
 }
 
+export const clearPendingEditorSelectionForModal = () => {
+  pendingEditorSelectionForModal = null
+}
+
+/**
+ * Store editor selection for the next connections modal open (Connect mousedown / shortcut).
+ * Only captures from the Quill body — not the title field or modal readout.
+ */
+export const setPendingEditorSelectionForModal = () => {
+  pendingEditorSelectionForModal = captureQuillEditorSelectionOnly()
+}
+
+/**
+ * @param {string} [entryTitle] - If the captured text equals the entry title, treat as no selection.
+ */
+export const consumePendingEditorSelectionForModal = (entryTitle) => {
+  const pending = pendingEditorSelectionForModal
+  pendingEditorSelectionForModal = null
+  if (!pending?.plainText) return null
+
+  const entryTitleTrimmed = entryTitle?.trim()
+  if (entryTitleTrimmed && pending.plainText.trim() === entryTitleTrimmed) {
+    return null
+  }
+
+  return pending
+}
+
 /** Clears in-memory selection tracking and any active browser selection. */
 export const resetConnectionModalSelectionState = () => {
+  clearPendingEditorSelectionForModal()
   clearCapturedSelectionState()
   window.getSelection()?.removeAllRanges()
 }

@@ -97,6 +97,8 @@ export const LOCAL_EXPLORE_CONNECTION_SIZE_SCALE = 0.9
 export const LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET = 0.45
 export const LOCAL_EXPLORE_CHILD_DISTANCE_SCALE = 0.86
 export const LOCAL_EXPLORE_PARENT_DISTANCE_SCALE = 0.9
+// Max sub-connection depth from first-order nodes. 1 = second-order only (no third-order+).
+export const LOCAL_EXPLORE_MAX_SUB_CONNECTION_DEPTH = 1
 
 // Line width constants
 export const LINE_WIDTHS = {

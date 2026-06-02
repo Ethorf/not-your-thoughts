@@ -14,6 +14,7 @@ import {
 } from '@redux/reducers/currentEntryReducer'
 import { openModal } from '@redux/reducers/modalsReducer.js'
 import { fetchConnections } from '@redux/reducers/connectionsReducer'
+import { setPendingEditorSelectionForModal } from '@utils/captureEditorSelection'
 
 // Constants
 import { SAVE_TYPES } from '@constants/saveTypes'
@@ -81,6 +82,10 @@ const EditNodeEntry = () => {
     [dispatch]
   )
 
+  const captureEditorSelectionForModal = useCallback(() => {
+    setPendingEditorSelectionForModal()
+  }, [])
+
   const handleOpenConnectionsModal = useCallback(async () => {
     try {
       const fetchConnRes = await dispatch(fetchConnections(entryId))
@@ -92,8 +97,9 @@ const EditNodeEntry = () => {
   }, [dispatch, entryId])
 
   const handleOpenConnectionsWithSelectedText = useCallback(async () => {
+    captureEditorSelectionForModal()
     await handleOpenConnectionsModal()
-  }, [handleOpenConnectionsModal])
+  }, [captureEditorSelectionForModal, handleOpenConnectionsModal])
 
   useEffect(() => {
     const handleShortcuts = async (e) => {
@@ -121,6 +127,7 @@ const EditNodeEntry = () => {
             <div className={styles.connectStarContainer}>
               <DefaultButton
                 tooltip="Open connections menu"
+                onMouseDown={captureEditorSelectionForModal}
                 onClick={handleOpenConnectionsModal}
                 className={styles.saveButton}
               >

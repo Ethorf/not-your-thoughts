@@ -28,7 +28,11 @@ import {
   clearConnectionSourceSelections,
   updateConnection,
 } from '@redux/reducers/connectionsReducer'
-import { captureEditorSelection, resetConnectionModalSelectionState } from '@utils/captureEditorSelection'
+import {
+  captureEditorSelection,
+  consumePendingEditorSelectionForModal,
+  resetConnectionModalSelectionState,
+} from '@utils/captureEditorSelection'
 import { createNodeEntry, fetchEntryById, saveNodeEntry } from '@redux/reducers/currentEntryReducer'
 import { closeModal } from '@redux/reducers/modalsReducer.js'
 
@@ -107,8 +111,18 @@ export const ConnectionsModal = () => {
 
   const handleModalOpen = useCallback(() => {
     resetLocalState()
-    resetConnectionSelectionState()
-  }, [resetLocalState, resetConnectionSelectionState])
+
+    const pending = consumePendingEditorSelectionForModal(title)
+    resetConnectionModalSelectionState()
+
+    if (pending) {
+      dispatch(setSelectedPrimarySourceText(pending.plainText))
+      dispatch(setSelectedForeignSourceText(''))
+      dispatch(setConnectionSourceType(pending.isSingleWord ? SINGLE_WORD : DIRECT))
+    } else {
+      dispatch(clearConnectionSourceSelections())
+    }
+  }, [dispatch, resetLocalState, title])
 
   const handleModalClose = useCallback(() => {
     resetConnectionSelectionState()

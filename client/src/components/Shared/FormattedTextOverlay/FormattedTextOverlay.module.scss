@@ -1,6 +1,11 @@
 @import '@styles/variables.scss';
 
 .wrapper {
+  $list-marker-width: 1.25rem;
+  $list-ordered-marker-width: 1.75rem;
+  $list-marker-gap: 0.5rem;
+  $list-item-text-indent: $main-text-padding-left + $list-marker-width + $list-marker-gap;
+  $list-ordered-item-text-indent: $main-text-padding-left + $list-ordered-marker-width + $list-marker-gap;
   position: absolute;
   font-family: $main-text;
   font-weight: 200;
@@ -54,17 +59,16 @@
     word-wrap: break-word;
     overflow-wrap: break-word;
     position: relative;
-    padding-left: 1.875rem !important; // Space for marker (::before) - matches Quill
+    padding-left: $list-item-text-indent !important;
   }
 
-  // Adjust padding for ordered lists which may have wider markers - matches Quill
   ol li {
-    padding-left: 1rem !important; // More space for numbers like "10. ", "100. "
+    padding-left: $list-ordered-item-text-indent !important;
   }
 
   ul,
   ol {
-    padding-left: $main-text-padding-left + 2; // Matches Quill
+    padding-left: $main-text-padding-left + 2;
     padding-right: 0;
     padding-top: 0;
     padding-bottom: 0;
@@ -78,8 +82,8 @@
     color: silver;
     position: absolute;
     left: $main-text-padding-left;
-    width: auto;
-    // white-space: nowrap;
+    width: $list-marker-width;
+    text-align: right;
   }
 
   // Add number marker via ::before using CSS counter for ordered lists - matches Quill
@@ -93,8 +97,9 @@
         content: counter(list-counter) '.';
         color: silver;
         position: absolute;
-        left: -0.1875rem;
-        width: auto;
+        left: $main-text-padding-left;
+        width: $list-ordered-marker-width;
+        text-align: right;
       }
     }
   }

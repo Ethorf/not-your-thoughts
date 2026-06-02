@@ -315,6 +315,8 @@ const LocalNodeNetworkView = ({
                       verticalOffset={subConnectionVerticalOffset[conn.id] || 0}
                       horizontalOffset={subConnectionHorizontalOffset[conn.id] || 0}
                       currentEntryId={entryId}
+                      graphCenter={mainNodePosition}
+                      excludedNodeIds={[entryId, ...renderedFirstOrderNodeIds]}
                     />
                   ) : (
                     <ConnectionSpheres
@@ -326,6 +328,7 @@ const LocalNodeNetworkView = ({
                       rotation={[vRotation, hRotation, 0]}
                       verticalOffset={subConnectionVerticalOffset[conn.id] || 0}
                       horizontalOffset={subConnectionHorizontalOffset[conn.id] || 0}
+                      graphCenter={mainNodePosition}
                       excludedNodeIds={[entryId, ...renderedFirstOrderNodeIds]}
                     />
                   )}

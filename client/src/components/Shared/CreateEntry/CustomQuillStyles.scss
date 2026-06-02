@@ -85,6 +85,11 @@
 }
 
 .hiddenText .ql-editor {
+  $list-marker-width: 1.25rem;
+  $list-ordered-marker-width: 1.75rem;
+  $list-marker-gap: 0.5rem;
+  $list-item-text-indent: $main-text-padding-left + $list-marker-width + $list-marker-gap;
+  $list-ordered-item-text-indent: $main-text-padding-left + $list-ordered-marker-width + $list-marker-gap;
   color: transparent;
   caret-color: $silver-active;
 
@@ -114,24 +119,43 @@
   li {
     padding-bottom: $li-padding-bottom;
     position: relative;
-    padding-left: 1.875rem !important; // Space for marker (::before) - adjust based on marker width
-
-    &::before {
-      position: absolute;
-      left: $main-text-padding-left;
-      width: auto;
-    }
+    padding-left: $list-item-text-indent !important;
   }
 
-  // Adjust padding for ordered lists which may have wider markers
   ol li {
-    padding-left: 1rem !important; // More space for numbers like "10. ", "100. "
+    padding-left: $list-ordered-item-text-indent !important;
   }
+
   ul,
   ol {
+    list-style: none;
     padding-left: $main-text-padding-left + 2;
     padding-right: 0;
     margin: 0;
+  }
+
+  ul > li::before {
+    content: '•';
+    position: absolute;
+    left: $main-text-padding-left;
+    width: $list-marker-width;
+    text-align: right;
+  }
+
+  ol {
+    counter-reset: list-counter;
+
+    & > li {
+      counter-increment: list-counter;
+
+      &::before {
+        content: counter(list-counter) '.';
+        position: absolute;
+        left: $main-text-padding-left;
+        width: $list-ordered-marker-width;
+        text-align: right;
+      }
+    }
   }
 }
 
