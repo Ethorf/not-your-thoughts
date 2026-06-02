@@ -19,6 +19,7 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
   // store the latest timer callbacks here:
   const startTimerRef = useRef()
   const stopTimerRef = useRef()
+  const handleAutosaveRef = useRef(handleAutosave)
 
   const { wordCount, entryId, entriesSaving } = useSelector((state) => state.currentEntry)
   const { timeElapsed, wordsAdded } = useSelector((state) => state.writingData)
@@ -67,7 +68,8 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
   useEffect(() => {
     startTimerRef.current = startTimer
     stopTimerRef.current = stopTimer
-  }, [startTimer, stopTimer])
+    handleAutosaveRef.current = handleAutosave
+  }, [startTimer, stopTimer, handleAutosave])
 
   // keydown listener — only mounted/unmounted once
   useEffect(() => {
@@ -98,10 +100,15 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
     return () => clearTimeout(autosaveTimeoutRef.current)
   }, [shouldAutosave, handleAutosave])
 
-  // on visibility change
+  // on visibility change — save immediately when leaving the tab so quick refreshes don't lose
+  // unsaved changes (e.g. a title typed into an otherwise empty note). Avoids the delayed
+  // shouldAutosave timer, which can be throttled/cancelled in a backgrounded tab.
   useEffect(() => {
     const onVis = () => {
-      if (document.hidden) stopTimerRef.current(true)
+      if (document.hidden) {
+        stopTimerRef.current(false)
+        handleAutosaveRef.current?.()
+      }
     }
     document.addEventListener('visibilitychange', onVis)
     return () => document.removeEventListener('visibilitychange', onVis)
