@@ -1,4 +1,5 @@
 @import '@styles/variables.scss';
+@import '@styles/listMarkerStyles.scss';
 
 .ql-editor {
   font-family: $main-text;
@@ -85,13 +86,10 @@
 }
 
 .hiddenText .ql-editor {
-  $list-marker-width: 1.25rem;
-  $list-ordered-marker-width: 1.75rem;
-  $list-marker-gap: 0.5rem;
-  $list-item-text-indent: $main-text-padding-left + $list-marker-width + $list-marker-gap;
-  $list-ordered-item-text-indent: $main-text-padding-left + $list-ordered-marker-width + $list-marker-gap;
   color: transparent;
+  // color: red;
   caret-color: $silver-active;
+  line-height: $main-text-line-height;
 
   // Main text Variables
   padding: 0;
@@ -99,8 +97,7 @@
   box-sizing: $main-text-box-sizing;
   transition: all 1s;
 
-  p,
-  li {
+  p {
     font-weight: 200;
     font-size: $main-text-font-size;
     line-height: $main-text-line-height;
@@ -114,48 +111,41 @@
     overflow-wrap: break-word;
     word-break: normal;
     hyphens: none;
-  }
-
-  li {
-    padding-bottom: $li-padding-bottom;
-    position: relative;
-    padding-left: $list-item-text-indent !important;
-  }
-
-  ol li {
-    padding-left: $list-ordered-item-text-indent !important;
-  }
-
-  ul,
-  ol {
-    list-style: none;
-    padding-left: $main-text-padding-left + 2;
-    padding-right: 0;
     margin: 0;
   }
 
-  ul > li::before {
-    content: '•';
-    position: absolute;
-    left: $main-text-padding-left;
-    width: $list-marker-width;
-    text-align: right;
+  @include local-editor-list-markers;
+
+  ul,
+  ol {
+    padding-left: $main-text-padding-left !important;
+    list-style: none !important;
+    list-style-position: outside !important;
   }
 
-  ol {
-    counter-reset: list-counter;
+  ul > li,
+  ol > li {
+    font-weight: 200;
+    font-size: $main-text-font-size;
+    line-height: $main-text-line-height !important;
+    padding-left: 1.5em !important;
+    padding-top: 0 !important;
+    padding-bottom: $li-padding-bottom !important;
+    padding-right: $main-text-padding-right !important;
+    box-sizing: $main-text-box-sizing;
+    margin: 0 !important;
+  }
 
-    & > li {
-      counter-increment: list-counter;
-
-      &::before {
-        content: counter(list-counter) '.';
-        position: absolute;
-        left: $main-text-padding-left;
-        width: $list-ordered-marker-width;
-        text-align: right;
-      }
-    }
+  li::before {
+    display: inline-block !important;
+    position: static !important;
+    left: auto !important;
+    margin-left: -1.5em !important;
+    margin-right: 0.3em !important;
+    width: 1.2em;
+    line-height: $main-text-line-height !important;
+    vertical-align: baseline !important;
+    text-align: right;
   }
 }
 

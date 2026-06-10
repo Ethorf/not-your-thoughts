@@ -1,11 +1,7 @@
 @import '@styles/variables.scss';
+@import '@styles/listMarkerStyles.scss';
 
 .wrapper {
-  $list-marker-width: 1.25rem;
-  $list-ordered-marker-width: 1.75rem;
-  $list-marker-gap: 0.5rem;
-  $list-item-text-indent: $main-text-padding-left + $list-marker-width + $list-marker-gap;
-  $list-ordered-item-text-indent: $main-text-padding-left + $list-ordered-marker-width + $list-marker-gap;
   position: absolute;
   font-family: $main-text;
   font-weight: 200;
@@ -44,64 +40,24 @@
     cursor: default; // Default cursor for text
   }
 
-  li {
+  @include local-editor-list-markers;
+
+  ul > li,
+  ol > li {
     font-weight: 200;
     font-size: $main-text-font-size;
     line-height: $main-text-line-height;
-    padding-top: 0;
-    padding-bottom: $li-padding-bottom;
-    padding-right: $main-text-padding-right;
     box-sizing: $main-text-box-sizing;
-    margin-top: 0;
     margin: 0;
     transition: all 1s;
-    cursor: default; // Default cursor for text
+    cursor: default;
     word-wrap: break-word;
     overflow-wrap: break-word;
-    position: relative;
-    padding-left: $list-item-text-indent !important;
   }
 
-  ol li {
-    padding-left: $list-ordered-item-text-indent !important;
-  }
-
-  ul,
-  ol {
-    padding-left: $main-text-padding-left + 2;
-    padding-right: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    margin: 0;
-    list-style: none; // Remove default markers - we use ::before instead
-  }
-
-  // Add bullet marker via ::before for unordered lists - matches Quill
-  ul > li::before {
-    content: '•';
+  ul > li::before,
+  ol > li::before {
     color: silver;
-    position: absolute;
-    left: $main-text-padding-left;
-    width: $list-marker-width;
-    text-align: right;
-  }
-
-  // Add number marker via ::before using CSS counter for ordered lists - matches Quill
-  ol {
-    counter-reset: list-counter; // Initialize counter
-
-    & > li {
-      counter-increment: list-counter;
-
-      &::before {
-        content: counter(list-counter) '.';
-        color: silver;
-        position: absolute;
-        left: $main-text-padding-left;
-        width: $list-ordered-marker-width;
-        text-align: right;
-      }
-    }
   }
 
   ol li,
