@@ -1,5 +1,6 @@
 import React, { useMemo, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import * as THREE from 'three'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
 import {
   SPHERE_TYPES,
@@ -11,12 +12,34 @@ import useGlobalSecondOrderConnections from '@hooks/useGlobalSecondOrderConnecti
 import { claimGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
 import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
 import { buildGlobalHoverInfo } from './hoverInfoHelpers'
-import { buildDashedLinesBetween } from './globalConnectionLineHelpers'
 import { positionSecondOrderSiblings } from './GlobalSecondOrderSiblingNodes'
+
+const buildSolidLinesFromParent = (graphParentNode, targetNodes) => {
+  if (!graphParentNode || !targetNodes?.length) return []
+
+  const parentPos =
+    graphParentNode.position instanceof THREE.Vector3
+      ? graphParentNode.position
+      : new THREE.Vector3(...graphParentNode.position)
+
+  return targetNodes.map((entry) => {
+    const childPos =
+      entry.position instanceof THREE.Vector3 ? entry.position : new THREE.Vector3(...entry.position)
+    const connectionKey = [graphParentNode.node.id, entry.node.id].sort().join('-')
+    const points = [parentPos.clone(), childPos.clone()]
+    const geometry = new THREE.BufferGeometry().setFromPoints(points)
+
+    return (
+      <line key={connectionKey} geometry={geometry}>
+        <lineBasicMaterial color="white" />
+      </line>
+    )
+  })
+}
 
 /**
  * Renders a parent's non-path children in the same cohort band as the path anchor.
- * Graph edges to the parent use dashed lines; layout uses sibling positioning.
+ * Layout uses sibling positioning; solid lines connect to the graph parent.
  */
 const GlobalImplicitCohortNodes = ({
   layoutAnchorNode,
@@ -60,11 +83,12 @@ const GlobalImplicitCohortNodes = ({
     })
   }, [positionedNodes, globalRenderOwners, ownerId])
 
+  const connectionsByNodeId = useGlobalSecondOrderConnections(renderableNodes)
+
   const connectionLines = useMemo(
-    () => buildDashedLinesBetween(graphParentNode, renderableNodes),
+    () => buildSolidLinesFromParent(graphParentNode, renderableNodes),
     [graphParentNode, renderableNodes]
   )
-  const connectionsByNodeId = useGlobalSecondOrderConnections(renderableNodes)
 
   if (!renderableNodes?.length) return null
 
