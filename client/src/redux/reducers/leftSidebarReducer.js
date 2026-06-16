@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { openModal } from './modalsReducer'
 
 const initialState = {
   leftSidebarOpen: false,
@@ -11,6 +12,11 @@ const leftSidebarSlice = createSlice({
     toggleLeftSidebar(state) {
       state.leftSidebarOpen = !state.leftSidebarOpen
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(openModal, (state) => {
+      state.leftSidebarOpen = false
+    })
   },
 })
 

@@ -23,14 +23,21 @@ import {
   createConnection,
   deleteConnection,
   setConnectionSourceType,
-  getSelectedText,
+  setSelectedPrimarySourceText,
+  setSelectedForeignSourceText,
+  clearConnectionSourceSelections,
   updateConnection,
 } from '@redux/reducers/connectionsReducer'
+import {
+  captureEditorSelection,
+  consumePendingEditorSelectionForModal,
+  resetConnectionModalSelectionState,
+} from '@utils/captureEditorSelection'
 import { createNodeEntry, fetchEntryById, saveNodeEntry } from '@redux/reducers/currentEntryReducer'
 import { closeModal } from '@redux/reducers/modalsReducer.js'
 
 // Utils
-import { highlightMatchingText } from '@utils/highlightMatchingText'
+import { highlightPlainTextInHtml } from '@utils/highlightPlainTextInHtml'
 import { showToast } from '@utils/toast'
 import { isValidUrl } from '@utils/isValidUrl'
 import { wrapLinkStringInAnchorTag } from '@utils/wrapLinkStringInAnchorTag'
@@ -74,6 +81,22 @@ export const ConnectionsModal = () => {
     setNewNodeTitle('')
   }, [])
 
+  const handleSelectTextMouseDown = useCallback(
+    (e, source) => {
+      e.preventDefault()
+      const captured = captureEditorSelection(source)
+      if (!captured) return
+
+      if (source === PRIMARY) {
+        dispatch(setSelectedPrimarySourceText(captured.plainText))
+      } else if (source === FOREIGN) {
+        dispatch(setSelectedForeignSourceText(captured.plainText))
+      }
+      dispatch(setConnectionSourceType(captured.isSingleWord ? SINGLE_WORD : DIRECT))
+    },
+    [dispatch]
+  )
+
   // Reset connection type if it's PARENT and node is top-level
   useEffect(() => {
     if (isTopLevel && localConnectionType === PARENT) {
@@ -81,10 +104,29 @@ export const ConnectionsModal = () => {
     }
   }, [isTopLevel, localConnectionType])
 
-  // Memoize handleModalOpen so it doesn't trigger BaseModalWrapper's useEffect on every render
+  const resetConnectionSelectionState = useCallback(() => {
+    resetConnectionModalSelectionState()
+    dispatch(clearConnectionSourceSelections())
+  }, [dispatch])
+
   const handleModalOpen = useCallback(() => {
     resetLocalState()
-  }, [resetLocalState])
+
+    const pending = consumePendingEditorSelectionForModal(title)
+    resetConnectionModalSelectionState()
+
+    if (pending) {
+      dispatch(setSelectedPrimarySourceText(pending.plainText))
+      dispatch(setSelectedForeignSourceText(''))
+      dispatch(setConnectionSourceType(pending.isSingleWord ? SINGLE_WORD : DIRECT))
+    } else {
+      dispatch(clearConnectionSourceSelections())
+    }
+  }, [dispatch, resetLocalState, title])
+
+  const handleModalClose = useCallback(() => {
+    resetConnectionSelectionState()
+  }, [resetConnectionSelectionState])
 
   useEffect(() => {
     const fetchForeignEntry = async () => {
@@ -208,7 +250,8 @@ export const ConnectionsModal = () => {
     dispatch(deleteConnection(id))
   }
 
-  const handleEditNodeClick = (c) => {
+  const handleEditNodeClick = () => {
+    handleModalClose()
     dispatch(closeModal())
   }
   const getConnUpdateIds = (conn, connType) => {
@@ -251,8 +294,19 @@ export const ConnectionsModal = () => {
     )
   }
 
-  const highlightedPrimaryContent = highlightMatchingText(content, selectedPrimarySourceText)
-  const highlightedForeignContent = highlightMatchingText(localForeignEntryContent, selectedForeignSourceText)
+  const entryTitleTrimmed = title?.trim() ?? ''
+  const primaryHighlightSource =
+    selectedPrimarySourceText?.trim() &&
+    selectedPrimarySourceText.trim() !== entryTitleTrimmed
+      ? selectedPrimarySourceText
+      : ''
+  const foreignHighlightSource =
+    selectedForeignSourceText?.trim() && selectedForeignSourceText.trim() !== entryTitleTrimmed
+      ? selectedForeignSourceText
+      : ''
+
+  const highlightedPrimaryContent = highlightPlainTextInHtml(content, primaryHighlightSource)
+  const highlightedForeignContent = highlightPlainTextInHtml(localForeignEntryContent, foreignHighlightSource)
 
   // Filter connection types based on isTopLevel status
   const availableConnectionTypes = isTopLevel
@@ -260,7 +314,12 @@ export const ConnectionsModal = () => {
     : Object.values(CONNECTION_TYPES.FRONTEND)
 
   return (
-    <BaseModalWrapper modalName={MODAL_NAMES.CONNECTIONS} className={styles.modal} onOpen={handleModalOpen}>
+    <BaseModalWrapper
+      modalName={MODAL_NAMES.CONNECTIONS}
+      className={styles.modal}
+      onOpen={handleModalOpen}
+      onClose={handleModalClose}
+    >
       <div className={styles.wrapper}>
         <h2 className={styles.titleWrapper}>
           connect <span className={styles.title}>{title}</span> to:
@@ -302,11 +361,16 @@ export const ConnectionsModal = () => {
           {localConnectionType === EXTERNAL ? (
             <div className={styles.entrySourceContainer}>
               <div className={styles.sourceSelectContainer}>
-                <DefaultButton className={styles.getSourceButton} onClick={() => dispatch(getSelectedText(PRIMARY))}>
+                <DefaultButton className={styles.getSourceButton} onMouseDown={(e) => handleSelectTextMouseDown(e, PRIMARY)}>
                   Select Text to Link
                 </DefaultButton>
               </div>
-              <div className={styles.entrySource} dangerouslySetInnerHTML={{ __html: highlightedPrimaryContent }} />
+              <div
+                className={styles.entrySource}
+                data-connection-source-readout
+                data-readout-type={PRIMARY}
+                dangerouslySetInnerHTML={{ __html: highlightedPrimaryContent }}
+              />
               <input
                 className={styles.externalConnectionInput}
                 value={externalLinkInput}
@@ -321,11 +385,16 @@ export const ConnectionsModal = () => {
               <div className={styles.entrySourceContainer}>
                 <div className={styles.sourceSelectContainer}>
                   <h4 className={styles.entrySourceHeader}>Primary Entry Source</h4>
-                  <DefaultButton className={styles.getSourceButton} onClick={() => dispatch(getSelectedText(PRIMARY))}>
+                  <DefaultButton className={styles.getSourceButton} onMouseDown={(e) => handleSelectTextMouseDown(e, PRIMARY)}>
                     Select Text
                   </DefaultButton>
                 </div>
-                <div className={styles.entrySource} dangerouslySetInnerHTML={{ __html: highlightedPrimaryContent }} />
+                <div
+                  className={styles.entrySource}
+                  data-connection-source-readout
+                  data-readout-type={PRIMARY}
+                  dangerouslySetInnerHTML={{ __html: highlightedPrimaryContent }}
+                />
               </div>
               {localForeignEntryId ? (
                 <div className={styles.entrySourceContainer}>
@@ -333,12 +402,17 @@ export const ConnectionsModal = () => {
                     <h4 className={styles.entrySourceHeader}>Foreign Entry Source</h4>
                     <DefaultButton
                       className={styles.getSourceButton}
-                      onClick={() => dispatch(getSelectedText(FOREIGN))}
+                      onMouseDown={(e) => handleSelectTextMouseDown(e, FOREIGN)}
                     >
                       Select Text
                     </DefaultButton>
                   </div>
-                  <div className={styles.entrySource} dangerouslySetInnerHTML={{ __html: highlightedForeignContent }} />
+                  <div
+                    className={styles.entrySource}
+                    data-connection-source-readout
+                    data-readout-type={FOREIGN}
+                    dangerouslySetInnerHTML={{ __html: highlightedForeignContent }}
+                  />
                 </div>
               ) : null}
             </>

@@ -6,7 +6,7 @@ import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
 import { SAVE_TYPES } from '@constants/saveTypes'
 
 // import { showToast } from '@utils/toast' // Unused
-import { hasOneWord } from '@utils/hasOneWord'
+import { captureEditorSelection } from '@utils/captureEditorSelection'
 import { resolvePublicUserId } from '@utils/resolvePublicUserId'
 import { createDeduplicationCondition, clearPendingRequest } from '@utils/requestDeduplication'
 
@@ -46,6 +46,8 @@ export const createConnection = createAsyncThunk(
     { rejectWithValue, dispatch }
   ) => {
     try {
+      await dispatch(saveNodeEntry({ saveType: SAVE_TYPES.AUTO })).unwrap()
+
       const response = await axiosInstance.post('api/connections/create_connection', {
         connection_type: connection_type === EXTERNAL ? connection_type : FRONT_TO_BACK_CONN_TYPES[connection_type],
         primary_entry_id,
@@ -56,11 +58,9 @@ export const createConnection = createAsyncThunk(
         source_type,
       })
 
-      dispatch(saveNodeEntry({ saveType: SAVE_TYPES.MANUAL }))
-
       return response.data
     } catch (error) {
-      return rejectWithValue(error.response.data)
+      return rejectWithValue(error.response?.data ?? error)
     }
   }
 )
@@ -74,6 +74,28 @@ export const deleteConnection = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response.data)
     }
+  }
+)
+
+export const getSelectedText = createAsyncThunk(
+  'connections/getSelectedText',
+  async (entrySource, { dispatch, rejectWithValue }) => {
+    const captured = captureEditorSelection(entrySource)
+    if (!captured?.plainText) {
+      return rejectWithValue({ message: 'No text selected' })
+    }
+
+    const { plainText, isSingleWord } = captured
+
+    if (entrySource === PRIMARY) {
+      dispatch(setSelectedPrimarySourceText(plainText))
+    } else if (entrySource === FOREIGN) {
+      dispatch(setSelectedForeignSourceText(plainText))
+    }
+
+    dispatch(setConnectionSourceType(isSingleWord ? SINGLE_WORD : DIRECT))
+
+    return { entrySource, plainText }
   }
 )
 
@@ -194,29 +216,10 @@ const connectionsSlice = createSlice({
     setConnectionTitleInput: (state, action) => {
       state.connectionTitleInput = action.payload
     },
-    getSelectedText: (state, action) => {
-      const entry_source = action.payload
-
-      if (window.getSelection) {
-        const selection = window.getSelection()
-        if (selection.rangeCount > 0) {
-          const range = selection.getRangeAt(0)
-          const container = document.createElement('div')
-          container.appendChild(range.cloneContents())
-
-          if (hasOneWord(container.innerHTML)) {
-            state.connectionSourceType = SINGLE_WORD
-          } else {
-            state.connectionSourceType = DIRECT
-          }
-
-          if (entry_source === PRIMARY) {
-            state.selectedPrimarySourceText = container.innerHTML
-          } else if (entry_source === FOREIGN) {
-            state.selectedForeignSourceText = container.innerHTML
-          }
-        }
-      }
+    clearConnectionSourceSelections: (state) => {
+      state.selectedPrimarySourceText = ''
+      state.selectedForeignSourceText = ''
+      state.connectionSourceType = DIRECT
     },
   },
   extraReducers: (builder) => {
@@ -229,13 +232,16 @@ const connectionsSlice = createSlice({
           ...state,
           connections: action.payload.connections,
           connectionsLoading: false,
+          // Force Global View to refetch all_connections (see useGlobalGraphPipeline stage 2a).
+          allConnections: [],
         }
       })
       .addCase(createConnection.rejected, (state, action) => {
         return {
           ...state,
-          connections: action.payload.connections,
+          connections: action.payload?.connections ?? state.connections,
           connectionsLoading: false,
+          allConnections: [],
         }
       })
       .addCase(deleteConnection.pending, (state) => {
@@ -244,6 +250,7 @@ const connectionsSlice = createSlice({
       .addCase(deleteConnection.fulfilled, (state, action) => {
         state.connectionsLoading = false
         state.connections = state.connections.filter((connection) => connection.id !== action.payload.connectionId)
+        state.allConnections = []
       })
       .addCase(deleteConnection.rejected, (state, action) => {
         state.connectionsLoading = false
@@ -277,6 +284,8 @@ const connectionsSlice = createSlice({
       })
       .addCase(fetchAllConnections.pending, (state) => {
         state.connectionsLoading = true
+        // Avoid mixing a previous graph's edges with the current node list while the new fetch is in flight.
+        state.allConnections = []
       })
       .addCase(fetchAllConnections.fulfilled, (state, action) => {
         state.allConnections = action.payload
@@ -312,7 +321,7 @@ export const {
   setConnectionTitleInput,
   setConnectionSourceType,
   setModalConnectionType,
-  getSelectedText,
+  clearConnectionSourceSelections,
 } = connectionsSlice.actions
 
 export default connectionsSlice.reducer

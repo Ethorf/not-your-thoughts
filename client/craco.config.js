@@ -1,4 +1,71 @@
-const path = require(`path`)
+const path = require('path')
+
+const appSrc = path.resolve(__dirname, 'src')
+
+/**
+ * Development-only CSS module class names that stay easy to read in DevTools:
+ * path from src + original class, e.g. pages_EditNodeEntry_EditNodeEntry__wrapper
+ * (Production still uses Create React App's default getCSSModuleLocalIdent.)
+ */
+function getReadableDevLocalIdent(context, _localIdentName, localName) {
+  let rel = path.relative(appSrc, context.resourcePath).replace(/\\/g, '/')
+  if (!rel || rel.startsWith('..')) {
+    rel = path.basename(context.resourcePath)
+  }
+  const withoutModule = rel.replace(/\.module\.(scss|sass|css)$/i, '')
+  const prefix = withoutModule.replace(/\//g, '_').replace(/[^a-zA-Z0-9_-]/g, '_')
+  const combined = `${prefix}__${localName}`
+  if (/^[0-9-]/.test(combined)) {
+    return `m_${combined}`
+  }
+  return combined
+}
+
+function patchCssModuleLoadersForDev(rule, isDevelopment) {
+  if (!isDevelopment || !rule) {
+    return
+  }
+  if (Array.isArray(rule.oneOf)) {
+    rule.oneOf.forEach((r) => patchCssModuleLoadersForDev(r, isDevelopment))
+  }
+  if (Array.isArray(rule.rules)) {
+    rule.rules.forEach((r) => patchCssModuleLoadersForDev(r, isDevelopment))
+  }
+
+  const use = rule.use
+  if (!use) {
+    return
+  }
+  const chain = Array.isArray(use) ? use : [use]
+  chain.forEach((item) => {
+    if (!item || typeof item !== 'object') {
+      return
+    }
+    const loaderPath = String(item.loader || '')
+    if (!loaderPath.includes('css-loader')) {
+      return
+    }
+    const opts = item.options
+    if (!opts || typeof opts !== 'object') {
+      return
+    }
+    const mod = opts.modules
+    if (!mod || typeof mod !== 'object') {
+      return
+    }
+    const isCssModules = mod.mode === 'local' || typeof mod.getLocalIdent === 'function'
+    if (!isCssModules) {
+      return
+    }
+    item.options = {
+      ...opts,
+      modules: {
+        ...mod,
+        getLocalIdent: getReadableDevLocalIdent,
+      },
+    }
+  })
+}
 
 module.exports = {
   devServer: {
@@ -8,73 +75,46 @@ module.exports = {
     configure: (webpackConfig, { env }) => {
       const isDevelopment = env === 'development'
 
-      // Locate the rule handling SCSS files
       const oneOfRule = webpackConfig.module.rules.find((rule) => Array.isArray(rule.oneOf))
 
       if (oneOfRule) {
-        // Find and modify CSS module loader configuration
-        oneOfRule.oneOf.forEach((rule) => {
-          // Check if this rule handles CSS modules (module.scss or module.css)
-          const isModuleRule =
-            rule.test &&
-            (rule.test.toString().includes('module') ||
-              (rule.test.toString().includes('\\.module\\.') && rule.test.toString().includes('css')))
+        // Walk all rules so every css-loader that runs CSS Modules picks up dev naming
+        patchCssModuleLoadersForDev(oneOfRule, isDevelopment)
 
-          if (isModuleRule && rule.use && Array.isArray(rule.use)) {
-            rule.use.forEach((loader) => {
-              // Handle object loader format
-              if (typeof loader === 'object' && loader.loader) {
-                const loaderPath = loader.loader
-                if (loaderPath.includes('css-loader')) {
-                  // Configure CSS modules with readable classnames in development
-                  loader.options = loader.options || {}
-                  loader.options.modules = loader.options.modules || {}
-                  if (isDevelopment) {
-                    // Use readable classnames: [filename]__[local]--[hash:base64:5]
-                    // For newer css-loader versions, use getLocalIdent function
-                    loader.options.modules.getLocalIdent = (context, localIdentName, localName) => {
-                      // Return readable format: filename__localname--hash
-                      const hash = require('crypto')
-                        .createHash('md5')
-                        .update(context.resourcePath + localName)
-                        .digest('base64')
-                        .substring(0, 5)
-                      const filename = path.basename(context.resourcePath, path.extname(context.resourcePath))
-                      return `${filename}__${localName}--${hash}`
-                    }
-                  }
-                }
-              }
-            })
-          }
-        })
-
-        // Add sass-loader to handle SCSS files
+        // Non-module SCSS only — must not match *.module.scss so CRA's sass module rule runs
         const sassLoader = {
           test: /\.scss$/,
+          exclude: /\.module\.(scss|sass)$/,
           use: [
-            'style-loader', // or MiniCssExtractPlugin.loader for production
-            'css-loader',
+            require.resolve('style-loader'),
             {
-              loader: 'sass-loader',
+              loader: require.resolve('css-loader'),
               options: {
+                importLoaders: 1,
+                sourceMap: isDevelopment,
+                modules: { mode: 'icss' },
+              },
+            },
+            {
+              loader: require.resolve('sass-loader'),
+              options: {
+                sourceMap: true,
                 sassOptions: {
-                  includePaths: [path.resolve(__dirname, 'src/styles')], // Path to your SCSS files
+                  includePaths: [path.resolve(__dirname, 'src/styles')],
                 },
               },
             },
           ],
+          sideEffects: true,
         }
 
-        oneOfRule.oneOf.unshift(sassLoader) // Add SCSS loader as the first item
+        oneOfRule.oneOf.unshift(sassLoader)
       }
 
-      // Add aliases to resolve paths
       const resolveAlias = webpackConfig.resolve.alias || {}
       webpackConfig.resolve.alias = {
         ...resolveAlias,
-        '@styles': path.resolve(__dirname, 'src/styles'), // Example alias for styles
-        // Add more aliases as needed
+        '@styles': path.resolve(__dirname, 'src/styles'),
       }
 
       return webpackConfig

@@ -64,7 +64,7 @@ export const PublicDashboardNodeEntry = ({ node = {}, userId }) => {
 
   const handleExploreNode = () => {
     if (userId && id) {
-      history.push(`/view-network?userId=${userId}&entryId=${id}`)
+      history.push(`/explore?userId=${userId}&entryId=${id}`)
     } else {
       console.error('Cannot explore: missing userId or entry id', { userId, id })
     }

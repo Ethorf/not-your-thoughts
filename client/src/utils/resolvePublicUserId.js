@@ -6,6 +6,9 @@ const PUBLIC_USER_ALIASES = {
   ethorf: '4fd36f0e-9159-4561-af4e-e5841994c873',
 }
 
+/** Public demo network used when Explore is opened while logged out (no `userId` in URL). */
+export const DEFAULT_PUBLIC_EXPLORE_USER_ALIAS = 'ethorf'
+
 /**
  * Resolves a potentially-short user identifier to the canonical public userId
  * used by the backend.

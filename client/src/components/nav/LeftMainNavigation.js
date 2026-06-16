@@ -54,8 +54,7 @@ const LeftMainNavigation = () => {
       return () => clearTimeout(timer)
     }
   }, [leftSidebarOpen, dispatch])
-  console.log('<<<<<< user >>>>>>>>> is: <<<<<<<<<<<<')
-  console.log(user)
+
   return (
     <div
       className={classNames(styles.wrapper, {

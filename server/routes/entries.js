@@ -81,10 +81,14 @@ router.post('/update_node_entry', authorize, async (req, res) => {
   const { entryId, content, title } = req.body
 
   try {
-    // Check if entryId, content, and user_id are provided
-    if (!entryId || !content || !user_id) {
-      return res.status(400).json({ message: 'entryId, content, and user_id are required' })
+    // entryId and user_id are required. Content is optional so a title-only change
+    // (e.g. renaming a brand new, empty node) can still be saved.
+    if (!entryId || !user_id) {
+      return res.status(400).json({ message: 'entryId and user_id are required' })
     }
+
+    // Normalize content so an empty/omitted body is treated as an empty string rather than rejected.
+    const safeContent = typeof content === 'string' ? content : ''
 
     // Get current content_ids from the entry
     let currentEntry = await pool.query('SELECT content_ids FROM entries WHERE id = $1', [entryId])
@@ -94,11 +98,11 @@ router.post('/update_node_entry', authorize, async (req, res) => {
     let newContentIds = [...currentContentIds]
 
     // Check if content has changed
-    if (content !== currentContentIds[0]) {
+    if (safeContent !== currentContentIds[0]) {
       // Insert new content into entry_contents table
       let newContentInsert = await pool.query(
         'INSERT INTO entry_contents (content, entry_id) VALUES ($1, $2) RETURNING id',
-        [content, entryId]
+        [safeContent, entryId]
       )
       let newContentId = newContentInsert.rows[0].id
 
@@ -112,11 +116,14 @@ router.post('/update_node_entry', authorize, async (req, res) => {
       [newContentIds, title, entryId, user_id]
     )
 
-    // Retrieve the most recent content associated with the entry
-    let mostRecentContent = await pool.query('SELECT * FROM entry_contents WHERE id = $1', [newContentIds[0]])
+    // Retrieve the most recent content associated with the entry (may be absent if there is none yet)
+    let mostRecentContent = newContentIds[0]
+      ? await pool.query('SELECT * FROM entry_contents WHERE id = $1', [newContentIds[0]])
+      : null
+    const responseContent = mostRecentContent?.rows?.[0]?.content ?? ''
 
     console.log('Node Entry updated successfully!')
-    return res.json({ updatedEntry: updatedEntry.rows[0], content: mostRecentContent.rows[0].content })
+    return res.json({ updatedEntry: updatedEntry.rows[0], content: responseContent })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')

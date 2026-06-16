@@ -17,6 +17,8 @@ const NodeSearch = ({
   showResults = true,
   maxResults = 10,
   isGlobalMode = false,
+  /** When false, skips the private node list fetch (parent loads list into Redux, e.g. public explore). */
+  listFetchEnabled = true,
 }) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [isOpen, setIsOpen] = useState(false)
@@ -24,7 +26,7 @@ const NodeSearch = ({
   const inputRef = useRef(null)
   const resultsRef = useRef(null)
 
-  const nodeEntriesInfo = useNodeEntriesInfo()
+  const nodeEntriesInfo = useNodeEntriesInfo(listFetchEnabled)
   const dispatch = useDispatch()
   const history = useHistory()
 

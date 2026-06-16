@@ -13,6 +13,7 @@ import FormattedTextOverlay from '@components/Shared/FormattedTextOverlay/Format
 import { setContent, setWordCount, setCharCount } from '@redux/reducers/currentEntryReducer'
 import { ENTRY_TYPES } from '@constants/entryTypes'
 import calculateWordCount from '@utils/calculateWordCount'
+import { registerQuillSelectionTracking } from '@utils/captureEditorSelection'
 
 // Styles
 import styles from './CreateEntry.module.scss'
@@ -49,14 +50,10 @@ const CreateEntry = ({ entryType }) => {
     setTotalWordCount()
   }
 
-  // Only sync local content from Redux when entryId changes (loading a new entry)
-  // or when content first loads for the current entry
+  // Sync local editor from Redux when entryId changes, including empty content (e.g. new journal vs prior node).
   useEffect(() => {
     if (entryId !== lastEntryIdRef.current) {
-      // Entry changed - update local content
-      if (content) {
-        setLocalContent(content)
-      }
+      setLocalContent(content ?? '')
       lastEntryIdRef.current = entryId
     } else if (entryId && content && !localContent) {
       // Same entry, but content loaded for the first time
@@ -83,6 +80,45 @@ const CreateEntry = ({ entryType }) => {
           ],
   }
 
+  const focusEmptyEditorCaret = useCallback(() => {
+    if (!quillRef.current) return
+    const quill = quillRef.current.getEditor()
+    if (!quill.getText().trim()) {
+      quill.focus()
+      quill.setSelection(0, 0, 'user')
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!quillRef.current) return
+    const quill = quillRef.current.getEditor()
+    registerQuillSelectionTracking(quill)
+
+    const handleEditorMouseDown = () => {
+      requestAnimationFrame(focusEmptyEditorCaret)
+    }
+
+    const handleClick = (e) => {
+      if (e.target && e.target.tagName === 'A') {
+        e.preventDefault()
+        window.open(e.target.getAttribute('href'), '_blank')
+      }
+    }
+
+    quill.clipboard.matchers = []
+    quill.clipboard.addMatcher(Node.ELEMENT_NODE, (node, delta) => {
+      const text = node.innerText || node.textContent || ''
+      return new Delta().insert(text)
+    })
+
+    quill.root.addEventListener('mousedown', handleEditorMouseDown)
+    quill.root.addEventListener('click', handleClick)
+    return () => {
+      quill.root.removeEventListener('mousedown', handleEditorMouseDown)
+      quill.root.removeEventListener('click', handleClick)
+    }
+  }, [focusEmptyEditorCaret])
+
   useEffect(() => {
     if (!sidebarOpen && quillRef.current) {
       const quill = quillRef.current.getEditor()
@@ -91,31 +127,6 @@ const CreateEntry = ({ entryType }) => {
       quill.setSelection(length, length)
     }
   }, [sidebarOpen])
-
-  // Add a click handler to the quill editor so that links open when clicked
-  useEffect(() => {
-    if (quillRef.current) {
-      const quill = quillRef.current.getEditor()
-      const handleClick = (e) => {
-        if (e.target && e.target.tagName === 'A') {
-          e.preventDefault()
-          window.open(e.target.getAttribute('href'), '_blank')
-        }
-      }
-
-      // Clear existing matchers (optional if you only want to override specific ones)
-      quill.clipboard.matchers = []
-
-      // Add a matcher that replaces everything with plain text
-      quill.clipboard.addMatcher(Node.ELEMENT_NODE, (node, delta) => {
-        const text = node.innerText || node.textContent || ''
-        return new Delta().insert(text)
-      })
-
-      quill.root.addEventListener('click', handleClick)
-      return () => quill.root.removeEventListener('click', handleClick)
-    }
-  }, [quillRef])
 
   return (
     <div className={classNames(styles.wrapper, entryType === JOURNAL && styles.journalWrapper)}>
