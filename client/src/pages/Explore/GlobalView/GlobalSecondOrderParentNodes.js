@@ -12,7 +12,9 @@ import {
 import useGlobalSecondOrderConnections from '@hooks/useGlobalSecondOrderConnections'
 import { claimGlobalRenderOwners } from '@redux/reducers/currentEntryReducer'
 import GlobalSecondOrderNodes from './GlobalSecondOrderNodes'
+import GlobalImplicitCohortNodes from './GlobalImplicitCohortNodes'
 import { buildGlobalHoverInfo } from './hoverInfoHelpers'
+import { partitionImplicitParentChildren } from './globalViewCohortHelpers'
 
 const buildSolidLines = (anchorNode, positionedNodes) => {
   if (!anchorNode || !positionedNodes?.length) return []
@@ -126,6 +128,7 @@ const GlobalSecondOrderParentNodes = ({
   depth = 1,
   maxDepth = Number.POSITIVE_INFINITY,
   visitedNodeIds = [],
+  cohortIndexOffset = 0,
   onNodeHover,
   clusterCenterTitle,
 }) => {
@@ -194,20 +197,46 @@ const GlobalSecondOrderParentNodes = ({
             (entry) => !visitedNodeIdSet.has(entry?.node?.id)
           )
           if (!connectedNodes?.length) return null
+
+          const { implicitCohortNodes, remainingNodes } = partitionImplicitParentChildren(
+            connectedNodes,
+            anchorNode?.node?.id
+          )
+
           return (
-            <GlobalSecondOrderNodes
-              key={`third-order-parents-${parentEntry.node.id}`}
-              anchorNode={parentEntry}
-              nodes={connectedNodes}
-              depth={depth + 1}
-              maxDepth={maxDepth}
-              visitedNodeIds={[...visitedNodeIds, parentEntry.node.id]}
-              nodeTextures={nodeTextures}
-              onNodeClick={onNodeClick}
-              getSphereRotation={getSphereRotation}
-              onNodeHover={onNodeHover}
-              clusterCenterTitle={clusterCenterTitle}
-            />
+            <React.Fragment key={`parent-expand-${parentEntry.node.id}`}>
+              {implicitCohortNodes.length > 0 && (
+                <GlobalImplicitCohortNodes
+                  layoutAnchorNode={anchorNode}
+                  graphParentNode={parentEntry}
+                  nodes={implicitCohortNodes}
+                  cohortIndexOffset={cohortIndexOffset}
+                  depth={depth + 1}
+                  maxDepth={maxDepth}
+                  visitedNodeIds={[...visitedNodeIds, parentEntry.node.id]}
+                  nodeTextures={nodeTextures}
+                  onNodeClick={onNodeClick}
+                  getSphereRotation={getSphereRotation}
+                  onNodeHover={onNodeHover}
+                  clusterCenterTitle={clusterCenterTitle}
+                />
+              )}
+              {remainingNodes.length > 0 && (
+                <GlobalSecondOrderNodes
+                  key={`third-order-parents-${parentEntry.node.id}`}
+                  anchorNode={parentEntry}
+                  nodes={remainingNodes}
+                  depth={depth + 1}
+                  maxDepth={maxDepth}
+                  visitedNodeIds={[...visitedNodeIds, parentEntry.node.id]}
+                  nodeTextures={nodeTextures}
+                  onNodeClick={onNodeClick}
+                  getSphereRotation={getSphereRotation}
+                  onNodeHover={onNodeHover}
+                  clusterCenterTitle={clusterCenterTitle}
+                />
+              )}
+            </React.Fragment>
           )
         })}
     </>

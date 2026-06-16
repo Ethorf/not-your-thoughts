@@ -96,6 +96,7 @@ const GlobalSecondOrderNodes = ({
         depth={depth}
         maxDepth={maxDepth}
         visitedNodeIds={[...visitedNodeIdSet]}
+        cohortIndexOffset={siblingNodes.length}
         onNodeHover={onNodeHover}
         clusterCenterTitle={clusterCenterTitle}
       />
