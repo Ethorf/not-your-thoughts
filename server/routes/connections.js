@@ -38,6 +38,7 @@ router.get('/:entry_id', async (req, res) => {
         foreign_entries.title  AS foreign_entry_title,
         primary_entries.title  AS primary_entry_title,
         CASE 
+          WHEN connections.connection_type = 'external' THEN 'external'
           WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'horizontal' THEN 'sibling'
           WHEN connections.foreign_entry_id = $1  AND connections.connection_type = 'horizontal' THEN 'sibling'
           WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'vertical'   THEN 'child'
@@ -147,6 +148,7 @@ router.post('/create_connection', authorize, async (req, res) => {
         foreign_entries.title  AS foreign_entry_title,
         primary_entries.title  AS primary_entry_title,
         CASE 
+          WHEN connections.connection_type = 'external' THEN 'external'
           WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'horizontal' THEN 'sibling'
           WHEN connections.foreign_entry_id = $1  AND connections.connection_type = 'horizontal' THEN 'sibling'
           WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'vertical'   THEN 'child'
@@ -314,6 +316,7 @@ router.get('/public/:entry_id', async (req, res) => {
         foreign_entries.title  AS foreign_entry_title,
         primary_entries.title  AS primary_entry_title,
         CASE 
+          WHEN connections.connection_type = 'external' THEN 'external'
           WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'horizontal' THEN 'sibling'
           WHEN connections.foreign_entry_id = $1  AND connections.connection_type = 'horizontal' THEN 'sibling'
           WHEN connections.primary_entry_id = $1 AND connections.connection_type = 'vertical'   THEN 'child'

@@ -37,8 +37,8 @@ export const getLocalSecondOrderSiblingOrbitalOffset = (
   const alternatingSide = index % 2 === 0 ? -1 : 1
   const side = alternatingSide * parentSideSign
   const ring = Math.floor(index / 2)
-  const depthScale = depth > 1 ? 0.88 ** (depth - 1) : 1
-  const spread = orbitalRadius * (1 + ring * 0.35) * depthScale
+  const depthScale = depth > 1 ? 0.9 ** (depth - 1) : 1
+  const spread = orbitalRadius * (1 + ring * 0.48) * depthScale
 
   const diagonal = perpendicular
     .clone()
