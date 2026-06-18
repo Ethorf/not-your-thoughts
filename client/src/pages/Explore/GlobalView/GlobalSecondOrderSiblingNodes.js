@@ -48,7 +48,7 @@ const buildSolidLines = (anchorNode, positionedNodes) => {
   return lines
 }
 
-export const positionSecondOrderSiblings = (anchorNode, siblingNodes, depth = 1) => {
+export const positionSecondOrderSiblings = (anchorNode, siblingNodes, depth = 1, startIndex = 0) => {
   if (!anchorNode || !siblingNodes?.length) return []
 
   const parentPosition =
@@ -73,7 +73,8 @@ export const positionSecondOrderSiblings = (anchorNode, siblingNodes, depth = 1)
   )
 
   return siblingNodes.map((entry, i) => {
-    const nonZeroI = i + 1
+    const cohortIndex = startIndex + i
+    const nonZeroI = cohortIndex + 1
     const alternatingXSides = nonZeroI % 2 === 0 ? -1 : 1
     const sideSign =
       typeof anchorNode?.sideSign === 'number' && anchorNode.sideSign !== 0 ? anchorNode.sideSign : alternatingXSides
@@ -89,7 +90,7 @@ export const positionSecondOrderSiblings = (anchorNode, siblingNodes, depth = 1)
     )
     const offsetX = sideSign * effectiveDist * 1.2
     const offsetY = 0
-    const offsetZ = i * 0.11 - 0.1
+    const offsetZ = cohortIndex * 0.11 - 0.1
 
     const offsetVector = new THREE.Vector3()
     offsetVector.addScaledVector(tangent1, offsetX)
@@ -138,8 +139,8 @@ const GlobalSecondOrderSiblingNodes = ({
   const visitedNodeIdSet = useMemo(() => new Set(visitedNodeIds), [visitedNodeIds])
   const computedNodes = useMemo(() => {
     if (!anchorNode || !nodes?.length) return []
-    return positionSecondOrderSiblings(anchorNode, nodes)
-  }, [anchorNode, nodes])
+    return positionSecondOrderSiblings(anchorNode, nodes, depth)
+  }, [anchorNode, nodes, depth])
 
   const finalNodes = positionedNodes?.length ? positionedNodes : computedNodes
   const dispatch = useDispatch()

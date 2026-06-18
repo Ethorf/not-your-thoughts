@@ -3,7 +3,13 @@ import * as THREE from 'three'
 
 // Constants
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
-import { SPHERE_TYPES, LOCAL_SPHERE_SIZES, LOCAL_EXPLORE_MAX_SUB_CONNECTION_DEPTH } from '@constants/spheres'
+import {
+  SPHERE_TYPES,
+  LOCAL_SPHERE_SIZES,
+  LOCAL_EXPLORE_MAX_SUB_CONNECTION_DEPTH,
+  LOCAL_EXPLORE_SUB_ORBITAL_RADIUS_SCALE,
+  LOCAL_EXPLORE_SUB_CONNECTION_SIZE_SCALE,
+} from '@constants/spheres'
 
 // Utils
 import { transformConnection } from '@utils/transformConnection'
@@ -19,7 +25,7 @@ const {
   FRONTEND: { EXTERNAL, PARENT, SIBLING },
 } = CONNECTION_TYPES
 
-const SUB_CONNECTION_SIZE_SCALE = 0.7
+const SUB_CONNECTION_SIZE_SCALE = LOCAL_EXPLORE_SUB_CONNECTION_SIZE_SCALE
 
 // Cache for sub-connections to prevent duplicate requests
 const subConnectionsCache = new Map()
@@ -38,6 +44,7 @@ const PublicConnectionSpheres = ({
   currentEntryId = null,
   excludedNodeIds = [],
   graphCenter = null,
+  layoutScale = 1,
   depth = 1,
   maxDepth = LOCAL_EXPLORE_MAX_SUB_CONNECTION_DEPTH,
 }) => {
@@ -108,7 +115,7 @@ const PublicConnectionSpheres = ({
     fetchSubs()
   }, [connId, userId])
 
-  const ORBITAL_RADIUS = size * 3
+  const ORBITAL_RADIUS = size * LOCAL_EXPLORE_SUB_ORBITAL_RADIUS_SCALE
   const subSphereSize = size * SUB_CONNECTION_SIZE_SCALE
   const excludedNodeIdSet = useMemo(
     () => new Set((excludedNodeIds || []).filter((id) => id != null).map((id) => String(id))),
@@ -192,10 +199,11 @@ const PublicConnectionSpheres = ({
 
           if (horizontalOffset !== 0 && !isParentToParent && !isSiblingConnection) {
             const worldRight = new THREE.Vector3(1, 0, 0)
-            orbitalOffset.addScaledVector(worldRight, horizontalOffset)
+            orbitalOffset.addScaledVector(worldRight, horizontalOffset * layoutScale)
           }
 
-          const newPos = parentPosition.clone().add(orbitalOffset)
+          const scaledOffset = orbitalOffset.multiplyScalar(layoutScale)
+          const newPos = parentPosition.clone().add(scaledOffset)
           const newPosArray = newPos.toArray()
           const points = [parentPosition.clone(), newPos.clone()]
           const curve = new THREE.CatmullRomCurve3(points)
@@ -235,6 +243,7 @@ const PublicConnectionSpheres = ({
                   depth={depth + 1}
                   maxDepth={maxDepth}
                   graphCenter={graphCenter}
+                  layoutScale={layoutScale}
                   excludedNodeIds={childExcludedNodeIds}
                   handleConnectionSphereClick={handleConnectionSphereClick}
                   currentEntryId={currentEntryId}

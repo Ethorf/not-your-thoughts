@@ -2,11 +2,11 @@ import * as THREE from 'three'
 
 // Constants
 const SPHERE_DIAMETER = 0.5 * 2
-const MIN_SEPARATION = SPHERE_DIAMETER + 0.1
-const SIBLING_DISTANCE_FROM_CENTER_SPHERE = 0.5
-const CHILD_DISTANCE_FROM_CENTER_SPHERE = SIBLING_DISTANCE_FROM_CENTER_SPHERE + 0.6
-const PARENT_DISTANCE_FROM_CENTER_SPHERE = SIBLING_DISTANCE_FROM_CENTER_SPHERE + 0.7
-const OUTER_FACTOR = 1.1
+const MIN_SEPARATION = SPHERE_DIAMETER + 0.55
+const SIBLING_DISTANCE_FROM_CENTER_SPHERE = 0.84
+const CHILD_DISTANCE_FROM_CENTER_SPHERE = SIBLING_DISTANCE_FROM_CENTER_SPHERE + 0.95
+const PARENT_DISTANCE_FROM_CENTER_SPHERE = SIBLING_DISTANCE_FROM_CENTER_SPHERE + 1.05
+const OUTER_FACTOR = 1.28
 const HORIZONTAL_ROTATION = {
   [-1]: 5,
   1: 4.4,
@@ -14,11 +14,50 @@ const HORIZONTAL_ROTATION = {
 // Line extension factors
 // These control how far connection spheres (and their lines) sit from the main sphere.
 // With larger local sphere sizes, we push connections further out to keep lines from overlapping.
-const LINE_EXTENSION_FACTOR = 2.4
+const LINE_EXTENSION_FACTOR = 2.85
 const EXTERNAL_DISTANCE_FACTOR = 1.8 // Controls both external sphere distance and line length (local view)
 
 // Center point
 const CENTER = [0, 0, 0]
+
+const SIBLING_BASE_DISTANCE = SPHERE_DIAMETER + SIBLING_DISTANCE_FROM_CENTER_SPHERE
+const SIBLING_DIAGONAL_ANGLE = Math.PI / 5.5
+
+/**
+ * First-order sibling layout from the main node (equal distance for all):
+ * 0 = west, 1 = east, then NE, NW, SE, SW; further siblings fill the same ring evenly.
+ */
+const getFirstOrderSiblingOffset = (index, totalSiblings) => {
+  const radius = SIBLING_BASE_DISTANCE
+
+  if (index === 0) {
+    return { x: -radius, y: 0, side: -1 }
+  }
+  if (index === 1) {
+    return { x: radius, y: 0, side: 1 }
+  }
+
+  const cos = Math.cos(SIBLING_DIAGONAL_ANGLE)
+  const sin = Math.sin(SIBLING_DIAGONAL_ANGLE)
+  const cornerOffsets = [
+    { x: radius * cos, y: radius * sin, side: 1 },
+    { x: -radius * cos, y: radius * sin, side: -1 },
+    { x: radius * cos, y: -radius * sin, side: 1 },
+    { x: -radius * cos, y: -radius * sin, side: -1 },
+  ]
+
+  const diagonalIndex = index - 2
+  if (diagonalIndex < 4) {
+    return cornerOffsets[diagonalIndex]
+  }
+
+  const remainingCount = Math.max(totalSiblings - 2, 1)
+  const angle = (Math.PI * (diagonalIndex + 0.5)) / remainingCount
+  const x = radius * Math.cos(angle)
+  const y = radius * Math.sin(angle)
+
+  return { x, y, side: x >= 0 ? 1 : -1 }
+}
 
 /**
  * Calculates 3D positions for connection spheres and returns positioning configuration
@@ -48,20 +87,10 @@ const calculateSpherePositions = (connections, connectionTypes) => {
 
   // Position siblings
   siblings.forEach((s, i) => {
-    // Keep siblings directly east/west of center node (no depth/z and no vertical offset).
-    // Additional siblings extend farther along X while staying on same Y.
-    const side = i % 2 === 0 ? -1 : 1
-    const ringIndex = Math.floor(i / 2)
-    const x = side * (SPHERE_DIAMETER + SIBLING_DISTANCE_FROM_CENTER_SPHERE + ringIndex * MIN_SEPARATION)
-    const y = 0
+    const { x, y, side } = getFirstOrderSiblingOffset(i, siblings.length)
 
-    // Set horizontal rotation based on side
     horizontalRotation[s.id] = HORIZONTAL_ROTATION[side]
-
-    // Siblings are at the same level as center, no vertical rotation
     verticalRotation[s.id] = 0
-
-    // Siblings can have sub-connections above or below (default behavior)
     subConnectionVerticalOffset[s.id] = 0
     subConnectionHorizontalOffset[s.id] = 0
 

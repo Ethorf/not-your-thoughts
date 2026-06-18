@@ -9,11 +9,11 @@ export const SPHERE_TYPES = enumify([
   'second_order_connection_max_size',
 ])
 
-// Base/local (per-entry) view sphere sizes
+// Base/local (per-entry) view sphere sizes — main full size; connections slightly below legacy.
 export const LOCAL_SPHERE_SIZES = {
   [SPHERE_TYPES.MAIN]: 1.2,
-  [SPHERE_TYPES.FIRST_ORDER_CONNECTION]: 0.9,
-  [SPHERE_TYPES.SECOND_ORDER_CONNECTION]: 0.7,
+  [SPHERE_TYPES.FIRST_ORDER_CONNECTION]: 0.78,
+  [SPHERE_TYPES.SECOND_ORDER_CONNECTION]: 0.6,
 }
 
 // Global (globe) view sphere sizes
@@ -92,11 +92,14 @@ export const GLOBAL_MIN_CLUSTER_CENTER_DISTANCE = 1.3
 export const DEFAULT_SPHERE_SIZES = LOCAL_SPHERE_SIZES
 
 // Local Explore view tuning constants
-export const LOCAL_EXPLORE_CONNECTION_DISTANCE_SCALE = 0.88
-export const LOCAL_EXPLORE_CONNECTION_SIZE_SCALE = 0.9
-export const LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET = 0.45
-export const LOCAL_EXPLORE_CHILD_DISTANCE_SCALE = 0.86
-export const LOCAL_EXPLORE_PARENT_DISTANCE_SCALE = 0.9
+export const LOCAL_EXPLORE_CONNECTION_DISTANCE_SCALE = 1.08
+export const LOCAL_EXPLORE_CONNECTION_SIZE_SCALE = 0.92
+export const LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET = 0
+export const LOCAL_EXPLORE_CHILD_DISTANCE_SCALE = 1
+export const LOCAL_EXPLORE_PARENT_DISTANCE_SCALE = 1
+export const LOCAL_EXPLORE_SUB_ORBITAL_RADIUS_SCALE = 3.05
+export const LOCAL_EXPLORE_SUB_CONNECTION_SIZE_SCALE = 0.7
+export const LOCAL_EXPLORE_SUB_LAYOUT_BUFFER_SCALE = 0.9
 // Max sub-connection depth from first-order nodes. 1 = second-order only (no third-order+).
 export const LOCAL_EXPLORE_MAX_SUB_CONNECTION_DEPTH = 1
 

@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo, useCallback } from 'react'
+import React, { Suspense, useMemo, useCallback, useRef, useState, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { Canvas } from '@react-three/fiber'
@@ -7,6 +7,7 @@ import * as THREE from 'three'
 import ConnectionSpheres from '@components/Spheres/ConnectionSpheres.js'
 import PublicConnectionSpheres from '@components/Spheres/PublicConnectionSpheres.js'
 import SphereWithEffects from '@components/Spheres/SphereWithEffects.js'
+import LocalDashedConnectionLine from '@components/Spheres/LocalDashedConnectionLine.js'
 
 import { setEntryById } from '@redux/reducers/currentEntryReducer'
 
@@ -19,11 +20,19 @@ import {
   LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET,
   LOCAL_EXPLORE_CHILD_DISTANCE_SCALE,
   LOCAL_EXPLORE_PARENT_DISTANCE_SCALE,
+  LOCAL_EXPLORE_SUB_ORBITAL_RADIUS_SCALE,
+  LOCAL_EXPLORE_SUB_LAYOUT_BUFFER_SCALE,
 } from '@constants/spheres'
 
 import { transformConnection } from '@utils/transformConnection'
+import { transformBackendToFrontendConnectionType } from '@utils/connectionTypeHelpers'
 import extractTextFromHTML from '@utils/extractTextFromHTML'
 import calculateSpherePositions from '@utils/calculateSpherePositions'
+import {
+  applyLocalExploreFit,
+  computeLocalExploreFitScale,
+  getLocalExploreViewportHalfExtents,
+} from '@utils/localExploreViewport'
 
 import styles from './Explore.module.scss'
 
@@ -49,13 +58,37 @@ function getScaledSphereSize(baseSize, wordCount) {
   return baseSize * (1 + delta)
 }
 
-/**
- * Single local 3D node network scene (same layout as authenticated Explore).
- *
- * @param {string|null} publicOwnerUserId – When set, sub-connection orbs use the public API and
- *   internal navigation keeps `?userId=` on `/explore`.
- * @param {boolean} mainNodeGoesToEdit – When true, main sphere opens private edit; otherwise public read view.
- */
+const getRawConnectionEndPos = (pos, conn, { lineExtensionFactor, externalDistanceFactor }) => {
+  const isExternal = conn.connection_type === EXTERNAL
+  const connectionTypeScale = getConnectionDistanceScale(conn.connection_type)
+  const extensionFactor =
+    (isExternal ? externalDistanceFactor : lineExtensionFactor) *
+    LOCAL_EXPLORE_CONNECTION_DISTANCE_SCALE *
+    connectionTypeScale
+
+  return new THREE.Vector3(...pos)
+    .multiplyScalar(extensionFactor)
+    .add(new THREE.Vector3(0, LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET, 0))
+}
+
+const normalizeLocalConnection = (conn, entryId) => {
+  const normalizedType = transformBackendToFrontendConnectionType(conn.connection_type, entryId, {
+    entry_id: entryId,
+    foreign_entry_id: conn.foreign_entry_id,
+    primary_entry_id: conn.primary_entry_id,
+  })
+
+  if (normalizedType) {
+    return { ...conn, connection_type: normalizedType }
+  }
+
+  if (conn.foreign_source && !conn.foreign_entry_id) {
+    return { ...conn, connection_type: EXTERNAL }
+  }
+
+  return conn
+}
+
 const LocalNodeNetworkView = ({
   entryId,
   title,
@@ -67,6 +100,26 @@ const LocalNodeNetworkView = ({
 }) => {
   const history = useHistory()
   const dispatch = useDispatch()
+  const wrapperRef = useRef(null)
+  const [viewportSize, setViewportSize] = useState({ width: 1, height: 1 })
+
+  useEffect(() => {
+    const element = wrapperRef.current
+    if (!element) return undefined
+
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect
+      setViewportSize({ width: Math.max(width, 1), height: Math.max(height, 1) })
+    })
+
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
+
+  const normalizedConnections = useMemo(
+    () => (connections || []).map((conn) => normalizeLocalConnection(conn, entryId)),
+    [connections, entryId]
+  )
 
   const {
     positions,
@@ -77,7 +130,7 @@ const LocalNodeNetworkView = ({
     verticalRotation,
     subConnectionVerticalOffset,
     subConnectionHorizontalOffset,
-  } = calculateSpherePositions(connections, {
+  } = calculateSpherePositions(normalizedConnections, {
     PARENT,
     EXTERNAL,
     CHILD,
@@ -91,14 +144,14 @@ const LocalNodeNetworkView = ({
 
   const uniqueConnections = useMemo(() => {
     const seenNodeKeys = new Set()
-    return (connections || []).filter((conn) => {
+    return (normalizedConnections || []).filter((conn) => {
       const transformed = transformConnection(entryId, conn)
       const nodeKey = getLocalNodeRenderKey(conn, transformed)
       if (seenNodeKeys.has(nodeKey)) return false
       seenNodeKeys.add(nodeKey)
       return true
     })
-  }, [connections, entryId])
+  }, [normalizedConnections, entryId])
 
   const renderedFirstOrderNodeIds = useMemo(
     () =>
@@ -108,6 +161,51 @@ const LocalNodeNetworkView = ({
         .filter((id) => id != null),
     [uniqueConnections, entryId]
   )
+
+  const getFirstOrderSphereSize = useCallback(
+    (conn) => {
+      const transformed = transformConnection(entryId, conn)
+      const nodeInfo = nodeEntriesInfo.find((n) => n.id === transformed.id)
+      return (
+        getScaledSphereSize(LOCAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION], nodeInfo?.wdWordCount) *
+        LOCAL_EXPLORE_CONNECTION_SIZE_SCALE
+      )
+    },
+    [entryId, nodeEntriesInfo]
+  )
+
+  const layoutFit = useMemo(() => {
+    const aspect = viewportSize.width / viewportSize.height
+    const { halfWidth, halfHeight } = getLocalExploreViewportHalfExtents(aspect)
+    const layoutCenter = new THREE.Vector3(...mainNodePosition)
+    const mainRadius = LOCAL_SPHERE_SIZES[SPHERE_TYPES.MAIN]
+    const fitPoints = [{ position: layoutCenter.clone(), radius: mainRadius }]
+
+    uniqueConnections.forEach((conn) => {
+      const pos = positions[conn.id]
+      if (!pos) return
+
+      const rawEnd = getRawConnectionEndPos(pos, conn, { lineExtensionFactor, externalDistanceFactor })
+      const sphereSize = getFirstOrderSphereSize(conn)
+      const subBuffer = sphereSize * LOCAL_EXPLORE_SUB_ORBITAL_RADIUS_SCALE * LOCAL_EXPLORE_SUB_LAYOUT_BUFFER_SCALE
+
+      fitPoints.push({
+        position: rawEnd,
+        radius: sphereSize + subBuffer,
+      })
+    })
+
+    const scale = computeLocalExploreFitScale(fitPoints, layoutCenter, halfWidth, halfHeight)
+    return { scale, center: mainNodePosition }
+  }, [
+    viewportSize,
+    mainNodePosition,
+    uniqueConnections,
+    positions,
+    lineExtensionFactor,
+    externalDistanceFactor,
+    getFirstOrderSphereSize,
+  ])
 
   const mainTexture = useMemo(() => {
     const canvas = document.createElement('canvas')
@@ -194,9 +292,19 @@ const LocalNodeNetworkView = ({
     [dispatch, history, publicOwnerUserId]
   )
 
+  const fitPosition = useCallback(
+    (rawPosition) => applyLocalExploreFit(rawPosition, layoutFit.center, layoutFit.scale),
+    [layoutFit]
+  )
+
+  const fittedMainPosition = useMemo(
+    () => fitPosition(new THREE.Vector3(...mainNodePosition)).toArray(),
+    [fitPosition, mainNodePosition]
+  )
+
   return (
-    <div className={styles.nodesWrapper}>
-      <Canvas camera={{ position: [0, 0, 8] }}>
+    <div ref={wrapperRef} className={styles.nodesWrapper}>
+      <Canvas style={{ width: '100%', height: '100%' }} camera={{ position: [0, 0, 8], fov: 75 }}>
         <ambientLight />
         <directionalLight position={[5, 5, 5]} />
 
@@ -204,7 +312,7 @@ const LocalNodeNetworkView = ({
           <group>
             <SphereWithEffects
               id={entryId}
-              pos={mainNodePosition}
+              pos={fittedMainPosition}
               title={title}
               size={LOCAL_SPHERE_SIZES[SPHERE_TYPES.MAIN]}
               mainTexture={mainTexture}
@@ -218,45 +326,16 @@ const LocalNodeNetworkView = ({
               const pos = positions[conn.id]
               if (!pos) return null
 
+              const rawEnd = getRawConnectionEndPos(pos, conn, { lineExtensionFactor, externalDistanceFactor })
+              const endPos = fitPosition(rawEnd)
+              const startPos = new THREE.Vector3(...fittedMainPosition)
               const isExternal = conn.connection_type === EXTERNAL
-              const connectionTypeScale = getConnectionDistanceScale(conn.connection_type)
-              const extensionFactor =
-                (isExternal ? externalDistanceFactor : lineExtensionFactor) *
-                LOCAL_EXPLORE_CONNECTION_DISTANCE_SCALE *
-                connectionTypeScale
-              const endPos = new THREE.Vector3(...pos)
-                .multiplyScalar(extensionFactor)
-                .add(new THREE.Vector3(0, LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET, 0))
-              const startPos = new THREE.Vector3(...mainNodePosition)
-
-              const points = [startPos, endPos]
 
               if (isExternal) {
-                const geometry = new THREE.BufferGeometry().setFromPoints(points)
-
-                return (
-                  <line
-                    key={`line-${conn.id}`}
-                    geometry={geometry}
-                    dashed={true}
-                    onUpdate={(line) => {
-                      if (line.computeLineDistances) {
-                        line.computeLineDistances()
-                      }
-                    }}
-                    renderOrder={0}
-                  >
-                    <lineDashedMaterial
-                      color="white"
-                      dashSize={0.5}
-                      gapSize={0.2}
-                      linewidth={1}
-                      depthWrite={false}
-                      depthTest={false}
-                    />
-                  </line>
-                )
+                return <LocalDashedConnectionLine key={`line-${conn.id}`} start={startPos} end={endPos} />
               }
+
+              const points = [startPos, endPos]
               const curve = new THREE.CatmullRomCurve3(points)
               const geometry = new THREE.TubeGeometry(curve, 8, 0.02, 4, false)
 
@@ -276,20 +355,9 @@ const LocalNodeNetworkView = ({
               const vRotation = verticalRotation[conn.id]
               if (!pos) return null
 
-              const isExternal = conn.connection_type === EXTERNAL
-              const connectionTypeScale = getConnectionDistanceScale(conn.connection_type)
-              const extensionFactor =
-                (isExternal ? externalDistanceFactor : lineExtensionFactor) *
-                LOCAL_EXPLORE_CONNECTION_DISTANCE_SCALE *
-                connectionTypeScale
-              const endPos = new THREE.Vector3(...pos)
-                .multiplyScalar(extensionFactor)
-                .add(new THREE.Vector3(0, LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET, 0))
-
-              const nodeInfo = nodeEntriesInfo.find((n) => n.id === transformed.id)
-              const sphereSize =
-                getScaledSphereSize(LOCAL_SPHERE_SIZES[SPHERE_TYPES.FIRST_ORDER_CONNECTION], nodeInfo?.wdWordCount) *
-                LOCAL_EXPLORE_CONNECTION_SIZE_SCALE
+              const rawEnd = getRawConnectionEndPos(pos, conn, { lineExtensionFactor, externalDistanceFactor })
+              const endPos = fitPosition(rawEnd)
+              const sphereSize = getFirstOrderSphereSize(conn)
 
               return (
                 <React.Fragment key={conn.id}>
@@ -315,7 +383,8 @@ const LocalNodeNetworkView = ({
                       verticalOffset={subConnectionVerticalOffset[conn.id] || 0}
                       horizontalOffset={subConnectionHorizontalOffset[conn.id] || 0}
                       currentEntryId={entryId}
-                      graphCenter={mainNodePosition}
+                      graphCenter={fittedMainPosition}
+                      layoutScale={layoutFit.scale}
                       excludedNodeIds={[entryId, ...renderedFirstOrderNodeIds]}
                     />
                   ) : (
@@ -328,7 +397,8 @@ const LocalNodeNetworkView = ({
                       rotation={[vRotation, hRotation, 0]}
                       verticalOffset={subConnectionVerticalOffset[conn.id] || 0}
                       horizontalOffset={subConnectionHorizontalOffset[conn.id] || 0}
-                      graphCenter={mainNodePosition}
+                      graphCenter={fittedMainPosition}
+                      layoutScale={layoutFit.scale}
                       excludedNodeIds={[entryId, ...renderedFirstOrderNodeIds]}
                     />
                   )}
