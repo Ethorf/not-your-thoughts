@@ -7,7 +7,7 @@ import {
   SPHERE_TYPES,
   LOCAL_SPHERE_SIZES,
   LOCAL_EXPLORE_MAX_SUB_CONNECTION_DEPTH,
-  LOCAL_EXPLORE_SUB_ORBITAL_RADIUS_SCALE,
+  LOCAL_EXPLORE_SECOND_ORDER_DISTANCE,
   LOCAL_EXPLORE_SUB_CONNECTION_SIZE_SCALE,
 } from '@constants/spheres'
 
@@ -115,7 +115,7 @@ const PublicConnectionSpheres = ({
     fetchSubs()
   }, [connId, userId])
 
-  const ORBITAL_RADIUS = size * LOCAL_EXPLORE_SUB_ORBITAL_RADIUS_SCALE
+  const orbitalRadius = LOCAL_EXPLORE_SECOND_ORDER_DISTANCE
   const subSphereSize = size * SUB_CONNECTION_SIZE_SCALE
   const excludedNodeIdSet = useMemo(
     () => new Set((excludedNodeIds || []).filter((id) => id != null).map((id) => String(id))),
@@ -179,20 +179,20 @@ const PublicConnectionSpheres = ({
             orbitalOffset = getLocalSecondOrderSiblingOrbitalOffset(
               parentPosition,
               nonNegativeSiblingIndex,
-              ORBITAL_RADIUS,
+              orbitalRadius,
               graphCenter,
               depth
             )
           } else {
             orbitalOffset = new THREE.Vector3()
-              .addScaledVector(right, Math.cos(angle) * ORBITAL_RADIUS)
-              .addScaledVector(forward, Math.sin(angle) * ORBITAL_RADIUS)
-              .addScaledVector(direction, ORBITAL_RADIUS * 0.3)
+              .addScaledVector(right, Math.cos(angle) * orbitalRadius)
+              .addScaledVector(forward, Math.sin(angle) * orbitalRadius)
+              .addScaledVector(direction, orbitalRadius * 0.3)
               .addScaledVector(up, verticalOffset)
           }
 
           if (conn?.connection_type === PARENT && sub.connection_type === PARENT) {
-            const verticalDistance = size * 2.5
+            const verticalDistance = size * 2.5 * layoutScale
             orbitalOffset = new THREE.Vector3().addScaledVector(up, verticalDistance)
           }
           const isParentToParent = conn?.connection_type === PARENT && sub.connection_type === PARENT
@@ -202,8 +202,7 @@ const PublicConnectionSpheres = ({
             orbitalOffset.addScaledVector(worldRight, horizontalOffset * layoutScale)
           }
 
-          const scaledOffset = orbitalOffset.multiplyScalar(layoutScale)
-          const newPos = parentPosition.clone().add(scaledOffset)
+          const newPos = parentPosition.clone().add(orbitalOffset)
           const newPosArray = newPos.toArray()
           const points = [parentPosition.clone(), newPos.clone()]
           const curve = new THREE.CatmullRomCurve3(points)
