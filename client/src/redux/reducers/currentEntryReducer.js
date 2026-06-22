@@ -7,6 +7,7 @@ import { SAVE_TYPES } from '@constants/saveTypes'
 
 import { showToast } from '@utils/toast'
 import { resolvePublicUserId } from '@utils/resolvePublicUserId'
+import { normalizeEntryId } from '@utils/normalizeEntryId'
 import { createDeduplicationCondition, clearPendingRequest } from '@utils/requestDeduplication'
 
 const { NODE, JOURNAL } = ENTRY_TYPES
@@ -183,8 +184,13 @@ export const saveJournalEntry = createAsyncThunk(
 export const fetchEntryById = createAsyncThunk(
   'currentEntryReducer/fetchEntryById',
   async (entryId, { rejectWithValue }) => {
+    const normalizedEntryId = normalizeEntryId(entryId)
+    if (normalizedEntryId == null) {
+      return rejectWithValue({ msg: 'Invalid entry ID' })
+    }
+
     try {
-      const response = await axiosInstance.get(`api/entries/entry/${entryId}`)
+      const response = await axiosInstance.get(`api/entries/entry/${normalizedEntryId}`)
 
       return response.data
     } catch (error) {
@@ -201,11 +207,15 @@ export const fetchNodeEntriesInfo = createAsyncThunk(
 
       return response.data.nodeEntries
     } catch (error) {
-      // Skip toast for 401 - user may have just logged out
-      if (error.response?.status !== 401) {
+      const status = error.response?.status
+      // Skip toast for auth failures — user may be logged out or session expired
+      if (status !== 401 && status !== 400) {
         dispatch(showToast('Error fetching node entries', 'error'))
       }
-      return rejectWithValue(error.response?.data)
+      return rejectWithValue({
+        ...error.response?.data,
+        status,
+      })
     }
   }
 )
@@ -214,8 +224,13 @@ export const fetchNodeEntriesInfo = createAsyncThunk(
 export const setEntryById = createAsyncThunk(
   'currentEntryReducer/setEntryById',
   async (queryParamEntryId, { rejectWithValue }) => {
+    const normalizedEntryId = normalizeEntryId(queryParamEntryId)
+    if (normalizedEntryId == null) {
+      return rejectWithValue({ msg: 'Invalid entry ID' })
+    }
+
     try {
-      const response = await axiosInstance.get(`api/entries/entry/${queryParamEntryId}`)
+      const response = await axiosInstance.get(`api/entries/entry/${normalizedEntryId}`)
       const {
         content,
         connections,
@@ -252,8 +267,13 @@ export const setEntryById = createAsyncThunk(
 )
 
 export const fetchAkas = createAsyncThunk('akas/fetchAkas', async (entryId, { rejectWithValue }) => {
+  const normalizedEntryId = normalizeEntryId(entryId)
+  if (normalizedEntryId == null) {
+    return rejectWithValue({ msg: 'Invalid entry ID' })
+  }
+
   try {
-    const response = await axiosInstance.get(`api/akas/${entryId}/akas`)
+    const response = await axiosInstance.get(`api/akas/${normalizedEntryId}/akas`)
     return response.data.akas
   } catch (error) {
     return rejectWithValue(error.response.data)
@@ -489,9 +509,11 @@ const currentEntrySlice = createSlice({
       .addCase(createNodeEntry.pending, (state) => {
         state.entriesLoading = true
       })
-      .addCase(createNodeEntry.fulfilled, (state, action) => {
+      .addCase(createNodeEntry.fulfilled, (state) => {
         state.entriesLoading = false
-        state.nodeEntriesInfo.push(action.payload)
+      })
+      .addCase(createNodeEntry.rejected, (state) => {
+        state.entriesLoading = false
       })
       .addCase(createJournalEntry.pending, (state) => {
         state.entriesLoading = true
@@ -552,6 +574,12 @@ const currentEntrySlice = createSlice({
           entriesLoading: false,
         }
       })
+      .addCase(fetchEntryById.rejected, (state) => {
+        return {
+          ...state,
+          entriesLoading: false,
+        }
+      })
       .addCase(setEntryById.pending, (state) => {
         return {
           ...state,
@@ -565,6 +593,12 @@ const currentEntrySlice = createSlice({
           entriesLoading: false,
         }
       })
+      .addCase(setEntryById.rejected, (state) => {
+        return {
+          ...state,
+          entriesLoading: false,
+        }
+      })
       .addCase(fetchNodeEntriesInfo.pending, (state) => {
         return {
           ...state,
@@ -575,6 +609,12 @@ const currentEntrySlice = createSlice({
         return {
           ...state,
           nodeEntriesInfo: action.payload,
+          entriesLoading: false,
+        }
+      })
+      .addCase(fetchNodeEntriesInfo.rejected, (state) => {
+        return {
+          ...state,
           entriesLoading: false,
         }
       })

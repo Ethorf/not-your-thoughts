@@ -15,6 +15,8 @@ import TextButton from '@components/Shared/TextButton/TextButton'
 import { resetCurrentEntryState, createNodeEntry, createJournalEntry } from '@redux/reducers/currentEntryReducer'
 import { logout } from '@redux/actions/authActions'
 import { toggleLeftSidebar } from '@redux/reducers/leftSidebarReducer'
+import { showToast } from '@utils/toast'
+import { normalizeEntryId } from '@utils/normalizeEntryId'
 
 const LeftMainNavigation = () => {
   const dispatch = useDispatch()
@@ -31,18 +33,40 @@ const LeftMainNavigation = () => {
 
   const handleNewNodeEntryClick = async () => {
     dispatch(resetCurrentEntryState())
-    const newNode = await dispatch(createNodeEntry())
+    const result = await dispatch(createNodeEntry())
+
+    if (createNodeEntry.rejected.match(result)) {
+      showToast('Please log in to create a node', 'error')
+      return
+    }
+
+    const newEntryId = normalizeEntryId(result.payload)
+    if (newEntryId == null) {
+      showToast('Failed to create node', 'error')
+      return
+    }
 
     dispatch(toggleLeftSidebar())
-    history.push(`/edit-node-entry?entryId=${newNode.payload}`)
+    history.push(`/edit-node-entry?entryId=${newEntryId}`)
   }
 
   const handleNewJournalEntryClick = async () => {
     dispatch(resetCurrentEntryState())
-    const newJournal = await dispatch(createJournalEntry())
+    const result = await dispatch(createJournalEntry())
+
+    if (createJournalEntry.rejected.match(result)) {
+      showToast('Please log in to create a journal entry', 'error')
+      return
+    }
+
+    const newEntryId = normalizeEntryId(result.payload)
+    if (newEntryId == null) {
+      showToast('Failed to create journal entry', 'error')
+      return
+    }
 
     dispatch(toggleLeftSidebar())
-    return history.push(`/create-journal-entry?entryId=${newJournal.payload}`)
+    history.push(`/create-journal-entry?entryId=${newEntryId}`)
   }
 
   useEffect(() => {
