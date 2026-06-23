@@ -27,6 +27,7 @@ const initialState = {
   wpm: 0,
   title: '',
   akas: [],
+  shinyTextDismissals: [],
   type: JOURNAL,
   content: '',
   nodeEntriesInfo: [],
@@ -280,6 +281,43 @@ export const fetchAkas = createAsyncThunk('akas/fetchAkas', async (entryId, { re
   }
 })
 
+export const fetchShinyTextDismissals = createAsyncThunk(
+  'shinyText/fetchDismissals',
+  async (entryId, { rejectWithValue }) => {
+    const normalizedEntryId = normalizeEntryId(entryId)
+    if (normalizedEntryId == null) {
+      return rejectWithValue({ msg: 'Invalid entry ID' })
+    }
+
+    try {
+      const response = await axiosInstance.get(`api/shiny_text_suggestions/${normalizedEntryId}/dismissals`)
+      return response.data.dismissals
+    } catch (error) {
+      return rejectWithValue(error.response?.data ?? error)
+    }
+  }
+)
+
+export const dismissShinyTextSuggestion = createAsyncThunk(
+  'shinyText/dismissSuggestion',
+  async ({ entryId, suggestedEntryId }, { rejectWithValue }) => {
+    const normalizedEntryId = normalizeEntryId(entryId)
+    const normalizedSuggestedEntryId = normalizeEntryId(suggestedEntryId)
+    if (normalizedEntryId == null || normalizedSuggestedEntryId == null) {
+      return rejectWithValue({ msg: 'Invalid entry ID' })
+    }
+
+    try {
+      const response = await axiosInstance.post(`api/shiny_text_suggestions/${normalizedEntryId}/dismissals`, {
+        suggested_entry_id: normalizedSuggestedEntryId,
+      })
+      return response.data.dismissal
+    } catch (error) {
+      return rejectWithValue(error.response?.data ?? error)
+    }
+  }
+)
+
 export const deleteEntry = createAsyncThunk(
   'currentEntryReducer/deleteEntry',
   async (entryId, { rejectWithValue, dispatch }) => {
@@ -492,6 +530,7 @@ const currentEntrySlice = createSlice({
         state.isTopLevel = false
         state.isPrivate = false
         state.akas = []
+        state.shinyTextDismissals = []
         state.entryContents = []
         state.globalRenderOwners = {}
         delete state.connections
@@ -499,6 +538,40 @@ const currentEntrySlice = createSlice({
       })
       .addCase(fetchAkas.fulfilled, (state, action) => {
         state.akas = action.payload
+      })
+      .addCase(fetchShinyTextDismissals.fulfilled, (state, action) => {
+        state.shinyTextDismissals = action.payload
+      })
+      .addCase(dismissShinyTextSuggestion.pending, (state, action) => {
+        const { entryId, suggestedEntryId } = action.meta.arg
+        const normalizedSuggestedEntryId = Number(suggestedEntryId)
+        const alreadyDismissed = state.shinyTextDismissals.some(
+          (dismissal) => Number(dismissal.suggested_entry_id) === normalizedSuggestedEntryId
+        )
+        if (!alreadyDismissed) {
+          state.shinyTextDismissals.push({
+            entry_id: Number(entryId),
+            suggested_entry_id: normalizedSuggestedEntryId,
+          })
+        }
+      })
+      .addCase(dismissShinyTextSuggestion.fulfilled, (state, action) => {
+        const dismissal = action.payload
+        const index = state.shinyTextDismissals.findIndex(
+          (existing) => Number(existing.suggested_entry_id) === Number(dismissal.suggested_entry_id)
+        )
+        if (index === -1) {
+          state.shinyTextDismissals.push(dismissal)
+        } else {
+          state.shinyTextDismissals[index] = dismissal
+        }
+      })
+      .addCase(dismissShinyTextSuggestion.rejected, (state, action) => {
+        const { suggestedEntryId } = action.meta.arg
+        const normalizedSuggestedEntryId = Number(suggestedEntryId)
+        state.shinyTextDismissals = state.shinyTextDismissals.filter(
+          (dismissal) => Number(dismissal.suggested_entry_id) !== normalizedSuggestedEntryId || dismissal.id != null
+        )
       })
       .addCase(addAka.fulfilled, (state, action) => {
         state.akas = [...state.akas, action.payload.aka]
@@ -590,6 +663,7 @@ const currentEntrySlice = createSlice({
         return {
           ...state,
           ...action.payload,
+          shinyTextDismissals: [],
           entriesLoading: false,
         }
       })

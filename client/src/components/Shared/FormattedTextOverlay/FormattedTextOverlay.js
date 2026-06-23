@@ -11,9 +11,19 @@ import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
 
 // Redux
 import { createConnection } from '@redux/reducers/connectionsReducer'
+import {
+  dismissShinyTextSuggestion,
+  fetchShinyTextDismissals,
+} from '@redux/reducers/currentEntryReducer'
 
 // Utils
 import { createFormatRules, formatContentWithConnections } from '@utils/formatContentWithConnections'
+import {
+  buildShinyTextCandidates,
+  getConnectedSourceKeys,
+  getDismissedSuggestedEntryIds,
+  shinyTextCandidatesToMap,
+} from '@utils/shinyTextCandidates'
 
 import styles from './FormattedTextOverlay.module.scss'
 
@@ -30,7 +40,7 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
 
   const { connections } = useSelector((state) => state.connections)
-  const { content, entryId, title: currentTitle } = useSelector((state) => state.currentEntry)
+  const { content, entryId, title: currentTitle, shinyTextDismissals } = useSelector((state) => state.currentEntry)
   const history = useHistory()
   const nodeEntriesInfo = useNodeEntriesInfo()
   const dispatch = useDispatch()
@@ -38,6 +48,34 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
   const allTitles = useMemo(
     () => nodeEntriesInfo?.map((x) => x?.title?.toLowerCase()).filter((t) => t !== currentTitle.toLowerCase()) ?? [],
     [currentTitle, nodeEntriesInfo]
+  )
+
+  const connectedSourceKeys = useMemo(() => getConnectedSourceKeys(connections), [connections])
+
+  const dismissedSuggestedEntryIds = useMemo(
+    () => getDismissedSuggestedEntryIds(shinyTextDismissals),
+    [shinyTextDismissals]
+  )
+
+  useEffect(() => {
+    if (!entryId) return
+    dispatch(fetchShinyTextDismissals(entryId))
+  }, [dispatch, entryId])
+
+  const shinyTextCandidates = useMemo(
+    () =>
+      buildShinyTextCandidates({
+        nodeEntriesInfo,
+        currentTitle,
+        connectedSourceKeys,
+        dismissedSuggestedEntryIds,
+      }),
+    [nodeEntriesInfo, currentTitle, connectedSourceKeys, dismissedSuggestedEntryIds]
+  )
+
+  const shinyTextCandidateMap = useMemo(
+    () => shinyTextCandidatesToMap(shinyTextCandidates),
+    [shinyTextCandidates]
   )
 
   const handleRedirectToNode = useCallback(
@@ -65,6 +103,36 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
     [dispatch, entryId, nodeEntriesInfo]
   )
 
+  const handleDismissShinySuggestion = useCallback(
+    (candidate) => {
+      if (!candidate?.nodeId || !entryId) return
+      dispatch(
+        dismissShinyTextSuggestion({
+          entryId,
+          suggestedEntryId: candidate.nodeId,
+        })
+      )
+    },
+    [dispatch, entryId]
+  )
+
+  const handleCreateConnectionFromSuggestion = useCallback(
+    async (candidate) => {
+      if (!candidate?.nodeId) return
+      await handleCreateSimpleSiblingConnection(candidate.nodeId)
+    },
+    [handleCreateSimpleSiblingConnection]
+  )
+
+  const shinyTextOptions = useMemo(
+    () => ({
+      candidateMap: shinyTextCandidateMap,
+      onDismiss: handleDismissShinySuggestion,
+      onCreateConnection: handleCreateConnectionFromSuggestion,
+    }),
+    [shinyTextCandidateMap, handleDismissShinySuggestion, handleCreateConnectionFromSuggestion]
+  )
+
   const formatRules = useMemo(() => {
     return createFormatRules(connections, entryId, handleRedirectToNode, null, styles)
   }, [connections, entryId, handleRedirectToNode])
@@ -74,11 +142,13 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
       content,
       formatRules,
       allTitles,
-      handleCreateSimpleSiblingConnection,
+      null,
       nodeEntriesInfo,
-      'node found, click to create connection'
+      'node found, click to create connection',
+      true,
+      shinyTextOptions
     )
-  }, [content, formatRules, allTitles, handleCreateSimpleSiblingConnection, nodeEntriesInfo])
+  }, [content, formatRules, allTitles, nodeEntriesInfo, shinyTextOptions])
 
   const initialTopValue = toolbarVisible ? 51 + MAIN_TOP_OFFSET : MAIN_TOP_OFFSET
 

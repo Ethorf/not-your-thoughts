@@ -1,0 +1,33 @@
+@import '@styles/variables.scss';
+
+.menu {
+  position: fixed;
+  z-index: $text-entry-z-index + 20;
+  min-width: 11rem;
+  padding: 0.35rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(18, 18, 18, 0.96);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+}
+
+.option {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.85rem;
+  border: none;
+  background: transparent;
+  color: silver;
+  font-family: $main-text;
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    outline: none;
+  }
+}

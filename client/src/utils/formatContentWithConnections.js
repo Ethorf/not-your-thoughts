@@ -1,5 +1,6 @@
 import React from 'react'
 import ShinyText from '@components/Shared/ShinyText/ShinyText'
+import ShinyTextSuggestionTrigger from '@components/Shared/ShinyText/ShinyTextSuggestionTrigger'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
 
 const {
@@ -116,6 +117,10 @@ export const findIdByNodeTitle = (nodes, title) => {
  * @param {Array} nodeEntriesInfo - Array of node entry objects
  * @param {string} unconnectedNodeTooltip - Tooltip text for unconnected nodes (default: "node found, click to view")
  * @param {boolean} enableShinyText - Whether to show ShinyText for unconnected nodes (default: true)
+ * @param {Object|null} shinyTextOptions - Optional shiny suggestion menu config
+ * @param {Map<string, Object>} shinyTextOptions.candidateMap - titleLower -> candidate
+ * @param {Function} shinyTextOptions.onDismiss - dismiss handler(candidate)
+ * @param {Function} shinyTextOptions.onCreateConnection - create connection handler(candidate)
  * @returns {Array} Array of React elements representing formatted content
  */
 export const formatContentWithConnections = (
@@ -125,9 +130,17 @@ export const formatContentWithConnections = (
   onUnconnectedNodeClick = null,
   nodeEntriesInfo = [],
   unconnectedNodeTooltip = 'node found, click to view',
-  enableShinyText = true
+  enableShinyText = true,
+  shinyTextOptions = null
 ) => {
   if (!content) return null
+
+  const shinyCandidateMap = shinyTextOptions?.candidateMap ?? null
+  const onDismissShinySuggestion = shinyTextOptions?.onDismiss ?? null
+  const onCreateConnectionFromSuggestion = shinyTextOptions?.onCreateConnection ?? null
+  const useShinySuggestionMenu = Boolean(
+    shinyCandidateMap && onDismissShinySuggestion && onCreateConnectionFromSuggestion
+  )
 
   const parser = new DOMParser()
   const doc = parser.parseFromString(content, 'text/html')
@@ -188,9 +201,23 @@ export const formatContentWithConnections = (
               key: `${word}-${paragraphIndex}-${match.index}`,
             })
           )
-        } else if (allTitles.includes(word.toLowerCase()) && onUnconnectedNodeClick) {
-          // Show ShinyText for nodes that don't have connections (if enabled)
-          if (enableShinyText) {
+        } else if (allTitles.includes(word.toLowerCase())) {
+          const titleLower = word.toLowerCase()
+          const shinyCandidate = shinyCandidateMap?.get(titleLower)
+
+          if (shinyCandidate?.isDismissed) {
+            parts.push(word)
+          } else if (useShinySuggestionMenu && shinyCandidate) {
+            parts.push(
+              <ShinyTextSuggestionTrigger
+                key={`${word}-${paragraphIndex}-${match.index}`}
+                candidate={shinyCandidate}
+                text={word}
+                onDismiss={onDismissShinySuggestion}
+                onCreateConnection={onCreateConnectionFromSuggestion}
+              />
+            )
+          } else if (enableShinyText && onUnconnectedNodeClick) {
             parts.push(
               <ShinyText
                 key={`${word}-${paragraphIndex}-${match.index}`}
@@ -205,8 +232,8 @@ export const formatContentWithConnections = (
                 data-tooltip-content={unconnectedNodeTooltip}
               />
             )
-          } else {
-            // Just render plain text with click handler for unconnected nodes
+          } else if (onUnconnectedNodeClick) {
+            // Plain clickable text for unconnected nodes when shiny text is disabled
             const nodeId = findIdByNodeTitle(nodeEntriesInfo, word)
             parts.push(
               <span
@@ -223,6 +250,8 @@ export const formatContentWithConnections = (
                 {word}
               </span>
             )
+          } else {
+            parts.push(word)
           }
         } else {
           parts.push(word)
