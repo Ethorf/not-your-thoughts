@@ -111,6 +111,25 @@ $content-section-width: 80vw;
   min-width: 6.25rem;
 }
 
+.wordCountStat,
+.readPercentStat {
+  color: silver;
+  font-size: 0.8rem;
+  font-family: 'Poppins', sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.wordCountStat {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.readPercentStat {
+  color: $silver-active;
+  font-weight: 600;
+}
+
 .buttonRow {
   display: none; // Hidden by default, shown on mobile
 
@@ -315,6 +334,11 @@ $content-section-width: 80vw;
   .networkButton {
     font-size: 0.7rem;
     min-width: 5rem;
+  }
+
+  .wordCountStat,
+  .readPercentStat {
+    font-size: 0.7rem;
   }
 
   .connectionLinesWrapper {

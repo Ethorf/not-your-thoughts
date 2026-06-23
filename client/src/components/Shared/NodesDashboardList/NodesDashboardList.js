@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react'
 import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
 import { DashboardNodeEntry } from '@components/DashboardNodeEntry/DashboardNodeEntry'
 import NodeSearch from '@components/Shared/NodeSearch/NodeSearch'
+import { filterAndSortNodesBySearch } from '@utils/nodeSearchRelevance'
 import styles from './NodesDashboardList.module.scss'
 
 export const NodesDashboardList = () => {
@@ -12,17 +13,9 @@ export const NodesDashboardList = () => {
   const filteredAndSortedNodes = useMemo(() => {
     let filtered = [...nodeEntriesInfo]
 
-    // Apply search filter if provided
+    // Apply search filter if provided — relevance-ranked (title matches first)
     if (searchFilter.trim()) {
-      const term = searchFilter.toLowerCase()
-      filtered = filtered.filter((node) => {
-        const titleMatch = node.title?.toLowerCase().includes(term)
-        // Handle content as either a string or an array
-        const contentMatch = Array.isArray(node.content)
-          ? node.content.some((c) => c?.toLowerCase?.().includes(term))
-          : node.content?.toLowerCase?.().includes(term)
-        return titleMatch || contentMatch
-      })
+      return filterAndSortNodesBySearch(filtered, searchFilter)
     }
 
     if (sortBy === 'recent') {

@@ -4,6 +4,7 @@ import PublicNodeSearch from '@components/Shared/PublicNodeSearch/PublicNodeSear
 import DefaultDropdown from '@components/Shared/DefaultDropdown/DefaultDropdown'
 import calculateWordCount from '@utils/calculateWordCount'
 import { getNodeStatus } from '@utils/nodeReadStatus'
+import { filterAndSortNodesBySearch } from '@utils/nodeSearchRelevance'
 import styles from './PublicNodesDashboardList.module.scss'
 
 const getWordCount = (node) => {
@@ -72,19 +73,9 @@ export const PublicNodesDashboardList = ({ nodeEntriesInfo = [], userId = null }
   const filteredAndSortedNodes = useMemo(() => {
     let filtered = [...nodeEntriesInfo]
 
-    // Apply search filter if provided
+    // Apply search filter if provided — relevance-ranked (title matches first)
     if (searchFilter.trim()) {
-      const term = searchFilter.toLowerCase()
-      filtered = filtered.filter((node) => {
-        const titleMatch = node.title?.toLowerCase().includes(term)
-        const contentMatch = node.content?.some((c) => {
-          if (typeof c === 'string') {
-            return c.toLowerCase().includes(term)
-          }
-          return false
-        })
-        return titleMatch || contentMatch
-      })
+      return filterAndSortNodesBySearch(filtered, searchFilter)
     }
 
     // Apply sorting

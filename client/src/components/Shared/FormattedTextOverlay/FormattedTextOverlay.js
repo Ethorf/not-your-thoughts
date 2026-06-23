@@ -50,7 +50,10 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
     [currentTitle, nodeEntriesInfo]
   )
 
-  const connectedSourceKeys = useMemo(() => getConnectedSourceKeys(connections), [connections])
+  const connectedSourceKeys = useMemo(
+    () => getConnectedSourceKeys(connections, entryId, nodeEntriesInfo),
+    [connections, entryId, nodeEntriesInfo]
+  )
 
   const dismissedSuggestedEntryIds = useMemo(
     () => getDismissedSuggestedEntryIds(shinyTextDismissals),
@@ -134,8 +137,8 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
   )
 
   const formatRules = useMemo(() => {
-    return createFormatRules(connections, entryId, handleRedirectToNode, null, styles)
-  }, [connections, entryId, handleRedirectToNode])
+    return createFormatRules(connections, entryId, handleRedirectToNode, null, styles, nodeEntriesInfo)
+  }, [connections, entryId, handleRedirectToNode, nodeEntriesInfo])
 
   const formattedContent = useMemo(() => {
     return formatContentWithConnections(

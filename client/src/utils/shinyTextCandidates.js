@@ -1,3 +1,5 @@
+import { resolveConnectedNodeTitle } from '@utils/formatContentWithConnections'
+
 /**
  * @typedef {Object} ShinyTextCandidate
  * @property {string} id - Stable id (node id as string)
@@ -8,15 +10,22 @@
  */
 
 /**
- * Primary sources already linked on this entry (lowercase).
+ * Primary sources already linked on this entry (lowercase), including connected node titles.
  */
-export const getConnectedSourceKeys = (connections = []) => {
+export const getConnectedSourceKeys = (connections = [], entryId = null, nodeEntriesInfo = []) => {
   const keys = new Set()
-  connections?.forEach(({ primary_source: primarySource }) => {
-    if (primarySource) {
-      keys.add(primarySource.toLowerCase())
+
+  connections?.forEach((connection) => {
+    if (connection.primary_source) {
+      keys.add(connection.primary_source.toLowerCase())
+    }
+
+    const connectedTitle = resolveConnectedNodeTitle(connection, entryId, nodeEntriesInfo)
+    if (connectedTitle) {
+      keys.add(connectedTitle.toLowerCase())
     }
   })
+
   return keys
 }
 

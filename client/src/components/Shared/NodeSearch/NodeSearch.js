@@ -6,6 +6,7 @@ import classNames from 'classnames'
 import { setEntryById } from '@redux/reducers/currentEntryReducer'
 import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
 
+import { filterAndSortNodesBySearch } from '@utils/nodeSearchRelevance'
 import styles from './NodeSearch.module.scss'
 
 const NodeSearch = ({
@@ -30,25 +31,15 @@ const NodeSearch = ({
   const dispatch = useDispatch()
   const history = useHistory()
 
-  const toSearchableLower = (value) => {
-    if (typeof value === 'string') return value.toLowerCase()
-    return ''
-  }
-
   // Filter nodes based on search term
   const filteredNodes = useMemo(() => {
     if (!searchTerm.trim() || !nodeEntriesInfo) return []
 
-    const term = searchTerm.toLowerCase()
+    const eligibleNodes = isGlobalMode
+      ? nodeEntriesInfo.filter((node) => node?.isPrivate === false)
+      : nodeEntriesInfo
 
-    return nodeEntriesInfo
-      .filter((node) => {
-        if (isGlobalMode && node?.isPrivate !== false) return false
-        const titleLower = toSearchableLower(node?.title)
-        const contentLower = toSearchableLower(node?.content)
-        return titleLower.includes(term) || contentLower.includes(term)
-      })
-      .slice(0, maxResults)
+    return filterAndSortNodesBySearch(eligibleNodes, searchTerm).slice(0, maxResults)
   }, [searchTerm, nodeEntriesInfo, maxResults, isGlobalMode])
 
   // Handle input change
