@@ -32,6 +32,7 @@ app.use('/api/prompts', require('./routes/prompts'))
 app.use('/api/user_journal_config', require('./routes/user_journal_config.js'))
 app.use('/api/user_nodes_config', require('./routes/user_nodes_config.js'))
 app.use('/api/writing_data', require('./routes/writing_data.js'))
+app.use('/api/shiny_text_suggestions', require('./routes/shiny_text_suggestions.js'))
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {

@@ -5,7 +5,6 @@ import { fetchConnectionsDirect } from '@redux/reducers/connectionsReducer'
 import { transformConnection } from '@utils/transformConnection'
 import { transformBackendToFrontendConnectionType } from '@utils/connectionTypeHelpers'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
-import useNodeEntriesInfo from './useNodeEntriesInfo'
 
 const cachedNodeEntries = new Map()
 const inflightNodeEntryRequests = new Map()
@@ -71,7 +70,7 @@ const fetchConnectionsForNode = async (dispatch, nodeId) => {
 
 const useGlobalSecondOrderConnections = (nodes) => {
   const dispatch = useDispatch()
-  const nodeEntriesInfo = useNodeEntriesInfo()
+  const nodeEntriesInfo = useSelector((state) => state.currentEntry.nodeEntriesInfo)
   const { allConnections } = useSelector((state) => state.connections)
   const [connectionsById, setConnectionsById] = useState(new Map())
   const fetchedNodeIdsRef = useRef(new Set())

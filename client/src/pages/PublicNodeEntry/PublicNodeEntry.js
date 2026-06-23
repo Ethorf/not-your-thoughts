@@ -18,6 +18,7 @@ import PublicModalsContainer from '@components/Shared/PublicModalsContainer/Publ
 import { markNodeAsRead, getNodeStatus } from '@utils/nodeReadStatus'
 import useFilteredEntryContents from '@hooks/useFilteredEntryContents'
 import useIsMobile from '@hooks/useIsMobile'
+import { usePublicReadingStats } from '@hooks/usePublicReadingStats'
 
 // Constants
 import { MODAL_NAMES } from '@constants/modalNames'
@@ -65,6 +66,7 @@ const PublicNodeEntry = () => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false)
   const isMobile = useIsMobile()
   const centerIndicatorRef = useRef(null)
+  const contentScrollRef = useRef(null)
   const hasFetchedNodeEntriesRef = useRef(false)
   const lastEntryIdParamRef = useRef(null)
   const lastUserIdParamRef = useRef(null)
@@ -255,6 +257,10 @@ const PublicNodeEntry = () => {
     )
   }, [dispatch, entryId, userIdParam, handleVersionSelect])
 
+  const isViewingHistoryDiff = displayContent !== null && selectedVersionIndex !== null
+  const showReadingStats = !isViewingHistoryDiff
+  const { wordCount, readPercent } = usePublicReadingStats(content, contentScrollRef, showReadingStats)
+
   if (!entryIdParam || !userIdParam) {
     return (
       <div className={styles.wrapper}>
@@ -306,6 +312,11 @@ const PublicNodeEntry = () => {
             >
               History
             </DefaultButton>
+            {showReadingStats && (
+              <span className={styles.wordCountStat} aria-live="polite">
+                {wordCount.toLocaleString()} words
+              </span>
+            )}
           </div>
           <div className={styles.titleContainer}>
             <div className={classNames(styles.title, sharedStyles.flexCenter)}>
@@ -332,6 +343,11 @@ const PublicNodeEntry = () => {
                 Edit
               </DefaultButton>
             )}
+            {showReadingStats && (
+              <span className={styles.readPercentStat} aria-live="polite">
+                {readPercent}% read
+              </span>
+            )}
             <DefaultButton
               onClick={handleExploreNetwork}
               className={styles.networkButton}
@@ -349,10 +365,20 @@ const PublicNodeEntry = () => {
             >
               History
             </DefaultButton>
+            {showReadingStats && (
+              <span className={styles.wordCountStat} aria-live="polite">
+                {wordCount.toLocaleString()} words
+              </span>
+            )}
             {isOwner && (
               <DefaultButton onClick={handleEditEntry} className={styles.editButton} tooltip="Edit this entry">
                 Edit
               </DefaultButton>
+            )}
+            {showReadingStats && (
+              <span className={styles.readPercentStat} aria-live="polite">
+                {readPercent}% read
+              </span>
             )}
             {isMobile ? (
               <DefaultButton
@@ -387,9 +413,9 @@ const PublicNodeEntry = () => {
               onVersionSelect={handleVersionSelect}
             />
           </div>
-          <div className={classNames(styles.content, isHistoryExpanded && styles.contentWithHistory)}>
+          <div ref={contentScrollRef} className={classNames(styles.content, isHistoryExpanded && styles.contentWithHistory)}>
             <div ref={centerIndicatorRef} className={styles.centerIndicator} />
-            {displayContent !== null && selectedVersionIndex !== null ? (
+            {isViewingHistoryDiff ? (
               <PublicHistoryDiff
                 currentContent={displayContent}
                 previousContent={

@@ -20,8 +20,9 @@ import {
   LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET,
   LOCAL_EXPLORE_CHILD_DISTANCE_SCALE,
   LOCAL_EXPLORE_PARENT_DISTANCE_SCALE,
-  LOCAL_EXPLORE_SUB_ORBITAL_RADIUS_SCALE,
+  LOCAL_EXPLORE_SECOND_ORDER_DISTANCE,
   LOCAL_EXPLORE_SUB_LAYOUT_BUFFER_SCALE,
+  LOCAL_EXPLORE_SIBLING_RADIAL_SPREAD,
 } from '@constants/spheres'
 
 import { transformConnection } from '@utils/transformConnection'
@@ -33,6 +34,7 @@ import {
   computeLocalExploreFitScale,
   getLocalExploreViewportHalfExtents,
 } from '@utils/localExploreViewport'
+import { applyUniformSiblingRadialSpread } from '@utils/localExploreSiblingSpread'
 
 import styles from './Explore.module.scss'
 
@@ -187,11 +189,12 @@ const LocalNodeNetworkView = ({
 
       const rawEnd = getRawConnectionEndPos(pos, conn, { lineExtensionFactor, externalDistanceFactor })
       const sphereSize = getFirstOrderSphereSize(conn)
-      const subBuffer = sphereSize * LOCAL_EXPLORE_SUB_ORBITAL_RADIUS_SCALE * LOCAL_EXPLORE_SUB_LAYOUT_BUFFER_SCALE
+      const subBuffer = LOCAL_EXPLORE_SECOND_ORDER_DISTANCE * LOCAL_EXPLORE_SUB_LAYOUT_BUFFER_SCALE
+      const siblingSpreadBuffer = conn.connection_type === SIBLING ? LOCAL_EXPLORE_SIBLING_RADIAL_SPREAD : 0
 
       fitPoints.push({
         position: rawEnd,
-        radius: sphereSize + subBuffer,
+        radius: sphereSize + subBuffer + siblingSpreadBuffer,
       })
     })
 
@@ -302,6 +305,19 @@ const LocalNodeNetworkView = ({
     [fitPosition, mainNodePosition]
   )
 
+  const getConnectionEndPosition = useCallback(
+    (conn, rawEnd) => {
+      const fitted = fitPosition(rawEnd)
+      return applyUniformSiblingRadialSpread({
+        fittedPosition: fitted,
+        layoutCenter: fittedMainPosition,
+        spreadAmount: LOCAL_EXPLORE_SIBLING_RADIAL_SPREAD,
+        connectionType: conn.connection_type,
+      })
+    },
+    [fitPosition, fittedMainPosition]
+  )
+
   return (
     <div ref={wrapperRef} className={styles.nodesWrapper}>
       <Canvas style={{ width: '100%', height: '100%' }} camera={{ position: [0, 0, 8], fov: 75 }}>
@@ -327,7 +343,7 @@ const LocalNodeNetworkView = ({
               if (!pos) return null
 
               const rawEnd = getRawConnectionEndPos(pos, conn, { lineExtensionFactor, externalDistanceFactor })
-              const endPos = fitPosition(rawEnd)
+              const endPos = getConnectionEndPosition(conn, rawEnd)
               const startPos = new THREE.Vector3(...fittedMainPosition)
               const isExternal = conn.connection_type === EXTERNAL
 
@@ -356,7 +372,7 @@ const LocalNodeNetworkView = ({
               if (!pos) return null
 
               const rawEnd = getRawConnectionEndPos(pos, conn, { lineExtensionFactor, externalDistanceFactor })
-              const endPos = fitPosition(rawEnd)
+              const endPos = getConnectionEndPosition(conn, rawEnd)
               const sphereSize = getFirstOrderSphereSize(conn)
 
               return (

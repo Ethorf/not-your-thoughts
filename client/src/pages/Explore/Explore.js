@@ -32,6 +32,7 @@ import sharedStyles from '@styles/sharedClassnames.module.scss'
 import { MODAL_NAMES } from '@constants/modalNames'
 import { ENTRY_TYPES } from '@constants/entryTypes'
 import { DEFAULT_PUBLIC_EXPLORE_USER_ALIAS, resolvePublicUserId } from '@utils/resolvePublicUserId'
+import { entryIdsMatch, normalizeEntryId } from '@utils/normalizeEntryId'
 
 const { JOURNAL } = ENTRY_TYPES
 
@@ -176,12 +177,15 @@ const Explore = () => {
     if (entryType === JOURNAL && entryId) {
       return
     }
-    const shouldSetMostRecent = !entryId || (entryId && !nodeEntriesInfo?.some((node) => node.id === entryId))
+    const shouldSetMostRecent =
+      !entryId ||
+      (entryId && !nodeEntriesInfo?.some((node) => entryIdsMatch(node?.id, entryId)))
 
     if (shouldSetMostRecent && Array.isArray(nodeEntriesInfo)) {
       const mostRecent = getMostRecentlyModifiedItem(nodeEntriesInfo)
-      if (mostRecent?.id) {
-        dispatch(setEntryById(mostRecent.id))
+      const nextEntryId = normalizeEntryId(mostRecent?.id)
+      if (nextEntryId != null) {
+        dispatch(setEntryById(nextEntryId))
       }
     }
   }, [dispatch, entryId, nodeEntriesInfo, isPublicNetworkMode, entryType])

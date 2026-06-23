@@ -3,8 +3,13 @@ import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import classNames from 'classnames'
 
-// Redux
-import { resetCurrentEntryState, createNodeEntry, createJournalEntry } from '@redux/reducers/currentEntryReducer'
+import { showToast } from '@utils/toast'
+import { normalizeEntryId } from '@utils/normalizeEntryId'
+import {
+  resetCurrentEntryState,
+  createNodeEntry,
+  createJournalEntry,
+} from '@redux/reducers/currentEntryReducer'
 
 // Styles
 import styles from './Dashboard.module.scss'
@@ -20,16 +25,38 @@ const Dashboard = () => {
 
   const handleNewNodeEntryClick = async () => {
     dispatch(resetCurrentEntryState())
-    const newNode = await dispatch(createNodeEntry())
+    const result = await dispatch(createNodeEntry())
 
-    history.push(`/edit-node-entry?entryId=${newNode.payload}`)
+    if (createNodeEntry.rejected.match(result)) {
+      showToast('Please log in to create a node', 'error')
+      return
+    }
+
+    const newEntryId = normalizeEntryId(result.payload)
+    if (newEntryId == null) {
+      showToast('Failed to create node', 'error')
+      return
+    }
+
+    history.push(`/edit-node-entry?entryId=${newEntryId}`)
   }
 
   const handleNewJournalEntryClick = async () => {
     dispatch(resetCurrentEntryState())
-    const newJournal = await dispatch(createJournalEntry())
+    const result = await dispatch(createJournalEntry())
 
-    return history.push(`/create-journal-entry?entryId=${newJournal.payload}`)
+    if (createJournalEntry.rejected.match(result)) {
+      showToast('Please log in to create a journal entry', 'error')
+      return
+    }
+
+    const newEntryId = normalizeEntryId(result.payload)
+    if (newEntryId == null) {
+      showToast('Failed to create journal entry', 'error')
+      return
+    }
+
+    history.push(`/create-journal-entry?entryId=${newEntryId}`)
   }
 
   return (

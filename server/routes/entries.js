@@ -1,4 +1,5 @@
 const express = require('express')
+const jwt = require('jsonwebtoken')
 const { parse } = require('date-fns')
 const router = express.Router()
 const pool = require('../config/neonDb')
@@ -18,7 +19,23 @@ const calculateWordCountFromContent = (content) => {
 }
 
 const resolveRequestUserId = (req) => {
-  return req?.user?.id || req?.query?.userId || req?.body?.userId || process.env.ERIC_USER_ID || null
+  if (req?.user?.id) {
+    return req.user.id
+  }
+
+  const token = req.header('x-auth-token')
+  if (token && process.env.JWT_SECRET) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET)
+      if (decoded?.user?.id) {
+        return decoded.user.id
+      }
+    } catch {
+      // Invalid or expired token — fall through to other resolution methods
+    }
+  }
+
+  return req?.query?.userId || req?.body?.userId || process.env.ERIC_USER_ID || null
 }
 
 // post /entries/add_node_entry
@@ -497,6 +514,15 @@ router.get('/entry/:entryId', async (req, res) => {
   const user_id = resolveRequestUserId(req)
   const { entryId } = req.params
 
+  if (!user_id) {
+    return res.status(401).json({ msg: 'Unable to resolve user for entry request' })
+  }
+
+  const normalizedEntryId = Number(entryId)
+  if (!Number.isFinite(normalizedEntryId)) {
+    return res.status(400).json({ msg: 'Invalid entry ID' })
+  }
+
   try {
     // Retrieve the entry with the provided entryId
     const entryQuery = `
@@ -524,7 +550,7 @@ router.get('/entry/:entryId', async (req, res) => {
         id = $1 
         AND user_id = $2
     `
-    const entryResult = await pool.query(entryQuery, [entryId, user_id])
+    const entryResult = await pool.query(entryQuery, [normalizedEntryId, user_id])
 
     // Check if the entry is found
     if (entryResult.rows.length === 0) {
@@ -543,7 +569,7 @@ router.get('/entry/:entryId', async (req, res) => {
       WHERE 
         entry_id = $1
     `
-    const writingDataResult = await pool.query(writingDataQuery, [entryId])
+    const writingDataResult = await pool.query(writingDataQuery, [normalizedEntryId])
 
     const { wd_time_elapsed: wdTimeElapsed, wd_word_count: wdWordCount } = writingDataResult.rows[0]
 

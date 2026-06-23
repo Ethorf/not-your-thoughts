@@ -1,10 +1,108 @@
 import React from 'react'
 import ShinyText from '@components/Shared/ShinyText/ShinyText'
+import ShinyTextSuggestionTrigger from '@components/Shared/ShinyText/ShinyTextSuggestionTrigger'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
 
 const {
-  FRONTEND: { EXTERNAL, SIBLING },
+  FRONTEND: { EXTERNAL },
 } = CONNECTION_TYPES
+
+/**
+ * Resolves the other node's id for an internal connection relative to the current entry.
+ */
+export const resolveConnectedNodeId = (connection, entryId) => {
+  if (!connection || connection.connection_type === EXTERNAL) {
+    return null
+  }
+
+  const entryIdNum = Number(entryId)
+  const primaryId = Number(connection.primary_entry_id)
+  const foreignId = Number(connection.foreign_entry_id)
+
+  if (!Number.isFinite(entryIdNum)) {
+    return foreignId || primaryId || null
+  }
+
+  if (primaryId === entryIdNum && foreignId) {
+    return foreignId
+  }
+  if (foreignId === entryIdNum && primaryId) {
+    return primaryId
+  }
+  if (foreignId && foreignId !== entryIdNum) {
+    return foreignId
+  }
+
+  return primaryId || null
+}
+
+/**
+ * Resolves display title for the node connected on the other end of an internal connection.
+ */
+export const resolveConnectedNodeTitle = (connection, entryId, nodeEntriesInfo = []) => {
+  const connectedId = resolveConnectedNodeId(connection, entryId)
+  if (!connectedId) {
+    return null
+  }
+
+  const nodeFromList = nodeEntriesInfo.find((node) => Number(node.id) === Number(connectedId))
+  if (nodeFromList?.title) {
+    return nodeFromList.title
+  }
+
+  if (Number(connection.foreign_entry_id) === Number(connectedId)) {
+    return connection.foreign_entry_title || connection.foreign_source || null
+  }
+
+  return connection.primary_entry_title || connection.primary_source || null
+}
+
+const normalizeInternalConnectionTypeLabel = (connectionType) => {
+  const normalized = connectionType?.toLowerCase()
+
+  if (normalized === 'horizontal') {
+    return 'sibling'
+  }
+
+  if (normalized === 'vertical') {
+    return 'vertical'
+  }
+
+  if (normalized === 'sibling' || normalized === 'child' || normalized === 'parent') {
+    return normalized
+  }
+
+  return 'unknown'
+}
+
+const getInternalConnectionTooltip = (connectionType) => {
+  const typeLabel = normalizeInternalConnectionTypeLabel(connectionType)
+  return `internal ${typeLabel} connection`
+}
+
+const createInternalConnectionElement = ({
+  displayText,
+  targetNodeId,
+  connectionType,
+  onInternalConnectionClick,
+  styles,
+}) => (
+  <span
+    key={`${displayText}-${targetNodeId}`}
+    data-tooltip-id="main-tooltip"
+    data-tooltip-content={getInternalConnectionTooltip(connectionType)}
+    className={styles.internalConnection}
+    onClick={() => onInternalConnectionClick(targetNodeId)}
+    role="button"
+    tabIndex={0}
+    style={{ color: 'white' }}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter') onInternalConnectionClick(targetNodeId)
+    }}
+  >
+    {displayText}
+  </span>
+)
 
 // Helper function to escape regex special characters
 function escapeRegExp(string) {
@@ -21,6 +119,7 @@ let currentStyles = {}
  * @param {Function} onInternalConnectionClick - Callback for internal connection clicks
  * @param {Function} onExternalConnectionClick - Optional callback for external connection clicks
  * @param {Object} styles - CSS module styles object
+ * @param {Array} nodeEntriesInfo - Node list for resolving connected titles by entry id
  * @returns {Object} Rules object mapping connection sources to React elements
  */
 export const createFormatRules = (
@@ -28,69 +127,71 @@ export const createFormatRules = (
   entryId,
   onInternalConnectionClick,
   onExternalConnectionClick = null,
-  styles = {}
+  styles = {},
+  nodeEntriesInfo = []
 ) => {
   // Store styles for use in formatContentWithConnections
   currentStyles = styles
   const rules = {}
 
-  connections?.forEach(({ primary_source, connection_type, foreign_entry_id, foreign_source }) => {
-    if (connection_type === EXTERNAL && foreign_source) {
+  const addRule = (sourceText, element) => {
+    if (!sourceText || rules[sourceText]) {
+      return
+    }
+    rules[sourceText] = element
+  }
+
+  connections?.forEach((connection) => {
+    const { primary_source: primarySource, connection_type: connectionType, foreign_source: foreignSource } = connection
+
+    if (connectionType === EXTERNAL && foreignSource) {
       const handleExternalClick = onExternalConnectionClick || ((url) => window.open(url, '_blank', 'noopener,noreferrer'))
-      rules[primary_source] = (
-        <a
-          key={primary_source}
-          data-tooltip-id="main-tooltip"
-          data-tooltip-content="External Connection"
-          href={foreign_source}
-          target="_blank"
-          className={styles.externalConnection}
-          rel="noopener noreferrer"
-          onClick={(e) => {
-            if (onExternalConnectionClick) {
-              e.preventDefault()
-              handleExternalClick(foreign_source)
-            }
-          }}
-        >
-          {primary_source}
-        </a>
+      addRule(
+        primarySource,
+        (
+          <a
+            key={primarySource}
+            data-tooltip-id="main-tooltip"
+            data-tooltip-content="External Connection"
+            href={foreignSource}
+            target="_blank"
+            className={styles.externalConnection}
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              if (onExternalConnectionClick) {
+                e.preventDefault()
+                handleExternalClick(foreignSource)
+              }
+            }}
+          >
+            {primarySource}
+          </a>
+        )
       )
-    } else if (connection_type === SIBLING && foreign_entry_id && foreign_entry_id !== entryId) {
-      rules[primary_source] = (
-        <span
-          key={primary_source}
-          data-tooltip-id="main-tooltip"
-          data-tooltip-content="Internal connection"
-          className={styles.internalConnection}
-          onClick={() => onInternalConnectionClick(foreign_entry_id)}
-          role="button"
-          tabIndex={0}
-          style={{ color: 'white' }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') onInternalConnectionClick(foreign_entry_id)
-          }}
-        >
-          {primary_source}
-        </span>
-      )
-    } else if ((connection_type === 'child' || connection_type === 'parent') && foreign_entry_id) {
-      rules[primary_source] = (
-        <span
-          key={primary_source}
-          data-tooltip-id="main-tooltip"
-          data-tooltip-content={`${connection_type} connection`}
-          className={styles.internalConnection}
-          onClick={() => onInternalConnectionClick(foreign_entry_id)}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') onInternalConnectionClick(foreign_entry_id)
-          }}
-        >
-          {primary_source}
-        </span>
-      )
+      return
+    }
+
+    const connectedNodeId = resolveConnectedNodeId(connection, entryId)
+    if (!connectedNodeId) {
+      return
+    }
+
+    const connectedTitle = resolveConnectedNodeTitle(connection, entryId, nodeEntriesInfo)
+    const internalElementFactory = (displayText) =>
+      createInternalConnectionElement({
+        displayText,
+        targetNodeId: connectedNodeId,
+        connectionType,
+        onInternalConnectionClick,
+        styles,
+      })
+
+    if (connectedTitle) {
+      addRule(connectedTitle, internalElementFactory(connectedTitle))
+    }
+
+    if (primarySource && (!connectedTitle || primarySource.toLowerCase() !== connectedTitle.toLowerCase())) {
+      addRule(primarySource, internalElementFactory(primarySource))
     }
   })
 
@@ -116,6 +217,10 @@ export const findIdByNodeTitle = (nodes, title) => {
  * @param {Array} nodeEntriesInfo - Array of node entry objects
  * @param {string} unconnectedNodeTooltip - Tooltip text for unconnected nodes (default: "node found, click to view")
  * @param {boolean} enableShinyText - Whether to show ShinyText for unconnected nodes (default: true)
+ * @param {Object|null} shinyTextOptions - Optional shiny suggestion menu config
+ * @param {Map<string, Object>} shinyTextOptions.candidateMap - titleLower -> candidate
+ * @param {Function} shinyTextOptions.onDismiss - dismiss handler(candidate)
+ * @param {Function} shinyTextOptions.onCreateConnection - create connection handler(candidate)
  * @returns {Array} Array of React elements representing formatted content
  */
 export const formatContentWithConnections = (
@@ -125,9 +230,17 @@ export const formatContentWithConnections = (
   onUnconnectedNodeClick = null,
   nodeEntriesInfo = [],
   unconnectedNodeTooltip = 'node found, click to view',
-  enableShinyText = true
+  enableShinyText = true,
+  shinyTextOptions = null
 ) => {
   if (!content) return null
+
+  const shinyCandidateMap = shinyTextOptions?.candidateMap ?? null
+  const onDismissShinySuggestion = shinyTextOptions?.onDismiss ?? null
+  const onCreateConnectionFromSuggestion = shinyTextOptions?.onCreateConnection ?? null
+  const useShinySuggestionMenu = Boolean(
+    shinyCandidateMap && onDismissShinySuggestion && onCreateConnectionFromSuggestion
+  )
 
   const parser = new DOMParser()
   const doc = parser.parseFromString(content, 'text/html')
@@ -186,11 +299,26 @@ export const formatContentWithConnections = (
           parts.push(
             React.cloneElement(formatRules[ruleKey], {
               key: `${word}-${paragraphIndex}-${match.index}`,
+              children: word,
             })
           )
-        } else if (allTitles.includes(word.toLowerCase()) && onUnconnectedNodeClick) {
-          // Show ShinyText for nodes that don't have connections (if enabled)
-          if (enableShinyText) {
+        } else if (allTitles.includes(word.toLowerCase())) {
+          const titleLower = word.toLowerCase()
+          const shinyCandidate = shinyCandidateMap?.get(titleLower)
+
+          if (shinyCandidate?.isDismissed) {
+            parts.push(word)
+          } else if (useShinySuggestionMenu && shinyCandidate) {
+            parts.push(
+              <ShinyTextSuggestionTrigger
+                key={`${word}-${paragraphIndex}-${match.index}`}
+                candidate={shinyCandidate}
+                text={word}
+                onDismiss={onDismissShinySuggestion}
+                onCreateConnection={onCreateConnectionFromSuggestion}
+              />
+            )
+          } else if (enableShinyText && onUnconnectedNodeClick) {
             parts.push(
               <ShinyText
                 key={`${word}-${paragraphIndex}-${match.index}`}
@@ -205,8 +333,8 @@ export const formatContentWithConnections = (
                 data-tooltip-content={unconnectedNodeTooltip}
               />
             )
-          } else {
-            // Just render plain text with click handler for unconnected nodes
+          } else if (onUnconnectedNodeClick) {
+            // Plain clickable text for unconnected nodes when shiny text is disabled
             const nodeId = findIdByNodeTitle(nodeEntriesInfo, word)
             parts.push(
               <span
@@ -223,6 +351,8 @@ export const formatContentWithConnections = (
                 {word}
               </span>
             )
+          } else {
+            parts.push(word)
           }
         } else {
           parts.push(word)

@@ -8,6 +8,8 @@ import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 
 // Redux
 import { createNodeEntry } from '@redux/reducers/currentEntryReducer'
+import { showToast } from '@utils/toast'
+import { normalizeEntryId } from '@utils/normalizeEntryId'
 import { toggleSidebar } from '@redux/reducers/sidebarReducer'
 
 // Hooks
@@ -32,9 +34,20 @@ function SidebarNodeSelector({ className }) {
   }
 
   const handleCreateNodeEntry = async () => {
-    const newNode = await dispatch(createNodeEntry({ title: inputValue }))
+    const result = await dispatch(createNodeEntry({ title: inputValue }))
 
-    history.push(`/edit-node-entry?entryId=${newNode?.payload}`)
+    if (createNodeEntry.rejected.match(result)) {
+      showToast('Please log in to create a node', 'error')
+      return
+    }
+
+    const newEntryId = normalizeEntryId(result.payload)
+    if (newEntryId == null) {
+      showToast('Failed to create node', 'error')
+      return
+    }
+
+    history.push(`/edit-node-entry?entryId=${newEntryId}`)
     setInputValue('')
     dispatch(toggleSidebar())
   }

@@ -15,6 +15,7 @@ import {
 import { openModal } from '@redux/reducers/modalsReducer.js'
 import { fetchConnections } from '@redux/reducers/connectionsReducer'
 import { setPendingEditorSelectionForModal } from '@utils/captureEditorSelection'
+import { normalizeEntryId } from '@utils/normalizeEntryId'
 
 // Constants
 import { SAVE_TYPES } from '@constants/saveTypes'
@@ -47,8 +48,8 @@ const EditNodeEntry = () => {
   const params = useMemo(() => new URLSearchParams(location.search), [location.search])
 
   useEffect(() => {
-    const entryIdParam = params.get('entryId')
-    if (entryIdParam !== undefined) {
+    const entryIdParam = normalizeEntryId(params.get('entryId'))
+    if (entryIdParam != null) {
       dispatch(setEntryById(entryIdParam))
     }
   }, [dispatch, params])

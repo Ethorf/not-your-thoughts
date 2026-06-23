@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchAkas } from '@redux/reducers/currentEntryReducer.js'
 import { openModal } from '@redux/reducers/modalsReducer.js'
+import { normalizeEntryId } from '@utils/normalizeEntryId'
 
 import TextButton from '@components/Shared/TextButton/TextButton.js'
 
@@ -16,7 +17,12 @@ function AkasDisplay() {
   const [cursorInsideList, setCursorInsideList] = useState(false)
 
   useEffect(() => {
-    dispatch(fetchAkas(entryId))
+    const normalizedEntryId = normalizeEntryId(entryId)
+    if (normalizedEntryId == null) {
+      return
+    }
+
+    dispatch(fetchAkas(normalizedEntryId))
   }, [dispatch, entryId])
 
   const handleOpenAkasModal = () => {

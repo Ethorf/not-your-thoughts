@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import classNames from 'classnames'
 
+import { filterAndSortNodesBySearch } from '@utils/nodeSearchRelevance'
 import styles from './PublicNodeSearch.module.scss'
 
 const PublicNodeSearch = ({
@@ -31,14 +32,7 @@ const PublicNodeSearch = ({
   const filteredNodes = useMemo(() => {
     if (!searchTerm.trim() || !nodeEntriesInfo || nodeEntriesInfo.length === 0) return []
 
-    const term = searchTerm.toLowerCase()
-    return nodeEntriesInfo
-      .filter((node) => {
-        const titleMatch = node.title?.toLowerCase().includes(term)
-        const contentMatch = node.content?.some((c) => c?.toLowerCase().includes(term))
-        return titleMatch || contentMatch
-      })
-      .slice(0, maxResults)
+    return filterAndSortNodesBySearch(nodeEntriesInfo, searchTerm).slice(0, maxResults)
   }, [searchTerm, nodeEntriesInfo, maxResults])
 
   // Handle expand/collapse

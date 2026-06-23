@@ -93,11 +93,14 @@ export const DEFAULT_SPHERE_SIZES = LOCAL_SPHERE_SIZES
 
 // Local Explore view tuning constants
 export const LOCAL_EXPLORE_CONNECTION_DISTANCE_SCALE = 1.08
+/** Extra radial distance (world units) pushed outward for all first-order siblings after layout fit */
+export const LOCAL_EXPLORE_SIBLING_RADIAL_SPREAD = 1.2
+/** Distance (world units) from first-order parent to second-order nodes in local explore */
+export const LOCAL_EXPLORE_SECOND_ORDER_DISTANCE = 2.2
 export const LOCAL_EXPLORE_CONNECTION_SIZE_SCALE = 0.92
 export const LOCAL_EXPLORE_MAIN_NODE_Y_OFFSET = 0
 export const LOCAL_EXPLORE_CHILD_DISTANCE_SCALE = 1
 export const LOCAL_EXPLORE_PARENT_DISTANCE_SCALE = 1
-export const LOCAL_EXPLORE_SUB_ORBITAL_RADIUS_SCALE = 3.05
 export const LOCAL_EXPLORE_SUB_CONNECTION_SIZE_SCALE = 0.7
 export const LOCAL_EXPLORE_SUB_LAYOUT_BUFFER_SCALE = 0.9
 // Max sub-connection depth from first-order nodes. 1 = second-order only (no third-order+).

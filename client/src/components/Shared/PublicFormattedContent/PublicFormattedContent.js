@@ -81,9 +81,10 @@ const PublicFormattedContent = ({
       entryId,
       (nodeId) => handleInternalConnectionClickRef.current?.(nodeId),
       (url) => handleExternalConnectionClickRef.current?.(url),
-      formattedTextStyles
+      formattedTextStyles,
+      nodeEntriesInfo
     )
-  }, [connections, entryId]) // Removed callback dependencies
+  }, [connections, entryId, nodeEntriesInfo])
 
   // Use ref for handleUnconnectedNodeClick to prevent unnecessary re-parsing
   const handleUnconnectedNodeClickRef = useRef(handleUnconnectedNodeClick)

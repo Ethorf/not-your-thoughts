@@ -7,6 +7,7 @@ import { SAVE_TYPES } from '@constants/saveTypes'
 
 import { showToast } from '@utils/toast'
 import { resolvePublicUserId } from '@utils/resolvePublicUserId'
+import { normalizeEntryId } from '@utils/normalizeEntryId'
 import { createDeduplicationCondition, clearPendingRequest } from '@utils/requestDeduplication'
 
 const { NODE, JOURNAL } = ENTRY_TYPES
@@ -26,6 +27,7 @@ const initialState = {
   wpm: 0,
   title: '',
   akas: [],
+  shinyTextDismissals: [],
   type: JOURNAL,
   content: '',
   nodeEntriesInfo: [],
@@ -183,8 +185,13 @@ export const saveJournalEntry = createAsyncThunk(
 export const fetchEntryById = createAsyncThunk(
   'currentEntryReducer/fetchEntryById',
   async (entryId, { rejectWithValue }) => {
+    const normalizedEntryId = normalizeEntryId(entryId)
+    if (normalizedEntryId == null) {
+      return rejectWithValue({ msg: 'Invalid entry ID' })
+    }
+
     try {
-      const response = await axiosInstance.get(`api/entries/entry/${entryId}`)
+      const response = await axiosInstance.get(`api/entries/entry/${normalizedEntryId}`)
 
       return response.data
     } catch (error) {
@@ -201,11 +208,15 @@ export const fetchNodeEntriesInfo = createAsyncThunk(
 
       return response.data.nodeEntries
     } catch (error) {
-      // Skip toast for 401 - user may have just logged out
-      if (error.response?.status !== 401) {
+      const status = error.response?.status
+      // Skip toast for auth failures — user may be logged out or session expired
+      if (status !== 401 && status !== 400) {
         dispatch(showToast('Error fetching node entries', 'error'))
       }
-      return rejectWithValue(error.response?.data)
+      return rejectWithValue({
+        ...error.response?.data,
+        status,
+      })
     }
   }
 )
@@ -214,8 +225,13 @@ export const fetchNodeEntriesInfo = createAsyncThunk(
 export const setEntryById = createAsyncThunk(
   'currentEntryReducer/setEntryById',
   async (queryParamEntryId, { rejectWithValue }) => {
+    const normalizedEntryId = normalizeEntryId(queryParamEntryId)
+    if (normalizedEntryId == null) {
+      return rejectWithValue({ msg: 'Invalid entry ID' })
+    }
+
     try {
-      const response = await axiosInstance.get(`api/entries/entry/${queryParamEntryId}`)
+      const response = await axiosInstance.get(`api/entries/entry/${normalizedEntryId}`)
       const {
         content,
         connections,
@@ -252,13 +268,55 @@ export const setEntryById = createAsyncThunk(
 )
 
 export const fetchAkas = createAsyncThunk('akas/fetchAkas', async (entryId, { rejectWithValue }) => {
+  const normalizedEntryId = normalizeEntryId(entryId)
+  if (normalizedEntryId == null) {
+    return rejectWithValue({ msg: 'Invalid entry ID' })
+  }
+
   try {
-    const response = await axiosInstance.get(`api/akas/${entryId}/akas`)
+    const response = await axiosInstance.get(`api/akas/${normalizedEntryId}/akas`)
     return response.data.akas
   } catch (error) {
     return rejectWithValue(error.response.data)
   }
 })
+
+export const fetchShinyTextDismissals = createAsyncThunk(
+  'shinyText/fetchDismissals',
+  async (entryId, { rejectWithValue }) => {
+    const normalizedEntryId = normalizeEntryId(entryId)
+    if (normalizedEntryId == null) {
+      return rejectWithValue({ msg: 'Invalid entry ID' })
+    }
+
+    try {
+      const response = await axiosInstance.get(`api/shiny_text_suggestions/${normalizedEntryId}/dismissals`)
+      return response.data.dismissals
+    } catch (error) {
+      return rejectWithValue(error.response?.data ?? error)
+    }
+  }
+)
+
+export const dismissShinyTextSuggestion = createAsyncThunk(
+  'shinyText/dismissSuggestion',
+  async ({ entryId, suggestedEntryId }, { rejectWithValue }) => {
+    const normalizedEntryId = normalizeEntryId(entryId)
+    const normalizedSuggestedEntryId = normalizeEntryId(suggestedEntryId)
+    if (normalizedEntryId == null || normalizedSuggestedEntryId == null) {
+      return rejectWithValue({ msg: 'Invalid entry ID' })
+    }
+
+    try {
+      const response = await axiosInstance.post(`api/shiny_text_suggestions/${normalizedEntryId}/dismissals`, {
+        suggested_entry_id: normalizedSuggestedEntryId,
+      })
+      return response.data.dismissal
+    } catch (error) {
+      return rejectWithValue(error.response?.data ?? error)
+    }
+  }
+)
 
 export const deleteEntry = createAsyncThunk(
   'currentEntryReducer/deleteEntry',
@@ -472,6 +530,7 @@ const currentEntrySlice = createSlice({
         state.isTopLevel = false
         state.isPrivate = false
         state.akas = []
+        state.shinyTextDismissals = []
         state.entryContents = []
         state.globalRenderOwners = {}
         delete state.connections
@@ -479,6 +538,40 @@ const currentEntrySlice = createSlice({
       })
       .addCase(fetchAkas.fulfilled, (state, action) => {
         state.akas = action.payload
+      })
+      .addCase(fetchShinyTextDismissals.fulfilled, (state, action) => {
+        state.shinyTextDismissals = action.payload
+      })
+      .addCase(dismissShinyTextSuggestion.pending, (state, action) => {
+        const { entryId, suggestedEntryId } = action.meta.arg
+        const normalizedSuggestedEntryId = Number(suggestedEntryId)
+        const alreadyDismissed = state.shinyTextDismissals.some(
+          (dismissal) => Number(dismissal.suggested_entry_id) === normalizedSuggestedEntryId
+        )
+        if (!alreadyDismissed) {
+          state.shinyTextDismissals.push({
+            entry_id: Number(entryId),
+            suggested_entry_id: normalizedSuggestedEntryId,
+          })
+        }
+      })
+      .addCase(dismissShinyTextSuggestion.fulfilled, (state, action) => {
+        const dismissal = action.payload
+        const index = state.shinyTextDismissals.findIndex(
+          (existing) => Number(existing.suggested_entry_id) === Number(dismissal.suggested_entry_id)
+        )
+        if (index === -1) {
+          state.shinyTextDismissals.push(dismissal)
+        } else {
+          state.shinyTextDismissals[index] = dismissal
+        }
+      })
+      .addCase(dismissShinyTextSuggestion.rejected, (state, action) => {
+        const { suggestedEntryId } = action.meta.arg
+        const normalizedSuggestedEntryId = Number(suggestedEntryId)
+        state.shinyTextDismissals = state.shinyTextDismissals.filter(
+          (dismissal) => Number(dismissal.suggested_entry_id) !== normalizedSuggestedEntryId || dismissal.id != null
+        )
       })
       .addCase(addAka.fulfilled, (state, action) => {
         state.akas = [...state.akas, action.payload.aka]
@@ -489,9 +582,11 @@ const currentEntrySlice = createSlice({
       .addCase(createNodeEntry.pending, (state) => {
         state.entriesLoading = true
       })
-      .addCase(createNodeEntry.fulfilled, (state, action) => {
+      .addCase(createNodeEntry.fulfilled, (state) => {
         state.entriesLoading = false
-        state.nodeEntriesInfo.push(action.payload)
+      })
+      .addCase(createNodeEntry.rejected, (state) => {
+        state.entriesLoading = false
       })
       .addCase(createJournalEntry.pending, (state) => {
         state.entriesLoading = true
@@ -552,6 +647,12 @@ const currentEntrySlice = createSlice({
           entriesLoading: false,
         }
       })
+      .addCase(fetchEntryById.rejected, (state) => {
+        return {
+          ...state,
+          entriesLoading: false,
+        }
+      })
       .addCase(setEntryById.pending, (state) => {
         return {
           ...state,
@@ -562,6 +663,13 @@ const currentEntrySlice = createSlice({
         return {
           ...state,
           ...action.payload,
+          shinyTextDismissals: [],
+          entriesLoading: false,
+        }
+      })
+      .addCase(setEntryById.rejected, (state) => {
+        return {
+          ...state,
           entriesLoading: false,
         }
       })
@@ -575,6 +683,12 @@ const currentEntrySlice = createSlice({
         return {
           ...state,
           nodeEntriesInfo: action.payload,
+          entriesLoading: false,
+        }
+      })
+      .addCase(fetchNodeEntriesInfo.rejected, (state) => {
+        return {
+          ...state,
           entriesLoading: false,
         }
       })
