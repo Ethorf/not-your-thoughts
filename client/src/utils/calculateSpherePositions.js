@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 
+import { LOCAL_EXPLORE_EXTERNAL_DISTANCE_FACTOR } from '@constants/spheres'
+
 // Constants
 const SPHERE_DIAMETER = 0.5 * 2
 const MIN_SEPARATION = SPHERE_DIAMETER + 0.55
@@ -15,7 +17,6 @@ const HORIZONTAL_ROTATION = {
 // These control how far connection spheres (and their lines) sit from the main sphere.
 // With larger local sphere sizes, we push connections further out to keep lines from overlapping.
 const LINE_EXTENSION_FACTOR = 2.85
-const EXTERNAL_DISTANCE_FACTOR = 1.8 // Controls both external sphere distance and line length (local view)
 
 // Center point
 const CENTER = [0, 0, 0]
@@ -97,11 +98,11 @@ const calculateSpherePositions = (connections, connectionTypes) => {
     positions[s.id] = scaleFromOrigin([x, y, 0], OUTER_FACTOR)
   })
 
-  // Position externals - closer to pointing directly up
+  // Position externals above center with horizontal stagger
   externals.forEach((e, i) => {
-    const baseVerticalDistance = SPHERE_DIAMETER * 2.0 // Distance above center
-    const horizontalOffset = (i % 2 === 0 ? -1 : 1) * SPHERE_DIAMETER * 0.8 // Small left/right offset
-    const verticalOffset = Math.floor(i / 2) * SPHERE_DIAMETER * 0.6 // Stack vertically
+    const baseVerticalDistance = SPHERE_DIAMETER * 2.75
+    const horizontalOffset = (i % 2 === 0 ? -1 : 1) * SPHERE_DIAMETER * 1.1
+    const verticalOffset = Math.floor(i / 2) * SPHERE_DIAMETER * 0.75
 
     const x = horizontalOffset
     const y = baseVerticalDistance + verticalOffset
@@ -177,7 +178,7 @@ const calculateSpherePositions = (connections, connectionTypes) => {
     subConnectionHorizontalOffset,
     center: CENTER,
     lineExtensionFactor: LINE_EXTENSION_FACTOR,
-    externalDistanceFactor: EXTERNAL_DISTANCE_FACTOR,
+    externalDistanceFactor: LOCAL_EXPLORE_EXTERNAL_DISTANCE_FACTOR,
   }
 }
 

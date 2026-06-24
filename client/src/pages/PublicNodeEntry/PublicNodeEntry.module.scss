@@ -47,10 +47,10 @@ $content-section-width: 80vw;
 }
 
 .topContainer {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   position: relative;
-  justify-content: space-between;
   width: 100%;
   max-width: $content-section-width;
   z-index: $text-entry-z-index;
@@ -74,6 +74,7 @@ $content-section-width: 80vw;
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  justify-self: start;
 
   // Hide on mobile
   @media (max-width: 680px) {
@@ -82,7 +83,7 @@ $content-section-width: 80vw;
 }
 
 .titleContainer {
-  flex: 1;
+  justify-self: center;
   display: flex;
   justify-content: center;
 }
@@ -91,6 +92,7 @@ $content-section-width: 80vw;
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  justify-self: end;
 
   // Hide on mobile
   @media (max-width: 680px) {
@@ -111,23 +113,29 @@ $content-section-width: 80vw;
   min-width: 6.25rem;
 }
 
-.wordCountStat,
-.readPercentStat {
+.wordCountStat {
   color: silver;
   font-size: 0.8rem;
   font-family: 'Poppins', sans-serif;
   white-space: nowrap;
   pointer-events: none;
-}
-
-.wordCountStat {
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+.readPercentStatSlot {
+  width: 5.5rem;
+  flex-shrink: 0;
+  text-align: right;
+  pointer-events: none;
 }
 
 .readPercentStat {
   color: $silver-active;
   font-weight: 600;
+  font-size: 0.8rem;
+  font-family: 'Poppins', sans-serif;
+  white-space: nowrap;
 }
 
 .buttonRow {
@@ -339,6 +347,10 @@ $content-section-width: 80vw;
   .wordCountStat,
   .readPercentStat {
     font-size: 0.7rem;
+  }
+
+  .readPercentStatSlot {
+    width: 4.75rem;
   }
 
   .connectionLinesWrapper {

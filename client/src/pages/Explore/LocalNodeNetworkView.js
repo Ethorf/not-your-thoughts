@@ -23,6 +23,7 @@ import {
   LOCAL_EXPLORE_SECOND_ORDER_DISTANCE,
   LOCAL_EXPLORE_SUB_LAYOUT_BUFFER_SCALE,
   LOCAL_EXPLORE_SIBLING_RADIAL_SPREAD,
+  LOCAL_EXPLORE_EXTERNAL_RADIAL_SPREAD,
 } from '@constants/spheres'
 
 import { transformConnection } from '@utils/transformConnection'
@@ -34,7 +35,7 @@ import {
   computeLocalExploreFitScale,
   getLocalExploreViewportHalfExtents,
 } from '@utils/localExploreViewport'
-import { applyUniformSiblingRadialSpread } from '@utils/localExploreSiblingSpread'
+import { applyRadialSpreadFromCenter, applyUniformSiblingRadialSpread } from '@utils/localExploreSiblingSpread'
 
 import styles from './Explore.module.scss'
 
@@ -191,10 +192,11 @@ const LocalNodeNetworkView = ({
       const sphereSize = getFirstOrderSphereSize(conn)
       const subBuffer = LOCAL_EXPLORE_SECOND_ORDER_DISTANCE * LOCAL_EXPLORE_SUB_LAYOUT_BUFFER_SCALE
       const siblingSpreadBuffer = conn.connection_type === SIBLING ? LOCAL_EXPLORE_SIBLING_RADIAL_SPREAD : 0
+      const externalSpreadBuffer = conn.connection_type === EXTERNAL ? LOCAL_EXPLORE_EXTERNAL_RADIAL_SPREAD : 0
 
       fitPoints.push({
         position: rawEnd,
-        radius: sphereSize + subBuffer + siblingSpreadBuffer,
+        radius: sphereSize + subBuffer + siblingSpreadBuffer + externalSpreadBuffer,
       })
     })
 
@@ -308,6 +310,15 @@ const LocalNodeNetworkView = ({
   const getConnectionEndPosition = useCallback(
     (conn, rawEnd) => {
       const fitted = fitPosition(rawEnd)
+
+      if (conn.connection_type === EXTERNAL) {
+        return applyRadialSpreadFromCenter({
+          fittedPosition: fitted,
+          layoutCenter: fittedMainPosition,
+          spreadAmount: LOCAL_EXPLORE_EXTERNAL_RADIAL_SPREAD,
+        })
+      }
+
       return applyUniformSiblingRadialSpread({
         fittedPosition: fitted,
         layoutCenter: fittedMainPosition,

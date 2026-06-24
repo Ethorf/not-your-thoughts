@@ -9,8 +9,11 @@ const stripHtml = (html) => {
   return html.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ')
 }
 
+const SCROLL_THRESHOLD_PX = 1
+
 export const usePublicReadingStats = (content, scrollContainerRef, visible = true) => {
   const [readPercent, setReadPercent] = useState(0)
+  const [requiresScroll, setRequiresScroll] = useState(false)
 
   const wordCount = useMemo(() => calculateWordCount(stripHtml(content)), [content])
 
@@ -18,14 +21,18 @@ export const usePublicReadingStats = (content, scrollContainerRef, visible = tru
     const scrollContainer = scrollContainerRef?.current
     if (!scrollContainer || !visible) {
       setReadPercent(0)
+      setRequiresScroll(false)
       return undefined
     }
 
     const updateReadPercent = () => {
       const { scrollTop, scrollHeight, clientHeight } = scrollContainer
       const maxScroll = scrollHeight - clientHeight
+      const needsScroll = maxScroll > SCROLL_THRESHOLD_PX
 
-      if (maxScroll <= 0) {
+      setRequiresScroll(needsScroll)
+
+      if (!needsScroll) {
         setReadPercent(100)
         return
       }
@@ -48,5 +55,8 @@ export const usePublicReadingStats = (content, scrollContainerRef, visible = tru
     }
   }, [scrollContainerRef, content, visible])
 
-  return { wordCount, readPercent }
+  const showReadProgress = visible && requiresScroll && readPercent < 100
+  const isFullyRead = visible && (!requiresScroll || readPercent >= 100)
+
+  return { wordCount, readPercent, requiresScroll, showReadProgress, isFullyRead }
 }

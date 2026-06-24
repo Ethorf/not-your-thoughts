@@ -150,10 +150,6 @@ const PublicNodeEntry = () => {
     dispatch(fetchPublicEntry({ entryId: entryIdParam, userId: userIdParam }))
       .unwrap()
       .then(() => {
-        // Mark node as read when entry is successfully loaded
-        markNodeAsRead(entryIdParam)
-        setStatus('read')
-
         // Fetch connections after entry is loaded
         dispatch(fetchPublicConnections({ entryId: entryIdParam, userId: userIdParam })).catch((err) => {
           console.error('Error fetching connections:', err)
@@ -259,7 +255,26 @@ const PublicNodeEntry = () => {
 
   const isViewingHistoryDiff = displayContent !== null && selectedVersionIndex !== null
   const showReadingStats = !isViewingHistoryDiff
-  const { wordCount, readPercent } = usePublicReadingStats(content, contentScrollRef, showReadingStats)
+  const { wordCount, readPercent, showReadProgress, isFullyRead } = usePublicReadingStats(
+    content,
+    contentScrollRef,
+    showReadingStats
+  )
+  const hasMarkedScrollReadRef = useRef(false)
+
+  useEffect(() => {
+    hasMarkedScrollReadRef.current = false
+  }, [entryIdParam])
+
+  useEffect(() => {
+    if (!showReadingStats || !entryIdParam || hasMarkedScrollReadRef.current || !isFullyRead) {
+      return
+    }
+
+    hasMarkedScrollReadRef.current = true
+    markNodeAsRead(entryIdParam)
+    setStatus('read')
+  }, [showReadingStats, entryIdParam, isFullyRead])
 
   if (!entryIdParam || !userIdParam) {
     return (
@@ -343,10 +358,10 @@ const PublicNodeEntry = () => {
                 Edit
               </DefaultButton>
             )}
-            {showReadingStats && (
-              <span className={styles.readPercentStat} aria-live="polite">
-                {readPercent}% read
-              </span>
+            {showReadProgress && (
+              <div className={styles.readPercentStatSlot} aria-live="polite">
+                <span className={styles.readPercentStat}>{readPercent}% read</span>
+              </div>
             )}
             <DefaultButton
               onClick={handleExploreNetwork}
@@ -375,10 +390,10 @@ const PublicNodeEntry = () => {
                 Edit
               </DefaultButton>
             )}
-            {showReadingStats && (
-              <span className={styles.readPercentStat} aria-live="polite">
-                {readPercent}% read
-              </span>
+            {showReadProgress && (
+              <div className={styles.readPercentStatSlot} aria-live="polite">
+                <span className={styles.readPercentStat}>{readPercent}% read</span>
+              </div>
             )}
             {isMobile ? (
               <DefaultButton
