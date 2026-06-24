@@ -48,7 +48,10 @@ const ConnectionSpheres = ({
   const [subConnections, setSubConnections] = useState(null)
   const [fetchError, setFetchError] = useState(null)
 
-  const reduxState = useSelector((state) => state?.currentEntry, () => false)
+  const reduxState = useSelector(
+    (state) => state?.currentEntry,
+    () => false
+  )
   const reduxEntryId = reduxState?.entryId || null
 
   const effectiveEntryId = currentEntryId || reduxEntryId
@@ -83,7 +86,10 @@ const ConnectionSpheres = ({
     const visible = []
 
     for (const sub of subConnections) {
-      if (effectiveEntryId && (sub.foreign_entry_id === effectiveEntryId || sub.primary_entry_id === effectiveEntryId)) {
+      if (
+        effectiveEntryId &&
+        (sub.foreign_entry_id === effectiveEntryId || sub.primary_entry_id === effectiveEntryId)
+      ) {
         continue
       }
 
@@ -181,8 +187,7 @@ const ConnectionSpheres = ({
         const geometry = new THREE.TubeGeometry(curve, 8, lineRadius, 4, false)
         const childExcludedNodeIds =
           transformed?.id != null ? [...excludedNodeIds, String(transformed.id)] : excludedNodeIds
-        const shouldRecurse =
-          depth < maxDepth && subConnectionType !== EXTERNAL && transformed?.id != null
+        const shouldRecurse = depth < maxDepth && subConnectionType !== EXTERNAL && transformed?.id != null
 
         return (
           <group key={`${sub.id}-${depth}`}>

@@ -230,8 +230,7 @@ const PublicConnectionSpheres = ({
           const subNodeStatus = getNodeStatus(transformed.id)
           const childExcludedNodeIds =
             transformed?.id != null ? [...excludedNodeIds, String(transformed.id)] : excludedNodeIds
-          const shouldRecurse =
-            depth < maxDepth && subConnectionType !== EXTERNAL && transformed?.id != null
+          const shouldRecurse = depth < maxDepth && subConnectionType !== EXTERNAL && transformed?.id != null
 
           return (
             <group key={`${sub.id}-${depth}`}>
