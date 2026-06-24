@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom'
 import ShinyText from './ShinyText'
 import styles from './ShinyTextSuggestionMenu.module.scss'
 
-const ShinyTextSuggestionTrigger = ({ candidate, text, onDismiss, onCreateConnection }) => {
+const ShinyTextSuggestionTrigger = ({ candidate, text, animationId, onDismiss, onCreateConnection }) => {
   const triggerRef = useRef(null)
   const menuRef = useRef(null)
   const [menuPosition, setMenuPosition] = useState(null)
@@ -66,6 +66,7 @@ const ShinyTextSuggestionTrigger = ({ candidate, text, onDismiss, onCreateConnec
       <ShinyText
         ref={triggerRef}
         text={text}
+        animationId={animationId}
         onClick={openMenu}
         data-tooltip-id="main-tooltip"
         data-tooltip-content="Connection suggestion — click for options"

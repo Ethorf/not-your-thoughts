@@ -56,3 +56,16 @@
     }
   }
 }
+
+// Matches Quill indent levels for paragraphs and nested list items.
+@mixin quill-block-indents {
+  @for $i from 1 through 9 {
+    .ql-indent-#{$i}:not(.ql-direction-rtl) {
+      padding-left: 3em * $i;
+    }
+
+    li.ql-indent-#{$i}:not(.ql-direction-rtl) {
+      padding-left: 1.5em + (3em * $i);
+    }
+  }
+}

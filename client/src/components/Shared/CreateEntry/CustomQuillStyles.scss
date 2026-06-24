@@ -86,8 +86,8 @@
 }
 
 .hiddenText .ql-editor {
-  color: transparent;
-  // color: red;
+  // color: transparent;
+  color: red;
   caret-color: $silver-active;
   line-height: $main-text-line-height;
 
@@ -97,7 +97,7 @@
   box-sizing: $main-text-box-sizing;
   transition: all 1s;
 
-  p {
+  > p {
     font-weight: 200;
     font-size: $main-text-font-size;
     line-height: $main-text-line-height;
@@ -114,7 +114,14 @@
     margin: 0;
   }
 
+  li > p {
+    display: inline;
+    padding: 0;
+    margin: 0;
+  }
+
   @include local-editor-list-markers;
+  @include quill-block-indents;
 
   ul,
   ol {
@@ -177,7 +184,8 @@
 }
 
 .ql-editor.ql-blank p:has(> br:only-child),
-.ql-editor:focus p:has(> br:only-child) {
+.ql-editor:focus p:has(> br:only-child),
+.ql-editor:focus li:has(> br:only-child) {
   margin-block: initial !important;
   padding-block: initial !important;
   line-height: $main-text-line-height !important;

@@ -23,7 +23,7 @@
   margin: 0;
   box-sizing: $main-text-box-sizing;
 
-  p {
+  > p {
     font-weight: 200;
     font-size: $main-text-font-size;
     line-height: $main-text-line-height;
@@ -40,7 +40,14 @@
     cursor: default; // Default cursor for text
   }
 
+  li > p {
+    display: inline;
+    padding: 0;
+    margin: 0;
+  }
+
   @include local-editor-list-markers;
+  @include quill-block-indents;
 
   ul > li,
   ol > li {
@@ -65,24 +72,43 @@
     font-size: $main-text-font-size;
   }
 
-  p:empty,
-  p > br:only-child,
-  li:empty {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    height: 0;
+  &:not(.editorFocused) {
+    p:empty,
+    p > br:only-child,
+    li:empty {
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      height: 0;
+    }
+
+    /* Collapse empty blocks with only line breaks when the editor is not focused */
+    p:has(> br:only-child),
+    li:has(> br:only-child),
+    li > p:has(> br:only-child) {
+      margin-block: 0 !important;
+      padding-block: 0 !important;
+      line-height: 0 !important;
+      min-height: 0 !important;
+    }
   }
 
-  /* Collapse empty blocks with only line breaks */
-  p:has(> br:only-child),
-  li:has(> br:only-child),
-  li > p:has(> br:only-child) {
-    margin-block: 0 !important;
-    padding-block: 0 !important;
-    line-height: 0 !important;
-    min-height: 0 !important;
+  &.editorFocused {
+    p > br:only-child {
+      height: auto;
+      min-height: $main-text-line-height;
+      line-height: $main-text-line-height !important;
+    }
+
+    p:has(> br:only-child),
+    li:has(> br:only-child) {
+      margin-block: initial !important;
+      padding-block: initial !important;
+      line-height: $main-text-line-height !important;
+      min-height: $main-text-line-height !important;
+      height: auto;
+    }
   }
 }
 

@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
+import classNames from 'classnames'
 
 // Constants
 import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
@@ -18,6 +19,7 @@ import {
 
 // Utils
 import { createFormatRules, formatContentWithConnections } from '@utils/formatContentWithConnections'
+import { clearShinyTextAnimationStarts } from '@utils/shinyTextAnimation'
 import {
   buildShinyTextCandidates,
   getConnectedSourceKeys,
@@ -38,6 +40,7 @@ const MAIN_TOP_OFFSET = 0
 const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
   const [quillEditorScrollTopVal, setQuillEditorScrollTopVal] = useState(0)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
+  const [editorFocused, setEditorFocused] = useState(false)
 
   const { connections } = useSelector((state) => state.connections)
   const { content, entryId, title: currentTitle, shinyTextDismissals } = useSelector((state) => state.currentEntry)
@@ -64,6 +67,12 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
     if (!entryId) return
     dispatch(fetchShinyTextDismissals(entryId))
   }, [dispatch, entryId])
+
+  useEffect(() => {
+    return () => {
+      clearShinyTextAnimationStarts(entryId)
+    }
+  }, [entryId])
 
   const shinyTextCandidates = useMemo(
     () =>
@@ -129,11 +138,12 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
 
   const shinyTextOptions = useMemo(
     () => ({
+      entryId,
       candidateMap: shinyTextCandidateMap,
       onDismiss: handleDismissShinySuggestion,
       onCreateConnection: handleCreateConnectionFromSuggestion,
     }),
-    [shinyTextCandidateMap, handleDismissShinySuggestion, handleCreateConnectionFromSuggestion]
+    [entryId, shinyTextCandidateMap, handleDismissShinySuggestion, handleCreateConnectionFromSuggestion]
   )
 
   const formatRules = useMemo(() => {
@@ -154,6 +164,26 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
   }, [content, formatRules, allTitles, nodeEntriesInfo, shinyTextOptions])
 
   const initialTopValue = toolbarVisible ? 51 + MAIN_TOP_OFFSET : MAIN_TOP_OFFSET
+
+  useEffect(() => {
+    if (!quillRef.current) return
+
+    const quill = quillRef.current.getEditor()
+    const root = quill.root
+
+    const syncEditorFocused = () => {
+      setEditorFocused(document.activeElement === root || root.contains(document.activeElement))
+    }
+
+    root.addEventListener('focus', syncEditorFocused)
+    root.addEventListener('blur', syncEditorFocused)
+    syncEditorFocused()
+
+    return () => {
+      root.removeEventListener('focus', syncEditorFocused)
+      root.removeEventListener('blur', syncEditorFocused)
+    }
+  }, [quillRef, content])
 
   // Mostly event listeners and scroll stuff
   useEffect(() => {
@@ -198,7 +228,7 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
   return (
     <div
       id="Formatted Text Overlay Boy"
-      className={styles.wrapper}
+      className={classNames(styles.wrapper, editorFocused && styles.editorFocused)}
       style={{
         top: `${initialTopValue - quillEditorScrollTopVal}px`,
         paddingRight: `${scrollbarWidth}px`,
