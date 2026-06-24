@@ -22,6 +22,7 @@ import { getLocalSecondOrderSiblingOrbitalOffset } from '@utils/positionLocalSec
 
 // Components
 import SphereWithEffects from './SphereWithEffects'
+import LocalOffscreenParentLine from './LocalOffscreenParentLine'
 
 const {
   FRONTEND: { EXTERNAL, PARENT, SIBLING },
@@ -108,6 +109,16 @@ const ConnectionSpheres = ({
     [visibleSubConnections, connId]
   )
 
+  const parentToParentSubId = useMemo(() => {
+    if (conn?.connection_type !== PARENT) return null
+
+    const match = visibleSubConnections.find(
+      ({ sub }) => transformBackendToFrontendConnectionType(sub.connection_type, connId, sub) === PARENT
+    )
+
+    return match?.sub?.id ?? null
+  }, [conn, visibleSubConnections, connId])
+
   const parentPosition = useMemo(() => {
     if (position instanceof THREE.Vector3) return position
     return new THREE.Vector3(...position)
@@ -117,6 +128,20 @@ const ConnectionSpheres = ({
     <>
       {visibleSubConnections.map(({ sub, transformed }, i) => {
         const subConnectionType = transformBackendToFrontendConnectionType(sub.connection_type, connId, sub)
+        const isParentToParent = conn?.connection_type === PARENT && subConnectionType === PARENT
+
+        if (isParentToParent) {
+          if (sub.id !== parentToParentSubId) return null
+
+          return (
+            <LocalOffscreenParentLine
+              key={`offscreen-parent-${connId}`}
+              start={parentPosition}
+              layoutScale={layoutScale}
+            />
+          )
+        }
+
         const angle = (i / Math.max(visibleSubConnections.length, 1)) * Math.PI * 2
         const direction = parentPosition.clone().normalize()
         const up = new THREE.Vector3(0, 1, 0)
@@ -143,13 +168,7 @@ const ConnectionSpheres = ({
             .addScaledVector(up, verticalOffset)
         }
 
-        if (conn?.connection_type === PARENT && sub.connection_type === PARENT) {
-          const verticalDistance = size * 2.5 * layoutScale
-          orbitalOffset = new THREE.Vector3().addScaledVector(up, verticalDistance)
-        }
-        const isParentToParent = conn?.connection_type === PARENT && sub.connection_type === PARENT
-
-        if (horizontalOffset !== 0 && !isParentToParent && !isSiblingConnection) {
+        if (horizontalOffset !== 0 && !isSiblingConnection) {
           const worldRight = new THREE.Vector3(1, 0, 0)
           orbitalOffset.addScaledVector(worldRight, horizontalOffset * layoutScale)
         }
