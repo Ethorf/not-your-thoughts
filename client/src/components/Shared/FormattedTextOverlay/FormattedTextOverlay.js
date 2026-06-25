@@ -31,7 +31,7 @@ import styles from './FormattedTextOverlay.module.scss'
 
 const { DIRECT } = CONNECTION_SOURCE_TYPES
 const {
-  FRONTEND: { SIBLING },
+  FRONTEND: { PARENT },
 } = CONNECTION_TYPES
 
 // const MAIN_TOP_OFFSET = 16
@@ -97,22 +97,28 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
     [history]
   )
 
-  const handleCreateSimpleSiblingConnection = useCallback(
-    async (nodeId) => {
-      if (!nodeId) return
+  const handleCreateConnectionFromSuggestion = useCallback(
+    async (candidate, connectionType, matchedText) => {
+      if (!candidate?.nodeId || !entryId || !connectionType) return
+
+      const suggestedNodeId = candidate.nodeId
+      const suggestedTitle = candidate.title || ''
+      const matchedSource = matchedText || suggestedTitle
+      const isParent = connectionType === PARENT
+
       await dispatch(
         createConnection({
-          connection_type: SIBLING,
+          connection_type: connectionType,
           current_entry_id: entryId,
-          foreign_entry_id: nodeId,
-          primary_entry_id: entryId,
-          primary_source: nodeEntriesInfo.find((n) => n.id === nodeId)?.title || '',
-          foreign_source: nodeEntriesInfo.find((n) => n.id === nodeId)?.title || '',
+          primary_entry_id: isParent ? suggestedNodeId : entryId,
+          foreign_entry_id: isParent ? entryId : suggestedNodeId,
+          primary_source: isParent ? suggestedTitle : matchedSource,
+          foreign_source: isParent ? matchedSource : suggestedTitle,
           source_type: DIRECT,
         })
       )
     },
-    [dispatch, entryId, nodeEntriesInfo]
+    [dispatch, entryId]
   )
 
   const handleDismissShinySuggestion = useCallback(
@@ -126,14 +132,6 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
       )
     },
     [dispatch, entryId]
-  )
-
-  const handleCreateConnectionFromSuggestion = useCallback(
-    async (candidate) => {
-      if (!candidate?.nodeId) return
-      await handleCreateSimpleSiblingConnection(candidate.nodeId)
-    },
-    [handleCreateSimpleSiblingConnection]
   )
 
   const shinyTextOptions = useMemo(

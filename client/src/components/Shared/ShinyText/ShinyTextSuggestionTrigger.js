@@ -1,8 +1,20 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
+import { CONNECTION_TYPES } from '@constants/connectionTypes'
+
 import ShinyText from './ShinyText'
 import styles from './ShinyTextSuggestionMenu.module.scss'
+
+const {
+  FRONTEND: { SIBLING, PARENT, CHILD },
+} = CONNECTION_TYPES
+
+const CONNECTION_MENU_OPTIONS = [
+  { type: SIBLING, label: 'Create sibling connection' },
+  { type: PARENT, label: 'Create parent connection' },
+  { type: CHILD, label: 'Create child connection' },
+]
 
 const ShinyTextSuggestionTrigger = ({ candidate, text, animationId, onDismiss, onCreateConnection }) => {
   const triggerRef = useRef(null)
@@ -56,10 +68,13 @@ const ShinyTextSuggestionTrigger = ({ candidate, text, animationId, onDismiss, o
     closeMenu()
   }, [candidate, onDismiss, closeMenu])
 
-  const handleCreateConnection = useCallback(() => {
-    onCreateConnection?.(candidate)
-    closeMenu()
-  }, [candidate, onCreateConnection, closeMenu])
+  const handleCreateConnection = useCallback(
+    (connectionType) => {
+      onCreateConnection?.(candidate, connectionType, text)
+      closeMenu()
+    },
+    [candidate, onCreateConnection, text, closeMenu]
+  )
 
   return (
     <>
@@ -86,10 +101,18 @@ const ShinyTextSuggestionTrigger = ({ candidate, text, animationId, onDismiss, o
             style={{ left: menuPosition.left, top: menuPosition.top }}
             role="menu"
           >
-            <button type="button" className={styles.option} role="menuitem" onClick={handleCreateConnection}>
-              Create connection
-            </button>
-            <button type="button" className={styles.option} role="menuitem" onClick={handleDismiss}>
+            {CONNECTION_MENU_OPTIONS.map(({ type, label }) => (
+              <button
+                key={type}
+                type="button"
+                className={styles.option}
+                role="menuitem"
+                onClick={() => handleCreateConnection(type)}
+              >
+                {label}
+              </button>
+            ))}
+            <button type="button" className={`${styles.option} ${styles.dismissOption}`} role="menuitem" onClick={handleDismiss}>
               Remove suggestion
             </button>
           </div>,

@@ -221,7 +221,7 @@ export const findIdByNodeTitle = (nodes, title) => {
  * @param {string|number} [shinyTextOptions.entryId] - Current entry id for stable animation phases
  * @param {Map<string, Object>} shinyTextOptions.candidateMap - titleLower -> candidate
  * @param {Function} shinyTextOptions.onDismiss - dismiss handler(candidate)
- * @param {Function} shinyTextOptions.onCreateConnection - create connection handler(candidate)
+ * @param {Function} shinyTextOptions.onCreateConnection - create connection handler(candidate, connectionType, matchedText)
  * @returns {Array} Array of React elements representing formatted content
  */
 export const formatContentWithConnections = (

@@ -18,6 +18,59 @@
   background-color: rgba(192, 192, 192, 0.5);
 }
 
+.currentAkasContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.suggestionsLabel {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  color: $silver-faded;
+  text-align: center;
+}
+
+.suggestionsTitle {
+  color: $silver-default;
+}
+
+.suggestionsStatus {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  color: $silver-faded;
+  text-align: center;
+}
+
+.suggestionsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  max-width: 100%;
+}
+
+.suggestionChip {
+  border: 1px solid rgba(192, 192, 192, 0.45);
+  border-radius: 999px;
+  padding: 0.25rem 0.625rem;
+  background: rgba(192, 192, 192, 0.15);
+  color: $silver-default;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.875rem;
+  transition: $default-transition;
+
+  &:hover,
+  &:focus-visible {
+    background: rgba(192, 192, 192, 0.35);
+    color: white;
+    outline: none;
+  }
+}
+
 .akasContainer {
   display: flex;
   width: 100%;
