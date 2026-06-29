@@ -145,28 +145,27 @@ export const createFormatRules = (
     const { primary_source: primarySource, connection_type: connectionType, foreign_source: foreignSource } = connection
 
     if (connectionType === EXTERNAL && foreignSource) {
-      const handleExternalClick = onExternalConnectionClick || ((url) => window.open(url, '_blank', 'noopener,noreferrer'))
+      const handleExternalClick =
+        onExternalConnectionClick || ((url) => window.open(url, '_blank', 'noopener,noreferrer'))
       addRule(
         primarySource,
-        (
-          <a
-            key={primarySource}
-            data-tooltip-id="main-tooltip"
-            data-tooltip-content="External Connection"
-            href={foreignSource}
-            target="_blank"
-            className={styles.externalConnection}
-            rel="noopener noreferrer"
-            onClick={(e) => {
-              if (onExternalConnectionClick) {
-                e.preventDefault()
-                handleExternalClick(foreignSource)
-              }
-            }}
-          >
-            {primarySource}
-          </a>
-        )
+        <a
+          key={primarySource}
+          data-tooltip-id="main-tooltip"
+          data-tooltip-content="External Connection"
+          href={foreignSource}
+          target="_blank"
+          className={styles.externalConnection}
+          rel="noopener noreferrer"
+          onClick={(e) => {
+            if (onExternalConnectionClick) {
+              e.preventDefault()
+              handleExternalClick(foreignSource)
+            }
+          }}
+        >
+          {primarySource}
+        </a>
       )
       return
     }
@@ -350,11 +349,7 @@ export const formatContentWithConnections = (
           if (shinyCandidate?.isDismissed) {
             parts.push(word)
           } else if (useShinySuggestionMenu && shinyCandidate) {
-            const { elementKey, animationId } = getShinyInstanceIds(
-              titleLower,
-              paragraphIndex,
-              shinyCandidate.id
-            )
+            const { elementKey, animationId } = getShinyInstanceIds(titleLower, paragraphIndex, shinyCandidate.id)
             parts.push(
               <ShinyTextSuggestionTrigger
                 key={elementKey}
@@ -531,4 +526,3 @@ export const formatContentWithConnections = (
 
   return rootChildren.map((node, i) => transformNode(node, i))
 }
-

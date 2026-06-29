@@ -12,10 +12,7 @@ import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
 
 // Redux
 import { createConnection } from '@redux/reducers/connectionsReducer'
-import {
-  dismissShinyTextSuggestion,
-  fetchShinyTextDismissals,
-} from '@redux/reducers/currentEntryReducer'
+import { dismissShinyTextSuggestion, fetchShinyTextDismissals } from '@redux/reducers/currentEntryReducer'
 
 // Utils
 import { createFormatRules, formatContentWithConnections } from '@utils/formatContentWithConnections'
@@ -85,10 +82,7 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
     [nodeEntriesInfo, currentTitle, connectedSourceKeys, dismissedSuggestedEntryIds]
   )
 
-  const shinyTextCandidateMap = useMemo(
-    () => shinyTextCandidatesToMap(shinyTextCandidates),
-    [shinyTextCandidates]
-  )
+  const shinyTextCandidateMap = useMemo(() => shinyTextCandidatesToMap(shinyTextCandidates), [shinyTextCandidates])
 
   const handleRedirectToNode = useCallback(
     (id) => {

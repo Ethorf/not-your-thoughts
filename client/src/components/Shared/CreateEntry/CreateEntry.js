@@ -127,9 +127,14 @@ const CreateEntry = ({ entryType }) => {
       quill.setSelection(length, length)
     }
   }, [sidebarOpen])
-
+  console.log('<<<<<< toolbarVisible >>>>>>>>> is: <<<<<<<<<<<<')
+  console.log(toolbarVisible)
   return (
-    <div className={classNames(styles.wrapper, entryType === JOURNAL && styles.journalWrapper)}>
+    <div
+      className={classNames(styles.wrapper, entryType === JOURNAL && styles.journalWrapper, {
+        [styles.toolbarVisiblWrapper]: toolbarVisible,
+      })}
+    >
       {entryType === NODE && (
         <TextButton
           className={styles.toolbarToggleButton}
@@ -146,8 +151,8 @@ const CreateEntry = ({ entryType }) => {
             entryType === JOURNAL
               ? 'noScroll visibleText toolbar-hidden'
               : toolbarVisible
-              ? 'toolbar-visible hiddenText'
-              : 'toolbar-hidden hiddenText'
+                ? 'toolbar-visible hiddenText'
+                : 'toolbar-hidden hiddenText'
           }`}
           modules={toolBarModules}
           placeholder={PLACEHOLDER_COPY[entryType]}

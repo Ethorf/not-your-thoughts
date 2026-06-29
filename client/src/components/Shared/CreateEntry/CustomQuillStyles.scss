@@ -23,10 +23,14 @@
 
 .ql-container.ql-snow {
   border: none;
-
+  padding-top: 1rem;
   &:hover {
     border: none;
   }
+}
+
+.ql-blank {
+  padding-top: 1rem;
 }
 
 .ql-toolbar.ql-snow {
