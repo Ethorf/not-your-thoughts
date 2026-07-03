@@ -24,7 +24,6 @@ import {
 } from '@utils/shinyTextCandidates'
 
 import styles from './FormattedTextOverlay.module.scss'
-import { normalizeQuillListHtml } from '@utils/normalizeQuillListHtml'
 
 const { DIRECT } = CONNECTION_SOURCE_TYPES
 const {
@@ -142,10 +141,8 @@ const FormattedTextOverlay = ({ quillRef, toolbarVisible }) => {
   }, [connections, entryId, handleRedirectToNode, nodeEntriesInfo])
 
   const formattedContent = useMemo(() => {
-    const normalizedContent = normalizeQuillListHtml(content)
-
     return formatContentWithConnections(
-      normalizedContent,
+      content,
       formatRules,
       allTitles,
       null,

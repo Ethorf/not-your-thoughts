@@ -1,42 +1,105 @@
 import classNames from 'classnames'
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useHistory } from 'react-router-dom'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
-import Delta from 'quill-delta'
 
 // Components
 import TextButton from '@components/Shared/TextButton/TextButton'
-import FormattedTextOverlay from '@components/Shared/FormattedTextOverlay/FormattedTextOverlay'
+import QuillDecorationSuggestionMenu from '@components/Shared/CreateEntry/QuillDecorationSuggestionMenu'
+
+// Constants
+import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
+import { CONNECTION_TYPES } from '@constants/connectionTypes'
+
+// Hooks
+import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
 
 // Redux
-import { setContent, setWordCount, setCharCount } from '@redux/reducers/currentEntryReducer'
+import { setContent, setWordCount, setCharCount, dismissShinyTextSuggestion, fetchShinyTextDismissals } from '@redux/reducers/currentEntryReducer'
+import { createConnection } from '@redux/reducers/connectionsReducer'
 import { ENTRY_TYPES } from '@constants/entryTypes'
 import calculateWordCount from '@utils/calculateWordCount'
 import { registerQuillSelectionTracking } from '@utils/captureEditorSelection'
 import {
-  registerQuillNestedLists,
-  quillKeyboardBindings,
-} from '@utils/registerQuillNestedLists'
-import { normalizeQuillListHtml, mergeAdjacentOrderedListsInDom } from '@utils/normalizeQuillListHtml'
+  getTextDecorationModule,
+  registerQuillTextDecorations,
+  stripDecorationFromHtml,
+} from '@utils/registerQuillTextDecorations'
+import { registerQuillClipboardMatchers } from '@utils/registerQuillClipboard'
+import { normalizeQuillHtmlForLoad } from '@utils/normalizeQuillHtmlForLoad'
+import { clearShinyTextAnimationStarts } from '@utils/shinyTextAnimation'
+import {
+  buildShinyTextCandidates,
+  getConnectedSourceKeys,
+  getDismissedSuggestedEntryIds,
+  shinyTextCandidatesToMap,
+} from '@utils/shinyTextCandidates'
+
+// Styles
 import styles from './CreateEntry.module.scss'
 import './CustomQuillStyles.scss'
 
-registerQuillNestedLists()
+registerQuillTextDecorations()
 
-const { NODE, JOURNAL } = ENTRY_TYPES
+const { NODE: NODE_ENTRY_TYPE, JOURNAL } = ENTRY_TYPES
+const { DIRECT } = CONNECTION_SOURCE_TYPES
+const {
+  FRONTEND: { PARENT },
+} = CONNECTION_TYPES
 
 const CreateEntry = ({ entryType }) => {
   const dispatch = useDispatch()
+  const history = useHistory()
   const quillRef = useRef(null)
+  const nodeEntriesInfo = useNodeEntriesInfo()
+  const lastSyncedRef = useRef({ entryId: null, content: null })
 
-  const { content, entryId, entriesSaving } = useSelector((state) => state.currentEntry)
+  const { content, entryId, entriesSaving, title: currentTitle, shinyTextDismissals } = useSelector(
+    (state) => state.currentEntry
+  )
+  const { connections } = useSelector((state) => state.connections)
   const { sidebarOpen } = useSelector((state) => state.sidebar)
   const { isOpen: isModalOpen } = useSelector((state) => state.modals)
 
   const [toolbarVisible, setToolbarVisible] = useState(false)
-  const [localContent, setLocalContent] = useState(content || '')
-  const lastEntryIdRef = useRef(entryId)
+  const [suggestionMenu, setSuggestionMenu] = useState(null)
+
+  const allTitles = useMemo(
+    () => nodeEntriesInfo?.map((x) => x?.title?.toLowerCase()).filter((t) => t !== currentTitle?.toLowerCase()) ?? [],
+    [currentTitle, nodeEntriesInfo]
+  )
+
+  const connectedSourceKeys = useMemo(
+    () => getConnectedSourceKeys(connections, entryId, nodeEntriesInfo),
+    [connections, entryId, nodeEntriesInfo]
+  )
+
+  const dismissedSuggestedEntryIds = useMemo(
+    () => getDismissedSuggestedEntryIds(shinyTextDismissals),
+    [shinyTextDismissals]
+  )
+
+  const shinyTextCandidates = useMemo(
+    () =>
+      buildShinyTextCandidates({
+        nodeEntriesInfo,
+        currentTitle,
+        connectedSourceKeys,
+        dismissedSuggestedEntryIds,
+      }),
+    [nodeEntriesInfo, currentTitle, connectedSourceKeys, dismissedSuggestedEntryIds]
+  )
+
+  const shinyTextCandidateMap = useMemo(() => shinyTextCandidatesToMap(shinyTextCandidates), [shinyTextCandidates])
+
+  const shinyTextCandidateById = useMemo(
+    () => new Map(shinyTextCandidates.map((candidate) => [candidate.id, candidate])),
+    [shinyTextCandidates]
+  )
+
+  const loadedContent = useMemo(() => normalizeQuillHtmlForLoad(content ?? ''), [content])
 
   const setTotalWordCount = useCallback(() => {
     const totalWords = calculateWordCount(content)
@@ -49,46 +112,31 @@ const CreateEntry = ({ entryType }) => {
     }
   }, [content, dispatch])
 
-  const handleContentChange = (e) => {
-    setLocalContent(e)
-    dispatch(setContent(e))
+  const handleContentChange = (html) => {
+    dispatch(setContent(normalizeQuillHtmlForLoad(stripDecorationFromHtml(html))))
     setTotalWordCount()
   }
 
-  const syncRepairedListContent = useCallback(
-    (quill) => {
-      const repairedHtml = normalizeQuillListHtml(quill.root.innerHTML)
-      if (repairedHtml === quill.root.innerHTML) {
-        return false
-      }
-
-      quill.root.innerHTML = repairedHtml
-      quill.scroll.update()
-      quill.scroll.optimize()
-      setLocalContent(repairedHtml)
-      dispatch(setContent(repairedHtml))
-      return true
-    },
-    [dispatch]
-  )
-
-  // Sync local editor from Redux when entryId changes, including empty content (e.g. new journal vs prior node).
   useEffect(() => {
-    if (entryId !== lastEntryIdRef.current) {
-      setLocalContent(normalizeQuillListHtml(content ?? ''))
-      lastEntryIdRef.current = entryId
-    } else if (entryId && content && !localContent) {
-      // Same entry, but content loaded for the first time
-      setLocalContent(normalizeQuillListHtml(content))
+    if (!entryId || entryType !== NODE_ENTRY_TYPE) {
+      return
     }
-  }, [entryId, content, localContent])
+
+    dispatch(fetchShinyTextDismissals(entryId))
+  }, [dispatch, entryId, entryType])
+
+  useEffect(() => {
+    return () => {
+      clearShinyTextAnimationStarts(entryId)
+    }
+  }, [entryId])
 
   useEffect(() => {
     setTotalWordCount()
   }, [entryId, setTotalWordCount])
 
   const PLACEHOLDER_COPY = {
-    [NODE]: 'Start node here...',
+    [NODE_ENTRY_TYPE]: 'Start node here...',
     [JOURNAL]: 'Note those thoughts here...',
   }
 
@@ -97,31 +145,96 @@ const CreateEntry = ({ entryType }) => {
       toolbar:
         entryType === JOURNAL
           ? []
-          : {
-              container: [
-                ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-                [{ list: 'ordered' }, { list: 'bullet' }],
-                [{ indent: '-1' }, { indent: '+1' }],
-              ],
-              handlers: {
-                list: function handleListFormat(value) {
-                  const formats = this.quill.getFormat()
-
-                  if (formats.list === value) {
-                    this.quill.format('list', false, 'user')
-                    return
-                  }
-
-                  this.quill.format('list', value, 'user')
-                },
-              },
-            },
-      keyboard: {
-        bindings: quillKeyboardBindings,
-      },
+          : [
+              ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+              [{ list: 'ordered' }, { list: 'bullet' }],
+            ],
+      textDecorations: entryType === NODE_ENTRY_TYPE,
     }),
     [entryType]
   )
+
+  const handleCreateConnectionFromSuggestion = useCallback(
+    async (candidate, connectionType, matchedText) => {
+      if (!candidate?.nodeId || !entryId || !connectionType) {
+        return
+      }
+
+      const suggestedNodeId = candidate.nodeId
+      const suggestedTitle = candidate.title || ''
+      const matchedSource = matchedText || suggestedTitle
+      const isParent = connectionType === PARENT
+
+      await dispatch(
+        createConnection({
+          connection_type: connectionType,
+          current_entry_id: entryId,
+          primary_entry_id: isParent ? suggestedNodeId : entryId,
+          foreign_entry_id: isParent ? entryId : suggestedNodeId,
+          primary_source: isParent ? suggestedTitle : matchedSource,
+          foreign_source: isParent ? matchedSource : suggestedTitle,
+          source_type: DIRECT,
+        })
+      )
+    },
+    [dispatch, entryId]
+  )
+
+  const handleDismissShinySuggestion = useCallback(
+    (candidate) => {
+      if (!candidate?.nodeId || !entryId) {
+        return
+      }
+
+      dispatch(
+        dismissShinyTextSuggestion({
+          entryId,
+          suggestedEntryId: candidate.nodeId,
+        })
+      )
+    },
+    [dispatch, entryId]
+  )
+
+  useEffect(() => {
+    if (!quillRef.current || content == null) {
+      return
+    }
+
+    const quill = quillRef.current.getEditor()
+    const decorationModule = getTextDecorationModule(quill)
+
+    if (lastSyncedRef.current.entryId !== entryId) {
+      lastSyncedRef.current = { entryId, content: null }
+    }
+
+    const editorEmpty = !quill.getText().trim()
+    const needsSync = editorEmpty && content && lastSyncedRef.current.content !== content
+
+    if (needsSync) {
+      quill.setContents(quill.clipboard.convert(normalizeQuillHtmlForLoad(content)), 'silent')
+      lastSyncedRef.current = { entryId, content }
+      decorationModule?.scheduleApply()
+    }
+  }, [entryId, content])
+
+  useEffect(() => {
+    if (!quillRef.current || entryType !== NODE_ENTRY_TYPE) {
+      return
+    }
+
+    const quill = quillRef.current.getEditor()
+    const decorationModule = getTextDecorationModule(quill)
+
+    decorationModule?.setContext({
+      enabled: true,
+      entryId,
+      connections,
+      nodeEntriesInfo,
+      allTitles,
+      shinyCandidateMap: shinyTextCandidateMap,
+    })
+  }, [entryType, entryId, connections, nodeEntriesInfo, allTitles, shinyTextCandidateMap])
 
   const focusEmptyEditorCaret = useCallback(() => {
     if (!quillRef.current) return
@@ -131,6 +244,55 @@ const CreateEntry = ({ entryType }) => {
       quill.setSelection(0, 0, 'user')
     }
   }, [])
+
+  const handleDecorationClick = useCallback(
+    (event) => {
+      const target = event.target.closest('[data-nyt-deco]')
+      if (!target) {
+        return
+      }
+
+      const decorationType = target.getAttribute('data-nyt-deco')
+      const nodeId = target.getAttribute('data-nyt-node-id')
+
+      if (decorationType === 'connection-internal' || decorationType === 'shiny') {
+        event.preventDefault()
+        if (nodeId) {
+          history.push(`/edit-node-entry?entryId=${nodeId}`)
+        }
+        return
+      }
+
+      if (decorationType === 'connection-external') {
+        event.preventDefault()
+        const href = target.getAttribute('data-nyt-href')
+        if (href) {
+          window.open(href, '_blank', 'noopener,noreferrer')
+        }
+        return
+      }
+
+      if (decorationType === 'shiny-suggestion') {
+        event.preventDefault()
+        event.stopPropagation()
+
+        const candidateId = target.getAttribute('data-nyt-cand-id')
+        const candidate = candidateId ? shinyTextCandidateById.get(candidateId) : null
+        if (!candidate) {
+          return
+        }
+
+        const rect = target.getBoundingClientRect()
+        setSuggestionMenu({
+          left: rect.left,
+          top: rect.bottom + 6,
+          candidateId,
+          matchedText: target.textContent || '',
+        })
+      }
+    },
+    [history, shinyTextCandidateById]
+  )
 
   useEffect(() => {
     if (!quillRef.current) return
@@ -142,64 +304,26 @@ const CreateEntry = ({ entryType }) => {
     }
 
     const handleClick = (e) => {
+      if (e.target?.closest('[data-nyt-deco]')) {
+        handleDecorationClick(e)
+        return
+      }
+
       if (e.target && e.target.tagName === 'A') {
         e.preventDefault()
         window.open(e.target.getAttribute('href'), '_blank')
       }
     }
 
-    quill.clipboard.matchers = []
-    quill.clipboard.addMatcher(Node.ELEMENT_NODE, (node, delta) => {
-      const text = node.innerText || node.textContent || ''
-      return new Delta().insert(text)
-    })
+    registerQuillClipboardMatchers(quill)
 
     quill.root.addEventListener('mousedown', handleEditorMouseDown)
     quill.root.addEventListener('click', handleClick)
-
-    const handleTextChange = (delta, oldDelta, source) => {
-      if (source !== 'user') {
-        return
-      }
-
-      requestAnimationFrame(() => {
-        if (!quillRef.current) {
-          return
-        }
-
-        const selection = quill.getSelection()
-        const merged = mergeAdjacentOrderedListsInDom(quill.root)
-
-        if (merged) {
-          syncRepairedListContent(quill)
-          if (selection) {
-            quill.setSelection(selection.index, selection.length, 'silent')
-          }
-        }
-      })
-    }
-
-    quill.on('text-change', handleTextChange)
-
     return () => {
-      quill.off('text-change', handleTextChange)
       quill.root.removeEventListener('mousedown', handleEditorMouseDown)
       quill.root.removeEventListener('click', handleClick)
     }
-  }, [focusEmptyEditorCaret, entryId, syncRepairedListContent])
-
-  useEffect(() => {
-    if (!quillRef.current) {
-      return
-    }
-
-    const quill = quillRef.current.getEditor()
-    requestAnimationFrame(() => {
-      if (mergeAdjacentOrderedListsInDom(quill.root)) {
-        syncRepairedListContent(quill)
-      }
-    })
-  }, [entryId, localContent, syncRepairedListContent])
+  }, [focusEmptyEditorCaret, handleDecorationClick, entryId])
 
   useEffect(() => {
     if (!sidebarOpen && quillRef.current) {
@@ -209,15 +333,18 @@ const CreateEntry = ({ entryType }) => {
       quill.setSelection(length, length)
     }
   }, [sidebarOpen])
-  console.log('<<<<<< toolbarVisible >>>>>>>>> is: <<<<<<<<<<<<')
-  console.log(toolbarVisible)
+
+  const activeSuggestionCandidate = suggestionMenu?.candidateId
+    ? shinyTextCandidateById.get(suggestionMenu.candidateId)
+    : null
+
   return (
     <div
       className={classNames(styles.wrapper, entryType === JOURNAL && styles.journalWrapper, {
         [styles.toolbarVisiblWrapper]: toolbarVisible,
       })}
     >
-      {entryType === NODE && (
+      {entryType === NODE_ENTRY_TYPE && (
         <TextButton
           className={styles.toolbarToggleButton}
           tooltip={'Toggle formatting toolbar'}
@@ -227,24 +354,34 @@ const CreateEntry = ({ entryType }) => {
         </TextButton>
       )}
       <div className={styles.editorContainer}>
-        {entryType === NODE ? <FormattedTextOverlay quillRef={quillRef} toolbarVisible={toolbarVisible} /> : null}
         <ReactQuill
+          key={entryId ?? 'new-entry'}
           className={`textArea ${
             entryType === JOURNAL
               ? 'noScroll visibleText toolbar-hidden'
               : toolbarVisible
-                ? 'toolbar-visible hiddenText'
-                : 'toolbar-hidden hiddenText'
+                ? 'toolbar-visible visibleText'
+                : 'toolbar-hidden visibleText'
           }`}
           modules={toolBarModules}
           placeholder={PLACEHOLDER_COPY[entryType]}
-          value={localContent}
+          defaultValue={loadedContent}
           onChange={handleContentChange}
           ref={quillRef}
           readOnly={entriesSaving}
         />
         {entriesSaving && !isModalOpen && <div className={styles.savingOverlay} />}
       </div>
+      {entryType === NODE_ENTRY_TYPE && (
+        <QuillDecorationSuggestionMenu
+          menuState={suggestionMenu}
+          candidate={activeSuggestionCandidate}
+          matchedText={suggestionMenu?.matchedText}
+          onDismiss={handleDismissShinySuggestion}
+          onCreateConnection={handleCreateConnectionFromSuggestion}
+          onClose={() => setSuggestionMenu(null)}
+        />
+      )}
     </div>
   )
 }
