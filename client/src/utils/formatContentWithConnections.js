@@ -292,6 +292,21 @@ export const formatContentWithConnections = (
     return className || undefined
   }
 
+  const getPreservedListItemProps = (node) => {
+    const props = {}
+    const className = getPreservedClassName(node)
+    if (className) {
+      props.className = className
+    }
+
+    const dataList = node.getAttribute?.('data-list')
+    if (dataList) {
+      props['data-list'] = dataList
+    }
+
+    return props
+  }
+
   const isBreakOnlyElement = (node) => {
     if (!node?.childNodes?.length) {
       return false
@@ -432,7 +447,7 @@ export const formatContentWithConnections = (
         case 'ol':
           return <ol key={`${paragraphIndex}-${Math.random()}`}>{children}</ol>
         case 'li': {
-          const className = getPreservedClassName(node)
+          const listItemProps = getPreservedListItemProps(node)
           if (
             node.childNodes?.length === 1 &&
             node.firstChild?.nodeType === Node.ELEMENT_NODE &&
@@ -440,20 +455,20 @@ export const formatContentWithConnections = (
             isBreakOnlyElement(node.firstChild)
           ) {
             return (
-              <li key={`${paragraphIndex}-${Math.random()}`} className={className}>
+              <li key={`${paragraphIndex}-${Math.random()}`} {...listItemProps}>
                 <br />
               </li>
             )
           }
           if (isBreakOnlyElement(node)) {
             return (
-              <li key={`${paragraphIndex}-${Math.random()}`} className={className}>
+              <li key={`${paragraphIndex}-${Math.random()}`} {...listItemProps}>
                 <br />
               </li>
             )
           }
           return (
-            <li key={`${paragraphIndex}-${Math.random()}`} className={className}>
+            <li key={`${paragraphIndex}-${Math.random()}`} {...listItemProps}>
               {children}
             </li>
           )
