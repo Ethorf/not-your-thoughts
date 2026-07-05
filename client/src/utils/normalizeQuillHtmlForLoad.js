@@ -1,4 +1,5 @@
 import { stripDecorationFromHtml } from '@utils/registerQuillTextDecorations'
+import { refreshOrderedListDisplay } from '@utils/quillListRepair'
 
 const isEmptyParagraph = (element) => {
   if (!element || element.tagName !== 'P') {
@@ -34,6 +35,8 @@ export const normalizeQuillHtmlForLoad = (html) => {
       child.remove()
     }
   })
+
+  refreshOrderedListDisplay(template)
 
   return template.innerHTML
 }

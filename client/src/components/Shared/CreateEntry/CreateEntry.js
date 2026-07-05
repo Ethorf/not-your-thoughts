@@ -29,6 +29,7 @@ import {
 } from '@utils/registerQuillTextDecorations'
 import { registerQuillClipboardMatchers } from '@utils/registerQuillClipboard'
 import { normalizeQuillHtmlForLoad } from '@utils/normalizeQuillHtmlForLoad'
+import { assignOrderedListNumbers, repairQuillListStructure } from '@utils/quillListRepair'
 import { clearShinyTextAnimationStarts } from '@utils/shinyTextAnimation'
 import {
   buildShinyTextCandidates,
@@ -213,6 +214,9 @@ const CreateEntry = ({ entryType }) => {
 
     if (needsSync) {
       quill.setContents(quill.clipboard.convert(normalizeQuillHtmlForLoad(content)), 'silent')
+      repairQuillListStructure(quill.root)
+      quill.scroll.update()
+      assignOrderedListNumbers(quill.root)
       lastSyncedRef.current = { entryId, content }
       decorationModule?.scheduleApply()
     }
@@ -315,11 +319,28 @@ const CreateEntry = ({ entryType }) => {
       }
     }
 
+    const handleTextChange = (_delta, _oldDelta, source) => {
+      if (source !== 'user') {
+        return
+      }
+
+      requestAnimationFrame(() => {
+        repairQuillListStructure(quill.root)
+        quill.scroll.update()
+        assignOrderedListNumbers(quill.root)
+        getTextDecorationModule(quill)?.scheduleApply()
+      })
+    }
+
+    quill.on('text-change', handleTextChange)
+
     registerQuillClipboardMatchers(quill)
+    assignOrderedListNumbers(quill.root)
 
     quill.root.addEventListener('mousedown', handleEditorMouseDown)
     quill.root.addEventListener('click', handleClick)
     return () => {
+      quill.off('text-change', handleTextChange)
       quill.root.removeEventListener('mousedown', handleEditorMouseDown)
       quill.root.removeEventListener('click', handleClick)
     }

@@ -304,6 +304,11 @@ export const formatContentWithConnections = (
       props['data-list'] = dataList
     }
 
+    const orderedListNumber = node.getAttribute?.('data-nyt-ol-num')
+    if (orderedListNumber) {
+      props['data-nyt-ol-num'] = orderedListNumber
+    }
+
     return props
   }
 
