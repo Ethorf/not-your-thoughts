@@ -38,6 +38,15 @@ export const isTopLevelContentParagraph = (node) => {
 
 const isListElement = (node) => node?.tagName === 'OL' || node?.tagName === 'UL'
 
+const isEmptyListItem = (node) => {
+  if (!node || node.tagName !== 'LI') {
+    return false
+  }
+
+  const text = node.textContent.replace(/\u200B/g, '').trim()
+  return text === ''
+}
+
 export const isBulletListItem = (listItem) => {
   const listType = listItem.getAttribute('data-list')
 
@@ -141,6 +150,10 @@ export const fixContinuedTopLevelOrderedItems = (root) => {
     const items = [...listElement.children].filter((child) => child.tagName === 'LI')
 
     items.forEach((listItem, index) => {
+      if (isEmptyListItem(listItem)) {
+        return
+      }
+
       if (!shouldNumberAsTopLevelOrdered(listItem, items, index, listElement)) {
         return
       }

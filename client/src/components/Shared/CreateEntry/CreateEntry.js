@@ -28,6 +28,7 @@ import {
   stripDecorationFromHtml,
 } from '@utils/registerQuillTextDecorations'
 import { registerQuillClipboardMatchers } from '@utils/registerQuillClipboard'
+import { registerQuillListIndentPreservation } from '@utils/registerQuillListIndentPreservation'
 import { normalizeQuillHtmlForLoad } from '@utils/normalizeQuillHtmlForLoad'
 import { assignOrderedListNumbers, repairQuillListStructure } from '@utils/quillListRepair'
 import { clearShinyTextAnimationStarts } from '@utils/shinyTextAnimation'
@@ -43,6 +44,7 @@ import styles from './CreateEntry.module.scss'
 import './CustomQuillStyles.scss'
 
 registerQuillTextDecorations()
+registerQuillListIndentPreservation()
 
 const { NODE: NODE_ENTRY_TYPE, JOURNAL } = ENTRY_TYPES
 const { DIRECT } = CONNECTION_SOURCE_TYPES
@@ -214,8 +216,12 @@ const CreateEntry = ({ entryType }) => {
 
     if (needsSync) {
       quill.setContents(quill.clipboard.convert(normalizeQuillHtmlForLoad(content)), 'silent')
-      repairQuillListStructure(quill.root)
-      quill.scroll.update()
+      const structuralChange = repairQuillListStructure(quill.root)
+
+      if (structuralChange) {
+        quill.scroll.update()
+      }
+
       assignOrderedListNumbers(quill.root)
       lastSyncedRef.current = { entryId, content }
       decorationModule?.scheduleApply()
@@ -325,8 +331,12 @@ const CreateEntry = ({ entryType }) => {
       }
 
       requestAnimationFrame(() => {
-        repairQuillListStructure(quill.root)
-        quill.scroll.update()
+        const structuralChange = repairQuillListStructure(quill.root)
+
+        if (structuralChange) {
+          quill.scroll.update()
+        }
+
         assignOrderedListNumbers(quill.root)
         getTextDecorationModule(quill)?.scheduleApply()
       })

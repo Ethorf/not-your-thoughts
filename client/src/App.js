@@ -54,19 +54,12 @@ const AppContent = () => {
   const publicRoutes = ['/show-node-entry', '/public-dashboard', '/view-network']
   const exploreSearch = location.pathname === '/explore' ? new URLSearchParams(location.search) : null
   const isPublicExploreNetwork =
-    Boolean(exploreSearch?.get('userId')) ||
-    (location.pathname === '/explore' && !isAuthenticated && !token)
-  const isPublicRoute =
-    publicRoutes.some((route) => location.pathname.startsWith(route)) || isPublicExploreNetwork
-
-  // Hide NavBarTop on mobile for homepage
-  const isHomepage = location.pathname === '/'
-  const shouldShowNavBarTop = !isPublicRoute && !(isMobile && isHomepage)
+    Boolean(exploreSearch?.get('userId')) || (location.pathname === '/explore' && !isAuthenticated && !token)
+  const isPublicRoute = publicRoutes.some((route) => location.pathname.startsWith(route)) || isPublicExploreNetwork
 
   return (
     <>
       <ModalsContainer />
-      {shouldShowNavBarTop && <NavBarTop />}
       <LeftMainNavigation />
       {user && <RightSidebar />}
       <Switch location={location}>
