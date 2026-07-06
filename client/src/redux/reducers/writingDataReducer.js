@@ -34,7 +34,7 @@ export const createWritingData = createAsyncThunk(
         entry_id: entryId,
         entry_type: entryType,
         duration: timeElapsed,
-        word_count: wordsAdded,
+        word_count: Math.max(0, wordsAdded),
       })
 
       console.log('writing data created')
@@ -68,7 +68,7 @@ const writingDataSlice = createSlice({
       state.timeElapsed = action.payload
     },
     setWordsAdded: (state, action) => {
-      state.wordsAdded = action.payload
+      state.wordsAdded = Math.max(0, action.payload)
     },
     resetWritingDataState: () => initialState,
   },

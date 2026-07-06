@@ -13,6 +13,9 @@ router.post('/create_writing_data', authorize, async (req, res) => {
       return res.status(400).json({ msg: 'Duration, word count, entry ID, and entry type are required' })
     }
 
+    const safeWordCount = Math.max(0, Number(word_count) || 0)
+    const safeDuration = Math.max(0, Number(duration) || 0)
+
     await pool.query('BEGIN')
 
     // Insert the new writing data into the writing_data table
@@ -21,7 +24,13 @@ router.post('/create_writing_data', authorize, async (req, res) => {
         VALUES ($1, $2, $3, $4, $5)
         RETURNING id
       `
-    const newWritingData = await pool.query(newWritingDataQuery, [duration, word_count, entry_id, user_id, entry_type])
+    const newWritingData = await pool.query(newWritingDataQuery, [
+      safeDuration,
+      safeWordCount,
+      entry_id,
+      user_id,
+      entry_type,
+    ])
     const newWritingDataId = newWritingData.rows[0].id
 
     // Retrieve the current writing_data array for the given entry_id

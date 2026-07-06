@@ -52,6 +52,17 @@
   padding-top: 0.5rem;
 }
 
+.fillHeight {
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+
+  .editorContainer {
+    flex: 1;
+    min-height: 0;
+  }
+}
+
 @include mobile-all {
   .wrapper {
     width: 100%;

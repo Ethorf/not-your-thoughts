@@ -181,7 +181,7 @@ const EditNodeEntry = () => {
         {!connectionsLoading ? (
           <div className={styles.connectionLinesWrapper}>
             {!isMobile && <ConnectionLines entryId={entryId} />}
-            <CreateEntry entryType={ENTRY_TYPES.NODE} />
+            <CreateEntry entryType={ENTRY_TYPES.NODE} fillHeight />
           </div>
         ) : null}
         <div className={styles.grid3Columns}>

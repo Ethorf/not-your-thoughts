@@ -126,7 +126,11 @@ const LeftMainNavigation = () => {
             Dashboard
           </NavLink>
         ) : null}
-        <TextButton navLink className={styles.navTextButton} onClick={() => history.push('/public-dashboard?userId=ethorf')}>
+        <TextButton
+          navLink
+          className={styles.navTextButton}
+          onClick={() => history.push('/public-dashboard?userId=ethorf')}
+        >
           {user ? 'Public View' : 'Browse'}
         </TextButton>
         {!guestMode && user && (
@@ -155,14 +159,14 @@ const LeftMainNavigation = () => {
         >
           Resources
         </NavLink>
-        {!guestMode && user && (
+        {user && (
           <NavLink
             exact
-            to="/modes"
+            to="/profile"
             activeClassName={styles.active}
             className={mode === '-.light' ? styles.linkLight : styles.link}
           >
-            Modes
+            Profile
           </NavLink>
         )}
         <NavLink

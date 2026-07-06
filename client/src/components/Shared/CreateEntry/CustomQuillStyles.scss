@@ -68,6 +68,24 @@
   overflow: hidden;
 }
 
+.create-entry-fill {
+  .textArea,
+  .ql-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+  }
+
+  .ql-editor {
+    max-height: none;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
 .toolbar-hidden {
   .ql-toolbar {
     transition: all 500ms;

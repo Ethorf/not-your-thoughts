@@ -87,7 +87,8 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   width: 100%;
-  min-height: 4.5rem;
+  min-height: auto;
+  flex-shrink: 0;
 }
 
 // Connection lines wrapper
@@ -95,7 +96,8 @@
   position: relative;
   width: 100%;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: stretch;
   flex: 1;
   min-height: 0;

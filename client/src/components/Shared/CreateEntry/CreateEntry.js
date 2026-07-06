@@ -52,7 +52,7 @@ const {
   FRONTEND: { PARENT },
 } = CONNECTION_TYPES
 
-const CreateEntry = ({ entryType }) => {
+const CreateEntry = ({ entryType, fillHeight = false }) => {
   const dispatch = useDispatch()
   const history = useHistory()
   const quillRef = useRef(null)
@@ -374,6 +374,8 @@ const CreateEntry = ({ entryType }) => {
     <div
       className={classNames(styles.wrapper, entryType === JOURNAL && styles.journalWrapper, {
         [styles.toolbarVisiblWrapper]: toolbarVisible,
+        [styles.fillHeight]: fillHeight,
+        'create-entry-fill': fillHeight,
       })}
     >
       {entryType === NODE_ENTRY_TYPE && (
