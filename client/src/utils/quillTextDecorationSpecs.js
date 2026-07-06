@@ -24,6 +24,14 @@ const addTerm = (termMap, text, spec) => {
   termMap.set(key, spec)
 }
 
+const isCurrentEntryTitle = (text, currentTitleLower) => {
+  if (!text || !currentTitleLower) {
+    return false
+  }
+
+  return text.toLowerCase() === currentTitleLower
+}
+
 /**
  * Builds prioritized decoration metadata for scanning Quill plain text.
  */
@@ -33,8 +41,11 @@ export const buildDecorationMatchSpecs = ({
   nodeEntriesInfo = [],
   allTitles = [],
   shinyCandidateMap = null,
+  currentTitle = '',
 }) => {
   const termMap = new Map()
+  const currentTitleLower = currentTitle?.trim().toLowerCase() ?? ''
+  const currentEntryId = Number(entryId)
 
   connections.forEach((connection) => {
     const {
@@ -44,20 +55,22 @@ export const buildDecorationMatchSpecs = ({
     } = connection
 
     if (connectionType === EXTERNAL && primarySource && foreignSource) {
-      addTerm(termMap, primarySource, {
-        deco: 'connection-external',
-        href: foreignSource,
-      })
+      if (!isCurrentEntryTitle(primarySource, currentTitleLower)) {
+        addTerm(termMap, primarySource, {
+          deco: 'connection-external',
+          href: foreignSource,
+        })
+      }
       return
     }
 
     const connectedNodeId = resolveConnectedNodeId(connection, entryId)
-    if (!connectedNodeId) {
+    if (!connectedNodeId || Number(connectedNodeId) === currentEntryId) {
       return
     }
 
     const connectedTitle = resolveConnectedNodeTitle(connection, entryId, nodeEntriesInfo)
-    if (connectedTitle) {
+    if (connectedTitle && !isCurrentEntryTitle(connectedTitle, currentTitleLower)) {
       addTerm(termMap, connectedTitle, {
         deco: 'connection-internal',
         nodeId: String(connectedNodeId),
@@ -65,7 +78,11 @@ export const buildDecorationMatchSpecs = ({
       })
     }
 
-    if (primarySource && (!connectedTitle || primarySource.toLowerCase() !== connectedTitle.toLowerCase())) {
+    if (
+      primarySource &&
+      !isCurrentEntryTitle(primarySource, currentTitleLower) &&
+      (!connectedTitle || primarySource.toLowerCase() !== connectedTitle.toLowerCase())
+    ) {
       addTerm(termMap, primarySource, {
         deco: 'connection-internal',
         nodeId: String(connectedNodeId),
@@ -75,7 +92,7 @@ export const buildDecorationMatchSpecs = ({
   })
 
   allTitles.forEach((titleLower) => {
-    if (termMap.has(titleLower)) {
+    if (isCurrentEntryTitle(titleLower, currentTitleLower) || termMap.has(titleLower)) {
       return
     }
 
@@ -94,7 +111,7 @@ export const buildDecorationMatchSpecs = ({
     }
 
     const nodeId = findIdByNodeTitle(nodeEntriesInfo, titleLower)
-    if (!nodeId) {
+    if (!nodeId || Number(nodeId) === currentEntryId) {
       return
     }
 

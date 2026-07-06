@@ -47,15 +47,7 @@ if (localStorage.token) {
 
 const AppContent = () => {
   const location = useLocation()
-  const { user, isAuthenticated, token } = useSelector((state) => state.auth)
-  const isMobile = useIsMobile()
-
-  // Hide NavBarTop for public routes (shared explore network uses ?userId=)
-  const publicRoutes = ['/show-node-entry', '/public-dashboard', '/view-network']
-  const exploreSearch = location.pathname === '/explore' ? new URLSearchParams(location.search) : null
-  const isPublicExploreNetwork =
-    Boolean(exploreSearch?.get('userId')) || (location.pathname === '/explore' && !isAuthenticated && !token)
-  const isPublicRoute = publicRoutes.some((route) => location.pathname.startsWith(route)) || isPublicExploreNetwork
+  const { user } = useSelector((state) => state.auth)
 
   return (
     <>

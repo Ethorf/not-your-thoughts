@@ -239,12 +239,13 @@ const CreateEntry = ({ entryType }) => {
     decorationModule?.setContext({
       enabled: true,
       entryId,
+      currentTitle,
       connections,
       nodeEntriesInfo,
       allTitles,
       shinyCandidateMap: shinyTextCandidateMap,
     })
-  }, [entryType, entryId, connections, nodeEntriesInfo, allTitles, shinyTextCandidateMap])
+  }, [entryType, entryId, currentTitle, connections, nodeEntriesInfo, allTitles, shinyTextCandidateMap])
 
   const focusEmptyEditorCaret = useCallback(() => {
     if (!quillRef.current) return
