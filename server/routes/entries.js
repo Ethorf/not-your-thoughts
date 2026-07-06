@@ -237,20 +237,19 @@ router.post('/save_journal_entry', authorize, async (req, res) => {
     }
 
     // Insert or update entry_contents row
-    if (entryId) {
-      // If entryId is provided, update existing entry_contents
-      await pool.query('UPDATE entry_contents SET content = $1 WHERE entry_id = $2', [content, entryId])
-      content_id = entryId
+    const existingContent = await pool.query('SELECT id FROM entry_contents WHERE entry_id = $1 LIMIT 1', [entry_id])
+
+    if (existingContent.rows.length > 0) {
+      await pool.query('UPDATE entry_contents SET content = $1 WHERE entry_id = $2', [content, entry_id])
+      content_id = existingContent.rows[0].id
     } else {
-      // Insert new entry_contents row
       const newContent = await pool.query(
         'INSERT INTO entry_contents (content, entry_id) VALUES ($1, $2) RETURNING id',
         [content, entry_id]
       )
       content_id = newContent.rows[0].id
 
-      // Update the content_ids array on the entries table row
-      await pool.query('UPDATE entries SET content_ids = array_append(content_ids, $1) WHERE id = $2', [
+      await pool.query('UPDATE entries SET content_ids = array_append(COALESCE(content_ids, ARRAY[]::int[]), $1) WHERE id = $2', [
         content_id,
         entry_id,
       ])
