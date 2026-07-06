@@ -31,6 +31,7 @@ import DefaultInput from '@components/Shared/DefaultInput/DefaultInput'
 import WritingDataManager from '@components/Shared/WritingDataManager/WritingDataManager'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import ConnectionLines from '@components/Shared/ConnectionLines/ConnectionLines'
+import NodeGoalProgressPanel from '@components/NodeGoalProgressPanel/NodeGoalProgressPanel'
 import useIsMobile from '@hooks/useIsMobile'
 
 import styles from './EditNodeEntry.module.scss'
@@ -124,6 +125,7 @@ const EditNodeEntry = () => {
   return (
     <div className={styles.wrapper}>
       <WritingDataManager entryType={ENTRY_TYPES.NODE} handleAutosave={() => handleSaveNode(SAVE_TYPES.AUTO)} />
+      {!isMobile && <NodeGoalProgressPanel />}
       <div className={styles.editContainer}>
         <div className={classNames(styles.topContainer, styles.grid3Columns)}>
           <>

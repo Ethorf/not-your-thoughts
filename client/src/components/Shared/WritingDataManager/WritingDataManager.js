@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { createWritingData, setTimeElapsed, setWordsAdded } from '@redux/reducers/writingDataReducer'
+import { createWritingData, setTimeElapsed, setWordsAdded, setSessionActive } from '@redux/reducers/writingDataReducer'
 
 const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) => {
   const dispatch = useDispatch()
@@ -45,6 +45,7 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
       const startingCount = wordCountRef.current
       setActiveWordCount(startingCount)
       sessionPeakWordCountRef.current = startingCount
+      dispatch(setSessionActive(true))
       intervalRef.current = setInterval(() => {
         const t = timeElapsedRef.current + 1
         timeElapsedRef.current = t
@@ -67,6 +68,8 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
         timeElapsedRef.current = 0
         sessionPeakWordCountRef.current = 0
         setActiveWordCount(null)
+        dispatch(setWordsAdded(0))
+        dispatch(setSessionActive(false))
       }
       if (autosave) {
         setShouldAutosave(true)

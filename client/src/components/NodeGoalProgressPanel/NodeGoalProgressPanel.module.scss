@@ -1,0 +1,154 @@
+@import '@styles/variables.scss';
+@import '@styles/mixins.scss';
+@import '@styles/base.scss';
+
+.wrapper {
+  transition: 1s all;
+  position: fixed;
+  right: -9.5rem;
+  bottom: 28%;
+  z-index: $text-entry-z-index;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  width: 13rem;
+  font-family: 'Poppins', sans-serif;
+  pointer-events: none;
+
+  &.panelOpen {
+    right: 0;
+    pointer-events: auto;
+  }
+}
+
+.arrowContainer {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  pointer-events: auto;
+  padding: 0;
+  margin-bottom: 0.25rem;
+}
+
+.arrow {
+  color: silver;
+  border: none;
+  background-color: transparent;
+  opacity: 1;
+  outline: none;
+  height: 1.875rem;
+  width: 1.875rem;
+  transition: all 1.5s;
+  transform: rotate(-180deg);
+  position: absolute;
+  left: 10px;
+  top: -26px;
+
+  &:focus {
+    border: none;
+    outline: none;
+  }
+
+  &:hover {
+    content: url('../../assets/Icons/down-arrow-white-2.png');
+    transition: all 0.5s;
+    cursor: pointer;
+  }
+}
+
+.arrowCollapsed {
+  transform: rotate(-180deg);
+}
+
+.arrowExpanded {
+  transform: rotate(0deg);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: $silver-border-default;
+  border-radius: $default-border-radius;
+  background: transparent;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: all 1s ease-in-out;
+
+  &.panelOpen {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    background: rgba(0, 0, 0, 0.92);
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.45);
+  }
+}
+
+.title {
+  margin: 0 0 0.75rem;
+  font-family: 'Syncopate', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: white;
+}
+
+.meter {
+  & + & {
+    margin-top: 0.875rem;
+  }
+}
+
+.meterHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.375rem;
+}
+
+.meterLabel {
+  font-size: 0.7rem;
+  color: $silver-default;
+  text-transform: uppercase;
+}
+
+.meterValue {
+  font-size: 0.65rem;
+  color: $silver-active;
+  white-space: nowrap;
+}
+
+.track {
+  height: 0.375rem;
+  border-radius: 999px;
+  background: rgba(192, 192, 192, 0.15);
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(192, 192, 192, 0.55), rgba(255, 255, 255, 0.85));
+  transition: width 300ms ease;
+
+  &[data-complete='true'] {
+    background: linear-gradient(90deg, rgba(160, 220, 160, 0.7), rgba(200, 255, 200, 0.95));
+  }
+}
+
+.percent {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.6rem;
+  color: $silver-faded;
+  text-align: right;
+}
+
+@include mobile-all {
+  .wrapper {
+    display: none;
+  }
+}

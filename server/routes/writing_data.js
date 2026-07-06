@@ -105,32 +105,34 @@ router.get('/all_writing_data', authorize, async (req, res) => {
     // Iterate over each writing data entry to calculate totals
     writingData?.forEach((entry) => {
       const entryDate = new Date(entry.date).toISOString().split('T')[0]
+      const duration = Math.max(0, Number(entry.duration) || 0)
+      const wordCount = Math.max(0, Number(entry.word_count) || 0)
 
-      allEntriesTotalWritingTime += entry.duration
-      allEntriesTotalWordCount += entry.word_count
+      allEntriesTotalWritingTime += duration
+      allEntriesTotalWordCount += wordCount
 
       if (entryDate === today) {
-        allEntriesWritingTimeToday += entry.duration
-        allEntriesWordCountToday += entry.word_count
+        allEntriesWritingTimeToday += duration
+        allEntriesWordCountToday += wordCount
       }
 
       if (entry.entry_type === 'node') {
-        nodesTotalWritingTime += entry.duration
-        nodesTotalWordCount += entry.word_count
+        nodesTotalWritingTime += duration
+        nodesTotalWordCount += wordCount
 
         if (entryDate === today) {
-          nodesWritingTimeToday += entry.duration
-          nodesWordCountToday += entry.word_count
+          nodesWritingTimeToday += duration
+          nodesWordCountToday += wordCount
         }
       }
 
       if (entry.entry_type === 'journal') {
-        journalsTotalWritingTime += entry.duration
-        journalsTotalWordCount += entry.word_count
+        journalsTotalWritingTime += duration
+        journalsTotalWordCount += wordCount
 
         if (entryDate === today) {
-          journalWritingTimeToday += entry.duration
-          journalWordCountToday += entry.word_count
+          journalWritingTimeToday += duration
+          journalWordCountToday += wordCount
         }
       }
     })
