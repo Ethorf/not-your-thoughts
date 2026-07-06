@@ -105,3 +105,53 @@
   cursor: pointer;
   font-size: 0.8rem;
 }
+
+@include mobile-all {
+  .wrapper {
+    right: 0;
+    width: auto;
+    pointer-events: none;
+
+    &.sidebarOpen {
+      right: 0;
+      pointer-events: auto;
+    }
+  }
+
+  .arrowContainer {
+    position: fixed;
+    right: 0.5rem;
+    top: 1.25rem;
+    z-index: 11;
+    margin-top: 0;
+    pointer-events: auto;
+  }
+
+  .arrow {
+    position: static;
+    right: auto;
+    transform: rotate(180deg);
+
+    &.arrowRotate {
+      transform: rotate(0deg);
+    }
+  }
+
+  .sidebarContainer {
+    position: fixed;
+    right: 0;
+    left: auto;
+    top: 3.75rem;
+    width: 90vw;
+    max-width: 90vw;
+    box-sizing: border-box;
+    transform: translateX(105%);
+    transition: transform 1s ease-in-out, opacity 1s ease-in-out, visibility 1s ease-in-out;
+
+    &.sidebarOpen {
+      transform: translateX(0);
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+}

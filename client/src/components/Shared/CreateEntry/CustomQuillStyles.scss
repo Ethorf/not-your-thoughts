@@ -1,5 +1,6 @@
 @import '@styles/variables.scss';
 @import '@styles/listMarkerStyles.scss';
+@import '@styles/mixins.scss';
 
 .ql-editor {
   font-family: $main-text;
@@ -227,5 +228,24 @@
   }
   100% {
     background-position: -100%;
+  }
+}
+
+@include mobile-all {
+  .visibleText .ql-editor {
+    > p {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+
+    ul,
+    ol {
+      padding-left: 0.75rem !important;
+    }
+
+    ul > li,
+    ol > li {
+      padding-right: 0.75rem !important;
+    }
   }
 }

@@ -42,7 +42,7 @@ export const NodesDashboardList = () => {
             className={styles.searchComponent}
           />
         </div>
-        <label>
+        <label className={styles.sortLabel}>
           Sort:
           <select className={styles.sortControls} value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
             <option value="default">Default</option>

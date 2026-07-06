@@ -12,14 +12,26 @@ const sidebarSlice = createSlice({
     toggleSidebar(state) {
       state.sidebarOpen = !state.sidebarOpen
     },
+    openSidebar(state) {
+      state.sidebarOpen = true
+    },
+    closeSidebar(state) {
+      state.sidebarOpen = false
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(openModal, (state) => {
       state.sidebarOpen = false
     })
+    builder.addMatcher(
+      (action) => action.type === 'leftSidebar/openLeftSidebar',
+      (state) => {
+        state.sidebarOpen = false
+      }
+    )
   },
 })
 
-export const { toggleSidebar } = sidebarSlice.actions
+export const { toggleSidebar, openSidebar, closeSidebar } = sidebarSlice.actions
 
 export default sidebarSlice.reducer

@@ -40,17 +40,19 @@ export const DashboardNodeEntry = ({ node = {} }) => {
     <li className={styles.wrapper} key={id}>
       <StarButton id={id} initialStarred={starred} />
       {!pending ? (
-        <div data-tooltip-id="main-tooltip" data-tooltip-content="date modified" className={styles.date}>
+        <div data-tooltip-id="main-tooltip" data-tooltip-content="date modified" className={styles.dateColumn}>
           {parseDate(date_last_modified)}
         </div>
       ) : (
-        <div>Not yet...</div>
+        <div className={styles.dateColumn}>Not yet...</div>
       )}
-      <EditNodeLink node={{ id, title }} />
+      <div className={styles.titleCell}>
+        <EditNodeLink node={{ id, title }} />
+      </div>
       {pending ? (
-        <div className={classNames(styles.pending, styles.flexEnd)}>{pending}</div>
+        <div className={classNames(styles.pending, styles.pendingColumn)}>{pending}</div>
       ) : (
-        <span className={styles.flexEnd} />
+        <span className={styles.pendingColumn} />
       )}
       <DefaultButton
         className={styles.exploreButton}
