@@ -145,14 +145,6 @@ const LeftMainNavigation = () => {
             <TextButton navLink className={styles.navTextButton} onClick={handleNewNodeEntryClick}>
               New Node
             </TextButton>
-            <NavLink
-              exact
-              to="/entries"
-              activeClassName={styles.active}
-              className={mode === '-.light' ? styles.linkLight : styles.link}
-            >
-              Entries
-            </NavLink>
           </>
         )}
         <NavLink

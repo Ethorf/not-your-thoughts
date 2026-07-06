@@ -39,11 +39,18 @@
   }
 }
 
+.entryTypeToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .actionsContainer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 70%;
+  gap: 1rem;
 }
 
 @include mobile-all {
@@ -72,6 +79,11 @@
       text-align: center;
       font-size: 0.9rem;
     }
+  }
+
+  .entryTypeToggle {
+    justify-content: center;
+    width: 100%;
   }
 
   .globalViewButton {

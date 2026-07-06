@@ -1,15 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import classNames from 'classnames'
 
 import { showToast } from '@utils/toast'
 import { normalizeEntryId } from '@utils/normalizeEntryId'
-import {
-  resetCurrentEntryState,
-  createNodeEntry,
-  createJournalEntry,
-} from '@redux/reducers/currentEntryReducer'
+import { resetCurrentEntryState, createNodeEntry, createJournalEntry } from '@redux/reducers/currentEntryReducer'
+import { ENTRY_TYPES } from '@constants/entryTypes'
 
 // Styles
 import styles from './Dashboard.module.scss'
@@ -18,10 +15,14 @@ import sharedStyles from '@styles/sharedClassnames.module.scss'
 // Components
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import { NodesDashboardList } from '@components/Shared/NodesDashboardList/NodesDashboardList'
+import { JournalsDashboardList } from '@components/Shared/JournalsDashboardList/JournalsDashboardList'
+
+const { NODE, JOURNAL } = ENTRY_TYPES
 
 const Dashboard = () => {
   const history = useHistory()
   const dispatch = useDispatch()
+  const [activeEntryType, setActiveEntryType] = useState(NODE)
 
   const handleNewNodeEntryClick = async () => {
     dispatch(resetCurrentEntryState())
@@ -63,20 +64,30 @@ const Dashboard = () => {
     <div className={classNames(styles.wrapper, sharedStyles.flexColumnCenter)}>
       <h1>Dashboard</h1>
       <div className={styles.actionsContainer}>
-        <DefaultButton
-          className={styles.globalViewButton}
-          onClick={() => history.push('/explore?view=global')}
-          tooltip="View global mind map"
-        >
-          Global View
-        </DefaultButton>
+        <div className={styles.entryTypeToggle}>
+          <DefaultButton isSelected={activeEntryType === NODE} onClick={() => setActiveEntryType(NODE)}>
+            Nodes
+          </DefaultButton>
+          <DefaultButton isSelected={activeEntryType === JOURNAL} onClick={() => setActiveEntryType(JOURNAL)}>
+            Journals
+          </DefaultButton>
+        </div>
+        {activeEntryType === NODE && (
+          <DefaultButton
+            className={styles.globalViewButton}
+            onClick={() => history.push('/explore?view=global')}
+            tooltip="View global mind map"
+          >
+            Global View
+          </DefaultButton>
+        )}
         <div className={classNames(styles.newEntry)}>
           <h2>New Entry:</h2>
           <DefaultButton onClick={handleNewNodeEntryClick}>Node</DefaultButton>
           <DefaultButton onClick={handleNewJournalEntryClick}>Journal</DefaultButton>
         </div>
       </div>
-      <NodesDashboardList />
+      {activeEntryType === NODE ? <NodesDashboardList /> : <JournalsDashboardList />}
     </div>
   )
 }
