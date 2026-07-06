@@ -7,7 +7,8 @@ import { SidebarNodesList } from '@components/SidebarNodesList/SidebarNodesList'
 import SidebarNodeSelector from '@components/SidebarNodeSelector/SidebarNodeSelector.js'
 
 // Redux
-import { toggleSidebar } from '@redux/reducers/sidebarReducer'
+import { toggleSidebar, openSidebar, closeSidebar } from '@redux/reducers/sidebarReducer'
+import useIsMobile from '@hooks/useIsMobile'
 
 // Styles
 import arrow from '../../assets/Icons/down-arrow-black-2.png'
@@ -16,11 +17,21 @@ import styles from './RightSidebar.module.scss'
 const RightSidebar = () => {
   const dispatch = useDispatch()
   const { sidebarOpen } = useSelector((state) => state.sidebar)
+  const isMobile = useIsMobile()
   const [sortBy, setSortBy] = useState('recent')
 
   const handleToggleSidebar = useCallback(() => {
+    if (isMobile) {
+      if (sidebarOpen) {
+        dispatch(closeSidebar())
+      } else {
+        dispatch(openSidebar())
+      }
+      return
+    }
+
     dispatch(toggleSidebar())
-  }, [dispatch])
+  }, [dispatch, isMobile, sidebarOpen])
 
   useEffect(() => {
     const handleToggleSidebarShortcut = (event) => {

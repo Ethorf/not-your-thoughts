@@ -7,8 +7,9 @@
   font-weight: 200;
   color: silver;
   z-index: $text-entry-z-index + 1;
+  padding-top: 1rem;
   pointer-events: none;
-  transition: all 1s;
+  transition: color 1s, top 0s;
   width: 100%;
   left: 0;
   right: 0;
@@ -19,11 +20,13 @@
   line-height: $main-text-line-height;
   padding-bottom: 0 !important;
   padding-left: 0 !important; // for scrollbar padding-right
-  padding-top: 0 !important;
+  // padding-top: 0 !important;
+  padding-top: 1rem;
+
   margin: 0;
   box-sizing: $main-text-box-sizing;
 
-  p {
+  > p {
     font-weight: 200;
     font-size: $main-text-font-size;
     line-height: $main-text-line-height;
@@ -34,13 +37,26 @@
     box-sizing: $main-text-box-sizing;
     margin-top: 0;
     margin: 0;
-    transition: all 1s;
+    transition: color 1s;
     word-wrap: break-word;
     overflow-wrap: break-word;
     cursor: default; // Default cursor for text
   }
 
+  @for $i from 1 through 9 {
+    > p:global(.ql-indent-#{$i}) {
+      padding-left: 3em * $i;
+    }
+  }
+
+  li > p {
+    display: inline;
+    padding: 0;
+    margin: 0;
+  }
+
   @include local-editor-list-markers;
+  @include quill-block-indents;
 
   ul > li,
   ol > li {
@@ -49,7 +65,6 @@
     line-height: $main-text-line-height;
     box-sizing: $main-text-box-sizing;
     margin: 0;
-    transition: all 1s;
     cursor: default;
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -63,26 +78,6 @@
   ol li,
   ul li {
     font-size: $main-text-font-size;
-  }
-
-  p:empty,
-  p > br:only-child,
-  li:empty {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    height: 0;
-  }
-
-  /* Collapse empty blocks with only line breaks */
-  p:has(> br:only-child),
-  li:has(> br:only-child),
-  li > p:has(> br:only-child) {
-    margin-block: 0 !important;
-    padding-block: 0 !important;
-    line-height: 0 !important;
-    min-height: 0 !important;
   }
 }
 

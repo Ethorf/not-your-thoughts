@@ -31,6 +31,7 @@ import DefaultInput from '@components/Shared/DefaultInput/DefaultInput'
 import WritingDataManager from '@components/Shared/WritingDataManager/WritingDataManager'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import ConnectionLines from '@components/Shared/ConnectionLines/ConnectionLines'
+import useIsMobile from '@hooks/useIsMobile'
 
 import styles from './EditNodeEntry.module.scss'
 import sharedStyles from '@styles/sharedClassnames.module.scss'
@@ -45,6 +46,7 @@ const EditNodeEntry = () => {
     (state) => state.currentEntry
   )
   const { user, isAuthenticated } = useSelector((state) => state.auth)
+  const isMobile = useIsMobile()
   const params = useMemo(() => new URLSearchParams(location.search), [location.search])
 
   useEffect(() => {
@@ -178,7 +180,7 @@ const EditNodeEntry = () => {
         </div>
         {!connectionsLoading ? (
           <div className={styles.connectionLinesWrapper}>
-            <ConnectionLines entryId={entryId} />
+            {!isMobile && <ConnectionLines entryId={entryId} />}
             <CreateEntry entryType={ENTRY_TYPES.NODE} />
           </div>
         ) : null}

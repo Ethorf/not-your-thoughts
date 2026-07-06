@@ -11,14 +11,32 @@ import { EntriesSortDropdown } from '../Shared/EntriesSortDropdown/EntriesSortDr
 
 import styles from './JournalEntriesList.module.scss'
 
+const getLatestContentHtml = (content) => {
+  if (typeof content === 'string') return content
+  if (Array.isArray(content) && typeof content[0] === 'string') return content[0]
+  return ''
+}
+
+const hasMeaningfulJournalContent = (journalEntry) => {
+  const latestContent = getLatestContentHtml(journalEntry?.content)
+  const textOnlyContent = latestContent
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .trim()
+
+  return textOnlyContent.length > 0
+}
+
 const JournalEntriesList = () => {
   const dispatch = useDispatch()
 
   const {
     journalEntriesLoading,
-    entries: { entries: allJournalEntries },
+    entries,
   } = useSelector((state) => state.journalEntries)
   const [sortedEntries, setSortedEntries] = useState([])
+  const allJournalEntries = entries?.entries || []
+  const savedJournalEntries = allJournalEntries.filter(hasMeaningfulJournalContent)
 
   const JOURNAL_SORT_OPTIONS = [
     'Most Words',
@@ -43,13 +61,13 @@ const JournalEntriesList = () => {
           <SmallSpinner />
           Loading Journals...
         </div>
-      ) : allJournalEntries.length ? (
+      ) : savedJournalEntries.length ? (
         <>
           <div className={styles.searchSortContainer}>
             <div>
               Sort By:
               <EntriesSortDropdown
-                entries={allJournalEntries}
+                entries={savedJournalEntries}
                 sortOptions={JOURNAL_SORT_OPTIONS}
                 setSortedEntries={setSortedEntries}
               />

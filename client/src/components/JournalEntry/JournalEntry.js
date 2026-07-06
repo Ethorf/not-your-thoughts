@@ -17,10 +17,20 @@ import { MODAL_NAMES } from '@constants/modalNames.js'
 
 import styles from './JournalEntry.module.scss'
 
+const getLatestContentHtml = (content) => {
+  if (!content) return ''
+  if (typeof content === 'string') return content
+  if (Array.isArray(content) && content.length > 0 && content[0] != null) {
+    return typeof content[0] === 'string' ? content[0] : ''
+  }
+  return ''
+}
+
 export const JournalEntry = ({ journal: { id, date_created, num_of_words, content, total_time_taken, wpm } }) => {
   const [localLoading, setLocalLoading] = useState(false)
 
   const dispatch = useDispatch()
+  const latestContent = getLatestContentHtml(content)
 
   const handleOpenContentModal = async () => {
     setLocalLoading(true)
@@ -49,10 +59,10 @@ export const JournalEntry = ({ journal: { id, date_created, num_of_words, conten
               Content:
               <span />
             </span>
-            {content.length ? (
-              <div dangerouslySetInnerHTML={{ __html: content[0].slice(0, 5) }} />
+            {latestContent ? (
+              <div dangerouslySetInnerHTML={{ __html: latestContent.slice(0, 5) }} />
             ) : (
-              <span>Invalid Content</span>
+              <span>No content yet...</span>
             )}
             <span>...</span>
           </>

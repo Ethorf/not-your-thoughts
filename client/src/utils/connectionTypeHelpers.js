@@ -36,3 +36,23 @@ export const transformBackendToFrontendConnectionType = (backendType, mainNodeId
   // Default fallback
   return null
 }
+
+const CONNECTION_DISPLAY_ORDER = {
+  [PARENT]: 0,
+  [SIBLING]: 1,
+  [CHILD]: 2,
+  [EXTERNAL]: 3,
+}
+
+/**
+ * Sort connections for display: parent → sibling → child → external.
+ * @param {Array} connections
+ * @returns {Array}
+ */
+export const sortConnectionsByDisplayOrder = (connections = []) => {
+  return [...connections].sort((a, b) => {
+    const orderA = CONNECTION_DISPLAY_ORDER[a?.connection_type] ?? 99
+    const orderB = CONNECTION_DISPLAY_ORDER[b?.connection_type] ?? 99
+    return orderA - orderB
+  })
+}

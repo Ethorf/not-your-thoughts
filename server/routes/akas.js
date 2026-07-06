@@ -2,6 +2,32 @@ const express = require('express')
 const router = express.Router()
 const pool = require('../config/neonDb')
 const authorize = require('../middleware/authorize')
+const { buildAkaSuggestionsFromTitle } = require('../utils/akaSuggestions')
+
+// Route to fetch synonym-based AKA suggestions for a node's title
+router.get('/:entryId/suggestions', authorize, async (req, res) => {
+  const { entryId } = req.params
+  const userId = req.user.id
+
+  try {
+    const entryResult = await pool.query('SELECT title FROM entries WHERE id = $1 AND user_id = $2', [entryId, userId])
+
+    if (!entryResult.rows.length) {
+      return res.status(404).json({ msg: 'Entry not found' })
+    }
+
+    const { title } = entryResult.rows[0]
+    const akaResult = await pool.query('SELECT aka_value FROM title_akas WHERE entry_id = $1', [entryId])
+    const existingAkas = akaResult.rows.map((row) => row.aka_value)
+
+    const suggestions = await buildAkaSuggestionsFromTitle({ title, existingAkas })
+
+    res.json({ suggestions, title })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send('Server error')
+  }
+})
 
 // Route to add aka values to an entry
 router.post('/:entryId/add_aka', authorize, async (req, res) => {

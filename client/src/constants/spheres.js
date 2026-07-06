@@ -93,6 +93,10 @@ export const DEFAULT_SPHERE_SIZES = LOCAL_SPHERE_SIZES
 
 // Local Explore view tuning constants
 export const LOCAL_EXPLORE_CONNECTION_DISTANCE_SCALE = 1.08
+/** Multiplier for external connection sphere distance from main node (local explore) */
+export const LOCAL_EXPLORE_EXTERNAL_DISTANCE_FACTOR = 2.75
+/** Extra radial push for external spheres after viewport fit (local explore) */
+export const LOCAL_EXPLORE_EXTERNAL_RADIAL_SPREAD = 0.9
 /** Extra radial distance (world units) pushed outward for all first-order siblings after layout fit */
 export const LOCAL_EXPLORE_SIBLING_RADIAL_SPREAD = 1.2
 /** Distance (world units) from first-order parent to second-order nodes in local explore */
@@ -105,6 +109,8 @@ export const LOCAL_EXPLORE_SUB_CONNECTION_SIZE_SCALE = 0.7
 export const LOCAL_EXPLORE_SUB_LAYOUT_BUFFER_SCALE = 0.9
 // Max sub-connection depth from first-order nodes. 1 = second-order only (no third-order+).
 export const LOCAL_EXPLORE_MAX_SUB_CONNECTION_DEPTH = 1
+/** Upward stub length when a first-order parent has its own parent (local explore) */
+export const LOCAL_EXPLORE_OFFSCREEN_PARENT_LINE_LENGTH = 10
 
 // Line width constants
 export const LINE_WIDTHS = {

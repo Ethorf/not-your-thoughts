@@ -4,8 +4,6 @@ import { fetchAkas } from '@redux/reducers/currentEntryReducer.js'
 import { openModal } from '@redux/reducers/modalsReducer.js'
 import { normalizeEntryId } from '@utils/normalizeEntryId'
 
-import TextButton from '@components/Shared/TextButton/TextButton.js'
-
 import { MODAL_NAMES } from '@constants/modalNames'
 
 import styles from './AkasDisplay.module.scss'
@@ -40,7 +38,19 @@ function AkasDisplay() {
 
   return (
     <div className={styles.wrapper}>
-      <h3 onMouseOver={() => setAkasListVisible(true)} className={styles.button}>
+      <h3
+        onMouseOver={() => setAkasListVisible(true)}
+        onClick={handleOpenAkasModal}
+        className={styles.button}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            handleOpenAkasModal()
+          }
+        }}
+      >
         AKA
       </h3>
       {akasListVisible ? (
@@ -58,9 +68,6 @@ function AkasDisplay() {
           ) : (
             <span className={styles.noAkas}>No akas yet</span>
           )}
-          <TextButton onClick={handleOpenAkasModal} className={styles.button}>
-            EDIT
-          </TextButton>
         </div>
       ) : null}
     </div>

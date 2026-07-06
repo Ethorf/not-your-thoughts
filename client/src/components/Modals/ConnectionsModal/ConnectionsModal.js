@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 // Constants
@@ -41,6 +41,7 @@ import { highlightPlainTextInHtml } from '@utils/highlightPlainTextInHtml'
 import { showToast } from '@utils/toast'
 import { isValidUrl } from '@utils/isValidUrl'
 import { wrapLinkStringInAnchorTag } from '@utils/wrapLinkStringInAnchorTag'
+import { sortConnectionsByDisplayOrder } from '@utils/connectionTypeHelpers'
 
 // Styles
 import styles from './ConnectionsModal.module.scss'
@@ -313,6 +314,8 @@ export const ConnectionsModal = () => {
     ? Object.values(CONNECTION_TYPES.FRONTEND).filter((type) => type !== PARENT)
     : Object.values(CONNECTION_TYPES.FRONTEND)
 
+  const sortedConnections = useMemo(() => sortConnectionsByDisplayOrder(connections), [connections])
+
   return (
     <BaseModalWrapper
       modalName={MODAL_NAMES.CONNECTIONS}
@@ -435,11 +438,11 @@ export const ConnectionsModal = () => {
           <SmallSpinner />
         ) : (
           <div>
-            {connections?.length ? (
+            {sortedConnections.length ? (
               <div>
                 <h3>Active Connections:</h3>
-                {connections.map((c) => (
-                  <div className={styles.connectionDisplay}>
+                {sortedConnections.map((c) => (
+                  <div key={c.id} className={styles.connectionDisplay}>
                     <div className={styles.connectionLabel}>{c.connection_type === EXTERNAL ? 'link:' : 'node:'}</div>
                     {c.connection_type === EXTERNAL ? (
                       <a target="_blank" rel="noopener noreferrer" href={c.foreign_source}>

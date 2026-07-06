@@ -63,7 +63,11 @@ const Dashboard = () => {
     <div className={classNames(styles.wrapper, sharedStyles.flexColumnCenter)}>
       <h1>Dashboard</h1>
       <div className={styles.actionsContainer}>
-        <DefaultButton onClick={() => history.push('/explore?view=global')} tooltip="View global mind map">
+        <DefaultButton
+          className={styles.globalViewButton}
+          onClick={() => history.push('/explore?view=global')}
+          tooltip="View global mind map"
+        >
           Global View
         </DefaultButton>
         <div className={classNames(styles.newEntry)}>

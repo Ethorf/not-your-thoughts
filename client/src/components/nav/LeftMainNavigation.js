@@ -14,9 +14,10 @@ import TextButton from '@components/Shared/TextButton/TextButton'
 // Redux
 import { resetCurrentEntryState, createNodeEntry, createJournalEntry } from '@redux/reducers/currentEntryReducer'
 import { logout } from '@redux/actions/authActions'
-import { toggleLeftSidebar } from '@redux/reducers/leftSidebarReducer'
+import { toggleLeftSidebar, openLeftSidebar, closeLeftSidebar } from '@redux/reducers/leftSidebarReducer'
 import { showToast } from '@utils/toast'
 import { normalizeEntryId } from '@utils/normalizeEntryId'
+import useIsMobile from '@hooks/useIsMobile'
 
 const LeftMainNavigation = () => {
   const dispatch = useDispatch()
@@ -26,10 +27,20 @@ const LeftMainNavigation = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated)
   const user = useSelector((state) => state.auth.user)
   const history = useHistory()
+  const isMobile = useIsMobile()
 
   const handleToggleSidebar = useCallback(() => {
+    if (isMobile) {
+      if (leftSidebarOpen) {
+        dispatch(closeLeftSidebar())
+      } else {
+        dispatch(openLeftSidebar())
+      }
+      return
+    }
+
     dispatch(toggleLeftSidebar())
-  }, [dispatch])
+  }, [dispatch, isMobile, leftSidebarOpen])
 
   const handleNewNodeEntryClick = async () => {
     dispatch(resetCurrentEntryState())
@@ -46,7 +57,7 @@ const LeftMainNavigation = () => {
       return
     }
 
-    dispatch(toggleLeftSidebar())
+    dispatch(closeLeftSidebar())
     history.push(`/edit-node-entry?entryId=${newEntryId}`)
   }
 
@@ -65,14 +76,14 @@ const LeftMainNavigation = () => {
       return
     }
 
-    dispatch(toggleLeftSidebar())
+    dispatch(closeLeftSidebar())
     history.push(`/create-journal-entry?entryId=${newEntryId}`)
   }
 
   useEffect(() => {
     if (leftSidebarOpen) {
       const timer = setTimeout(() => {
-        dispatch(toggleLeftSidebar())
+        dispatch(closeLeftSidebar())
       }, 30000)
 
       return () => clearTimeout(timer)
@@ -115,7 +126,7 @@ const LeftMainNavigation = () => {
             Dashboard
           </NavLink>
         ) : null}
-        <TextButton navLink onClick={() => history.push('/public-dashboard?userId=ethorf')}>
+        <TextButton navLink className={styles.navTextButton} onClick={() => history.push('/public-dashboard?userId=ethorf')}>
           {user ? 'Public View' : 'Browse'}
         </TextButton>
         {!guestMode && user && (
@@ -128,10 +139,10 @@ const LeftMainNavigation = () => {
             >
               Explore
             </NavLink>
-            <TextButton navLink onClick={handleNewJournalEntryClick}>
+            <TextButton navLink className={styles.navTextButton} onClick={handleNewJournalEntryClick}>
               New Journal
             </TextButton>
-            <TextButton navLink onClick={handleNewNodeEntryClick}>
+            <TextButton navLink className={styles.navTextButton} onClick={handleNewNodeEntryClick}>
               New Node
             </TextButton>
             <NavLink

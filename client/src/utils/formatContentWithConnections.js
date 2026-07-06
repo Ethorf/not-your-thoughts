@@ -145,28 +145,27 @@ export const createFormatRules = (
     const { primary_source: primarySource, connection_type: connectionType, foreign_source: foreignSource } = connection
 
     if (connectionType === EXTERNAL && foreignSource) {
-      const handleExternalClick = onExternalConnectionClick || ((url) => window.open(url, '_blank', 'noopener,noreferrer'))
+      const handleExternalClick =
+        onExternalConnectionClick || ((url) => window.open(url, '_blank', 'noopener,noreferrer'))
       addRule(
         primarySource,
-        (
-          <a
-            key={primarySource}
-            data-tooltip-id="main-tooltip"
-            data-tooltip-content="External Connection"
-            href={foreignSource}
-            target="_blank"
-            className={styles.externalConnection}
-            rel="noopener noreferrer"
-            onClick={(e) => {
-              if (onExternalConnectionClick) {
-                e.preventDefault()
-                handleExternalClick(foreignSource)
-              }
-            }}
-          >
-            {primarySource}
-          </a>
-        )
+        <a
+          key={primarySource}
+          data-tooltip-id="main-tooltip"
+          data-tooltip-content="External Connection"
+          href={foreignSource}
+          target="_blank"
+          className={styles.externalConnection}
+          rel="noopener noreferrer"
+          onClick={(e) => {
+            if (onExternalConnectionClick) {
+              e.preventDefault()
+              handleExternalClick(foreignSource)
+            }
+          }}
+        >
+          {primarySource}
+        </a>
       )
       return
     }
@@ -218,9 +217,10 @@ export const findIdByNodeTitle = (nodes, title) => {
  * @param {string} unconnectedNodeTooltip - Tooltip text for unconnected nodes (default: "node found, click to view")
  * @param {boolean} enableShinyText - Whether to show ShinyText for unconnected nodes (default: true)
  * @param {Object|null} shinyTextOptions - Optional shiny suggestion menu config
+ * @param {string|number} [shinyTextOptions.entryId] - Current entry id for stable animation phases
  * @param {Map<string, Object>} shinyTextOptions.candidateMap - titleLower -> candidate
  * @param {Function} shinyTextOptions.onDismiss - dismiss handler(candidate)
- * @param {Function} shinyTextOptions.onCreateConnection - create connection handler(candidate)
+ * @param {Function} shinyTextOptions.onCreateConnection - create connection handler(candidate, connectionType, matchedText)
  * @returns {Array} Array of React elements representing formatted content
  */
 export const formatContentWithConnections = (
@@ -236,20 +236,33 @@ export const formatContentWithConnections = (
   if (!content) return null
 
   const shinyCandidateMap = shinyTextOptions?.candidateMap ?? null
+  const shinyEntryId = shinyTextOptions?.entryId ?? null
   const onDismissShinySuggestion = shinyTextOptions?.onDismiss ?? null
   const onCreateConnectionFromSuggestion = shinyTextOptions?.onCreateConnection ?? null
   const useShinySuggestionMenu = Boolean(
     shinyCandidateMap && onDismissShinySuggestion && onCreateConnectionFromSuggestion
   )
+  const shinyOccurrenceCounts = new Map()
+
+  const getShinyInstanceIds = (titleLower, paragraphIndex, candidateId = null) => {
+    const countKey = `${paragraphIndex}:${titleLower}`
+    const occurrence = shinyOccurrenceCounts.get(countKey) ?? 0
+    shinyOccurrenceCounts.set(countKey, occurrence + 1)
+
+    const elementKey = `shiny-${titleLower}-p${paragraphIndex}-o${occurrence}`
+    const identity = candidateId ?? titleLower
+    const animationId = shinyEntryId
+      ? `${shinyEntryId}:${identity}:p${paragraphIndex}:o${occurrence}`
+      : `${identity}:p${paragraphIndex}:o${occurrence}`
+
+    return { elementKey, animationId }
+  }
 
   const parser = new DOMParser()
   const doc = parser.parseFromString(content, 'text/html')
 
   const formatKeys = Object.keys(formatRules)
   const allWords = [...new Set([...formatKeys, ...allTitles])]
-  const pattern = new RegExp(`\\b(${allWords.map(escapeRegExp).join('|')})\\b`, 'gi')
-
-  // Helper function to check if content is empty or only whitespace
   const isEmptyContent = (content) => {
     if (Array.isArray(content)) {
       if (content.length === 0) return true
@@ -270,6 +283,53 @@ export const formatContentWithConnections = (
       return content.trim() === ''
     }
     return !content
+  }
+
+  const pattern = new RegExp(`\\b(${allWords.map(escapeRegExp).join('|')})\\b`, 'gi')
+
+  const getPreservedClassName = (node) => {
+    const className = node.getAttribute?.('class')
+    return className || undefined
+  }
+
+  const getPreservedListItemProps = (node) => {
+    const props = {}
+    const className = getPreservedClassName(node)
+    if (className) {
+      props.className = className
+    }
+
+    const dataList = node.getAttribute?.('data-list')
+    if (dataList) {
+      props['data-list'] = dataList
+    }
+
+    const orderedListNumber = node.getAttribute?.('data-nyt-ol-num')
+    if (orderedListNumber) {
+      props['data-nyt-ol-num'] = orderedListNumber
+    }
+
+    return props
+  }
+
+  const isBreakOnlyElement = (node) => {
+    if (!node?.childNodes?.length) {
+      return false
+    }
+
+    const meaningfulChildren = Array.from(node.childNodes).filter((child) => {
+      if (child.nodeType === Node.TEXT_NODE) {
+        return child.textContent?.trim()
+      }
+      return true
+    })
+
+    if (meaningfulChildren.length !== 1) {
+      return false
+    }
+
+    const onlyChild = meaningfulChildren[0]
+    return onlyChild.nodeType === Node.ELEMENT_NODE && onlyChild.tagName === 'BR'
   }
 
   const transformNode = (node, paragraphIndex) => {
@@ -309,19 +369,23 @@ export const formatContentWithConnections = (
           if (shinyCandidate?.isDismissed) {
             parts.push(word)
           } else if (useShinySuggestionMenu && shinyCandidate) {
+            const { elementKey, animationId } = getShinyInstanceIds(titleLower, paragraphIndex, shinyCandidate.id)
             parts.push(
               <ShinyTextSuggestionTrigger
-                key={`${word}-${paragraphIndex}-${match.index}`}
+                key={elementKey}
                 candidate={shinyCandidate}
                 text={word}
+                animationId={animationId}
                 onDismiss={onDismissShinySuggestion}
                 onCreateConnection={onCreateConnectionFromSuggestion}
               />
             )
           } else if (enableShinyText && onUnconnectedNodeClick) {
+            const { elementKey, animationId } = getShinyInstanceIds(titleLower, paragraphIndex)
             parts.push(
               <ShinyText
-                key={`${word}-${paragraphIndex}-${match.index}`}
+                key={elementKey}
+                animationId={animationId}
                 onClick={() => {
                   const nodeId = findIdByNodeTitle(nodeEntriesInfo, word)
                   if (nodeId) {
@@ -387,14 +451,52 @@ export const formatContentWithConnections = (
           return <ul key={`${paragraphIndex}-${Math.random()}`}>{children}</ul>
         case 'ol':
           return <ol key={`${paragraphIndex}-${Math.random()}`}>{children}</ol>
-        case 'li':
-          return <li key={`${paragraphIndex}-${Math.random()}`}>{children}</li>
-        case 'p':
+        case 'li': {
+          const listItemProps = getPreservedListItemProps(node)
+          if (
+            node.childNodes?.length === 1 &&
+            node.firstChild?.nodeType === Node.ELEMENT_NODE &&
+            node.firstChild.tagName === 'P' &&
+            isBreakOnlyElement(node.firstChild)
+          ) {
+            return (
+              <li key={`${paragraphIndex}-${Math.random()}`} {...listItemProps}>
+                <br />
+              </li>
+            )
+          }
+          if (isBreakOnlyElement(node)) {
+            return (
+              <li key={`${paragraphIndex}-${Math.random()}`} {...listItemProps}>
+                <br />
+              </li>
+            )
+          }
+          return (
+            <li key={`${paragraphIndex}-${Math.random()}`} {...listItemProps}>
+              {children}
+            </li>
+          )
+        }
+        case 'p': {
+          const className = getPreservedClassName(node)
+          if (isBreakOnlyElement(node)) {
+            return (
+              <p key={`${paragraphIndex}-${Math.random()}`} className={className}>
+                <br />
+              </p>
+            )
+          }
           // Skip empty paragraphs (Quill often generates empty <p> tags for formatting)
           if (isEmptyContent(children)) {
             return null
           }
-          return <p key={`${paragraphIndex}-${Math.random()}`}>{children}</p>
+          return (
+            <p key={`${paragraphIndex}-${Math.random()}`} className={className}>
+              {children}
+            </p>
+          )
+        }
         case 'a':
           // Handle anchor tags with proper external connection styling
           const href = node.getAttribute('href')
@@ -444,4 +546,3 @@ export const formatContentWithConnections = (
 
   return rootChildren.map((node, i) => transformNode(node, i))
 }
-

@@ -1,5 +1,6 @@
 @import '@styles/variables.scss';
 @import '@styles/listMarkerStyles.scss';
+@import '@styles/mixins.scss';
 
 .ql-editor {
   font-family: $main-text;
@@ -23,10 +24,14 @@
 
 .ql-container.ql-snow {
   border: none;
-
+  padding-top: 1rem;
   &:hover {
     border: none;
   }
+}
+
+.ql-blank {
+  padding-top: 1rem;
 }
 
 .ql-toolbar.ql-snow {
@@ -83,21 +88,42 @@
 
 .visibleText .ql-editor {
   color: $silver-default;
-}
-
-.hiddenText .ql-editor {
-  color: transparent;
-  // color: red;
   caret-color: $silver-active;
   line-height: $main-text-line-height;
 
-  // Main text Variables
   padding: 0;
   margin: 0;
   box-sizing: $main-text-box-sizing;
-  transition: all 1s;
 
-  p {
+  strong,
+  b {
+    font-weight: 700;
+    color: white;
+  }
+
+  em,
+  i {
+    font-style: italic;
+  }
+
+  u {
+    text-decoration: underline;
+  }
+
+  s,
+  strike,
+  del {
+    text-decoration: line-through;
+  }
+
+  blockquote {
+    border-left: 3px solid rgba(192, 192, 192, 0.5);
+    margin: 0;
+    padding-left: 1em;
+    color: rgba(192, 192, 192, 0.85);
+  }
+
+  > p {
     font-weight: 200;
     font-size: $main-text-font-size;
     line-height: $main-text-line-height;
@@ -106,7 +132,6 @@
     padding-bottom: $main-text-padding-bottom;
     padding-right: $main-text-padding-right;
     box-sizing: $main-text-box-sizing;
-    transition: all 1s;
     word-wrap: break-word;
     overflow-wrap: break-word;
     word-break: normal;
@@ -114,7 +139,28 @@
     margin: 0;
   }
 
+  li > p {
+    display: inline;
+    padding: 0;
+    margin: 0;
+  }
+
   @include local-editor-list-markers;
+  @include quill-block-indents;
+
+  // Collapse only empty paragraphs directly before a list (reload artifact).
+  // Do not target all empty <p><br></p> — that hides the caret on new lines after Enter.
+  > p:empty:has(+ ol),
+  > p:empty:has(+ ul),
+  > p:has(> br:only-child):has(+ ol),
+  > p:has(> br:only-child):has(+ ul) {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 0 !important;
+    min-height: 0 !important;
+    height: 0;
+    overflow: hidden;
+  }
 
   ul,
   ol {
@@ -128,7 +174,6 @@
     font-weight: 200;
     font-size: $main-text-font-size;
     line-height: $main-text-line-height !important;
-    padding-left: 1.5em !important;
     padding-top: 0 !important;
     padding-bottom: $li-padding-bottom !important;
     padding-right: $main-text-padding-right !important;
@@ -147,39 +192,60 @@
     vertical-align: baseline !important;
     text-align: right;
   }
+
+  [data-nyt-deco='shiny'],
+  [data-nyt-deco='shiny-suggestion'] {
+    color: #b5b5b5a4;
+    background: linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 0.8) 50%,
+      rgba(255, 255, 255, 0) 60%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    display: inline;
+    animation: nyt-shine 3s linear infinite;
+    cursor: pointer;
+  }
+
+  [data-nyt-deco='connection-internal'] {
+    color: white;
+    cursor: pointer;
+  }
+
+  [data-nyt-deco='connection-external'] {
+    color: white;
+    text-decoration: underline;
+    cursor: pointer;
+  }
 }
 
-// Collapse extra empty blocks between content, but keep the active line visible for the caret.
-.ql-editor:not(.ql-blank):not(:focus) p:empty,
-.ql-editor:not(.ql-blank):not(:focus) p > br:only-child,
-.ql-editor:not(.ql-blank):not(:focus) li:empty {
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  height: 0;
+@keyframes nyt-shine {
+  0% {
+    background-position: 100%;
+  }
+  100% {
+    background-position: -100%;
+  }
 }
 
-.ql-editor:not(.ql-blank):not(:focus) p:has(> br:only-child),
-.ql-editor:not(.ql-blank):not(:focus) li:has(> br:only-child),
-.ql-editor:not(.ql-blank):not(:focus) li > p:has(> br:only-child) {
-  margin-block: 0 !important;
-  padding-block: 0 !important;
-  line-height: 0 !important;
-  min-height: 0 !important;
-}
+@include mobile-all {
+  .visibleText .ql-editor {
+    > p {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
 
-.ql-editor.ql-blank p > br:only-child,
-.ql-editor:focus p > br:only-child {
-  height: auto;
-  min-height: $main-text-line-height;
-  line-height: $main-text-line-height !important;
-}
+    ul,
+    ol {
+      padding-left: 0.75rem !important;
+    }
 
-.ql-editor.ql-blank p:has(> br:only-child),
-.ql-editor:focus p:has(> br:only-child) {
-  margin-block: initial !important;
-  padding-block: initial !important;
-  line-height: $main-text-line-height !important;
-  min-height: $main-text-line-height !important;
+    ul > li,
+    ol > li {
+      padding-right: 0.75rem !important;
+    }
+  }
 }

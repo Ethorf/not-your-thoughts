@@ -43,16 +43,33 @@
   }
 
   ol {
-    counter-reset: list-counter;
+    $not-indented: '';
+    @for $i from 1 through 9 {
+      $not-indented: $not-indented + ':not(.ql-indent-#{$i})';
+    }
 
-    & > li {
-      counter-increment: list-counter;
+    // Top-level ordered items use explicit numbers from quillListRepair.js.
+    & > li#{$not-indented}[data-nyt-ol-num] {
+      counter-increment: none !important;
 
       &::before {
-        content: counter(list-counter) '.';
+        content: attr(data-nyt-ol-num) '.' !important;
         width: auto;
         min-width: 1.2em;
       }
+    }
+  }
+}
+
+// Matches Quill indent levels for paragraphs and nested list items.
+@mixin quill-block-indents {
+  @for $i from 1 through 9 {
+    :global(.ql-indent-#{$i}):not(:global(.ql-direction-rtl)) {
+      padding-left: 3em * $i;
+    }
+
+    li:global(.ql-indent-#{$i}):not(:global(.ql-direction-rtl)) {
+      padding-left: 1.5em + (3em * $i);
     }
   }
 }
