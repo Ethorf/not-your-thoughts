@@ -250,6 +250,13 @@
 }
 
 @include mobile-all {
+  .toolbar-visible {
+    .ql-toolbar {
+      margin-top: 0.25rem;
+      margin-bottom: 0.5rem;
+    }
+  }
+
   .visibleText .ql-editor {
     > p {
       padding-left: 0.75rem;

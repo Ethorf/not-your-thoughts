@@ -32,6 +32,7 @@ import WritingDataManager from '@components/Shared/WritingDataManager/WritingDat
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import ConnectionLines from '@components/Shared/ConnectionLines/ConnectionLines'
 import NodeGoalProgressPanel from '@components/NodeGoalProgressPanel/NodeGoalProgressPanel'
+import { CogIcon } from '@components/Shared/CogIcon/CogIcon'
 import useIsMobile from '@hooks/useIsMobile'
 
 import styles from './EditNodeEntry.module.scss'
@@ -105,6 +106,10 @@ const EditNodeEntry = () => {
     await handleOpenConnectionsModal()
   }, [captureEditorSelectionForModal, handleOpenConnectionsModal])
 
+  const handleOpenDeleteConfirm = useCallback(() => {
+    dispatch(openModal(MODAL_NAMES.ARE_YOU_SURE))
+  }, [dispatch])
+
   useEffect(() => {
     const handleShortcuts = async (e) => {
       if (e.ctrlKey && e.metaKey && e.key === 'c') {
@@ -129,55 +134,78 @@ const EditNodeEntry = () => {
       <div className={styles.editContainer}>
         <div className={classNames(styles.topContainer, styles.grid3Columns)}>
           <>
-            <div className={styles.connectStarContainer}>
-              <DefaultButton
-                tooltip="Open connections menu"
-                onMouseDown={captureEditorSelectionForModal}
-                onClick={handleOpenConnectionsModal}
-                className={styles.saveButton}
-              >
-                Connect
-              </DefaultButton>
-              <DefaultButton
-                tooltip={isPrivate ? 'Make entry public' : 'Make entry private'}
-                onClick={handleToggleIsPrivate}
-                className={classNames({
-                  [styles.topLevelActive]: isPrivate,
-                })}
-              >
-                {isPrivate ? 'Private ✓' : 'Private'}
-              </DefaultButton>
-              <StarButton id={entryId} initialStarred={starred} />
-            </div>
-            <DefaultInput
-              className={classNames(styles.titleInput, sharedStyles.flexCenter, {
-                [styles.titleInputNoBorder]: (title ?? '').length,
-              })}
-              placeholder={'Enter Title'}
-              value={title ?? ''}
-              onChange={handleTitleChange}
-            />
-            <span className={styles.topRightContainer}>
-              <AkasDisplay />
-              <div className={styles.rightButtons}>
-                {isAuthenticated && user?.id && (
-                  <DefaultButton
-                    tooltip="View public mode"
-                    onClick={() => history.push(`/show-node-entry?userId=${user.id}&entryId=${entryId}`)}
-                    className={styles.saveButton}
-                  >
-                    Public Mode
-                  </DefaultButton>
-                )}
+            {!isMobile && (
+              <div className={styles.connectStarContainer}>
                 <DefaultButton
-                  tooltip="Explore nodes"
-                  onClick={() => history.push(`/explore`)}
+                  tooltip="Open connections menu"
+                  onMouseDown={captureEditorSelectionForModal}
+                  onClick={handleOpenConnectionsModal}
                   className={styles.saveButton}
                 >
-                  Explore
+                  Connect
                 </DefaultButton>
+                <DefaultButton
+                  tooltip={isPrivate ? 'Make entry public' : 'Make entry private'}
+                  onClick={handleToggleIsPrivate}
+                  className={classNames({
+                    [styles.topLevelActive]: isPrivate,
+                  })}
+                >
+                  {isPrivate ? 'Private ✓' : 'Private'}
+                </DefaultButton>
+                <StarButton id={entryId} initialStarred={starred} />
               </div>
-            </span>
+            )}
+            <div className={styles.titleInputContainer}>
+              {isMobile && (
+                <button
+                  type="button"
+                  className={styles.settingsCog}
+                  onClick={() => dispatch(openModal(MODAL_NAMES.NODE_SETTINGS))}
+                  data-tooltip-id="main-tooltip"
+                  data-tooltip-content="Node settings"
+                  aria-label="Open node settings"
+                >
+                  <CogIcon className={styles.cogIcon} />
+                </button>
+              )}
+              <DefaultInput
+                className={classNames(styles.titleInput, sharedStyles.flexCenter, {
+                  [styles.titleInputNoBorder]: (title ?? '').length,
+                })}
+                placeholder={'Enter Title'}
+                value={title ?? ''}
+                onChange={handleTitleChange}
+              />
+              {isMobile && (
+                <span className={styles.mobileAkas}>
+                  <AkasDisplay />
+                </span>
+              )}
+            </div>
+            {!isMobile && (
+              <span className={styles.topRightContainer}>
+                <AkasDisplay />
+                <div className={styles.rightButtons}>
+                  {isAuthenticated && user?.id && (
+                    <DefaultButton
+                      tooltip="View public mode"
+                      onClick={() => history.push(`/show-node-entry?userId=${user.id}&entryId=${entryId}`)}
+                      className={styles.saveButton}
+                    >
+                      Public Mode
+                    </DefaultButton>
+                  )}
+                  <DefaultButton
+                    tooltip="Explore nodes"
+                    onClick={() => history.push(`/explore`)}
+                    className={styles.saveButton}
+                  >
+                    Explore
+                  </DefaultButton>
+                </div>
+              </span>
+            )}
           </>
         </div>
         {!connectionsLoading ? (
@@ -186,16 +214,24 @@ const EditNodeEntry = () => {
             <CreateEntry entryType={ENTRY_TYPES.NODE} fillHeight />
           </div>
         ) : null}
-        <div className={styles.grid3Columns}>
-          <span className={sharedStyles.flexStart}>
-            <DefaultButton
-              tooltip="View entry history and changes"
-              onClick={() => history.push('/history')}
-              className={styles.saveButton}
-            >
-              History
-            </DefaultButton>
-            <DefaultButton
+        <div className={classNames(styles.grid3Columns, styles.bottomBar)}>
+          <span className={classNames(sharedStyles.flexStart, styles.historyCell, styles.wordsCell)}>
+            {!isMobile && (
+              <span className={styles.leftActions}>
+                <DefaultButton
+                  tooltip="View entry history and changes"
+                  onClick={() => history.push('/history')}
+                  className={styles.saveButton}
+                >
+                  History
+                </DefaultButton>
+                <DefaultButton tooltip="Delete node" className={styles.deleteButton} onClick={handleOpenDeleteConfirm}>
+                  X
+                </DefaultButton>
+              </span>
+            )}
+            {isMobile && <span className={styles.wordCount}>Words: {wordCount}</span>}
+            {/* <DefaultButton
               tooltip={isTopLevel ? 'Remove top-level status' : 'Set as top-level node'}
               onClick={handleToggleTopLevel}
               className={classNames(styles.topLevelButton, {
@@ -203,18 +239,32 @@ const EditNodeEntry = () => {
               })}
             >
               {isTopLevel ? 'Top Level ✓' : 'Top Level'}
-            </DefaultButton>
+            </DefaultButton> */}
           </span>
-          <span className={sharedStyles.flexCenter}>Words: {wordCount}</span>
-          <span className={sharedStyles.flexEnd}>
+          {!isMobile && (
+            <span className={classNames(sharedStyles.flexCenter, styles.wordsCell)}>Words: {wordCount}</span>
+          )}
+          <span className={classNames(sharedStyles.flexCenter, styles.saveCell)}>
             {entriesLoading ? (
               <SmallSpinner />
             ) : (
               <DefaultButton onClick={() => handleSaveNode(SAVE_TYPES.MANUAL)} className={styles.saveButton}>
-                Save Node
+                {isMobile ? 'Save' : 'Save Node'}
               </DefaultButton>
             )}
           </span>
+          {isMobile && (
+            <span className={classNames(sharedStyles.flexEnd, styles.connectCell)}>
+              <DefaultButton
+                tooltip="Open connections menu"
+                onMouseDown={captureEditorSelectionForModal}
+                onClick={handleOpenConnectionsModal}
+                className={styles.saveButton}
+              >
+                Connect
+              </DefaultButton>
+            </span>
+          )}
         </div>
       </div>
     </div>

@@ -62,11 +62,15 @@ const RightSidebar = () => {
           data-tooltip-content="open (cmd + shft + K)"
         />
       </button>
+      {isMobile && sidebarOpen && (
+        <div className={styles.sheetOverlay} onClick={() => dispatch(closeSidebar())} aria-hidden="true" />
+      )}
       <div
         className={classNames(styles.sidebarContainer, {
           [styles.sidebarOpen]: sidebarOpen,
         })}
       >
+        {isMobile && <div className={styles.dragHandle} />}
         <SidebarNodeSelector sidebarOpen={sidebarOpen} />
         <div className={styles.sortContainer}>
           <label>

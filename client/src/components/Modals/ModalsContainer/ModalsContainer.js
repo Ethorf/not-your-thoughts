@@ -6,6 +6,7 @@ import { AkasInputModal } from '../AkasInputModal/AkasInputModal.js'
 import { SuccessModal } from '../SuccessModal/SuccessModal.js'
 import { NodeContentModal } from '../NodeContentModal/NodeContentModal.js'
 import { ConnectionsModal } from '../ConnectionsModal/ConnectionsModal.js'
+import { NodeSettingsModal } from '../NodeSettingsModal/NodeSettingsModal.js'
 
 export const ModalsContainer = () => {
   return (
@@ -17,6 +18,7 @@ export const ModalsContainer = () => {
       <JournalContentModal />
       <NodeContentModal />
       <ConnectionsModal />
+      <NodeSettingsModal />
     </>
   )
 }

@@ -119,7 +119,36 @@
 }
 
 @include mobile-all {
+  .modal {
+    top: calc(1.25rem + 1.875rem) !important;
+    bottom: 0 !important;
+    max-height: none !important;
+    min-height: auto !important;
+    height: calc(100dvh - 1.25rem - 1.875rem) !important;
+    width: 100vw !important;
+    min-width: 100vw !important;
+  }
+
+  .titleWrapper {
+    margin-top: 0.5rem;
+    padding-top: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
   .title {
     margin-left: 0.625rem;
+  }
+
+  .getSourceButton {
+    font-size: 0.65rem;
+    margin-left: 0.5rem;
+  }
+
+  .createContainer button {
+    font-size: 0.65rem;
+  }
+
+  .connectionDisplay button {
+    font-size: 0.65rem;
   }
 }

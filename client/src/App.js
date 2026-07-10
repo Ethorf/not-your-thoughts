@@ -12,6 +12,7 @@ import './App.scss'
 // Components
 import LeftMainNavigation from '@components/nav/LeftMainNavigation'
 import RightSidebar from '@components/RightSidebar/RightSidebar.js'
+import DailyGoalToastManager from '@components/DailyGoalToastManager/DailyGoalToastManager'
 
 import NavBarTop from '@components/nav/navBarTop'
 
@@ -51,6 +52,7 @@ const AppContent = () => {
   return (
     <>
       <ModalsContainer />
+      <DailyGoalToastManager />
       <LeftMainNavigation />
       {user && <RightSidebar />}
       <Switch location={location}>
