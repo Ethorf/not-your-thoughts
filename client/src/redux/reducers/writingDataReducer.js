@@ -3,24 +3,13 @@ import axiosInstance from '@utils/axiosInstance'
 import { ENTRY_TYPES } from '@constants/entryTypes'
 
 import { showToast } from '@utils/toast'
+import { normalizeWritingStats, toNonNegativeInt } from '@utils/writingStatsHelpers'
 
 const initialState = {
-  stats: {
-    allEntriesTotalWritingTime: 0,
-    allEntriesWritingTimeToday: 0,
-    allEntriesTotalWordCount: 0,
-    allEntriesWordCountToday: 0,
-    nodesTotalWritingTime: 0,
-    nodesWritingTimeToday: 0,
-    nodesTotalWordCount: 0,
-    nodesWordCountToday: 0,
-    journalsTotalWritingTime: 0,
-    journalWritingTimeToday: 0,
-    journalsTotalWordCount: 0,
-    journalWordCountToday: 0,
-  },
+  stats: normalizeWritingStats(),
   timeElapsed: 0,
   wordsAdded: 0,
+  sessionActive: false,
 }
 
 export const createWritingData = createAsyncThunk(
@@ -30,15 +19,22 @@ export const createWritingData = createAsyncThunk(
       const { timeElapsed, wordsAdded } = getState().writingData
       const { entryId } = getState().currentEntry
 
+      const safeWordCount = Math.max(0, wordsAdded)
+      const safeDuration = Math.max(0, timeElapsed)
+
       const response = await axiosInstance.post('api/writing_data/create_writing_data', {
         entry_id: entryId,
         entry_type: entryType,
-        duration: timeElapsed,
-        word_count: wordsAdded,
+        duration: safeDuration,
+        word_count: safeWordCount,
       })
 
       console.log('writing data created')
-      return response.data
+      return {
+        entry_type: entryType,
+        word_count: safeWordCount,
+        duration: safeDuration,
+      }
     } catch (error) {
       dispatch(showToast('Error saving writing data', 'error'))
       return rejectWithValue(error.response.data)
@@ -65,20 +61,44 @@ const writingDataSlice = createSlice({
   initialState,
   reducers: {
     setTimeElapsed: (state, action) => {
-      state.timeElapsed = action.payload
+      state.timeElapsed = toNonNegativeInt(action.payload)
     },
     setWordsAdded: (state, action) => {
-      state.wordsAdded = action.payload
+      state.wordsAdded = toNonNegativeInt(action.payload)
+    },
+    setSessionActive: (state, action) => {
+      state.sessionActive = Boolean(action.payload)
     },
     resetWritingDataState: () => initialState,
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchAllWritingData.fulfilled, (state, action) => {
-      state.stats = action.payload
-    })
+    builder
+      .addCase(fetchAllWritingData.fulfilled, (state, action) => {
+        state.stats = normalizeWritingStats(action.payload)
+      })
+      .addCase(createWritingData.fulfilled, (state, action) => {
+        const { entry_type: entryType, word_count: wordCount, duration } = action.payload
+        const safeWordCount = toNonNegativeInt(wordCount)
+        const safeDuration = toNonNegativeInt(duration)
+
+        state.stats.allEntriesWordCountToday += safeWordCount
+        state.stats.allEntriesWritingTimeToday += safeDuration
+
+        if (entryType === ENTRY_TYPES.NODE) {
+          state.stats.nodesWordCountToday += safeWordCount
+          state.stats.nodesWritingTimeToday += safeDuration
+        } else if (entryType === ENTRY_TYPES.JOURNAL) {
+          state.stats.journalWordCountToday += safeWordCount
+          state.stats.journalWritingTimeToday += safeDuration
+        }
+
+        state.wordsAdded = 0
+        state.timeElapsed = 0
+        state.sessionActive = false
+      })
   },
 })
 
-export const { setTimeElapsed, setWordsAdded } = writingDataSlice.actions
+export const { setTimeElapsed, setWordsAdded, setSessionActive } = writingDataSlice.actions
 
 export default writingDataSlice.reducer

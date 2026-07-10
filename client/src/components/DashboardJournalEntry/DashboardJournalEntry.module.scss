@@ -1,0 +1,76 @@
+@import '@styles/variables.scss';
+@import '@styles/mixins.scss';
+
+.wrapper {
+  display: grid;
+  grid-template-columns: 14% minmax(0, 1fr) 14% 11% 8% 5%;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.dateColumn {
+  color: $silver-faded;
+  font-size: 1.2rem;
+}
+
+.titleCell {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.titleButton {
+  max-width: 100%;
+  font-size: 0.9rem;
+}
+
+.ellipsisify {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.loadingTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.statColumn {
+  color: $silver-faded;
+  font-size: 0.85rem;
+}
+
+.deleteButton {
+  font-size: 0.8rem;
+  justify-self: end;
+}
+
+.statValue {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: $silver-active;
+}
+
+@include mobile-all {
+  .wrapper {
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    gap: 0.375rem;
+    width: 100%;
+    padding: 0.375rem 0;
+  }
+
+  .dateColumn {
+    display: none;
+  }
+
+  .statColumn {
+    display: none;
+  }
+
+  .deleteButton {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+    white-space: nowrap;
+  }
+}

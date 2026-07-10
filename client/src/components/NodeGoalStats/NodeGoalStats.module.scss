@@ -1,0 +1,76 @@
+@import '@styles/variables.scss';
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.sectionTitle {
+  margin: 0.875rem 0 0.5rem;
+  font-family: 'Syncopate', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: $silver-active;
+  border-top: 1px solid rgba(192, 192, 192, 0.2);
+  padding-top: 0.75rem;
+
+  &:first-of-type {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+  }
+}
+
+.meter {
+  & + & {
+    margin-top: 0.875rem;
+  }
+}
+
+.meterHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.375rem;
+}
+
+.meterLabel {
+  font-size: 0.7rem;
+  color: $silver-default;
+  text-transform: uppercase;
+}
+
+.meterValue {
+  font-size: 0.65rem;
+  color: $silver-active;
+  white-space: nowrap;
+}
+
+.track {
+  height: 0.375rem;
+  border-radius: 999px;
+  background: rgba(192, 192, 192, 0.15);
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(192, 192, 192, 0.55), rgba(255, 255, 255, 0.85));
+  transition: width 300ms ease;
+
+  &[data-complete='true'] {
+    background: linear-gradient(90deg, rgba(160, 220, 160, 0.7), rgba(200, 255, 200, 0.95));
+  }
+}
+
+.percent {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.6rem;
+  color: $silver-faded;
+  text-align: right;
+}

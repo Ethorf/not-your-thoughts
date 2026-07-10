@@ -64,7 +64,7 @@ const journalEntriesSlice = createSlice({
         state.journalEntriesLoading = true
       })
       .addCase(fetchJournalEntries.fulfilled, (state, action) => {
-        state.entries = action.payload
+        state.entries = action.payload?.entries || []
         state.journalEntriesLoading = false
       })
       .addCase(fetchJournalEntries.rejected, (state) => {

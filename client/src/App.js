@@ -12,6 +12,7 @@ import './App.scss'
 // Components
 import LeftMainNavigation from '@components/nav/LeftMainNavigation'
 import RightSidebar from '@components/RightSidebar/RightSidebar.js'
+import DailyGoalToastManager from '@components/DailyGoalToastManager/DailyGoalToastManager'
 
 import NavBarTop from '@components/nav/navBarTop'
 
@@ -27,7 +28,6 @@ import ProfilePage from '@pages/ProfilePage/ProfilePage.js'
 import Resources from '@pages/ResourcesPage/ResourcesPage.js'
 import Modes from '@pages/ModesPage/ModesPage.js'
 import About from '@pages/AboutPage/About.js'
-import Entries from '@pages/EntriesPage/EntriesPage.js'
 import History from '@pages/History/History.js'
 import ViewNetwork from '@pages/ViewNetwork/ViewNetwork.js'
 import PublicNodeEntry from '@pages/PublicNodeEntry/PublicNodeEntry.js'
@@ -52,6 +52,7 @@ const AppContent = () => {
   return (
     <>
       <ModalsContainer />
+      <DailyGoalToastManager />
       <LeftMainNavigation />
       {user && <RightSidebar />}
       <Switch location={location}>
@@ -70,7 +71,6 @@ const AppContent = () => {
         <PrivateRoute path="/profile" exact component={ProfilePage} />
         <PrivateRoute path="/edit-node-entry" component={EditNodeEntry} />
         <PrivateRoute path="/history" exact component={History} />
-        <PrivateRoute path="/entries" exact component={Entries} />
         <Route path="/resources" exact>
           {({ match }) => <Resources show={match !== null} />}
         </Route>

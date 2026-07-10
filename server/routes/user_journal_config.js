@@ -12,6 +12,12 @@ router.get('/', authorize, async (req, res) => {
   const { id } = req.user
 
   try {
+    await pool.query(`
+      ALTER TABLE user_config
+        ADD COLUMN IF NOT EXISTS node_daily_words_goal INT DEFAULT 400,
+        ADD COLUMN IF NOT EXISTS node_daily_time_goal INT DEFAULT 5
+    `)
+
     const userJournal = await pool.query('SELECT * FROM user_config WHERE user_id = $1', [id])
     let journalConfig = userJournal.rows[0]
 
@@ -32,7 +38,13 @@ router.get('/', authorize, async (req, res) => {
 router.post('/update_goals', authorize, async (req, res) => {
   const { id: user_id } = req.user
 
-  const { journal_goal_preference, daily_time_goal, daily_words_goal } = req.body
+  const {
+    journal_goal_preference,
+    daily_time_goal,
+    daily_words_goal,
+    node_daily_words_goal,
+    node_daily_time_goal,
+  } = req.body
 
   try {
     // Validate the journal_goal_preference input if provided
@@ -42,17 +54,33 @@ router.post('/update_goals', authorize, async (req, res) => {
 
     // Construct the dynamic SQL query
     const query = `
-        INSERT INTO user_config (user_id, journal_goal_preference, daily_time_goal, daily_words_goal)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO user_config (
+          user_id,
+          journal_goal_preference,
+          daily_time_goal,
+          daily_words_goal,
+          node_daily_words_goal,
+          node_daily_time_goal
+        )
+        VALUES ($1, $2, $3, $4, $5, $6)
         ON CONFLICT (user_id) DO UPDATE
         SET 
           journal_goal_preference = COALESCE($2, user_config.journal_goal_preference),
           daily_time_goal = COALESCE($3, user_config.daily_time_goal),
-          daily_words_goal = COALESCE($4, user_config.daily_words_goal)
+          daily_words_goal = COALESCE($4, user_config.daily_words_goal),
+          node_daily_words_goal = COALESCE($5, user_config.node_daily_words_goal),
+          node_daily_time_goal = COALESCE($6, user_config.node_daily_time_goal)
         RETURNING *`
 
     // Execute the query
-    const updatedRow = await pool.query(query, [user_id, journal_goal_preference, daily_time_goal, daily_words_goal])
+    const updatedRow = await pool.query(query, [
+      user_id,
+      journal_goal_preference,
+      daily_time_goal,
+      daily_words_goal,
+      node_daily_words_goal,
+      node_daily_time_goal,
+    ])
 
     console.log('Goals updated successfully!')
     return res.json({ updatedRow: updatedRow.rows[0] })

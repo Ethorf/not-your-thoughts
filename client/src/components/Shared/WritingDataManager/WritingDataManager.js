@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { createWritingData, setTimeElapsed, setWordsAdded } from '@redux/reducers/writingDataReducer'
+import { createWritingData, setTimeElapsed, setWordsAdded, setSessionActive } from '@redux/reducers/writingDataReducer'
 
 const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) => {
   const dispatch = useDispatch()
@@ -13,6 +13,7 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
   const autosaveTimeoutRef = useRef(null)
   const intervalRef = useRef(null)
   const wordCountRef = useRef(0)
+  const sessionPeakWordCountRef = useRef(0)
   const timeElapsedRef = useRef(0)
   const entryIdRef = useRef(null)
 
@@ -24,17 +25,27 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
   const { wordCount, entryId, entriesSaving } = useSelector((state) => state.currentEntry)
   const { timeElapsed, wordsAdded } = useSelector((state) => state.writingData)
 
-  // update wordsAdded whenever wordCount changes
+  // Track words added this session — monotonic; deletions must not reduce the count
   useEffect(() => {
     wordCountRef.current = wordCount
-    const added = activeWordCount !== null ? wordCountRef.current - activeWordCount : 0
+
+    if (activeWordCount === null) {
+      dispatch(setWordsAdded(0))
+      return
+    }
+
+    sessionPeakWordCountRef.current = Math.max(sessionPeakWordCountRef.current, wordCountRef.current)
+    const added = Math.max(0, sessionPeakWordCountRef.current - activeWordCount)
     dispatch(setWordsAdded(added))
   }, [activeWordCount, dispatch, wordCount])
 
   // startTimer: once per mount
   const startTimer = useCallback(() => {
     if (intervalRef.current == null) {
-      setActiveWordCount(wordCountRef.current)
+      const startingCount = wordCountRef.current
+      setActiveWordCount(startingCount)
+      sessionPeakWordCountRef.current = startingCount
+      dispatch(setSessionActive(true))
       intervalRef.current = setInterval(() => {
         const t = timeElapsedRef.current + 1
         timeElapsedRef.current = t
@@ -55,7 +66,10 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
         intervalRef.current = null
         dispatch(setTimeElapsed(0))
         timeElapsedRef.current = 0
+        sessionPeakWordCountRef.current = 0
         setActiveWordCount(null)
+        dispatch(setWordsAdded(0))
+        dispatch(setSessionActive(false))
       }
       if (autosave) {
         setShouldAutosave(true)
