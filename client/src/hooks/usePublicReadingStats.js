@@ -30,27 +30,42 @@ export const usePublicReadingStats = (content, scrollContainerRef, visible = tru
       const maxScroll = scrollHeight - clientHeight
       const needsScroll = maxScroll > SCROLL_THRESHOLD_PX
 
-      setRequiresScroll(needsScroll)
+      setRequiresScroll((prev) => (prev === needsScroll ? prev : needsScroll))
 
       if (!needsScroll) {
-        setReadPercent(100)
+        setReadPercent((prev) => (prev === 100 ? prev : 100))
         return
       }
 
-      setReadPercent(Math.min(100, Math.round((scrollTop / maxScroll) * 100)))
+      const nextPercent = Math.min(100, Math.round((scrollTop / maxScroll) * 100))
+      setReadPercent((prev) => (prev === nextPercent ? prev : nextPercent))
+    }
+
+    let rafId = null
+    const scheduleUpdate = () => {
+      if (rafId != null) {
+        return
+      }
+      rafId = requestAnimationFrame(() => {
+        rafId = null
+        updateReadPercent()
+      })
     }
 
     updateReadPercent()
 
     scrollContainer.addEventListener('scroll', updateReadPercent, { passive: true })
-    window.addEventListener('resize', updateReadPercent)
+    window.addEventListener('resize', scheduleUpdate)
 
-    const resizeObserver = new ResizeObserver(updateReadPercent)
+    const resizeObserver = new ResizeObserver(scheduleUpdate)
     resizeObserver.observe(scrollContainer)
 
     return () => {
       scrollContainer.removeEventListener('scroll', updateReadPercent)
-      window.removeEventListener('resize', updateReadPercent)
+      window.removeEventListener('resize', scheduleUpdate)
+      if (rafId != null) {
+        cancelAnimationFrame(rafId)
+      }
       resizeObserver.disconnect()
     }
   }, [scrollContainerRef, content, visible])

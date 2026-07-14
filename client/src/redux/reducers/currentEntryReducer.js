@@ -9,6 +9,7 @@ import { showToast } from '@utils/toast'
 import { resolvePublicUserId } from '@utils/resolvePublicUserId'
 import { normalizeEntryId } from '@utils/normalizeEntryId'
 import { createDeduplicationCondition, clearPendingRequest } from '@utils/requestDeduplication'
+import { getLocalDateKey, getLocalTimeZone } from '@utils/localDateKey'
 
 const { NODE, JOURNAL } = ENTRY_TYPES
 
@@ -34,6 +35,7 @@ const initialState = {
   starred: false,
   isTopLevel: false,
   isPrivate: false,
+  wordCountGoal: null,
   entryContents: [],
   entryContentsLoading: false,
   globalRenderOwners: {},
@@ -147,14 +149,24 @@ export const createJournalEntry = createAsyncThunk(
   'currentEntryReducer/createJournalEntry',
   async (_, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axiosInstance.post('api/entries/create_journal_entry')
+      const response = await axiosInstance.post('api/entries/create_journal_entry', {
+        localDate: getLocalDateKey(),
+        timeZone: getLocalTimeZone(),
+      })
       const entryId = response.data.entry_id
-      dispatch(applyNewJournalDraft({ entryId }))
+      const existing = Boolean(response.data.existing)
+
+      if (existing) {
+        await dispatch(setEntryById(entryId))
+      } else {
+        dispatch(applyNewJournalDraft({ entryId }))
+      }
+
       await dispatch(fetchNodeEntriesInfo())
 
       return entryId
     } catch (error) {
-      dispatch(showToast('Node creation error', 'error'))
+      dispatch(showToast('Journal creation error', 'error'))
       return rejectWithValue(error.response?.data)
     }
   }
@@ -243,7 +255,9 @@ export const setEntryById = createAsyncThunk(
         wdWordCount,
         wdTimeElapsed,
         isTopLevel,
+        is_top_level: isTopLevelSnake,
         is_private: isPrivate,
+        word_count_goal: wordCountGoal,
         type: entryType,
       } = response.data
 
@@ -257,8 +271,9 @@ export const setEntryById = createAsyncThunk(
         wordCount,
         starred,
         title: title ?? '',
-        isTopLevel,
+        isTopLevel: Boolean(isTopLevel ?? isTopLevelSnake),
         isPrivate: isPrivate || false,
+        wordCountGoal: wordCountGoal != null ? Number(wordCountGoal) : null,
         type: entryType === JOURNAL ? JOURNAL : NODE,
       }
     } catch (error) {
@@ -379,6 +394,24 @@ export const toggleEntryIsPrivate = createAsyncThunk(
     } catch (error) {
       dispatch(showToast('Error updating privacy status', 'error'))
       return rejectWithValue(error.response.data)
+    }
+  }
+)
+
+export const updateWordCountGoal = createAsyncThunk(
+  'currentEntryReducer/updateWordCountGoal',
+  async ({ entryId, wordCountGoal }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axiosInstance.post('api/entries/update_word_count_goal', {
+        entryId,
+        wordCountGoal,
+      })
+
+      dispatch(showToast(wordCountGoal ? 'Node word goal saved' : 'Node word goal cleared', 'success'))
+      return response.data
+    } catch (error) {
+      dispatch(showToast('Error updating word count goal', 'error'))
+      return rejectWithValue(error.response?.data ?? error)
     }
   }
 )
@@ -529,6 +562,7 @@ const currentEntrySlice = createSlice({
         state.starred = false
         state.isTopLevel = false
         state.isPrivate = false
+        state.wordCountGoal = null
         state.akas = []
         state.shinyTextDismissals = []
         state.entryContents = []
@@ -594,16 +628,10 @@ const currentEntrySlice = createSlice({
       .addCase(createJournalEntry.fulfilled, (state, action) => {
         state.entriesLoading = false
         state.entryId = action.payload
-        state.content = ''
-        state.title = ''
         state.type = JOURNAL
-        state.wordCount = 0
-        state.timeElapsed = 0
-        state.wpm = 0
-        state.wdWordCount = 0
-        state.wdTimeElapsed = 0
-        delete state.connections
-        delete state.date
+      })
+      .addCase(createJournalEntry.rejected, (state) => {
+        state.entriesLoading = false
       })
       .addCase(saveJournalEntry.pending, (state) => {
         state.entriesLoading = true
@@ -720,6 +748,12 @@ const currentEntrySlice = createSlice({
         const { entryId, isPrivate } = action.payload
         if (state.entryId === entryId) {
           state.isPrivate = isPrivate
+        }
+      })
+      .addCase(updateWordCountGoal.fulfilled, (state, action) => {
+        const { entryId, wordCountGoal } = action.payload
+        if (state.entryId === entryId) {
+          state.wordCountGoal = wordCountGoal != null ? Number(wordCountGoal) : null
         }
       })
       .addCase(fetchPublicEntry.pending, (state, action) => {

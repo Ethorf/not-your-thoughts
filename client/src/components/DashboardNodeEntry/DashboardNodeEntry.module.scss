@@ -18,6 +18,12 @@
   overflow: hidden;
 }
 
+.wordCount {
+  color: $silver-faded;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
 .exploreButton {
   font-size: 0.8rem;
   justify-self: end;
@@ -28,23 +34,20 @@
   justify-self: end;
 }
 
-.pending {
-  text-transform: uppercase;
-  color: $silver-active;
-  width: fit-content;
-}
-
 @include mobile-all {
   .wrapper {
-    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-columns: auto minmax(0, 1fr) auto auto auto;
     gap: 0.375rem;
     width: 100%;
     padding: 0.375rem 0;
   }
 
-  .dateColumn,
-  .pendingColumn {
+  .dateColumn {
     display: none;
+  }
+
+  .wordCount {
+    font-size: 0.65rem;
   }
 
   .exploreButton,
