@@ -1,0 +1,2 @@
+ALTER TABLE entries
+  ADD COLUMN IF NOT EXISTS word_count_goal INT DEFAULT NULL;

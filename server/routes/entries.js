@@ -180,12 +180,110 @@ router.post('/update_node_top_level', authorize, async (req, res) => {
   }
 })
 
+router.post('/update_word_count_goal', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+  const { entryId, wordCountGoal } = req.body
+
+  try {
+    await pool.query(`
+      ALTER TABLE entries
+        ADD COLUMN IF NOT EXISTS word_count_goal INT DEFAULT NULL
+    `)
+
+    if (!entryId) {
+      return res.status(400).json({ message: 'entryId is required' })
+    }
+
+    const normalizedGoal =
+      wordCountGoal === null || wordCountGoal === undefined || wordCountGoal === ''
+        ? null
+        : Math.max(0, Math.floor(Number(wordCountGoal)))
+
+    if (normalizedGoal !== null && !Number.isFinite(normalizedGoal)) {
+      return res.status(400).json({ message: 'wordCountGoal must be a number or null' })
+    }
+
+    const updatedEntry = await pool.query(
+      'UPDATE entries SET word_count_goal = $1 WHERE id = $2 AND user_id = $3 RETURNING id, word_count_goal',
+      [normalizedGoal, entryId, user_id]
+    )
+
+    if (updatedEntry.rows.length === 0) {
+      return res.status(404).json({ message: 'Entry not found or access denied' })
+    }
+
+    return res.json({
+      entryId: updatedEntry.rows[0].id,
+      wordCountGoal: updatedEntry.rows[0].word_count_goal,
+    })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
 router.post('/create_journal_entry', authorize, async (req, res) => {
   const { id: user_id } = req.user
   const type = 'journal'
+  const requestedLocalDate = req.body?.localDate
+  const localDate =
+    typeof requestedLocalDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(requestedLocalDate)
+      ? requestedLocalDate
+      : new Date().toISOString().slice(0, 10)
+  const requestedTimeZone = req.body?.timeZone
+  const timeZone =
+    typeof requestedTimeZone === 'string' && requestedTimeZone.length > 0 && requestedTimeZone.length < 100
+      ? requestedTimeZone
+      : 'UTC'
 
   try {
-    // Insert a new journal entry with default values (is_private defaults to true for journals)
+    // One journal per local calendar day: resume earliest match for that day.
+    let existingEntry
+    try {
+      existingEntry = await pool.query(
+        `SELECT id
+         FROM entries
+         WHERE user_id = $1
+           AND type = $2
+           AND (
+             (timezone($3, COALESCE(date_originally_created, NOW())::timestamptz))::date = $4::date
+             OR EXISTS (
+               SELECT 1
+               FROM entry_contents ec
+               WHERE ec.entry_id = entries.id
+                 AND (timezone($3, ec.date_created::timestamptz))::date = $4::date
+             )
+           )
+         ORDER BY id ASC
+         LIMIT 1`,
+        [user_id, type, timeZone, localDate]
+      )
+    } catch (timezoneQueryError) {
+      console.warn('Timezone-aware journal lookup failed, falling back to UTC date match:', timezoneQueryError.message)
+      existingEntry = await pool.query(
+        `SELECT id
+         FROM entries
+         WHERE user_id = $1
+           AND type = $2
+           AND (
+             COALESCE(date_originally_created, NOW())::date = $3::date
+             OR EXISTS (
+               SELECT 1
+               FROM entry_contents ec
+               WHERE ec.entry_id = entries.id
+                 AND ec.date_created::date = $3::date
+             )
+           )
+         ORDER BY id ASC
+         LIMIT 1`,
+        [user_id, type, localDate]
+      )
+    }
+
+    if (existingEntry.rows.length > 0) {
+      return res.json({ entry_id: existingEntry.rows[0].id, existing: true })
+    }
+
     const newEntry = await pool.query(
       'INSERT INTO entries (user_id, type, total_time_taken, wpm, num_of_words, content_ids, is_private) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
       [user_id, type, 0, 0, 0, [], true]
@@ -194,7 +292,7 @@ router.post('/create_journal_entry', authorize, async (req, res) => {
     const entry_id = newEntry.rows[0].id
 
     console.log('Journal Entry created successfully!')
-    return res.json({ entry_id })
+    return res.json({ entry_id, existing: false })
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Server error')
@@ -381,6 +479,11 @@ router.get('/node_entries_info', async (req, res) => {
   }
 
   try {
+    await pool.query(`
+      ALTER TABLE entries
+        ADD COLUMN IF NOT EXISTS word_count_goal INT DEFAULT NULL
+    `)
+
     // Optimized query: only fetch latest content (LIMIT 1), use MIN/MAX for dates
     const nodeEntriesQuery = await pool.query(
       `SELECT 
@@ -390,6 +493,7 @@ router.get('/node_entries_info', async (req, res) => {
     entries.is_top_level,
     entries.is_private,
     entries.date_originally_created,
+    entries.word_count_goal,
     -- Only fetch the latest content (most efficient)
     (SELECT content 
       FROM entry_contents 
@@ -441,6 +545,7 @@ router.get('/node_entries_info', async (req, res) => {
         calculatedWordCount,
         wdWordCount: aggregatedWordCount, // ✅ aggregated writing data fallback
         wdTimeElapsed: entry.wd_time_elapsed, // optional, since you have it
+        wordCountGoal: entry.word_count_goal != null ? Number(entry.word_count_goal) : null,
         pending: !hasContent,
         date_created: hasContent ? entry.date_created : entry.date_originally_created,
         date_last_modified: hasContent ? entry.date_last_modified : entry.date_originally_created,
@@ -523,6 +628,11 @@ router.get('/entry/:entryId', async (req, res) => {
   }
 
   try {
+    await pool.query(`
+      ALTER TABLE entries
+        ADD COLUMN IF NOT EXISTS word_count_goal INT DEFAULT NULL
+    `)
+
     // Retrieve the entry with the provided entryId
     const entryQuery = `
       SELECT 

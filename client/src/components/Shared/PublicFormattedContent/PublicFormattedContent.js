@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { createFormatRules, formatContentWithConnections } from '@utils/formatContentWithConnections'
-import formattedTextStyles from '@components/Shared/FormattedTextOverlay/FormattedTextOverlay.module.scss'
 import classNames from 'classnames'
 import styles from './PublicFormattedContent.module.scss'
 
@@ -81,7 +80,7 @@ const PublicFormattedContent = ({
       entryId,
       (nodeId) => handleInternalConnectionClickRef.current?.(nodeId),
       (url) => handleExternalConnectionClickRef.current?.(url),
-      formattedTextStyles,
+      styles,
       nodeEntriesInfo
     )
   }, [connections, entryId, nodeEntriesInfo])
@@ -130,8 +129,7 @@ const PublicFormattedContent = ({
               allTitles,
               (nodeId) => handleUnconnectedNodeClickRef.current?.(nodeId),
               nodeEntriesInfo,
-              'node found, click to view',
-              false // Disable ShinyText for public view
+              'node found, click to view'
             )
             lastParsedContentRef.current = formatted
             lastParsedDepsRef.current = depsKey
@@ -148,8 +146,7 @@ const PublicFormattedContent = ({
             allTitles,
             (nodeId) => handleUnconnectedNodeClickRef.current?.(nodeId),
             nodeEntriesInfo,
-            'node found, click to view',
-            false // Disable ShinyText for public view
+            'node found, click to view'
           )
           lastParsedContentRef.current = formatted
           lastParsedDepsRef.current = depsKey
@@ -175,7 +172,7 @@ const PublicFormattedContent = ({
   }
 
   return (
-    <div className={classNames(formattedTextStyles.wrapper, styles.formattedContentWrapper)}>
+    <div className={classNames(styles.wrapper, styles.formattedContentWrapper)}>
       {parsedContent}
     </div>
   )

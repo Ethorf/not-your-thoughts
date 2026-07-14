@@ -1,7 +1,100 @@
+@import '@styles/variables.scss';
+@import '@styles/listMarkerStyles.scss';
 @import '@styles/mixins.scss';
+
+.wrapper {
+  position: absolute;
+  font-family: $main-text;
+  font-weight: 200;
+  color: silver;
+  z-index: $text-entry-z-index + 1;
+  padding-top: 1rem;
+  pointer-events: none;
+  transition: color 1s, top 0s;
+  width: 100%;
+  left: 0;
+  right: 0;
+  cursor: default;
+
+  font-size: $main-text-font-size;
+  line-height: $main-text-line-height;
+  padding-bottom: 0 !important;
+  padding-left: 0 !important;
+  padding-top: 1rem;
+
+  margin: 0;
+  box-sizing: $main-text-box-sizing;
+
+  > p {
+    font-weight: 200;
+    font-size: $main-text-font-size;
+    line-height: $main-text-line-height;
+    padding-left: $main-text-padding-left;
+    padding-top: 0;
+    padding-bottom: $main-text-padding-bottom;
+    padding-right: $main-text-padding-right;
+    box-sizing: $main-text-box-sizing;
+    margin-top: 0;
+    margin: 0;
+    transition: color 1s;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    cursor: default;
+  }
+
+  @for $i from 1 through 9 {
+    > p:global(.ql-indent-#{$i}) {
+      padding-left: 3em * $i;
+    }
+  }
+
+  li > p {
+    display: inline;
+    padding: 0;
+    margin: 0;
+  }
+
+  @include local-editor-list-markers;
+  @include quill-block-indents;
+
+  ul > li,
+  ol > li {
+    font-weight: 200;
+    font-size: $main-text-font-size;
+    line-height: $main-text-line-height;
+    box-sizing: $main-text-box-sizing;
+    margin: 0;
+    cursor: default;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  ul > li::before,
+  ol > li::before {
+    color: silver;
+  }
+
+  ol li,
+  ul li {
+    font-size: $main-text-font-size;
+  }
+}
 
 .formattedContentWrapper {
   position: relative !important;
+}
+
+.externalConnection {
+  color: white;
+  text-decoration: underline;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.internalConnection {
+  color: white;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 @include mobile-all {

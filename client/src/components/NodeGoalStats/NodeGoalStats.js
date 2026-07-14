@@ -33,6 +33,7 @@ const GoalMeter = ({ label, current, goal, unit }) => {
 const NodeGoalStats = () => {
   const dispatch = useDispatch()
   const { journalConfig } = useSelector((state) => state.journalEntries)
+  const { wordCount } = useSelector((state) => state.currentEntry)
   const {
     stats: { nodesWordCountToday, nodesWritingTimeToday, journalWordCountToday, journalWritingTimeToday },
     wordsAdded,
@@ -48,6 +49,9 @@ const NodeGoalStats = () => {
   if (!journalConfig) {
     return null
   }
+
+  const perNodeWordsGoal = toNonNegativeInt(journalConfig.node_word_count_goal ?? 500)
+  const currentNodeWords = toNonNegativeInt(wordCount)
 
   const wordsGoal = toNonNegativeInt(journalConfig.node_daily_words_goal ?? 400)
   const timeGoalMinutes = toNonNegativeInt(journalConfig.node_daily_time_goal ?? 5)
@@ -68,7 +72,14 @@ const NodeGoalStats = () => {
 
   return (
     <div className={styles.stats}>
-      <h4 className={styles.sectionTitle}>Nodes</h4>
+      {perNodeWordsGoal > 0 && (
+        <>
+          <h4 className={styles.sectionTitle}>This Node</h4>
+          <GoalMeter label="Words" current={currentNodeWords} goal={perNodeWordsGoal} unit="words" />
+        </>
+      )}
+
+      <h4 className={styles.sectionTitle}>Nodes Today</h4>
       <GoalMeter label="Words" current={currentWordsToday} goal={wordsGoal} unit="words" />
       <GoalMeter label="Time" current={currentTimeTodayMinutes} goal={timeGoalMinutes} unit="min" />
 

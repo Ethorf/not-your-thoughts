@@ -70,6 +70,18 @@ function patchCssModuleLoadersForDev(rule, isDevelopment) {
 module.exports = {
   devServer: {
     allowedHosts: 'all', // Allow all hosts (including ngrok)
+    client: {
+      overlay: {
+        runtimeErrors: (error) => {
+          const message = error?.message || ''
+          // Benign browser notification; Chrome surfaces it as an ErrorEvent in some layouts
+          if (message.includes('ResizeObserver loop')) {
+            return false
+          }
+          return true
+        },
+      },
+    },
   },
   webpack: {
     configure: (webpackConfig, { env }) => {

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import classNames from 'classnames'
@@ -18,10 +18,48 @@ import { logout } from '@redux/actions/authActions'
 import { toggleLeftSidebar, openLeftSidebar, closeLeftSidebar } from '@redux/reducers/leftSidebarReducer'
 import { showToast } from '@utils/toast'
 import { normalizeEntryId } from '@utils/normalizeEntryId'
-import { ENTRY_TYPES } from '@constants/entryTypes'
+import { getRouteLabel } from '@utils/getRouteLabel'
 import useIsMobile from '@hooks/useIsMobile'
 
-const { NODE } = ENTRY_TYPES
+const PREVIOUS_LOCATION_STORAGE_KEY = 'nyt:previousNavLocation'
+
+const readStoredPreviousLocation = () => {
+  try {
+    const raw = sessionStorage.getItem(PREVIOUS_LOCATION_STORAGE_KEY)
+    if (!raw) {
+      return null
+    }
+    const parsed = JSON.parse(raw)
+    if (!parsed?.pathname) {
+      return null
+    }
+    if (
+      parsed.pathname === window.location.pathname &&
+      (parsed.search || '') === window.location.search &&
+      (parsed.hash || '') === window.location.hash
+    ) {
+      return null
+    }
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+const writeStoredPreviousLocation = (locationSnapshot) => {
+  try {
+    sessionStorage.setItem(
+      PREVIOUS_LOCATION_STORAGE_KEY,
+      JSON.stringify({
+        pathname: locationSnapshot.pathname,
+        search: locationSnapshot.search,
+        hash: locationSnapshot.hash,
+      })
+    )
+  } catch {
+    // Ignore storage failures (private mode, quota, etc.)
+  }
+}
 
 const LeftMainNavigation = () => {
   const dispatch = useDispatch()
@@ -30,21 +68,34 @@ const LeftMainNavigation = () => {
   const guestMode = useSelector((state) => state.auth.guestMode)
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated)
   const user = useSelector((state) => state.auth.user)
-  const { entryId, type } = useSelector((state) => state.currentEntry)
   const history = useHistory()
   const location = useLocation()
   const isMobile = useIsMobile()
+  const currentLocationRef = useRef(location)
+  const [previousLocation, setPreviousLocation] = useState(() => readStoredPreviousLocation())
 
-  const hasCurrentNode = entryId != null && type === NODE
-  const isOnEditNodePage = location.pathname.startsWith('/edit-node-entry')
+  const previousPageLabel = previousLocation ? getRouteLabel(previousLocation.pathname) : null
+  const canGoBack = Boolean(previousLocation) && !isMobile
 
-  const handleReturnToEditNode = useCallback(() => {
-    if (entryId == null) {
+  useEffect(() => {
+    const previous = currentLocationRef.current
+    const pathChanged =
+      previous.pathname !== location.pathname || previous.search !== location.search || previous.hash !== location.hash
+
+    if (pathChanged) {
+      setPreviousLocation(previous)
+      writeStoredPreviousLocation(previous)
+      currentLocationRef.current = location
+    }
+  }, [location])
+
+  const handleGoBack = useCallback(() => {
+    if (!previousLocation) {
       return
     }
 
-    history.push(`/edit-node-entry?entryId=${entryId}`)
-  }, [entryId, history])
+    history.goBack()
+  }, [history, previousLocation])
 
   const handleToggleSidebar = useCallback(() => {
     if (isMobile) {
@@ -108,132 +159,134 @@ const LeftMainNavigation = () => {
   }, [leftSidebarOpen, dispatch])
 
   return (
-    <div
-      className={classNames(styles.wrapper, {
-        [styles.sidebarOpen]: leftSidebarOpen,
-      })}
-    >
-      <button className={styles.arrowContainer} onClick={handleToggleSidebar}>
-        <img
-          className={classNames(styles.arrow, { [styles.arrowRotate]: leftSidebarOpen })}
-          src={arrow}
-          alt="hamburger"
-        />
-      </button>
-      {!isMobile && hasCurrentNode && !isOnEditNodePage && (
-        <DefaultButton
-          className={styles.returnToEditButton}
-          tooltip="Back to edit node"
-          onClick={handleReturnToEditNode}
-        >
-          Edit Node
-        </DefaultButton>
-      )}
-      {isMobile && leftSidebarOpen && (
-        <div
-          className={styles.sheetOverlay}
-          onClick={() => dispatch(closeLeftSidebar())}
-          aria-hidden="true"
-        />
-      )}
+    <>
       <div
-        className={classNames(styles.sidebarContainer, {
+        className={classNames(styles.wrapper, {
           [styles.sidebarOpen]: leftSidebarOpen,
         })}
       >
-        {isMobile && <div className={styles.dragHandle} />}
-        <NavLink
-          exact
-          to="/"
-          activeClassName={styles.active}
-          className={mode === '-.light' ? styles.linkLight : styles.link}
+        <button className={styles.arrowContainer} onClick={handleToggleSidebar}>
+          <img
+            className={classNames(styles.arrow, { [styles.arrowRotate]: leftSidebarOpen })}
+            src={arrow}
+            alt="hamburger"
+          />
+        </button>
+        {isMobile && leftSidebarOpen && (
+          <div className={styles.sheetOverlay} onClick={() => dispatch(closeLeftSidebar())} aria-hidden="true" />
+        )}
+        <div
+          className={classNames(styles.sidebarContainer, {
+            [styles.sidebarOpen]: leftSidebarOpen,
+          })}
         >
-          Home
-        </NavLink>
-        {!guestMode && user ? (
+          {isMobile && <div className={styles.dragHandle} />}
           <NavLink
             exact
-            to="/dashboard"
+            to="/"
             activeClassName={styles.active}
             className={mode === '-.light' ? styles.linkLight : styles.link}
           >
-            Dashboard
+            Home
           </NavLink>
-        ) : null}
-        <TextButton
-          navLink
-          className={styles.navTextButton}
-          onClick={() => history.push('/public-dashboard?userId=ethorf')}
-        >
-          {user ? 'Public View' : 'Browse'}
-        </TextButton>
-        {!guestMode && user && (
-          <>
+          {!guestMode && user ? (
             <NavLink
               exact
-              to="/explore"
+              to="/dashboard"
               activeClassName={styles.active}
               className={mode === '-.light' ? styles.linkLight : styles.link}
             >
-              Explore
+              Dashboard
             </NavLink>
-            <TextButton navLink className={styles.navTextButton} onClick={handleNewJournalEntryClick}>
-              New Journal
-            </TextButton>
-            <TextButton navLink className={styles.navTextButton} onClick={handleNewNodeEntryClick}>
-              New Node
-            </TextButton>
-          </>
-        )}
-        <NavLink
-          exact
-          to="/resources"
-          activeClassName={styles.active}
-          className={mode === '-.light' ? styles.linkLight : styles.link}
-        >
-          Resources
-        </NavLink>
-        {user && (
+          ) : null}
+          <TextButton
+            navLink
+            className={styles.navTextButton}
+            onClick={() => history.push('/public-dashboard?userId=ethorf')}
+          >
+            {user ? 'Public View' : 'Browse'}
+          </TextButton>
+          {!guestMode && user && (
+            <>
+              <NavLink
+                exact
+                to="/explore"
+                activeClassName={styles.active}
+                className={mode === '-.light' ? styles.linkLight : styles.link}
+              >
+                Explore
+              </NavLink>
+              <TextButton navLink className={styles.navTextButton} onClick={handleNewJournalEntryClick}>
+                Journal
+              </TextButton>
+              <TextButton navLink className={styles.navTextButton} onClick={handleNewNodeEntryClick}>
+                New Node
+              </TextButton>
+            </>
+          )}
           <NavLink
             exact
-            to="/profile"
+            to="/resources"
             activeClassName={styles.active}
             className={mode === '-.light' ? styles.linkLight : styles.link}
           >
-            Profile
+            Resources
           </NavLink>
-        )}
-        <NavLink
-          exact
-          to="/about"
-          activeClassName={styles.active}
-          className={mode === '-.light' ? styles.linkLight : styles.link}
-        >
-          About
-        </NavLink>
-        {isAuthenticated ? (
-          <button
-            type="button"
-            className={mode === '-.light' ? styles.logoutButtonLight : styles.logoutButton}
-            onClick={() => {
-              dispatch(logout())
-              history.push('/')
-            }}
-          >
-            Logout
-          </button>
-        ) : (
+          {user && (
+            <NavLink
+              exact
+              to="/profile"
+              activeClassName={styles.active}
+              className={mode === '-.light' ? styles.linkLight : styles.link}
+            >
+              Profile
+            </NavLink>
+          )}
           <NavLink
             exact
-            to="/login"
+            to="/about"
             activeClassName={styles.active}
             className={mode === '-.light' ? styles.linkLight : styles.link}
           >
-            Login
+            About
           </NavLink>
-        )}
+          {isAuthenticated ? (
+            <button
+              type="button"
+              className={mode === '-.light' ? styles.logoutButtonLight : styles.logoutButton}
+              onClick={() => {
+                dispatch(logout())
+                history.push('/')
+              }}
+            >
+              Logout
+            </button>
+          ) : (
+            <NavLink
+              exact
+              to="/login"
+              activeClassName={styles.active}
+              className={mode === '-.light' ? styles.linkLight : styles.link}
+            >
+              Login
+            </NavLink>
+          )}
+        </div>
       </div>
-    </div>
+      {canGoBack && (
+        <DefaultButton
+          className={classNames(styles.backButton, {
+            [styles.backButtonDisplaced]: leftSidebarOpen,
+          })}
+          onClick={handleGoBack}
+          data-tooltip-id="main-tooltip"
+          data-tooltip-content={`Back to ${previousPageLabel}`}
+          aria-label={`Back to ${previousPageLabel}`}
+        >
+          ← {previousPageLabel}
+        </DefaultButton>
+      )}
+    </>
   )
 }
 

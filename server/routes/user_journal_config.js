@@ -15,7 +15,8 @@ router.get('/', authorize, async (req, res) => {
     await pool.query(`
       ALTER TABLE user_config
         ADD COLUMN IF NOT EXISTS node_daily_words_goal INT DEFAULT 400,
-        ADD COLUMN IF NOT EXISTS node_daily_time_goal INT DEFAULT 5
+        ADD COLUMN IF NOT EXISTS node_daily_time_goal INT DEFAULT 5,
+        ADD COLUMN IF NOT EXISTS node_word_count_goal INT DEFAULT 500
     `)
 
     const userJournal = await pool.query('SELECT * FROM user_config WHERE user_id = $1', [id])
@@ -44,6 +45,7 @@ router.post('/update_goals', authorize, async (req, res) => {
     daily_words_goal,
     node_daily_words_goal,
     node_daily_time_goal,
+    node_word_count_goal,
   } = req.body
 
   try {
@@ -60,16 +62,18 @@ router.post('/update_goals', authorize, async (req, res) => {
           daily_time_goal,
           daily_words_goal,
           node_daily_words_goal,
-          node_daily_time_goal
+          node_daily_time_goal,
+          node_word_count_goal
         )
-        VALUES ($1, $2, $3, $4, $5, $6)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
         ON CONFLICT (user_id) DO UPDATE
         SET 
           journal_goal_preference = COALESCE($2, user_config.journal_goal_preference),
           daily_time_goal = COALESCE($3, user_config.daily_time_goal),
           daily_words_goal = COALESCE($4, user_config.daily_words_goal),
           node_daily_words_goal = COALESCE($5, user_config.node_daily_words_goal),
-          node_daily_time_goal = COALESCE($6, user_config.node_daily_time_goal)
+          node_daily_time_goal = COALESCE($6, user_config.node_daily_time_goal),
+          node_word_count_goal = COALESCE($7, user_config.node_word_count_goal)
         RETURNING *`
 
     // Execute the query
@@ -80,6 +84,7 @@ router.post('/update_goals', authorize, async (req, res) => {
       daily_words_goal,
       node_daily_words_goal,
       node_daily_time_goal,
+      node_word_count_goal,
     ])
 
     console.log('Goals updated successfully!')

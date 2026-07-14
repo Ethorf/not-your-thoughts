@@ -110,13 +110,34 @@ const LocalNodeNetworkView = ({
     const element = wrapperRef.current
     if (!element) return undefined
 
+    let rafId = null
     const observer = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect
-      setViewportSize({ width: Math.max(width, 1), height: Math.max(height, 1) })
+      const nextWidth = Math.max(width, 1)
+      const nextHeight = Math.max(height, 1)
+
+      if (rafId != null) {
+        return
+      }
+
+      rafId = requestAnimationFrame(() => {
+        rafId = null
+        setViewportSize((prev) => {
+          if (prev.width === nextWidth && prev.height === nextHeight) {
+            return prev
+          }
+          return { width: nextWidth, height: nextHeight }
+        })
+      })
     })
 
     observer.observe(element)
-    return () => observer.disconnect()
+    return () => {
+      if (rafId != null) {
+        cancelAnimationFrame(rafId)
+      }
+      observer.disconnect()
+    }
   }, [])
 
   const normalizedConnections = useMemo(

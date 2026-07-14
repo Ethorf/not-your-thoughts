@@ -1,6 +1,4 @@
 import React from 'react'
-import ShinyText from '@components/Shared/ShinyText/ShinyText'
-import ShinyTextSuggestionTrigger from '@components/Shared/ShinyText/ShinyTextSuggestionTrigger'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
 
 const {
@@ -215,12 +213,6 @@ export const findIdByNodeTitle = (nodes, title) => {
  * @param {Function} onUnconnectedNodeClick - Callback for clicking on nodes without connections
  * @param {Array} nodeEntriesInfo - Array of node entry objects
  * @param {string} unconnectedNodeTooltip - Tooltip text for unconnected nodes (default: "node found, click to view")
- * @param {boolean} enableShinyText - Whether to show ShinyText for unconnected nodes (default: true)
- * @param {Object|null} shinyTextOptions - Optional shiny suggestion menu config
- * @param {string|number} [shinyTextOptions.entryId] - Current entry id for stable animation phases
- * @param {Map<string, Object>} shinyTextOptions.candidateMap - titleLower -> candidate
- * @param {Function} shinyTextOptions.onDismiss - dismiss handler(candidate)
- * @param {Function} shinyTextOptions.onCreateConnection - create connection handler(candidate, connectionType, matchedText)
  * @returns {Array} Array of React elements representing formatted content
  */
 export const formatContentWithConnections = (
@@ -229,34 +221,9 @@ export const formatContentWithConnections = (
   allTitles,
   onUnconnectedNodeClick = null,
   nodeEntriesInfo = [],
-  unconnectedNodeTooltip = 'node found, click to view',
-  enableShinyText = true,
-  shinyTextOptions = null
+  unconnectedNodeTooltip = 'node found, click to view'
 ) => {
   if (!content) return null
-
-  const shinyCandidateMap = shinyTextOptions?.candidateMap ?? null
-  const shinyEntryId = shinyTextOptions?.entryId ?? null
-  const onDismissShinySuggestion = shinyTextOptions?.onDismiss ?? null
-  const onCreateConnectionFromSuggestion = shinyTextOptions?.onCreateConnection ?? null
-  const useShinySuggestionMenu = Boolean(
-    shinyCandidateMap && onDismissShinySuggestion && onCreateConnectionFromSuggestion
-  )
-  const shinyOccurrenceCounts = new Map()
-
-  const getShinyInstanceIds = (titleLower, paragraphIndex, candidateId = null) => {
-    const countKey = `${paragraphIndex}:${titleLower}`
-    const occurrence = shinyOccurrenceCounts.get(countKey) ?? 0
-    shinyOccurrenceCounts.set(countKey, occurrence + 1)
-
-    const elementKey = `shiny-${titleLower}-p${paragraphIndex}-o${occurrence}`
-    const identity = candidateId ?? titleLower
-    const animationId = shinyEntryId
-      ? `${shinyEntryId}:${identity}:p${paragraphIndex}:o${occurrence}`
-      : `${identity}:p${paragraphIndex}:o${occurrence}`
-
-    return { elementKey, animationId }
-  }
 
   const parser = new DOMParser()
   const doc = parser.parseFromString(content, 'text/html')
@@ -271,7 +238,7 @@ export const formatContentWithConnections = (
         if (typeof item === 'string') {
           return item.trim() !== ''
         }
-        // Keep React elements as they may have visual presence (e.g., ShinyText, links)
+        // Keep React elements as they may have visual presence (e.g., links)
         if (React.isValidElement(item)) {
           return true
         }
@@ -363,42 +330,7 @@ export const formatContentWithConnections = (
             })
           )
         } else if (allTitles.includes(word.toLowerCase())) {
-          const titleLower = word.toLowerCase()
-          const shinyCandidate = shinyCandidateMap?.get(titleLower)
-
-          if (shinyCandidate?.isDismissed) {
-            parts.push(word)
-          } else if (useShinySuggestionMenu && shinyCandidate) {
-            const { elementKey, animationId } = getShinyInstanceIds(titleLower, paragraphIndex, shinyCandidate.id)
-            parts.push(
-              <ShinyTextSuggestionTrigger
-                key={elementKey}
-                candidate={shinyCandidate}
-                text={word}
-                animationId={animationId}
-                onDismiss={onDismissShinySuggestion}
-                onCreateConnection={onCreateConnectionFromSuggestion}
-              />
-            )
-          } else if (enableShinyText && onUnconnectedNodeClick) {
-            const { elementKey, animationId } = getShinyInstanceIds(titleLower, paragraphIndex)
-            parts.push(
-              <ShinyText
-                key={elementKey}
-                animationId={animationId}
-                onClick={() => {
-                  const nodeId = findIdByNodeTitle(nodeEntriesInfo, word)
-                  if (nodeId) {
-                    onUnconnectedNodeClick(nodeId)
-                  }
-                }}
-                text={word}
-                data-tooltip-id="main-tooltip"
-                data-tooltip-content={unconnectedNodeTooltip}
-              />
-            )
-          } else if (onUnconnectedNodeClick) {
-            // Plain clickable text for unconnected nodes when shiny text is disabled
+          if (onUnconnectedNodeClick) {
             const nodeId = findIdByNodeTitle(nodeEntriesInfo, word)
             parts.push(
               <span

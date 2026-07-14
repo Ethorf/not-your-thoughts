@@ -1,7 +1,6 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import classNames from 'classnames'
 
 // Components
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
@@ -10,6 +9,7 @@ import StarButton from '@components/Shared/StarButton/StarButton'
 
 // Utils
 import { parseDate } from '@utils/parseDate'
+import calculateWordCount from '@utils/calculateWordCount'
 
 // Redux
 import { setEntryById } from '@redux/reducers/currentEntryReducer'
@@ -21,10 +21,44 @@ import { MODAL_NAMES } from '@constants/modalNames.js'
 // Styles
 import styles from './DashboardNodeEntry.module.scss'
 
+const getWordCount = (node) => {
+  if (!node) {
+    return 0
+  }
+
+  const {
+    content,
+    wdWordCount,
+    num_of_words: numOfWords,
+    wordCount: precomputedWordCount,
+    calculatedWordCount: serverCalculatedWordCount,
+  } = node
+
+  const candidates = [
+    precomputedWordCount,
+    serverCalculatedWordCount,
+    typeof wdWordCount === 'number' ? wdWordCount : null,
+    typeof numOfWords === 'number' ? numOfWords : null,
+  ]
+
+  const firstValid = candidates.find((value) => typeof value === 'number' && value > 0)
+  if (typeof firstValid === 'number') {
+    return firstValid
+  }
+
+  const calculated = calculateWordCount(content)
+  if (calculated > 0) {
+    return calculated
+  }
+
+  return 0
+}
+
 export const DashboardNodeEntry = ({ node = {} }) => {
   const { id = null, starred, title, pending, date_last_modified } = node
   const dispatch = useDispatch()
   const history = useHistory()
+  const wordCount = getWordCount(node)
 
   const handleOpenAreYouSureModal = async () => {
     await dispatch(setEntryById(id))
@@ -49,11 +83,9 @@ export const DashboardNodeEntry = ({ node = {} }) => {
       <div className={styles.titleCell}>
         <EditNodeLink node={{ id, title }} />
       </div>
-      {pending ? (
-        <div className={classNames(styles.pending, styles.pendingColumn)}>{pending}</div>
-      ) : (
-        <span className={styles.pendingColumn} />
-      )}
+      <div className={styles.wordCount} data-tooltip-id="main-tooltip" data-tooltip-content="word count">
+        {pending ? '—' : `${wordCount.toLocaleString()} ${wordCount === 1 ? 'word' : 'words'}`}
+      </div>
       <DefaultButton
         className={styles.exploreButton}
         onClick={handleExploreNode}

@@ -1,6 +1,7 @@
 //Package Imports
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useLocation } from 'react-router-dom'
 
 //SCSS
 import '@styles/shared.scss'
@@ -8,7 +9,7 @@ import styles from './CreateJournalEntry.module.scss'
 
 //Redux Function Import
 import { fetchJournalConfig } from '@redux/reducers/journalEntriesReducer.js'
-import { resetJournalEntryDraft, saveJournalEntry } from '@redux/reducers/currentEntryReducer'
+import { saveJournalEntry, setEntryById } from '@redux/reducers/currentEntryReducer'
 import { openModal } from '@redux/reducers/modalsReducer.js'
 
 //Component Imports
@@ -26,6 +27,9 @@ import { ENTRY_TYPES } from '@constants/entryTypes'
 import { MODAL_NAMES } from '@constants/modalNames'
 import { SAVE_TYPES } from '@constants/saveTypes'
 
+// Utils
+import { normalizeEntryId } from '@utils/normalizeEntryId'
+
 //Pillars
 import PillarTop from '@components/PillarsComponents/PillarTopComponent.js'
 import PillarLeft from '@components/PillarsComponents/PillarLeftComponent.js'
@@ -34,6 +38,7 @@ import PillarBottom from '@components/PillarsComponents/PillarBottomComponent.js
 
 const CreateJournalEntry = () => {
   const dispatch = useDispatch()
+  const location = useLocation()
   const [successModalSeen, setSuccessModalSeen] = useState(false)
 
   const { wordCount, content, entryId, wpm, timeElapsed, entriesLoading } = useSelector((state) => state.currentEntry)
@@ -44,8 +49,12 @@ const CreateJournalEntry = () => {
   }
 
   useEffect(() => {
-    dispatch(resetJournalEntryDraft())
-  }, [dispatch])
+    const params = new URLSearchParams(location.search)
+    const entryIdParam = normalizeEntryId(params.get('entryId'))
+    if (entryIdParam != null) {
+      dispatch(setEntryById(entryIdParam))
+    }
+  }, [dispatch, location.search])
 
   useEffect(() => {
     dispatch(fetchJournalConfig())
