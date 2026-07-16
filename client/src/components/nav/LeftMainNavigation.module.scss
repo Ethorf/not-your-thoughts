@@ -88,23 +88,13 @@
   top: 0.5rem;
   left: 4.5rem;
   z-index: 11;
-  pointer-events: auto;
-  background: transparent;
-  border: none;
-  color: rgba(192, 192, 192, 0.85);
-  font-family: 'Syncopate', sans-serif;
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-  padding: 0.25rem 0.375rem;
-  cursor: pointer;
+  font-size: 0.8rem;
   transition:
     left 1s ease,
     color 0.3s ease;
 
   &:hover {
-    color: white;
+    color: silver;
   }
 }
 

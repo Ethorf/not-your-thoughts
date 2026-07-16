@@ -101,6 +101,7 @@
     transition: all 500ms;
     opacity: 1;
     margin-bottom: 0.625rem;
+    z-index: 12;
   }
 }
 
@@ -258,6 +259,11 @@
   }
 
   .visibleText .ql-editor {
+    // Room to scroll last lines above bottom chrome / keyboard accessory.
+    // JS visualViewport padding overrides this while focused; keep a large CSS floor.
+    padding-bottom: calc(12rem + env(safe-area-inset-bottom, 0px));
+    box-sizing: border-box;
+
     > p {
       padding-left: 0.75rem;
       padding-right: 0.75rem;

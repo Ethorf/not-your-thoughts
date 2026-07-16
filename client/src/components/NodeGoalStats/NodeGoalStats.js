@@ -32,6 +32,7 @@ const GoalMeter = ({ label, current, goal, unit }) => {
 
 const NodeGoalStats = () => {
   const dispatch = useDispatch()
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated)
   const { journalConfig } = useSelector((state) => state.journalEntries)
   const { wordCount } = useSelector((state) => state.currentEntry)
   const {
@@ -42,9 +43,13 @@ const NodeGoalStats = () => {
   } = useSelector((state) => state.writingData)
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      return
+    }
+
     dispatch(fetchJournalConfig())
     dispatch(fetchAllWritingData())
-  }, [dispatch])
+  }, [dispatch, isAuthenticated])
 
   if (!journalConfig) {
     return null

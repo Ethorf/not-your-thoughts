@@ -15,9 +15,16 @@ import { CONNECTION_TYPES } from '@constants/connectionTypes'
 
 // Hooks
 import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
+import useIsMobile from '@hooks/useIsMobile'
 
 // Redux
-import { setContent, setWordCount, setCharCount, dismissShinyTextSuggestion, fetchShinyTextDismissals } from '@redux/reducers/currentEntryReducer'
+import {
+  setContent,
+  setWordCount,
+  setCharCount,
+  dismissShinyTextSuggestion,
+  fetchShinyTextDismissals,
+} from '@redux/reducers/currentEntryReducer'
 import { createConnection } from '@redux/reducers/connectionsReducer'
 import { ENTRY_TYPES } from '@constants/entryTypes'
 import calculateWordCount from '@utils/calculateWordCount'
@@ -57,11 +64,16 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
   const history = useHistory()
   const quillRef = useRef(null)
   const nodeEntriesInfo = useNodeEntriesInfo()
+  const isMobile = useIsMobile()
   const lastSyncedRef = useRef({ entryId: null, content: null })
 
-  const { content, entryId, entriesSaving, title: currentTitle, shinyTextDismissals } = useSelector(
-    (state) => state.currentEntry
-  )
+  const {
+    content,
+    entryId,
+    entriesSaving,
+    title: currentTitle,
+    shinyTextDismissals,
+  } = useSelector((state) => state.currentEntry)
   const { connections } = useSelector((state) => state.connections)
   const { sidebarOpen } = useSelector((state) => state.sidebar)
   const { isOpen: isModalOpen } = useSelector((state) => state.modals)
@@ -198,6 +210,103 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
     },
     [dispatch, entryId]
   )
+
+  useEffect(() => {
+    if (!quillRef.current) {
+      return
+    }
+
+    const quill = quillRef.current.getEditor()
+    const editorRoot = quill?.root
+    if (!editorRoot) {
+      return
+    }
+
+    // Discourage iOS Safari AutoFill accessory (Passwords / Cards / Locations).
+    // Cannot remove the system keyboard dismiss control — that's OS chrome.
+    editorRoot.setAttribute('autocomplete', 'off')
+    editorRoot.setAttribute('autocapitalize', 'sentences')
+    editorRoot.setAttribute('spellcheck', 'true')
+    editorRoot.setAttribute('data-1p-ignore', 'true')
+    editorRoot.setAttribute('data-lpignore', 'true')
+    editorRoot.setAttribute('data-form-type', 'other')
+    editorRoot.setAttribute('enterkeyhint', 'done')
+  }, [entryId, entryType])
+
+  // Keep typed lines above the iOS keyboard + autofill accessory bar.
+  // iOS often shrinks both innerHeight and visualViewport together, so inset can
+  // read as ~0 — cache a baseline height while unfocused and always pad when focused.
+  useEffect(() => {
+    if (!isMobile || !quillRef.current) {
+      return undefined
+    }
+
+    const quill = quillRef.current.getEditor()
+    const editorRoot = quill?.root
+    if (!editorRoot) {
+      return undefined
+    }
+
+    const ACCESSORY_BAR_PX = 72
+    const FOCUSED_BASE_PAD_PX = 280
+    const baselineHeightRef = { current: null }
+    const isFocusedRef = { current: false }
+
+    const getVisibleHeight = () => {
+      const viewport = window.visualViewport
+      return viewport?.height ?? window.innerHeight
+    }
+
+    const updateKeyboardInset = () => {
+      const viewport = window.visualViewport
+      const visibleHeight = getVisibleHeight()
+
+      if (!isFocusedRef.current) {
+        baselineHeightRef.current = Math.max(
+          baselineHeightRef.current ?? 0,
+          visibleHeight,
+          window.innerHeight,
+          document.documentElement.clientHeight
+        )
+        editorRoot.style.removeProperty('padding-bottom')
+        return
+      }
+
+      const baseline = baselineHeightRef.current ?? window.innerHeight
+      const keyboardInset = Math.max(0, baseline - visibleHeight - (viewport?.offsetTop ?? 0))
+      const paddingBottom = Math.max(FOCUSED_BASE_PAD_PX, keyboardInset + ACCESSORY_BAR_PX)
+
+      editorRoot.style.setProperty('padding-bottom', `${paddingBottom}px`, 'important')
+    }
+
+    const handleFocus = () => {
+      isFocusedRef.current = true
+      updateKeyboardInset()
+    }
+
+    const handleBlur = () => {
+      isFocusedRef.current = false
+      updateKeyboardInset()
+    }
+
+    updateKeyboardInset()
+
+    const viewport = window.visualViewport
+    viewport?.addEventListener('resize', updateKeyboardInset)
+    viewport?.addEventListener('scroll', updateKeyboardInset)
+    window.addEventListener('resize', updateKeyboardInset)
+    editorRoot.addEventListener('focus', handleFocus)
+    editorRoot.addEventListener('blur', handleBlur)
+
+    return () => {
+      viewport?.removeEventListener('resize', updateKeyboardInset)
+      viewport?.removeEventListener('scroll', updateKeyboardInset)
+      window.removeEventListener('resize', updateKeyboardInset)
+      editorRoot.removeEventListener('focus', handleFocus)
+      editorRoot.removeEventListener('blur', handleBlur)
+      editorRoot.style.removeProperty('padding-bottom')
+    }
+  }, [isMobile, entryId, entryType])
 
   useEffect(() => {
     if (!quillRef.current || content == null) {
@@ -373,7 +482,7 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
   return (
     <div
       className={classNames(styles.wrapper, entryType === JOURNAL && styles.journalWrapper, {
-        [styles.toolbarVisiblWrapper]: toolbarVisible,
+        [styles.toolbarVisibleWrapper]: toolbarVisible,
         [styles.fillHeight]: fillHeight,
         'create-entry-fill': fillHeight,
       })}

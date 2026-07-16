@@ -320,6 +320,7 @@ export const ConnectionsModal = () => {
     <BaseModalWrapper
       modalName={MODAL_NAMES.CONNECTIONS}
       className={styles.modal}
+      mobileLayout="fullSheet"
       onOpen={handleModalOpen}
       onClose={handleModalClose}
     >

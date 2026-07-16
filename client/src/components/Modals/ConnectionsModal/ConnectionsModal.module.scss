@@ -119,14 +119,17 @@
 }
 
 @include mobile-all {
+  // Positioning/scroll handled by BaseModalWrapper .fullSheet so body-scroll-lock
+  // can scroll this modal node. Keep only content tweaks here.
   .modal {
-    top: calc(1.25rem + 1.875rem) !important;
-    bottom: 0 !important;
-    max-height: none !important;
-    min-height: auto !important;
-    height: calc(100dvh - 1.25rem - 1.875rem) !important;
+    min-height: 0 !important;
     width: 100vw !important;
     min-width: 100vw !important;
+  }
+
+  .wrapper {
+    min-height: min-content;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
   }
 
   .titleWrapper {
@@ -150,5 +153,9 @@
 
   .connectionDisplay button {
     font-size: 0.65rem;
+  }
+
+  .entrySource {
+    max-height: 30vh;
   }
 }
