@@ -2,6 +2,7 @@ import React from 'react'
 import classNames from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
+import { unwrapResult } from '@reduxjs/toolkit'
 
 // Constants
 import { MODAL_NAMES } from '@constants/modalNames'
@@ -14,7 +15,9 @@ import NodeGoalStats from '@components/NodeGoalStats/NodeGoalStats'
 
 // Redux
 import { toggleEntryIsPrivate } from '@redux/reducers/currentEntryReducer'
+import { fetchConnections } from '@redux/reducers/connectionsReducer'
 import { openModal, closeModal } from '@redux/reducers/modalsReducer'
+import { setPendingEditorSelectionForModal } from '@utils/captureEditorSelection'
 
 import styles from './NodeSettingsModal.module.scss'
 
@@ -36,6 +39,22 @@ export const NodeSettingsModal = () => {
     history.push(path)
   }
 
+  const handleOpenConnections = async () => {
+    if (!entryId) {
+      return
+    }
+
+    setPendingEditorSelectionForModal()
+
+    try {
+      const fetchConnRes = await dispatch(fetchConnections(entryId))
+      unwrapResult(fetchConnRes)
+      dispatch(openModal(MODAL_NAMES.CONNECTIONS))
+    } catch (error) {
+      console.error('Failed to fetch connections:', error)
+    }
+  }
+
   const handleOpenDeleteConfirm = () => {
     dispatch(openModal(MODAL_NAMES.ARE_YOU_SURE))
   }
@@ -50,6 +69,9 @@ export const NodeSettingsModal = () => {
           </div>
 
           <div className={styles.buttons}>
+            <DefaultButton className={styles.settingsButton} onClick={handleOpenConnections}>
+              Connect
+            </DefaultButton>
             <DefaultButton
               className={classNames(styles.settingsButton, { [styles.active]: isPrivate })}
               onClick={handleToggleIsPrivate}

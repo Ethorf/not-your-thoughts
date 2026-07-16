@@ -44,14 +44,23 @@ export const createWritingData = createAsyncThunk(
 
 export const fetchAllWritingData = createAsyncThunk(
   'writingDataReducer/fetchAllWritingData',
-  async (_, { rejectWithValue, dispatch }) => {
+  async (_, { rejectWithValue, dispatch, getState }) => {
+    const isAuthenticated = getState().auth?.isAuthenticated
+    if (!isAuthenticated) {
+      return rejectWithValue({ msg: 'Not authenticated' })
+    }
+
     try {
       const response = await axiosInstance.get('api/writing_data/all_writing_data')
 
       return response.data
     } catch (error) {
-      dispatch(showToast('Error fetching writing data', 'error'))
-      return rejectWithValue(error.response.data)
+      const status = error.response?.status
+      // Auth failures are expected before login — don't toast them
+      if (status !== 401 && status !== 403) {
+        dispatch(showToast('Error fetching writing data', 'error'))
+      }
+      return rejectWithValue(error.response?.data)
     }
   }
 )

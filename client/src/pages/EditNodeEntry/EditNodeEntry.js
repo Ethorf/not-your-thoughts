@@ -9,7 +9,6 @@ import {
   setTitle,
   saveNodeEntry,
   setEntryById,
-  updateNodeTopLevel,
   toggleEntryIsPrivate,
 } from '@redux/reducers/currentEntryReducer'
 import { openModal } from '@redux/reducers/modalsReducer.js'
@@ -44,7 +43,7 @@ const EditNodeEntry = () => {
   const location = useLocation()
 
   const { connectionsLoading } = useSelector((state) => state.connections)
-  const { wordCount, entryId, title, starred, isTopLevel, isPrivate, entriesLoading } = useSelector(
+  const { wordCount, entryId, title, starred, isPrivate, entriesLoading } = useSelector(
     (state) => state.currentEntry
   )
   const { user, isAuthenticated } = useSelector((state) => state.auth)
@@ -67,12 +66,6 @@ const EditNodeEntry = () => {
   const handleTitleChange = (e) => {
     dispatch(setTitle(e.target.value))
   }
-
-  const handleToggleTopLevel = useCallback(() => {
-    if (entryId) {
-      dispatch(updateNodeTopLevel({ entryId, isTopLevel: !isTopLevel }))
-    }
-  }, [dispatch, entryId, isTopLevel])
 
   const handleToggleIsPrivate = useCallback(() => {
     if (entryId) {
@@ -176,6 +169,11 @@ const EditNodeEntry = () => {
                 placeholder={'Enter Title'}
                 value={title ?? ''}
                 onChange={handleTitleChange}
+                autoComplete="off"
+                autoCorrect="off"
+                data-1p-ignore="true"
+                data-lpignore="true"
+                data-form-type="other"
               />
               {isMobile && (
                 <span className={styles.mobileAkas}>
@@ -231,15 +229,6 @@ const EditNodeEntry = () => {
               </span>
             )}
             {isMobile && <span className={styles.wordCount}>Words: {wordCount}</span>}
-            {/* <DefaultButton
-              tooltip={isTopLevel ? 'Remove top-level status' : 'Set as top-level node'}
-              onClick={handleToggleTopLevel}
-              className={classNames(styles.topLevelButton, {
-                [styles.topLevelActive]: isTopLevel,
-              })}
-            >
-              {isTopLevel ? 'Top Level ✓' : 'Top Level'}
-            </DefaultButton> */}
           </span>
           {!isMobile && (
             <span className={classNames(sharedStyles.flexCenter, styles.wordsCell)}>Words: {wordCount}</span>
@@ -253,18 +242,7 @@ const EditNodeEntry = () => {
               </DefaultButton>
             )}
           </span>
-          {isMobile && (
-            <span className={classNames(sharedStyles.flexEnd, styles.connectCell)}>
-              <DefaultButton
-                tooltip="Open connections menu"
-                onMouseDown={captureEditorSelectionForModal}
-                onClick={handleOpenConnectionsModal}
-                className={styles.saveButton}
-              >
-                Connect
-              </DefaultButton>
-            </span>
-          )}
+          {isMobile && <span className={styles.bottomBarSpacer} aria-hidden="true" />}
         </div>
       </div>
     </div>

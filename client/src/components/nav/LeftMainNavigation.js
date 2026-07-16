@@ -75,7 +75,8 @@ const LeftMainNavigation = () => {
   const [previousLocation, setPreviousLocation] = useState(() => readStoredPreviousLocation())
 
   const previousPageLabel = previousLocation ? getRouteLabel(previousLocation.pathname) : null
-  const canGoBack = Boolean(previousLocation) && !isMobile
+  const isOnLoginPage = location.pathname.startsWith('/login')
+  const canGoBack = Boolean(previousLocation) && !isMobile && !isOnLoginPage
 
   useEffect(() => {
     const previous = currentLocationRef.current

@@ -12,6 +12,7 @@ const { NODE } = ENTRY_TYPES
 
 const DailyGoalToastManager = () => {
   const dispatch = useDispatch()
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated)
   const { journalConfig } = useSelector((state) => state.journalEntries)
   const { type: entryType } = useSelector((state) => state.currentEntry)
   const {
@@ -22,9 +23,13 @@ const DailyGoalToastManager = () => {
   } = useSelector((state) => state.writingData)
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      return
+    }
+
     dispatch(fetchJournalConfig())
     dispatch(fetchAllWritingData())
-  }, [dispatch])
+  }, [dispatch, isAuthenticated])
 
   const wordsGoal = toNonNegativeInt(journalConfig?.node_daily_words_goal ?? 400)
   const timeGoalMinutes = toNonNegativeInt(journalConfig?.node_daily_time_goal ?? 5)
@@ -35,7 +40,7 @@ const DailyGoalToastManager = () => {
   const currentWordsToday = toNonNegativeInt(nodesWordCountToday) + pendingWords
   const currentTimeTodayMinutes = Math.floor((toNonNegativeInt(nodesWritingTimeToday) + pendingTimeSeconds) / 60)
 
-  const goalsEnabled = Boolean(journalConfig)
+  const goalsEnabled = Boolean(isAuthenticated && journalConfig)
 
   useDailyGoalCrossingToast({
     goalId: GOAL_TOAST_IDS.NODE_WORDS,

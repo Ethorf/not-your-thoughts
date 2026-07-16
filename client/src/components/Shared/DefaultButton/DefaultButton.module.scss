@@ -1,49 +1,53 @@
 @import '@styles/variables';
 
-.wrapper {
-  font-family: 'Syncopate', sans-serif;
-  font-size: 1.2rem;
-  color: silver;
-  background-color: black;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid silver;
-  text-transform: uppercase;
-  margin: 0.5rem;
-  border-radius: 0.9375rem;
-  outline: none;
-  transition: all 0.3s;
-  width: fit-content;
-  cursor: pointer;
-  z-index: $buttons-z-index;
+// Everything in this component lives in a lower cascade layer so any
+// consumer className (unlayered) always wins for properties it sets.
+@layer default-button {
+  .wrapper {
+    font-family: 'Syncopate', sans-serif;
+    font-size: 1.2rem;
+    color: silver;
+    background-color: black;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid silver;
+    text-transform: uppercase;
+    margin: 0.5rem;
+    border-radius: 0.9375rem;
+    outline: none;
+    transition: all 0.3s;
+    width: fit-content;
+    cursor: pointer;
+    z-index: $buttons-z-index;
 
-  &:hover {
+    &:hover {
+      transition: all 0.3s;
+      color: black;
+      background-color: white;
+      cursor: pointer;
+    }
+
+    &:disabled {
+      color: rgba(192, 192, 192, 0.2);
+      border: 1px solid rgba(192, 192, 192, 0.2);
+
+      &:hover {
+        color: rgba(192, 192, 192, 0.2);
+        background-color: black;
+      }
+    }
+  }
+
+  .selected {
     transition: all 0.3s;
     color: black;
     background-color: white;
     cursor: pointer;
-  }
-
-  &:disabled {
-    color: rgba(192, 192, 192, 0.2);
-    border: 1px solid rgba(192, 192, 192, 0.2);
 
     &:hover {
-      color: rgba(192, 192, 192, 0.2);
-      background-color: black;
+      transition: all 0.3s;
+      color: black;
+      background-color: rgba(192, 192, 192, 0.2);
+      cursor: pointer;
     }
-  }
-}
-
-.selected {
-  transition: all 0.3s;
-  color: black;
-  background-color: white;
-  cursor: pointer;
-
-  &:hover {
-    transition: all 0.3s;
-    color: black;
-    background-color: rgba(192, 192, 192, 0.2);
-    cursor: pointer;
   }
 }
