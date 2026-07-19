@@ -23,4 +23,15 @@ body {
   .react-tooltip {
     display: none !important;
   }
+
+  // iOS zooms focused fields under 16px (html root is 14px, so rem inputs are often smaller).
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  .ql-editor {
+    font-size: max(16px, #{$main-text-font-size});
+  }
 }

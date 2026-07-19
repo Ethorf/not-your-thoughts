@@ -66,6 +66,7 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
   const nodeEntriesInfo = useNodeEntriesInfo()
   const isMobile = useIsMobile()
   const lastSyncedRef = useRef({ entryId: null, content: null })
+  const prevSidebarOpenRef = useRef(false)
 
   const {
     content,
@@ -467,13 +468,19 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
   }, [focusEmptyEditorCaret, handleDecorationClick, entryId])
 
   useEffect(() => {
-    if (!sidebarOpen && quillRef.current) {
-      const quill = quillRef.current.getEditor()
-      quill.focus()
-      const length = quill.getLength()
-      quill.setSelection(length, length)
+    const wasOpen = prevSidebarOpenRef.current
+    prevSidebarOpenRef.current = sidebarOpen
+
+    // Restore caret only when the sidebar closes — not on mount (autofocus zooms iOS).
+    if (!wasOpen || sidebarOpen || isMobile || !quillRef.current) {
+      return
     }
-  }, [sidebarOpen])
+
+    const quill = quillRef.current.getEditor()
+    quill.focus()
+    const length = quill.getLength()
+    quill.setSelection(length, length)
+  }, [sidebarOpen, isMobile])
 
   const activeSuggestionCandidate = suggestionMenu?.candidateId
     ? shinyTextCandidateById.get(suggestionMenu.candidateId)

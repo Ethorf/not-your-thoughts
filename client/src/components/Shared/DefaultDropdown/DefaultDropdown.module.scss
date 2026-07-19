@@ -1,3 +1,5 @@
+@import '@styles/mixins.scss';
+
 .wrapper {
   cursor: pointer;
   background-color: black;
@@ -13,5 +15,12 @@
     transition: all 250ms ease-in-out;
     color: rgba(192, 192, 192, 1);
     border: 1px solid rgba(192, 192, 192, 1);
+  }
+}
+
+@include mobile-all {
+  .wrapper {
+    // Prevent iOS select zoom (needs >= 16px; root html is 14px).
+    font-size: 16px;
   }
 }

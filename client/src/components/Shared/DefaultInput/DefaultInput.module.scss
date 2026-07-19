@@ -1,3 +1,5 @@
+@import '@styles/mixins.scss';
+
 .wrapper {
   font-family: 'Syncopate', sans-serif;
   padding: 0.625rem 0.75rem;
@@ -19,5 +21,12 @@
     border: 1px solid rgba(192, 192, 192, 1);
     transition: all 2s;
     border-radius: 0.1875rem;
+  }
+}
+
+@include mobile-all {
+  .wrapper {
+    // Prevent iOS input zoom (needs >= 16px; root html is 14px).
+    font-size: 16px;
   }
 }

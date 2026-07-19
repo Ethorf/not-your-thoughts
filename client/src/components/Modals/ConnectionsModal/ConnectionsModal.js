@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-
+import useIsMobile from '@hooks/useIsMobile'
+import classNames from 'classnames'
 // Constants
 import { SAVE_TYPES } from '@constants/saveTypes'
 import { MODAL_NAMES } from '@constants/modalNames'
@@ -46,7 +47,6 @@ import { sortConnectionsByDisplayOrder } from '@utils/connectionTypeHelpers'
 // Styles
 import styles from './ConnectionsModal.module.scss'
 
-// Constant Destructures
 const { DIRECT, DESCRIPTIVE, SINGLE_WORD } = CONNECTION_SOURCE_TYPES
 const {
   FRONTEND: { PARENT, EXTERNAL, CHILD, SIBLING },
@@ -81,6 +81,7 @@ export const ConnectionsModal = () => {
     setConnectionDescription('')
     setNewNodeTitle('')
   }, [])
+  const isMobile = useIsMobile()
 
   const handleSelectTextMouseDown = useCallback(
     (e, source) => {
@@ -297,8 +298,7 @@ export const ConnectionsModal = () => {
 
   const entryTitleTrimmed = title?.trim() ?? ''
   const primaryHighlightSource =
-    selectedPrimarySourceText?.trim() &&
-    selectedPrimarySourceText.trim() !== entryTitleTrimmed
+    selectedPrimarySourceText?.trim() && selectedPrimarySourceText.trim() !== entryTitleTrimmed
       ? selectedPrimarySourceText
       : ''
   const foreignHighlightSource =
@@ -326,26 +326,31 @@ export const ConnectionsModal = () => {
     >
       <div className={styles.wrapper}>
         <h2 className={styles.titleWrapper}>
-          connect <span className={styles.title}>{title}</span> to:
+          <span>connect</span>
+          <span className={styles.title}>
+            {title} {!isMobile ? 'to:' : null}
+          </span>
         </h2>
-        <div className={styles.flexContainer}>
-          <p>Type:</p>
-          <DefaultDropdown
-            className={styles.createDropdown}
-            value={localConnectionType}
-            options={availableConnectionTypes}
-            onChange={(e) => setLocalConnectionType(e.target.value)}
-            tooltip={'Change connection type'}
-          />
+        <div className={classNames(styles.flexContainer, { [styles.mobileFlexContainer]: isMobile })}>
+          <div className={styles.dropdownContainer}>
+            <p>Type:</p>
+            <DefaultDropdown
+              className={styles.createDropdown}
+              value={localConnectionType}
+              options={availableConnectionTypes}
+              onChange={(e) => setLocalConnectionType(e.target.value)}
+              tooltip={'Change connection type'}
+            />
+          </div>
           {localConnectionType !== EXTERNAL && (
-            <>
+            <div className={styles.dropdownContainer}>
               <span>Node:</span>
               <NodeSelectDropdown
                 className={styles.nodeSelect}
                 onChange={(value) => setNewNodeTitle(value)}
                 onSelect={(value) => setLocalForeignEntryId(value)}
               />
-            </>
+            </div>
           )}
         </div>
         <HorizontalDivider className={styles.horizontalDivider} height={SMALL} />
@@ -365,7 +370,10 @@ export const ConnectionsModal = () => {
           {localConnectionType === EXTERNAL ? (
             <div className={styles.entrySourceContainer}>
               <div className={styles.sourceSelectContainer}>
-                <DefaultButton className={styles.getSourceButton} onMouseDown={(e) => handleSelectTextMouseDown(e, PRIMARY)}>
+                <DefaultButton
+                  className={styles.getSourceButton}
+                  onMouseDown={(e) => handleSelectTextMouseDown(e, PRIMARY)}
+                >
                   Select Text to Link
                 </DefaultButton>
               </div>
@@ -389,7 +397,10 @@ export const ConnectionsModal = () => {
               <div className={styles.entrySourceContainer}>
                 <div className={styles.sourceSelectContainer}>
                   <h4 className={styles.entrySourceHeader}>Primary Entry Source</h4>
-                  <DefaultButton className={styles.getSourceButton} onMouseDown={(e) => handleSelectTextMouseDown(e, PRIMARY)}>
+                  <DefaultButton
+                    className={styles.getSourceButton}
+                    onMouseDown={(e) => handleSelectTextMouseDown(e, PRIMARY)}
+                  >
                     Select Text
                   </DefaultButton>
                 </div>

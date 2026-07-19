@@ -1,22 +1,41 @@
 import { useState, useEffect } from 'react'
 
+export const DEFAULT_MOBILE_BREAKPOINT = 680
+
 /**
- * Custom hook to detect if the current viewport is mobile (≤680px)
- * @param {number} breakpoint - The breakpoint in pixels (default: 680)
- * @returns {boolean} - True if viewport width is ≤ breakpoint
+ * Non-hook check for mobile viewport width.
+ * Safe to call outside React (returns false when `window` is unavailable).
+ * @param {number} [breakpoint=680]
+ * @returns {boolean}
  */
-const useIsMobile = (breakpoint = 680) => {
-  const [isMobile, setIsMobile] = useState(false)
+export const getIsMobileViewport = (breakpoint = DEFAULT_MOBILE_BREAKPOINT) => {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  return window.innerWidth <= breakpoint
+}
+
+/**
+ * React hook for mobile viewport (≤680px by default).
+ * Updates on resize. Initial value matches the current viewport on the client.
+ *
+ * @example
+ * const isMobile = useIsMobile()
+ * return !isMobile && <DesktopOnly />
+ *
+ * @param {number} [breakpoint=680]
+ * @returns {boolean}
+ */
+const useIsMobile = (breakpoint = DEFAULT_MOBILE_BREAKPOINT) => {
+  const [isMobile, setIsMobile] = useState(() => getIsMobileViewport(breakpoint))
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= breakpoint)
+      setIsMobile(getIsMobileViewport(breakpoint))
     }
 
-    // Check on mount
     checkMobile()
-
-    // Listen for resize events
     window.addEventListener('resize', checkMobile)
 
     return () => {
@@ -28,4 +47,3 @@ const useIsMobile = (breakpoint = 680) => {
 }
 
 export default useIsMobile
-
