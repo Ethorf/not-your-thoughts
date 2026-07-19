@@ -52,6 +52,11 @@
   margin: 0 0.625rem;
 }
 
+.dropdownContainer {
+  display: flex;
+  align-items: center;
+}
+
 .flexContainer {
   display: flex;
   align-items: center;
@@ -140,15 +145,50 @@
 
   .title {
     margin-left: 0.625rem;
+    width: 100%;
   }
 
   .getSourceButton {
-    font-size: 0.65rem;
-    margin-left: 0.5rem;
+    display: block;
+    width: 80%;
+    max-width: 80%;
+    box-sizing: border-box;
+    margin: 0.5rem auto;
+    font-size: 0.75rem;
+    text-align: center;
+  }
+
+  .createContainer {
+    display: flex;
+    justify-content: center;
+    width: 100%;
   }
 
   .createContainer button {
-    font-size: 0.65rem;
+    box-sizing: border-box;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 0.75rem;
+    white-space: normal;
+  }
+
+  .connectionDisplay {
+    grid-template-columns: minmax(0, 1fr) minmax(9rem, 1.6fr) auto;
+    gap: 0.35rem;
+    margin-bottom: 0.5rem;
+  }
+
+  // Hide "node:" / "link:" and "type:" labels; keep title + type dropdown.
+  .connectionDisplay > .connectionLabel {
+    display: none;
+  }
+
+  .connectionDisplay .createDropdown {
+    width: 50%;
+    min-width: 9rem;
+    height: 2.25rem;
+    margin: 0;
+    font-size: 0.85rem;
   }
 
   .connectionDisplay button {
@@ -157,5 +197,37 @@
 
   .entrySource {
     max-height: 30vh;
+  }
+
+  .sourceSelectContainer {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .mobileFlexContainer {
+    flex-direction: column;
+    align-items: start;
+  }
+  .dropdownContainer {
+    display: flex;
+    align-items: center;
+  }
+  .createDropdown {
+    font-size: 0.85rem;
+    width: 100%;
+  }
+  .nodeSelect {
+    width: 100%;
+    font-size: 0.85rem;
+  }
+  .title {
+    font-size: 1.45rem;
+    width: 100%;
+    text-align: center;
+    margin-top: 8px;
+  }
+  .titleWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 }

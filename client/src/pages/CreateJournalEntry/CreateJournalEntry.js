@@ -1,7 +1,9 @@
 //Package Imports
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
+import classNames from 'classnames'
+import moment from 'moment'
 
 //SCSS
 import '@styles/shared.scss'
@@ -22,6 +24,9 @@ import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner.js'
 import WritingDataManager from '@components/Shared/WritingDataManager/WritingDataManager'
 
+// Hooks
+import useIsMobile from '@hooks/useIsMobile'
+
 // Constants
 import { ENTRY_TYPES } from '@constants/entryTypes'
 import { MODAL_NAMES } from '@constants/modalNames'
@@ -39,10 +44,13 @@ import PillarBottom from '@components/PillarsComponents/PillarBottomComponent.js
 const CreateJournalEntry = () => {
   const dispatch = useDispatch()
   const location = useLocation()
+  const isMobile = useIsMobile()
   const [successModalSeen, setSuccessModalSeen] = useState(false)
 
   const { wordCount, content, entryId, wpm, timeElapsed, entriesLoading } = useSelector((state) => state.currentEntry)
   const { journalConfig } = useSelector((state) => state.journalEntries)
+
+  const journalDateLabel = useMemo(() => moment().format('MM/DD/YYYY'), [])
 
   const handleSaveJournal = async () => {
     await dispatch(saveJournalEntry({ content, wordCount, entryId, wpm, timeElapsed }))
@@ -77,28 +85,42 @@ const CreateJournalEntry = () => {
           />
         ) : null}
         <BgImage />
-        <div className={styles.headerPromptContainer}>
-          <Header />
-          <PromptsDisplay />
-        </div>
-        <div className={styles.pillarsAllContainer}>
-          <PillarTop />
-          <div className={styles.mainContainer}>
-            <PillarLeft />
-            <div className={styles.innerContainer}>
-              <JournalInfoContainer />
-              <CreateEntry entryType={ENTRY_TYPES.JOURNAL} />
-              {entriesLoading ? (
-                <SmallSpinner />
-              ) : (
-                <DefaultButton disabled={!content.length} onClick={handleSaveJournal}>
-                  Save Journal
-                </DefaultButton>
-              )}
-            </div>
-            <PillarRight />
+        {!isMobile && (
+          <div className={styles.headerPromptContainer}>
+            <Header />
+            <PromptsDisplay />
           </div>
-          <PillarBottom />
+        )}
+        <div className={classNames(styles.pillarsAllContainer, { [styles.mobileLayout]: isMobile })}>
+          {!isMobile && <PillarTop />}
+          <div className={styles.mainContainer}>
+            {!isMobile && <PillarLeft />}
+            <div className={styles.innerContainer}>
+              {isMobile ? (
+                <h2 className={styles.mobileJournalTitle}>Journal: {journalDateLabel}</h2>
+              ) : (
+                <JournalInfoContainer />
+              )}
+              <div className={styles.entryRegion}>
+                <CreateEntry entryType={ENTRY_TYPES.JOURNAL} fillHeight={isMobile} />
+              </div>
+              <div className={classNames(styles.saveRow, { [styles.mobileBottomBar]: isMobile })}>
+                {isMobile && <span className={styles.wordCount}>Words: {wordCount}</span>}
+                <span className={styles.saveCell}>
+                  {entriesLoading ? (
+                    <SmallSpinner />
+                  ) : (
+                    <DefaultButton disabled={!content.length} onClick={handleSaveJournal}>
+                      {isMobile ? 'Save' : 'Save Journal'}
+                    </DefaultButton>
+                  )}
+                </span>
+                {isMobile && <span className={styles.bottomBarSpacer} aria-hidden="true" />}
+              </div>
+            </div>
+            {!isMobile && <PillarRight />}
+          </div>
+          {!isMobile && <PillarBottom />}
         </div>
       </div>
     )

@@ -11,6 +11,7 @@
 .buttonsSection {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 1rem;
   width: 100%;
 }
@@ -18,7 +19,7 @@
 .headerRow {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 0.75rem;
 }
 
@@ -38,7 +39,7 @@
 }
 
 .settingsButton {
-  width: 100%;
+  width: 90%;
   box-sizing: border-box;
   justify-content: center;
   text-align: center;
