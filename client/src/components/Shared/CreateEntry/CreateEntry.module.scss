@@ -4,6 +4,7 @@
 .wrapper {
   width: 100%;
   max-width: 100%;
+  min-height: 40vh;
   height: 100%;
   border: $silver-border-default;
   z-index: $text-entry-z-index;

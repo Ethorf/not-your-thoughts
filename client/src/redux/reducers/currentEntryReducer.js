@@ -10,7 +10,6 @@ import { resolvePublicUserId } from '@utils/resolvePublicUserId'
 import { normalizeEntryId } from '@utils/normalizeEntryId'
 import { getLocalDateKey, getLocalTimeZone } from '@utils/localDateKey'
 import { createDeduplicationCondition, clearPendingRequest } from '@utils/requestDeduplication'
-import { getLocalDateKey, getLocalTimeZone } from '@utils/localDateKey'
 
 const { NODE, JOURNAL } = ENTRY_TYPES
 
@@ -683,7 +682,6 @@ const currentEntrySlice = createSlice({
       .addCase(createJournalEntry.fulfilled, (state) => {
         // Content/entryId are already set by applyNewJournalDraft (new) or setEntryById (resume).
         state.entriesLoading = false
-        state.entryId = action.payload
         state.type = JOURNAL
       })
       .addCase(createJournalEntry.rejected, (state) => {
