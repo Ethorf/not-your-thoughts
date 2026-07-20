@@ -5,12 +5,7 @@ import { unwrapResult } from '@reduxjs/toolkit'
 
 // Redux
 import { useDispatch, useSelector } from 'react-redux'
-import {
-  setTitle,
-  saveNodeEntry,
-  setEntryById,
-  toggleEntryIsPrivate,
-} from '@redux/reducers/currentEntryReducer'
+import { setTitle, saveNodeEntry, setEntryById, toggleEntryIsPrivate } from '@redux/reducers/currentEntryReducer'
 import { openModal } from '@redux/reducers/modalsReducer.js'
 import { fetchConnections } from '@redux/reducers/connectionsReducer'
 import { setPendingEditorSelectionForModal } from '@utils/captureEditorSelection'
@@ -43,9 +38,7 @@ const EditNodeEntry = () => {
   const location = useLocation()
 
   const { connectionsLoading } = useSelector((state) => state.connections)
-  const { wordCount, entryId, title, starred, isPrivate, entriesLoading } = useSelector(
-    (state) => state.currentEntry
-  )
+  const { wordCount, entryId, title, starred, isPrivate, entriesLoading } = useSelector((state) => state.currentEntry)
   const { user, isAuthenticated } = useSelector((state) => state.auth)
   const isMobile = useIsMobile()
   const params = useMemo(() => new URLSearchParams(location.search), [location.search])

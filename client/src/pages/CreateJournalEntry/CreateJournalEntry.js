@@ -11,7 +11,7 @@ import styles from './CreateJournalEntry.module.scss'
 
 //Redux Function Import
 import { fetchJournalConfig } from '@redux/reducers/journalEntriesReducer.js'
-import { saveJournalEntry, setEntryById } from '@redux/reducers/currentEntryReducer'
+import { saveJournalEntry, setEntryById, autosaveCurrentEntryIfNeeded } from '@redux/reducers/currentEntryReducer'
 import { openModal } from '@redux/reducers/modalsReducer.js'
 
 //Component Imports
@@ -52,8 +52,8 @@ const CreateJournalEntry = () => {
 
   const journalDateLabel = useMemo(() => moment().format('MM/DD/YYYY'), [])
 
-  const handleSaveJournal = async () => {
-    await dispatch(saveJournalEntry({ content, wordCount, entryId, wpm, timeElapsed }))
+  const handleSaveJournal = async (saveType = SAVE_TYPES.MANUAL) => {
+    await dispatch(saveJournalEntry({ content, wordCount, entryId, wpm, timeElapsed, saveType }))
   }
 
   useEffect(() => {
@@ -68,6 +68,13 @@ const CreateJournalEntry = () => {
     dispatch(fetchJournalConfig())
   }, [dispatch])
 
+  // Autosave when leaving the journal page for another route.
+  useEffect(() => {
+    return () => {
+      dispatch(autosaveCurrentEntryIfNeeded())
+    }
+  }, [dispatch])
+
   useEffect(() => {
     if (journalConfig && wordCount >= journalConfig.daily_words_goal && !successModalSeen) {
       dispatch(openModal(MODAL_NAMES.SUCCESS))
@@ -78,7 +85,7 @@ const CreateJournalEntry = () => {
   return (
     journalConfig && (
       <div className={styles.wrapper}>
-        {wordCount > 0 ? (
+        {entryId ? (
           <WritingDataManager
             entryType={ENTRY_TYPES.JOURNAL}
             handleAutosave={() => handleSaveJournal(SAVE_TYPES.AUTO)}

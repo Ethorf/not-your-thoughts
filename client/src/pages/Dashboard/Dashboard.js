@@ -5,8 +5,13 @@ import classNames from 'classnames'
 
 import { showToast } from '@utils/toast'
 import { normalizeEntryId } from '@utils/normalizeEntryId'
-import { resetCurrentEntryState, createNodeEntry, createJournalEntry } from '@redux/reducers/currentEntryReducer'
 import { ENTRY_TYPES } from '@constants/entryTypes'
+import {
+  resetCurrentEntryState,
+  createNodeEntry,
+  createJournalEntry,
+  autosaveCurrentEntryIfNeeded,
+} from '@redux/reducers/currentEntryReducer'
 
 // Styles
 import styles from './Dashboard.module.scss'
@@ -25,6 +30,7 @@ const Dashboard = () => {
   const [activeEntryType, setActiveEntryType] = useState(NODE)
 
   const handleNewNodeEntryClick = async () => {
+    await dispatch(autosaveCurrentEntryIfNeeded())
     dispatch(resetCurrentEntryState())
     const result = await dispatch(createNodeEntry())
 
@@ -43,7 +49,8 @@ const Dashboard = () => {
   }
 
   const handleNewJournalEntryClick = async () => {
-    dispatch(resetCurrentEntryState())
+    await dispatch(autosaveCurrentEntryIfNeeded())
+    // Do not reset — createJournalEntry resumes today's journal if it already exists.
     const result = await dispatch(createJournalEntry())
 
     if (createJournalEntry.rejected.match(result)) {

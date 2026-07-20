@@ -112,7 +112,9 @@
   padding: 0.125rem;
   cursor: pointer;
   color: rgba(192, 192, 192, 0.85);
-  transition: color 0.3s ease, transform 0.3s ease;
+  transition:
+    color 0.3s ease,
+    transform 0.3s ease;
   flex-shrink: 0;
 
   &:hover {

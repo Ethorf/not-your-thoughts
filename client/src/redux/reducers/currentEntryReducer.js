@@ -8,6 +8,7 @@ import { SAVE_TYPES } from '@constants/saveTypes'
 import { showToast } from '@utils/toast'
 import { resolvePublicUserId } from '@utils/resolvePublicUserId'
 import { normalizeEntryId } from '@utils/normalizeEntryId'
+import { getLocalDateKey, getLocalTimeZone } from '@utils/localDateKey'
 import { createDeduplicationCondition, clearPendingRequest } from '@utils/requestDeduplication'
 import { getLocalDateKey, getLocalTimeZone } from '@utils/localDateKey'
 
@@ -157,6 +158,7 @@ export const createJournalEntry = createAsyncThunk(
       const existing = Boolean(response.data.existing)
 
       if (existing) {
+        // Resume today's journal (preserves prior content instead of wiping).
         await dispatch(setEntryById(entryId))
       } else {
         dispatch(applyNewJournalDraft({ entryId }))
@@ -174,7 +176,7 @@ export const createJournalEntry = createAsyncThunk(
 
 export const saveJournalEntry = createAsyncThunk(
   'currentEntryReducer/saveJournalEntry',
-  async ({ entryId, content, timeElapsed, wpm, wordCount }, { rejectWithValue, dispatch }) => {
+  async ({ entryId, content, timeElapsed, wpm, wordCount, saveType }, { rejectWithValue, dispatch }) => {
     try {
       const response = await axiosInstance.post('api/entries/save_journal_entry', {
         content,
@@ -184,7 +186,11 @@ export const saveJournalEntry = createAsyncThunk(
         wpm,
       })
 
-      dispatch(showToast('Journal Entry Saved', 'success'))
+      if (saveType === SAVE_TYPES.AUTO) {
+        dispatch(showToast('Journal autosaved', 'warn'))
+      } else {
+        dispatch(showToast('Journal Entry Saved', 'success'))
+      }
 
       return response.data.entry_id
     } catch (error) {
@@ -233,13 +239,62 @@ export const fetchNodeEntriesInfo = createAsyncThunk(
   }
 )
 
+/**
+ * Persist the in-memory entry before switching away / creating a new entry.
+ * No-ops when there is no entry or nothing worth saving.
+ */
+export const autosaveCurrentEntryIfNeeded = createAsyncThunk(
+  'currentEntryReducer/autosaveCurrentEntryIfNeeded',
+  async (_, { getState, dispatch }) => {
+    const currentState = getState().currentEntry
+    const entryId = normalizeEntryId(currentState.entryId)
+
+    if (entryId == null) {
+      return null
+    }
+
+    try {
+      if (currentState.type === JOURNAL) {
+        const content = typeof currentState.content === 'string' ? currentState.content : ''
+        if (!content.trim()) {
+          return null
+        }
+
+        const { timeElapsed = 0, wpm = 0, wordCount = 0 } = currentState
+        await dispatch(
+          saveJournalEntry({
+            entryId,
+            content,
+            timeElapsed,
+            wpm,
+            wordCount,
+            saveType: SAVE_TYPES.AUTO,
+          })
+        ).unwrap()
+        return entryId
+      }
+
+      await dispatch(saveNodeEntry({ saveType: SAVE_TYPES.AUTO })).unwrap()
+      return entryId
+    } catch (error) {
+      console.error('Autosave before entry change failed:', error)
+      return null
+    }
+  }
+)
+
 // TODO this is a duplicate of fetchEntryById, Consolidate
 export const setEntryById = createAsyncThunk(
   'currentEntryReducer/setEntryById',
-  async (queryParamEntryId, { rejectWithValue }) => {
+  async (queryParamEntryId, { getState, dispatch, rejectWithValue }) => {
     const normalizedEntryId = normalizeEntryId(queryParamEntryId)
     if (normalizedEntryId == null) {
       return rejectWithValue({ msg: 'Invalid entry ID' })
+    }
+
+    const previousEntryId = normalizeEntryId(getState().currentEntry.entryId)
+    if (previousEntryId != null && previousEntryId !== normalizedEntryId) {
+      await dispatch(autosaveCurrentEntryIfNeeded())
     }
 
     try {
@@ -625,13 +680,15 @@ const currentEntrySlice = createSlice({
       .addCase(createJournalEntry.pending, (state) => {
         state.entriesLoading = true
       })
-      .addCase(createJournalEntry.fulfilled, (state, action) => {
+      .addCase(createJournalEntry.fulfilled, (state) => {
+        // Content/entryId are already set by applyNewJournalDraft (new) or setEntryById (resume).
         state.entriesLoading = false
         state.entryId = action.payload
         state.type = JOURNAL
       })
       .addCase(createJournalEntry.rejected, (state) => {
         state.entriesLoading = false
+        state.type = JOURNAL
       })
       .addCase(saveJournalEntry.pending, (state) => {
         state.entriesLoading = true
