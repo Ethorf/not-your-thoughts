@@ -4,7 +4,7 @@
 .wrapper {
   width: 100%;
   max-width: 100%;
-  min-height: 70%;
+  height: 100%;
   border: $silver-border-default;
   z-index: $text-entry-z-index;
   border-radius: 0.75rem;
@@ -13,7 +13,6 @@
   display: flex;
   flex-direction: column;
   background-color: black;
-  height: 70vh;
 
   &:hover,
   &:focus {

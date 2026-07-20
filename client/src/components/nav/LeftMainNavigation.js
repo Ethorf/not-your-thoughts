@@ -13,7 +13,7 @@ import TextButton from '@components/Shared/TextButton/TextButton'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 
 // Redux
-import { resetCurrentEntryState, createNodeEntry, createJournalEntry } from '@redux/reducers/currentEntryReducer'
+import { resetCurrentEntryState, createNodeEntry, createJournalEntry, autosaveCurrentEntryIfNeeded } from '@redux/reducers/currentEntryReducer'
 import { logout } from '@redux/actions/authActions'
 import { toggleLeftSidebar, openLeftSidebar, closeLeftSidebar } from '@redux/reducers/leftSidebarReducer'
 import { showToast } from '@utils/toast'
@@ -112,6 +112,7 @@ const LeftMainNavigation = () => {
   }, [dispatch, isMobile, leftSidebarOpen])
 
   const handleNewNodeEntryClick = async () => {
+    await dispatch(autosaveCurrentEntryIfNeeded())
     dispatch(resetCurrentEntryState())
     const result = await dispatch(createNodeEntry())
 
@@ -131,7 +132,8 @@ const LeftMainNavigation = () => {
   }
 
   const handleNewJournalEntryClick = async () => {
-    dispatch(resetCurrentEntryState())
+    await dispatch(autosaveCurrentEntryIfNeeded())
+    // Do not reset — createJournalEntry resumes today's journal if it already exists.
     const result = await dispatch(createJournalEntry())
 
     if (createJournalEntry.rejected.match(result)) {

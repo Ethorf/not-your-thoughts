@@ -42,9 +42,7 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
   // startTimer: once per mount
   const startTimer = useCallback(() => {
     if (intervalRef.current == null) {
-      const startingCount = wordCountRef.current
-      setActiveWordCount(startingCount)
-      sessionPeakWordCountRef.current = startingCount
+      setActiveWordCount(wordCountRef.current)
       dispatch(setSessionActive(true))
       intervalRef.current = setInterval(() => {
         const t = timeElapsedRef.current + 1
@@ -67,6 +65,7 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
         dispatch(setTimeElapsed(0))
         timeElapsedRef.current = 0
         sessionPeakWordCountRef.current = 0
+        dispatch(setSessionActive(false))
         setActiveWordCount(null)
         dispatch(setWordsAdded(0))
         dispatch(setSessionActive(false))
@@ -140,9 +139,10 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
     if (entriesSaving) stopTimer()
   }, [entriesSaving, stopTimer])
 
+  // Entry switches autosave in setEntryById before Redux updates — only reset the timer here.
   useEffect(() => {
     if (entryId !== entryIdRef.current) {
-      stopTimer(true)
+      stopTimer(false)
       entryIdRef.current = entryId
     }
   }, [entryId, stopTimer])
