@@ -21,12 +21,14 @@ import sharedStyles from '@styles/sharedClassnames.module.scss'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import { NodesDashboardList } from '@components/Shared/NodesDashboardList/NodesDashboardList'
 import { JournalsDashboardList } from '@components/Shared/JournalsDashboardList/JournalsDashboardList'
+import useIsMobile from '@hooks/useIsMobile'
 
 const { NODE, JOURNAL } = ENTRY_TYPES
 
 const Dashboard = () => {
   const history = useHistory()
   const dispatch = useDispatch()
+  const isMobile = useIsMobile()
   const [activeEntryType, setActiveEntryType] = useState(NODE)
 
   const handleNewNodeEntryClick = async () => {
@@ -69,9 +71,11 @@ const Dashboard = () => {
 
   return (
     <div className={classNames(styles.wrapper, sharedStyles.flexColumnCenter)}>
-      <h1>Dashboard</h1>
+      <h1 className={styles.dashboardTitle}>Dashboard</h1>
       <div className={styles.actionsContainer}>
         <div className={styles.entryTypeToggle}>
+          <h2>{isMobile ? 'Show:' : null}</h2>
+
           <DefaultButton isSelected={activeEntryType === NODE} onClick={() => setActiveEntryType(NODE)}>
             Nodes
           </DefaultButton>
@@ -79,7 +83,7 @@ const Dashboard = () => {
             Journals
           </DefaultButton>
         </div>
-        {activeEntryType === NODE && (
+        {activeEntryType === NODE && !isMobile && (
           <DefaultButton
             className={styles.globalViewButton}
             onClick={() => history.push('/explore?view=global')}
@@ -89,7 +93,7 @@ const Dashboard = () => {
           </DefaultButton>
         )}
         <div className={classNames(styles.newEntry)}>
-          <h2>New Entry:</h2>
+          <h2>{isMobile ? 'New:' : 'New Entry:'}</h2>
           <DefaultButton onClick={handleNewNodeEntryClick}>Node</DefaultButton>
           <DefaultButton onClick={handleNewJournalEntryClick}>Journal</DefaultButton>
         </div>

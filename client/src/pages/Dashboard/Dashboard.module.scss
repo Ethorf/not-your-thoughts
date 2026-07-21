@@ -6,12 +6,10 @@
   justify-content: center;
   flex-direction: column;
   align-items: center;
-
-  h1 {
-    margin: 36px 0;
-  }
 }
-
+.dashboardTitle {
+  margin: 36px 0;
+}
 .searchSection {
   margin: 1.25rem 0;
   width: 70%;
@@ -43,6 +41,12 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  justify-content: flex-start;
+
+  h2 {
+    font-size: 0.9rem;
+    color: $silver-active;
+  }
 }
 
 .actionsContainer {
@@ -54,11 +58,10 @@
 }
 
 @include mobile-all {
-  .wrapper h1 {
-    margin: 1.25rem 0;
-    font-size: 1.5rem;
+  .dashboardTitle {
+    margin-top: 80px;
+    margin-bottom: 12px;
   }
-
   .actionsContainer {
     width: 100%;
     padding: 0 1rem;
@@ -71,13 +74,11 @@
   .newEntry {
     width: 100%;
     justify-content: center;
-    flex-wrap: wrap;
     gap: 0.5rem;
 
     h2 {
-      width: 100%;
-      text-align: center;
       font-size: 0.9rem;
+      color: $silver-active;
     }
   }
 
