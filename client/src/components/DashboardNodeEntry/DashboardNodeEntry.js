@@ -1,6 +1,5 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
-import { useHistory } from 'react-router-dom'
 
 // Components
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
@@ -57,17 +56,11 @@ const getWordCount = (node) => {
 export const DashboardNodeEntry = ({ node = {} }) => {
   const { id = null, starred, title, pending, date_last_modified } = node
   const dispatch = useDispatch()
-  const history = useHistory()
   const wordCount = getWordCount(node)
 
   const handleOpenAreYouSureModal = async () => {
     await dispatch(setEntryById(id))
     await dispatch(openModal(MODAL_NAMES.ARE_YOU_SURE))
-  }
-
-  const handleExploreNode = async () => {
-    await dispatch(setEntryById(id))
-    history.push('/explore')
   }
 
   return (
@@ -86,13 +79,6 @@ export const DashboardNodeEntry = ({ node = {} }) => {
       <div className={styles.wordCount} data-tooltip-id="main-tooltip" data-tooltip-content="word count">
         {pending ? '—' : `${wordCount.toLocaleString()} ${wordCount === 1 ? 'word' : 'words'}`}
       </div>
-      <DefaultButton
-        className={styles.exploreButton}
-        onClick={handleExploreNode}
-        tooltip="Explore this node's connections"
-      >
-        Explore
-      </DefaultButton>
       <DefaultButton className={styles.deleteButton} onClick={handleOpenAreYouSureModal}>
         X
       </DefaultButton>

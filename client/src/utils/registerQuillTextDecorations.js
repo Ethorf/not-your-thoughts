@@ -263,7 +263,9 @@ class TextDecorationModule {
   }
 
   forceSelection(selection) {
-    if (!selection) {
+    // Never steal focus from another input (e.g. the title field) — only
+    // restore the caret when the editor already owns focus.
+    if (!selection || !this.quill.hasFocus()) {
       return
     }
 

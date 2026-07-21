@@ -172,7 +172,20 @@
 
 @include mobile-all {
   .backButton {
-    display: none;
+    // Sit beside the fixed hamburger arrow (left: 0.5rem, top: 1.25rem).
+    top: 1.25rem;
+    left: 3.25rem;
+    font-size: 0.75rem;
+    max-width: 40vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: none;
+
+    // Hide under the bottom sheet instead of displacing.
+    &.backButtonDisplaced {
+      visibility: hidden;
+    }
   }
 
   .wrapper {

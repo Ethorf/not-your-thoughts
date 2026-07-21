@@ -76,7 +76,7 @@ const LeftMainNavigation = () => {
 
   const previousPageLabel = previousLocation ? getRouteLabel(previousLocation.pathname) : null
   const isOnLoginPage = location.pathname.startsWith('/login')
-  const canGoBack = Boolean(previousLocation) && !isMobile && !isOnLoginPage
+  const canGoBack = Boolean(previousLocation) && !isOnLoginPage
 
   useEffect(() => {
     const previous = currentLocationRef.current
@@ -97,6 +97,10 @@ const LeftMainNavigation = () => {
 
     history.goBack()
   }, [history, previousLocation])
+
+  const handleNavItemClick = useCallback(() => {
+    dispatch(closeLeftSidebar())
+  }, [dispatch])
 
   const handleToggleSidebar = useCallback(() => {
     if (isMobile) {
@@ -189,6 +193,7 @@ const LeftMainNavigation = () => {
             to="/"
             activeClassName={styles.active}
             className={mode === '-.light' ? styles.linkLight : styles.link}
+            onClick={handleNavItemClick}
           >
             Home
           </NavLink>
@@ -198,6 +203,7 @@ const LeftMainNavigation = () => {
               to="/dashboard"
               activeClassName={styles.active}
               className={mode === '-.light' ? styles.linkLight : styles.link}
+              onClick={handleNavItemClick}
             >
               Dashboard
             </NavLink>
@@ -205,7 +211,10 @@ const LeftMainNavigation = () => {
           <TextButton
             navLink
             className={styles.navTextButton}
-            onClick={() => history.push('/public-dashboard?userId=ethorf')}
+            onClick={() => {
+              dispatch(closeLeftSidebar())
+              history.push('/public-dashboard?userId=ethorf')
+            }}
           >
             {user ? 'Public View' : 'Browse'}
           </TextButton>
@@ -216,6 +225,7 @@ const LeftMainNavigation = () => {
                 to="/explore"
                 activeClassName={styles.active}
                 className={mode === '-.light' ? styles.linkLight : styles.link}
+                onClick={handleNavItemClick}
               >
                 Explore
               </NavLink>
@@ -232,6 +242,7 @@ const LeftMainNavigation = () => {
             to="/resources"
             activeClassName={styles.active}
             className={mode === '-.light' ? styles.linkLight : styles.link}
+            onClick={handleNavItemClick}
           >
             Resources
           </NavLink>
@@ -241,6 +252,7 @@ const LeftMainNavigation = () => {
               to="/profile"
               activeClassName={styles.active}
               className={mode === '-.light' ? styles.linkLight : styles.link}
+              onClick={handleNavItemClick}
             >
               Profile
             </NavLink>
@@ -250,6 +262,7 @@ const LeftMainNavigation = () => {
             to="/about"
             activeClassName={styles.active}
             className={mode === '-.light' ? styles.linkLight : styles.link}
+            onClick={handleNavItemClick}
           >
             About
           </NavLink>
@@ -258,6 +271,7 @@ const LeftMainNavigation = () => {
               type="button"
               className={mode === '-.light' ? styles.logoutButtonLight : styles.logoutButton}
               onClick={() => {
+                dispatch(closeLeftSidebar())
                 dispatch(logout())
                 history.push('/')
               }}
@@ -270,6 +284,7 @@ const LeftMainNavigation = () => {
               to="/login"
               activeClassName={styles.active}
               className={mode === '-.light' ? styles.linkLight : styles.link}
+              onClick={handleNavItemClick}
             >
               Login
             </NavLink>

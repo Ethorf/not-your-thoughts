@@ -24,11 +24,6 @@
   white-space: nowrap;
 }
 
-.exploreButton {
-  font-size: 0.8rem;
-  justify-self: end;
-}
-
 .deleteButton {
   font-size: 0.8rem;
   justify-self: end;
@@ -36,7 +31,7 @@
 
 @include mobile-all {
   .wrapper {
-    grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
     gap: 0.375rem;
     width: 100%;
     padding: 0.375rem 0;
@@ -50,7 +45,6 @@
     font-size: 0.65rem;
   }
 
-  .exploreButton,
   .deleteButton {
     font-size: 0.65rem;
     padding: 0.25rem 0.5rem;
