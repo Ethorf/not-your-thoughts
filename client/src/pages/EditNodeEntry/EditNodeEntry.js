@@ -221,7 +221,6 @@ const EditNodeEntry = () => {
                 </DefaultButton>
               </span>
             )}
-            {isMobile && <span className={styles.wordCount}>Words: {wordCount}</span>}
           </span>
           {!isMobile && (
             <span className={classNames(sharedStyles.flexCenter, styles.wordsCell)}>Words: {wordCount}</span>
@@ -235,6 +234,7 @@ const EditNodeEntry = () => {
               </DefaultButton>
             )}
           </span>
+          {isMobile && <span className={styles.wordCount}>Words: {wordCount}</span>}
           {isMobile && <span className={styles.bottomBarSpacer} aria-hidden="true" />}
         </div>
       </div>

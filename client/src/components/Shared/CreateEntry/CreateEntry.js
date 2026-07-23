@@ -83,7 +83,10 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
   const [suggestionMenu, setSuggestionMenu] = useState(null)
 
   const allTitles = useMemo(
-    () => nodeEntriesInfo?.map((x) => x?.title?.toLowerCase()).filter((t) => t !== currentTitle?.toLowerCase()) ?? [],
+    () =>
+      nodeEntriesInfo
+        ?.map((x) => x?.title?.toLowerCase())
+        .filter((t) => t && t !== currentTitle?.toLowerCase()) ?? [],
     [currentTitle, nodeEntriesInfo]
   )
 

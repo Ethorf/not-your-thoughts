@@ -63,7 +63,9 @@
   padding: 0.25rem;
   cursor: pointer;
   color: rgba(192, 192, 192, 0.85);
-  transition: color 0.3s ease, transform 0.3s ease;
+  transition:
+    color 0.3s ease,
+    transform 0.3s ease;
 
   &:hover {
     color: white;
@@ -150,14 +152,20 @@
 @include mobile-all {
   .wrapper {
     width: 100vw;
+    height: 75%;
+    max-height: 100%;
     padding-top: 4rem;
     box-sizing: border-box;
+    overflow: hidden;
+    justify-content: flex-start;
   }
 
   .editContainer {
     width: 100%;
     max-width: 100vw;
-    height: calc(100dvh - 4rem);
+    height: auto;
+    flex: 1;
+    min-height: 0;
     padding: 0 0.75rem;
     box-sizing: border-box;
   }
@@ -168,6 +176,7 @@
     align-items: stretch;
     gap: 0.5rem;
     min-height: auto;
+    flex-shrink: 0;
   }
 
   .titleInputContainer {
@@ -213,9 +222,13 @@
     gap: 0.375rem;
   }
 
-  .saveButton,
   .topLevelButton {
     font-size: 0.65rem;
+  }
+
+  .saveButton {
+    font-size: 0.85rem;
+    margin-left: 12px;
   }
 
   .grid3Columns {
@@ -233,7 +246,14 @@
     align-items: center;
     width: 100%;
     gap: 0.5rem;
-    padding-top: 0.5rem;
+    flex-shrink: 0;
+    padding: 0.35rem 0 0.5rem;
+    box-sizing: border-box;
+
+    // DefaultButton's 0.5rem bottom margin overflows past the viewport and gets clipped.
+    button {
+      margin: 0.25rem 0.5rem;
+    }
   }
 
   .historyCell {
@@ -247,10 +267,16 @@
   .wordCount {
     white-space: nowrap;
     font-size: 0.85rem;
+    text-align: right;
+    color: $silver-active;
   }
 
   .saveCell {
     justify-content: center;
+  }
+
+  .bottomBar .saveButton {
+    margin-top: 0;
   }
 
   .bottomBarSpacer {
