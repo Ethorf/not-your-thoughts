@@ -202,7 +202,12 @@ export const createFormatRules = (
  * @returns {string|null} Node ID or null if not found
  */
 export const findIdByNodeTitle = (nodes, title) => {
-  return nodes.find((x) => x.title.toLowerCase() === title.toLowerCase())?.id ?? null
+  if (!title || !Array.isArray(nodes)) {
+    return null
+  }
+
+  const titleLower = title.toLowerCase()
+  return nodes.find((x) => x?.title?.toLowerCase() === titleLower)?.id ?? null
 }
 
 /**

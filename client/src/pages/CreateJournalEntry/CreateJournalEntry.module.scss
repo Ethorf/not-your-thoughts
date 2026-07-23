@@ -62,17 +62,19 @@
 @include mobile-all {
   .wrapper {
     width: 100vw;
-    height: 100dvh;
+    height: 75%;
+    max-height: 100%;
     padding-top: 4rem;
     box-sizing: border-box;
     justify-content: flex-start;
     align-items: stretch;
+    overflow: hidden;
   }
 
   .pillarsAllContainer,
   .mobileLayout {
     width: 100%;
-    height: calc(100dvh - 4rem);
+    height: auto;
     max-width: 100vw;
     flex: 1;
     min-height: 0;
@@ -124,7 +126,14 @@
     align-items: center;
     width: 100%;
     gap: 0.5rem;
-    padding: 0.5rem 0 calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    flex-shrink: 0;
+    padding: 0.35rem 0 0.5rem;
+    box-sizing: border-box;
+
+    // DefaultButton's 0.5rem bottom margin overflows past the viewport and gets clipped.
+    button {
+      margin: 0.25rem 0.5rem;
+    }
   }
 
   .wordCount {

@@ -90,15 +90,13 @@ html {
 // iPhone safe area bottom padding for mobile
 @import '@styles/mixins.scss';
 
-@include mobile-small-only() {
+@include mobile-all {
   .App {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-}
-
-@include mobile-only {
-  .App {
-    padding-bottom: env(safe-area-inset-bottom);
+    height: 100dvh;
+    max-height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-sizing: border-box;
+    overflow: hidden;
   }
 }
 

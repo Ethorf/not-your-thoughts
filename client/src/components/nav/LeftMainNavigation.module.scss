@@ -172,8 +172,7 @@
 
 @include mobile-all {
   .backButton {
-    // Sit beside the fixed hamburger arrow (left: 0.5rem, top: 1.25rem).
-    top: 1.25rem;
+    top: 10px;
     left: 3.25rem;
     font-size: 0.75rem;
     max-width: 40vw;
