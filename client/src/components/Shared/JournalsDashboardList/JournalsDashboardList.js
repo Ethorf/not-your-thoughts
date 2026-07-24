@@ -1,24 +1,31 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import classNames from 'classnames'
 
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import { DashboardJournalEntry } from '@components/DashboardJournalEntry/DashboardJournalEntry'
 import { fetchJournalEntries } from '@redux/reducers/journalEntriesReducer'
 import { hasMeaningfulJournalContent } from '@utils/journalEntryContent'
 
-import styles from '../NodesDashboardList/NodesDashboardList.module.scss'
+import styles from './JournalsDashboardList.module.scss'
+
+const VIEW_LIST = 'list'
+const VIEW_STREAM = 'stream'
 
 export const JournalsDashboardList = () => {
   const dispatch = useDispatch()
   const { journalEntriesLoading, entries } = useSelector((state) => state.journalEntries)
   const [sortBy, setSortBy] = useState('recent')
+  const [viewMode, setViewMode] = useState(VIEW_LIST)
 
   useEffect(() => {
     dispatch(fetchJournalEntries())
   }, [dispatch])
 
-  const allJournalEntries = Array.isArray(entries) ? entries : entries?.entries || []
-  const savedJournalEntries = allJournalEntries.filter(hasMeaningfulJournalContent)
+  const savedJournalEntries = useMemo(() => {
+    const allJournalEntries = Array.isArray(entries) ? entries : entries?.entries || []
+    return allJournalEntries.filter(hasMeaningfulJournalContent)
+  }, [entries])
 
   const sortedJournals = useMemo(() => {
     const journals = [...savedJournalEntries]
@@ -44,19 +51,40 @@ export const JournalsDashboardList = () => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.topContainer}>
-        <label className={styles.sortLabel}>
-          Sort:
-          <select className={styles.sortControls} value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
-            <option value="recent">Recent</option>
-            <option value="oldest">Oldest</option>
-          </select>
-        </label>
+        <div className={styles.controls}>
+          <label className={styles.controlLabel}>
+            View:
+            <select
+              className={styles.controlSelect}
+              value={viewMode}
+              onChange={(event) => setViewMode(event.target.value)}
+            >
+              <option value={VIEW_LIST}>List</option>
+              <option value={VIEW_STREAM}>Stream</option>
+            </select>
+          </label>
+          <label className={styles.controlLabel}>
+            Sort:
+            <select
+              className={styles.controlSelect}
+              value={sortBy}
+              onChange={(event) => setSortBy(event.target.value)}
+            >
+              <option value="recent">Recent</option>
+              <option value="oldest">Oldest</option>
+            </select>
+          </label>
+        </div>
       </div>
 
       {sortedJournals.length ? (
-        <ul className={styles.nodesList}>
+        <ul
+          className={classNames(styles.journalsList, {
+            [styles.streamList]: viewMode === VIEW_STREAM,
+          })}
+        >
           {sortedJournals.map((journal) => (
-            <DashboardJournalEntry key={journal.id} journal={journal} />
+            <DashboardJournalEntry key={journal.id} journal={journal} variant={viewMode} />
           ))}
         </ul>
       ) : (

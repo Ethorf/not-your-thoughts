@@ -190,7 +190,7 @@ const LeftMainNavigation = () => {
           {isMobile && <div className={styles.dragHandle} />}
           <NavLink
             exact
-            to="/"
+            to={user ? '/dashboard' : '/'}
             activeClassName={styles.active}
             className={mode === '-.light' ? styles.linkLight : styles.link}
             onClick={handleNavItemClick}

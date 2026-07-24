@@ -7,14 +7,7 @@ import useIsMobile from '@hooks/useIsMobile'
 
 import styles from './BaseModalWrapper.module.scss'
 
-export const BaseModalWrapper = ({
-  children,
-  className,
-  modalName,
-  onOpen,
-  onClose: customOnClose,
-  mobileLayout = 'bottomSheet',
-}) => {
+export const BaseModalWrapper = ({ children, className, modalName, onOpen, onClose: customOnClose }) => {
   const dispatch = useDispatch()
   const { isOpen, activeModal } = useSelector((state) => state.modals)
   const modalIsOpen = isOpen && activeModal === modalName
@@ -50,61 +43,21 @@ export const BaseModalWrapper = ({
     }
   }, [modalIsOpen, onOpen, isMobile])
 
-  const isFullSheet = isMobile && mobileLayout === 'fullSheet'
-  const mobileSheetClass = isFullSheet ? styles.fullSheet : isMobile ? styles.bottomSheet : ''
-
   // body-scroll-lock (blockScroll) targets the modal CONTAINER, not the dialog.
   // Our mobile sheets are position:fixed, so they leave that container's scroll
   // flow — iOS then preventDefaults all touchmove and nothing scrolls.
   // Body overflow is already locked above / in base.scss on mobile.
   const shouldBlockScroll = !isMobile
 
-  const mobileModalStyles = isMobile
-    ? isFullSheet
-      ? {
-          modal: {
-            position: 'fixed',
-            top: 'calc(1.25rem + 1.875rem + 0.875rem)',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            width: '100vw',
-            maxWidth: '100vw',
-            height: 'calc(100dvh - 1.25rem - 1.875rem - 0.875rem)',
-            maxHeight: 'calc(100dvh - 1.25rem - 1.875rem - 0.875rem)',
-            margin: 0,
-            transform: 'none',
-            overflowY: 'hidden',
-            WebkitOverflowScrolling: 'touch',
-          },
-        }
-      : {
-          modal: {
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            width: '100vw',
-            maxWidth: '100vw',
-            maxHeight: '78vh',
-            margin: 0,
-            transform: 'none',
-            overflowY: 'hidden',
-            WebkitOverflowScrolling: 'touch',
-          },
-        }
-    : undefined
-
   return (
     <Modal
       classNames={{
         root: styles.root,
         modalContainer: styles.modalContainer,
-        modal: `${styles.modal} ${mobileSheetClass} ${className || ''}`,
+        modal: `${styles.modal} ${isMobile ? styles.mobileSheet : ''} ${className || ''}`,
         overlay: styles.overlay,
         closeButton: styles.closeButton,
       }}
-      styles={mobileModalStyles}
       closeOnOverlayClick={true}
       open={modalIsOpen}
       onClose={handleCloseModal}

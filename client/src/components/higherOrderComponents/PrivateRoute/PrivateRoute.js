@@ -12,17 +12,28 @@ const PrivateRoute = ({ component: Component, auth: { isAuthenticated, user, tok
     }
   }, [token, user, loadUser])
 
-  // No token: not logged in
-  if (!token) {
-    return <Redirect to="/login" />
-  }
+  // Always render a Route so Switch can match this path correctly.
+  // Early Redirect/Spinner returns (without Route) can fall through to other routes.
+  return (
+    <Route
+      {...rest}
+      render={(props) => {
+        if (!token) {
+          return <Redirect to="/login" />
+        }
 
-  // Token exists but user not loaded yet: restoring session (e.g. after refresh)
-  if (!user) {
-    return <Spinner />
-  }
+        if (!user) {
+          return <Spinner />
+        }
 
-  return <Route {...rest} render={(props) => (isAuthenticated ? <Component {...props} /> : <Redirect to="/login" />)} />
+        if (!isAuthenticated) {
+          return <Redirect to="/login" />
+        }
+
+        return <Component {...props} />
+      }}
+    />
+  )
 }
 
 PrivateRoute.propTypes = {
