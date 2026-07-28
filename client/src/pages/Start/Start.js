@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, createRef } from 'react'
-import { useHistory } from 'react-router-dom'
-import { connect } from 'react-redux'
+import { useHistory, Redirect } from 'react-router-dom'
+import { connect, useSelector } from 'react-redux'
 import { gsap } from 'gsap'
 import { CSSPlugin } from 'gsap/CSSPlugin'
 import { TimelineLite } from 'gsap/all'
@@ -20,6 +20,7 @@ gsap.registerPlugin(CSSPlugin)
 
 const Landing = ({ toggleGuestMode }) => {
   const history = useHistory()
+  const { token, isAuthenticated } = useSelector((state) => state.auth)
   let allContainer = useRef(null)
   let youareContainer = useRef(null)
   let notContainer = useRef(null)
@@ -33,8 +34,13 @@ const Landing = ({ toggleGuestMode }) => {
   let bgImgContainer = useRef(null)
   let lengthRef = createRef()
   const [pathLength, setPathLength] = useState()
+  const shouldSkipToDashboard = Boolean(token || isAuthenticated)
 
   useEffect(() => {
+    if (shouldSkipToDashboard) {
+      return undefined
+    }
+
     let youareTween = new TimelineLite({ paused: true })
       .from(youareContainer, {
         duration: 2.5,
@@ -154,7 +160,13 @@ const Landing = ({ toggleGuestMode }) => {
     setTimeout(() => {
       bgImgTween.reverse()
     }, 6500)
-  }, [])
+  }, [shouldSkipToDashboard])
+
+  // Logged-in users (or restoring session) skip the landing page.
+  if (shouldSkipToDashboard) {
+    return <Redirect to="/dashboard" />
+  }
+
   return (
     <div ref={(div) => (allContainer = div)} className="landing">
       <img

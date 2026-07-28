@@ -159,19 +159,49 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
     [JOURNAL]: 'Note those thoughts here...',
   }
 
-  const toolBarModules = useMemo(
-    () => ({
-      toolbar:
-        entryType === JOURNAL
-          ? []
-          : [
-              ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-              [{ list: 'ordered' }, { list: 'bullet' }],
-            ],
+  const toolBarModules = useMemo(() => {
+    const isJournal = entryType === JOURNAL
+
+    const modules = {
+      toolbar: isJournal
+        ? []
+        : [
+            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+          ],
       textDecorations: entryType === NODE_ENTRY_TYPE,
-    }),
-    [entryType]
-  )
+    }
+
+    if (!isJournal) {
+      // Cmd/Ctrl+Shift+O → ordered list; Cmd/Ctrl+Shift+U → bullet list
+      modules.keyboard = {
+        bindings: {
+          startOrderedList: {
+            key: 'O',
+            shortKey: true,
+            shiftKey: true,
+            handler() {
+              const format = this.quill.getFormat()
+              this.quill.format('list', format.list === 'ordered' ? false : 'ordered')
+              return false
+            },
+          },
+          startUnorderedList: {
+            key: 'U',
+            shortKey: true,
+            shiftKey: true,
+            handler() {
+              const format = this.quill.getFormat()
+              this.quill.format('list', format.list === 'bullet' ? false : 'bullet')
+              return false
+            },
+          },
+        },
+      }
+    }
+
+    return modules
+  }, [entryType])
 
   const handleCreateConnectionFromSuggestion = useCallback(
     async (candidate, connectionType, matchedText) => {
@@ -229,13 +259,15 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
     // Discourage iOS Safari AutoFill accessory (Passwords / Cards / Locations).
     // Cannot remove the system keyboard dismiss control — that's OS chrome.
     editorRoot.setAttribute('autocomplete', 'off')
-    editorRoot.setAttribute('autocapitalize', 'sentences')
+    // iOS + contenteditable: `sentences` re-arms caps after any DOM churn from
+    // backspace (decoration unwrap / list repair), so the next typed char capitalizes.
+    editorRoot.setAttribute('autocapitalize', isMobile ? 'none' : 'sentences')
     editorRoot.setAttribute('spellcheck', 'true')
     editorRoot.setAttribute('data-1p-ignore', 'true')
     editorRoot.setAttribute('data-lpignore', 'true')
     editorRoot.setAttribute('data-form-type', 'other')
     editorRoot.setAttribute('enterkeyhint', 'done')
-  }, [entryId, entryType])
+  }, [entryId, entryType, isMobile])
 
   // Keep typed lines above the iOS keyboard + autofill accessory bar.
   // iOS often shrinks both innerHeight and visualViewport together, so inset can

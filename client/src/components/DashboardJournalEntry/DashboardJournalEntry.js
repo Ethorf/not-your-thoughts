@@ -7,14 +7,14 @@ import TextButton from '@components/Shared/TextButton/TextButton'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import { parseDate } from '@utils/parseDate'
 import { formatTime } from '@utils/formatTime'
-import { getJournalTextPreview } from '@utils/journalEntryContent'
+import { getJournalTextPreview, getLatestContentHtml } from '@utils/journalEntryContent'
 import { setEntryById } from '@redux/reducers/currentEntryReducer'
 import { openModal } from '@redux/reducers/modalsReducer'
 import { MODAL_NAMES } from '@constants/modalNames'
 
 import styles from './DashboardJournalEntry.module.scss'
 
-export const DashboardJournalEntry = ({ journal = {} }) => {
+export const DashboardJournalEntry = ({ journal = {}, variant = 'list' }) => {
   const {
     id = null,
     date_created: dateCreated,
@@ -27,7 +27,10 @@ export const DashboardJournalEntry = ({ journal = {} }) => {
 
   const dispatch = useDispatch()
   const [localLoading, setLocalLoading] = useState(false)
-  const titlePreview = getJournalTextPreview(content) || parseDate(dateCreated) || 'Journal entry'
+  const entryDate = parseDate(dateLastModified || dateCreated)
+  const titlePreview = getJournalTextPreview(content) || entryDate || 'Journal entry'
+  const contentHtml = getLatestContentHtml(content)
+  const isStream = variant === 'stream'
 
   const handleOpenContentModal = async () => {
     setLocalLoading(true)
@@ -41,10 +44,24 @@ export const DashboardJournalEntry = ({ journal = {} }) => {
     await dispatch(openModal(MODAL_NAMES.ARE_YOU_SURE))
   }
 
+  if (isStream) {
+    return (
+      <li className={styles.streamWrapper} key={id}>
+        <div className={styles.streamMeta}>
+          <span className={styles.streamDate}>{entryDate}</span>
+          <span className={styles.streamWords}>
+            {Number(numOfWords || 0).toLocaleString()} {Number(numOfWords) === 1 ? 'word' : 'words'}
+          </span>
+        </div>
+        <div className={styles.streamContent} dangerouslySetInnerHTML={{ __html: contentHtml }} />
+      </li>
+    )
+  }
+
   return (
     <li className={styles.wrapper} key={id}>
       <div data-tooltip-id="main-tooltip" data-tooltip-content="date modified" className={styles.dateColumn}>
-        {parseDate(dateLastModified || dateCreated)}
+        {entryDate}
       </div>
       <div className={styles.titleCell}>
         {localLoading ? (

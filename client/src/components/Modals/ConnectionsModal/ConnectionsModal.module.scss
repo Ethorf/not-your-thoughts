@@ -124,12 +124,10 @@
 }
 
 @include mobile-all {
-  // Positioning/scroll handled by BaseModalWrapper .fullSheet so body-scroll-lock
-  // can scroll this modal node. Keep only content tweaks here.
+  // Positioning/scroll handled by BaseModalWrapper .mobileSheet.
+  // Keep only content tweaks here.
   .modal {
-    min-height: 0 !important;
-    width: 100vw !important;
-    min-width: 100vw !important;
+    min-height: 0;
   }
 
   .wrapper {
