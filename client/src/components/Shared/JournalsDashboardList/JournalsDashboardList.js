@@ -29,9 +29,18 @@ export const JournalsDashboardList = () => {
 
   const sortedJournals = useMemo(() => {
     const journals = [...savedJournalEntries]
+    const getWordCount = (journal) => Number(journal?.num_of_words) || 0
 
     if (sortBy === 'oldest') {
       return journals.sort((a, b) => new Date(a.date_created) - new Date(b.date_created))
+    }
+
+    if (sortBy === 'most-words') {
+      return journals.sort((a, b) => getWordCount(b) - getWordCount(a))
+    }
+
+    if (sortBy === 'least-words') {
+      return journals.sort((a, b) => getWordCount(a) - getWordCount(b))
     }
 
     return journals.sort(
@@ -72,6 +81,8 @@ export const JournalsDashboardList = () => {
             >
               <option value="recent">Recent</option>
               <option value="oldest">Oldest</option>
+              <option value="most-words">Most Words</option>
+              <option value="least-words">Least Words</option>
             </select>
           </label>
         </div>

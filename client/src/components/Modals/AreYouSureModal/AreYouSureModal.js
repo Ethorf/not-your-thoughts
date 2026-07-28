@@ -1,6 +1,7 @@
 // Packages
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useHistory, useLocation } from 'react-router-dom'
 import 'react-responsive-modal/styles.css'
 
 // Constants
@@ -23,17 +24,27 @@ const { JOURNAL } = ENTRY_TYPES
 
 export const AreYouSureModal = () => {
   const dispatch = useDispatch()
+  const history = useHistory()
+  const location = useLocation()
   const { entryId, title, entriesLoading, type } = useSelector((state) => state.currentEntry)
   const isJournalEntry = type === JOURNAL
 
   const handleDeleteEntry = async () => {
-    await dispatch(deleteEntry(entryId))
+    const result = await dispatch(deleteEntry(entryId))
+    if (deleteEntry.rejected.match(result)) {
+      return
+    }
+
     if (isJournalEntry) {
       await dispatch(fetchJournalEntries())
     } else {
       await dispatch(fetchNodeEntriesInfo())
     }
     await dispatch(closeModal())
+
+    if (!isJournalEntry && location.pathname.startsWith('/edit-node-entry')) {
+      history.push('/dashboard')
+    }
   }
 
   //   TODO abstract this shit out into state so we can reuse this component for other are you sures

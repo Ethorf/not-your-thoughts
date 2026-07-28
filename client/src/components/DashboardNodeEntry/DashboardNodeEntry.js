@@ -20,7 +20,7 @@ import { MODAL_NAMES } from '@constants/modalNames.js'
 // Styles
 import styles from './DashboardNodeEntry.module.scss'
 
-const getWordCount = (node) => {
+export const getNodeWordCount = (node) => {
   if (!node) {
     return 0
   }
@@ -56,7 +56,7 @@ const getWordCount = (node) => {
 export const DashboardNodeEntry = ({ node = {} }) => {
   const { id = null, starred, title, pending, date_last_modified } = node
   const dispatch = useDispatch()
-  const wordCount = getWordCount(node)
+  const wordCount = getNodeWordCount(node)
 
   const handleOpenAreYouSureModal = async () => {
     await dispatch(setEntryById(id))

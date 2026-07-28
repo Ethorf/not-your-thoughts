@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import useNodeEntriesInfo from '@hooks/useNodeEntriesInfo'
-import { DashboardNodeEntry } from '@components/DashboardNodeEntry/DashboardNodeEntry'
+import { DashboardNodeEntry, getNodeWordCount } from '@components/DashboardNodeEntry/DashboardNodeEntry'
 import NodeSearch from '@components/Shared/NodeSearch/NodeSearch'
 import { filterAndSortNodesBySearch } from '@utils/nodeSearchRelevance'
 import styles from './NodesDashboardList.module.scss'
@@ -11,7 +11,7 @@ export const NodesDashboardList = () => {
   const [searchFilter, setSearchFilter] = useState('')
 
   const filteredAndSortedNodes = useMemo(() => {
-    let filtered = [...nodeEntriesInfo]
+    const filtered = [...nodeEntriesInfo]
 
     // Apply search filter if provided — relevance-ranked (title matches first)
     if (searchFilter.trim()) {
@@ -20,6 +20,14 @@ export const NodesDashboardList = () => {
 
     if (sortBy === 'recent') {
       return filtered.sort((a, b) => new Date(b.date_last_modified) - new Date(a.date_last_modified))
+    }
+
+    if (sortBy === 'most-words') {
+      return filtered.sort((a, b) => getNodeWordCount(b) - getNodeWordCount(a))
+    }
+
+    if (sortBy === 'least-words') {
+      return filtered.sort((a, b) => getNodeWordCount(a) - getNodeWordCount(b))
     }
 
     return filtered.sort((a, b) => {
@@ -47,6 +55,8 @@ export const NodesDashboardList = () => {
           <select className={styles.sortControls} value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
             <option value="default">Default</option>
             <option value="recent">Recent</option>
+            <option value="most-words">Most Words</option>
+            <option value="least-words">Least Words</option>
           </select>
         </label>
       </div>
