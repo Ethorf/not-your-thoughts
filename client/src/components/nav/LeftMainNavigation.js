@@ -90,13 +90,14 @@ const LeftMainNavigation = () => {
     }
   }, [location])
 
-  const handleGoBack = useCallback(() => {
+  const handleGoBack = useCallback(async () => {
     if (!previousLocation) {
       return
     }
 
+    await dispatch(autosaveCurrentEntryIfNeeded())
     history.goBack()
-  }, [history, previousLocation])
+  }, [dispatch, history, previousLocation])
 
   const handleNavItemClick = useCallback(() => {
     dispatch(closeLeftSidebar())
@@ -132,7 +133,7 @@ const LeftMainNavigation = () => {
     }
 
     dispatch(closeLeftSidebar())
-    history.push(`/edit-node-entry?entryId=${newEntryId}`)
+    history.push(`/edit-node-entry?entryId=${newEntryId}`, { selectTitle: true })
   }
 
   const handleNewJournalEntryClick = async () => {
