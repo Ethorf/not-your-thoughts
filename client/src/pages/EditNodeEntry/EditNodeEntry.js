@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback } from 'react'
+import React, { useEffect, useMemo, useCallback, useRef } from 'react'
 import classNames from 'classnames'
 import { useLocation, useHistory } from 'react-router-dom'
 import { unwrapResult } from '@reduxjs/toolkit'
@@ -32,12 +32,16 @@ import useIsMobile from '@hooks/useIsMobile'
 import styles from './EditNodeEntry.module.scss'
 import sharedStyles from '@styles/sharedClassnames.module.scss'
 
+const UNTITLED_TITLE_PATTERN = /^Untitled #\d+$/i
+
 const EditNodeEntry = () => {
   const dispatch = useDispatch()
   const history = useHistory()
   const location = useLocation()
+  const titleInputRef = useRef(null)
+  const editorRegionRef = useRef(null)
+  const hasAutoSelectedTitleRef = useRef(false)
 
-  const { connectionsLoading } = useSelector((state) => state.connections)
   const { wordCount, entryId, title, starred, isPrivate, entriesLoading } = useSelector((state) => state.currentEntry)
   const { user, isAuthenticated } = useSelector((state) => state.auth)
   const isMobile = useIsMobile()
@@ -56,9 +60,65 @@ const EditNodeEntry = () => {
     }
   }, [dispatch, entryId])
 
+  // Reset auto-select when switching nodes.
+  useEffect(() => {
+    hasAutoSelectedTitleRef.current = false
+  }, [entryId])
+
+  // After creating a node, focus the title and select "Untitled #…" so typing replaces it.
+  useEffect(() => {
+    const shouldSelectTitle = Boolean(location.state?.selectTitle)
+    if (!shouldSelectTitle || hasAutoSelectedTitleRef.current) {
+      return
+    }
+
+    if (entryId == null || !title || !UNTITLED_TITLE_PATTERN.test(title.trim())) {
+      return
+    }
+
+    const input = titleInputRef.current
+    if (!input) {
+      return
+    }
+
+    const frameId = requestAnimationFrame(() => {
+      input.focus()
+      input.select()
+      hasAutoSelectedTitleRef.current = true
+      history.replace(`/edit-node-entry?entryId=${entryId}`)
+    })
+
+    return () => cancelAnimationFrame(frameId)
+  }, [location.state, entryId, title, history])
+
   const handleTitleChange = (e) => {
     dispatch(setTitle(e.target.value))
   }
+
+  const handleTitleBlur = useCallback(() => {
+    if (entryId == null) {
+      return
+    }
+    dispatch(saveNodeEntry({ saveType: SAVE_TYPES.AUTO }))
+  }, [dispatch, entryId])
+
+  const handleTitleKeyDown = useCallback((e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      e.currentTarget.blur()
+      return
+    }
+
+    // Skip header action buttons — go straight to the body editor.
+    if (e.key === 'Tab' && !e.shiftKey) {
+      const editor = editorRegionRef.current?.querySelector('.ql-editor')
+      if (editor) {
+        e.preventDefault()
+        e.currentTarget.blur()
+        editor.focus()
+      }
+    }
+  }, [])
 
   const handleToggleIsPrivate = useCallback(() => {
     if (entryId) {
@@ -156,12 +216,15 @@ const EditNodeEntry = () => {
                 </button>
               )}
               <DefaultInput
+                ref={titleInputRef}
                 className={classNames(styles.titleInput, sharedStyles.flexCenter, {
                   [styles.titleInputNoBorder]: (title ?? '').length,
                 })}
                 placeholder={'Enter Title'}
                 value={title ?? ''}
                 onChange={handleTitleChange}
+                onBlur={handleTitleBlur}
+                onKeyDown={handleTitleKeyDown}
                 autoComplete="off"
                 autoCorrect="off"
                 data-1p-ignore="true"
@@ -199,12 +262,10 @@ const EditNodeEntry = () => {
             )}
           </>
         </div>
-        {!connectionsLoading ? (
-          <div className={styles.connectionLinesWrapper}>
-            {!isMobile && <ConnectionLines entryId={entryId} />}
-            <CreateEntry entryType={ENTRY_TYPES.NODE} fillHeight />
-          </div>
-        ) : null}
+        <div className={styles.connectionLinesWrapper} ref={editorRegionRef}>
+          {!isMobile && <ConnectionLines entryId={entryId} />}
+          <CreateEntry entryType={ENTRY_TYPES.NODE} fillHeight />
+        </div>
         <div className={classNames(styles.grid3Columns, styles.bottomBar)}>
           <span className={classNames(sharedStyles.flexStart, styles.historyCell, styles.wordsCell)}>
             {!isMobile && (

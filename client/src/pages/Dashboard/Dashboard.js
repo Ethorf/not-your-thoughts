@@ -47,7 +47,7 @@ const Dashboard = () => {
       return
     }
 
-    history.push(`/edit-node-entry?entryId=${newEntryId}`)
+    history.push(`/edit-node-entry?entryId=${newEntryId}`, { selectTitle: true })
   }
 
   const handleNewJournalEntryClick = async () => {

@@ -698,8 +698,14 @@ const currentEntrySlice = createSlice({
           entryId: action.payload,
         }
       })
-      .addCase(saveNodeEntry.pending, (state) => {
-        return { ...state, entriesLoading: true, entriesSaving: true }
+      .addCase(saveNodeEntry.pending, (state, action) => {
+        state.entriesLoading = true
+        // Only lock the editor for explicit manual saves. Autosave (title blur, idle,
+        // connection prep) used to flip readOnly + overlay and block paste mid-typing.
+        const saveType = action.meta?.arg?.saveType
+        if (saveType === SAVE_TYPES.MANUAL) {
+          state.entriesSaving = true
+        }
       })
       .addCase(saveNodeEntry.fulfilled, (state, action) => {
         // Will only receive a payload if not an autosave update
@@ -717,6 +723,10 @@ const currentEntrySlice = createSlice({
             entriesSaving: false,
           }
         }
+      })
+      .addCase(saveNodeEntry.rejected, (state) => {
+        state.entriesLoading = false
+        state.entriesSaving = false
       })
       .addCase(fetchEntryById.pending, (state) => {
         return {

@@ -2,6 +2,7 @@ import Quill from 'quill'
 
 /**
  * Preserve Quill formatting on paste, but unwrap ephemeral decoration spans.
+ * Matchers must always return a Delta with `.ops` — undefined crashes Delta.concat.
  */
 export const registerQuillClipboardMatchers = (quill) => {
   if (!quill || quill.__nytClipboardMatchersRegistered) {
@@ -10,12 +11,22 @@ export const registerQuillClipboardMatchers = (quill) => {
 
   quill.__nytClipboardMatchersRegistered = true
 
-  quill.clipboard.addMatcher('SPAN', (node) => {
-    if (!node.getAttribute?.('data-nyt-deco')) {
-      return undefined
+  const Delta = Quill.import('delta')
+
+  const toSafeDelta = (node, delta) => {
+    if (delta && Array.isArray(delta.ops)) {
+      return delta
+    }
+    return new Delta().insert(node?.textContent || '')
+  }
+
+  quill.clipboard.addMatcher('SPAN', (node, delta) => {
+    const safeDelta = toSafeDelta(node, delta)
+
+    if (!node?.getAttribute?.('data-nyt-deco')) {
+      return safeDelta
     }
 
-    const Delta = Quill.import('delta')
     return new Delta().insert(node.textContent || '')
   })
 }
