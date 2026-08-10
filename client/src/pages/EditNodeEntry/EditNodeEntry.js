@@ -37,7 +37,6 @@ const EditNodeEntry = () => {
   const history = useHistory()
   const location = useLocation()
 
-  const { connectionsLoading } = useSelector((state) => state.connections)
   const { wordCount, entryId, title, starred, isPrivate, entriesLoading } = useSelector((state) => state.currentEntry)
   const { user, isAuthenticated } = useSelector((state) => state.auth)
   const isMobile = useIsMobile()
@@ -199,12 +198,10 @@ const EditNodeEntry = () => {
             )}
           </>
         </div>
-        {!connectionsLoading ? (
-          <div className={styles.connectionLinesWrapper}>
-            {!isMobile && <ConnectionLines entryId={entryId} />}
-            <CreateEntry entryType={ENTRY_TYPES.NODE} fillHeight />
-          </div>
-        ) : null}
+        <div className={styles.connectionLinesWrapper}>
+          {!isMobile && <ConnectionLines entryId={entryId} />}
+          <CreateEntry entryType={ENTRY_TYPES.NODE} fillHeight />
+        </div>
         <div className={classNames(styles.grid3Columns, styles.bottomBar)}>
           <span className={classNames(sharedStyles.flexStart, styles.historyCell, styles.wordsCell)}>
             {!isMobile && (

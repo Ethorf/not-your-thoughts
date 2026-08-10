@@ -143,9 +143,10 @@ class TextDecorationModule {
       return
     }
 
-    // While decorations are settling, ignore iOS yanking the caret to the
-    // start of a newly wrapped shiny span.
-    if (this.lockedSelection) {
+    // iOS-only: while decorations are settling, ignore the caret getting yanked
+    // to the start of a newly wrapped shiny span. Enforcing this on desktop
+    // collapses drag-selections and breaks copy/paste.
+    if (this.isAppleTouch && this.lockedSelection) {
       const locked = this.lockedSelection
       if (range.index !== locked.index || (range.length ?? 0) !== locked.length) {
         this.quill.setSelection(locked.index, locked.length, 'silent')
@@ -172,7 +173,9 @@ class TextDecorationModule {
     const liveSelection = this.quill.getSelection()
     if (liveSelection) {
       this.rememberCaret(liveSelection, { fromEdit: true })
-      this.lockSelection(liveSelection)
+      if (this.isAppleTouch) {
+        this.lockSelection(liveSelection)
+      }
     }
     this.scheduleApply()
   }
@@ -194,7 +197,9 @@ class TextDecorationModule {
         },
         { fromEdit: true }
       )
-      this.lockSelection(this.pendingSelection)
+      if (this.isAppleTouch) {
+        this.lockSelection(this.pendingSelection)
+      }
     }
 
     this.scheduleApply()
@@ -269,10 +274,13 @@ class TextDecorationModule {
       return
     }
 
-    // Quill's model selection can look correct on iOS while the real DOM caret
-    // has already jumped to before a new inline blot — always sync both.
     this.quill.setSelection(selection.index, selection.length, 'silent')
-    this.forceNativeDomCaret(selection.index)
+
+    // Native DOM caret forcing collapses any range selection (breaks copy) and
+    // is only needed on iOS where Quill's model selection can lie after formatText.
+    if (this.isAppleTouch) {
+      this.forceNativeDomCaret(selection.index)
+    }
   }
 
   /**
@@ -348,6 +356,31 @@ class TextDecorationModule {
       return
     }
 
+    // Desktop: avoid selection locks and native caret forcing — they collapse
+    // drag-selections (copy/paste) and fight backspace caret movement.
+    if (!this.isAppleTouch) {
+      if (appliedRanges.length === 0) {
+        return
+      }
+
+      if (!this.quill.hasFocus()) {
+        return
+      }
+
+      const current = this.quill.getSelection()
+      // Never collapse an active range selection the user is making for copy.
+      if (current && current.length > 0) {
+        return
+      }
+
+      const alreadyCorrect =
+        current && current.index === selection.index && (current.length ?? 0) === selection.length
+      if (!alreadyCorrect) {
+        this.quill.setSelection(selection.index, selection.length, 'silent')
+      }
+      return
+    }
+
     const lockMs = appliedRanges.length > 0 ? SELECTION_LOCK_AFTER_FORMAT_MS : SELECTION_LOCK_MS
     this.lockSelection(selection, lockMs)
 
@@ -370,7 +403,7 @@ class TextDecorationModule {
       return
     }
 
-    const followUpDelays = this.isAppleTouch ? [0, 16, 48, 100, 200, 350] : [0, 32]
+    const followUpDelays = [0, 16, 48, 100, 200, 350]
     followUpDelays.forEach((delay) => {
       const timeoutId = window.setTimeout(() => {
         const rafId = requestAnimationFrame(() => {

@@ -30,6 +30,14 @@ export const NodesDashboardList = () => {
       return filtered.sort((a, b) => getNodeWordCount(a) - getNodeWordCount(b))
     }
 
+    if (sortBy === 'starred') {
+      return filtered.sort((a, b) => {
+        if (a.starred && !b.starred) return -1
+        if (!a.starred && b.starred) return 1
+        return new Date(b.date_last_modified) - new Date(a.date_last_modified)
+      })
+    }
+
     return filtered.sort((a, b) => {
       if (a.starred && !b.starred) return -1
       if (!a.starred && b.starred) return 1
@@ -55,6 +63,7 @@ export const NodesDashboardList = () => {
           <select className={styles.sortControls} value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
             <option value="default">Default</option>
             <option value="recent">Recent</option>
+            <option value="starred">Starred</option>
             <option value="most-words">Most Words</option>
             <option value="least-words">Least Words</option>
           </select>
