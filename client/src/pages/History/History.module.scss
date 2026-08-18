@@ -27,6 +27,12 @@
   }
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .content {
   display: grid;
   grid-template-columns: 1fr 2fr;
@@ -250,6 +256,11 @@
     flex-direction: column;
     gap: 0.9375rem;
     text-align: center;
+  }
+
+  .headerActions {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .versionList {

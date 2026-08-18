@@ -107,9 +107,20 @@ router.post('/update_node_entry', authorize, async (req, res) => {
     // Normalize content so an empty/omitted body is treated as an empty string rather than rejected.
     const safeContent = typeof content === 'string' ? content : ''
 
-    // Get current content_ids from the entry
-    let currentEntry = await pool.query('SELECT content_ids FROM entries WHERE id = $1', [entryId])
+    // Get current content_ids and title from the entry
+    let currentEntry = await pool.query('SELECT content_ids, title FROM entries WHERE id = $1 AND user_id = $2', [
+      entryId,
+      user_id,
+    ])
+
+    if (!currentEntry.rows[0]) {
+      return res.status(404).json({ message: 'Entry not found or access denied' })
+    }
+
     let currentContentIds = currentEntry.rows[0].content_ids || [] // Handle case where current content_ids is null
+    const existingTitle = currentEntry.rows[0].title
+    const requestedTitle = typeof title === 'string' ? title.trim() : ''
+    const persistedTitle = requestedTitle || (existingTitle && String(existingTitle).trim()) || `Untitled #${entryId}`
 
     // Initialize newContentIds array with current content IDs
     let newContentIds = [...currentContentIds]
@@ -127,10 +138,10 @@ router.post('/update_node_entry', authorize, async (req, res) => {
       newContentIds.unshift(newContentId)
     }
 
-    // Update entry in the entries table
+    // Update entry in the entries table. Blank titles are never persisted.
     let updatedEntry = await pool.query(
-      'UPDATE entries SET content_ids = $1, title = COALESCE($2, title) WHERE id = $3 AND user_id = $4 RETURNING *',
-      [newContentIds, title, entryId, user_id]
+      'UPDATE entries SET content_ids = $1, title = $2 WHERE id = $3 AND user_id = $4 RETURNING *',
+      [newContentIds, persistedTitle, entryId, user_id]
     )
 
     // Retrieve the most recent content associated with the entry (may be absent if there is none yet)
@@ -513,7 +524,10 @@ router.get('/node_entries_info', async (req, res) => {
       WHERE entry_id = entries.id) AS wd_word_count,
     (SELECT COALESCE(SUM(duration), 0) 
       FROM entry_writing_data 
-      WHERE entry_id = entries.id) AS wd_time_elapsed
+      WHERE entry_id = entries.id) AS wd_time_elapsed,
+    (SELECT COUNT(*) 
+      FROM connections c
+      WHERE c.primary_entry_id = entries.id OR c.foreign_entry_id = entries.id) AS connection_count
   FROM entries 
   WHERE user_id = $1 AND type = 'node'`,
       [user_id]
@@ -546,6 +560,7 @@ router.get('/node_entries_info', async (req, res) => {
         wdWordCount: aggregatedWordCount, // ✅ aggregated writing data fallback
         wdTimeElapsed: entry.wd_time_elapsed, // optional, since you have it
         wordCountGoal: entry.word_count_goal != null ? Number(entry.word_count_goal) : null,
+        connectionCount: parseInt(entry.connection_count, 10) || 0,
         pending: !hasContent,
         date_created: hasContent ? entry.date_created : entry.date_originally_created,
         date_last_modified: hasContent ? entry.date_last_modified : entry.date_originally_created,
@@ -862,6 +877,63 @@ router.get('/entry_contents/:entryId', authorize, async (req, res) => {
       count: uniqueContents.length,
       totalFetched: entryContents.rows.length,
       uniquenessThreshold,
+    })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// Duplicate an older content version and make it the most recent without deleting later versions
+router.post('/restore_content_version', authorize, async (req, res) => {
+  const { id: user_id } = req.user
+  const { entryId, contentId } = req.body
+
+  if (!entryId || !contentId) {
+    return res.status(400).json({ message: 'entryId and contentId are required' })
+  }
+
+  try {
+    const entryResult = await pool.query('SELECT id, content_ids FROM entries WHERE id = $1 AND user_id = $2', [
+      entryId,
+      user_id,
+    ])
+
+    if (entryResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Entry not found or access denied' })
+    }
+
+    const sourceContent = await pool.query(
+      'SELECT id, content, entry_id FROM entry_contents WHERE id = $1 AND entry_id = $2',
+      [contentId, entryId]
+    )
+
+    if (sourceContent.rows.length === 0) {
+      return res.status(404).json({ message: 'Content version not found' })
+    }
+
+    const restoredContent = sourceContent.rows[0].content ?? ''
+
+    const inserted = await pool.query(
+      'INSERT INTO entry_contents (content, entry_id) VALUES ($1, $2) RETURNING id, content, date_created',
+      [restoredContent, entryId]
+    )
+
+    const newContentId = inserted.rows[0].id
+    const currentContentIds = entryResult.rows[0].content_ids || []
+    const newContentIds = [newContentId, ...currentContentIds.filter((id) => id !== newContentId)]
+
+    await pool.query('UPDATE entries SET content_ids = $1 WHERE id = $2 AND user_id = $3', [
+      newContentIds,
+      entryId,
+      user_id,
+    ])
+
+    return res.json({
+      entryId,
+      content: inserted.rows[0].content,
+      contentId: newContentId,
+      date_created: inserted.rows[0].date_created,
     })
   } catch (err) {
     console.error(err.message)

@@ -80,6 +80,21 @@ export const deleteAka = createAsyncThunk(
   }
 )
 
+export const setCanonTitleFromAka = createAsyncThunk(
+  'akas/setCanonTitleFromAka',
+  async ({ entryId, akaId }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axiosInstance.post(`api/akas/${entryId}/set_canon_title`, { akaId })
+      dispatch(showToast('Canon title updated', 'success'))
+      return response.data
+    } catch (error) {
+      const message = error.response?.data?.message || 'Failed to set canon title'
+      dispatch(showToast(message, 'error'))
+      return rejectWithValue(error.response?.data || { message })
+    }
+  }
+)
+
 export const createNodeEntry = createAsyncThunk(
   'currentEntryReducer/createNodeEntry',
   async ({ content = '', title = '' } = {}, { rejectWithValue, dispatch }) => {
@@ -113,7 +128,9 @@ export const saveNodeEntry = createAsyncThunk(
       const fetchResponse = await dispatch(fetchEntryById(currentState.entryId))
       const fetchedEntry = fetchResponse.payload
 
-      const titleChanged = fetchedEntry.title !== currentState.title
+      const fallbackTitle = `Untitled #${currentState.entryId}`
+      const titleToSave = currentState.title?.trim() ? currentState.title.trim() : fetchedEntry?.title?.trim() || fallbackTitle
+      const titleChanged = fetchedEntry.title !== titleToSave
       const contentChanged = fetchedEntry.content[0] !== currentState.content
 
       if (!titleChanged && !contentChanged && saveType !== EXTERNAL_CONNECTION) {
@@ -125,7 +142,7 @@ export const saveNodeEntry = createAsyncThunk(
       const response = await axiosInstance.post('api/entries/update_node_entry', {
         entryId: currentState.entryId,
         content: currentState.content,
-        title: currentState.title,
+        title: titleToSave,
       })
 
       await dispatch(fetchNodeEntriesInfo())
@@ -134,7 +151,7 @@ export const saveNodeEntry = createAsyncThunk(
 
       if (saveType === AUTO) {
         dispatch(showToast(cleanedConnections ? 'Node saved and connections cleaned' : 'Node autosaved', 'warn'))
-        return ''
+        return { title: titleToSave }
       } else {
         dispatch(showToast(cleanedConnections ? 'Node autosaved and connections cleaned' : 'Node updated', 'success'))
         return response.data
@@ -667,6 +684,10 @@ const currentEntrySlice = createSlice({
       .addCase(deleteAka.fulfilled, (state, action) => {
         state.akas = action.payload.akas
       })
+      .addCase(setCanonTitleFromAka.fulfilled, (state, action) => {
+        state.title = action.payload.title
+        state.akas = action.payload.akas
+      })
       .addCase(createNodeEntry.pending, (state) => {
         state.entriesLoading = true
       })
@@ -708,20 +729,21 @@ const currentEntrySlice = createSlice({
         }
       })
       .addCase(saveNodeEntry.fulfilled, (state, action) => {
-        // Will only receive a payload if not an autosave update
-        if (action.payload.content) {
-          return {
-            ...state,
-            entriesLoading: false,
-            entriesSaving: false,
-            content: action.payload.content,
-          }
-        } else {
-          return {
-            ...state,
-            entriesLoading: false,
-            entriesSaving: false,
-          }
+        state.entriesLoading = false
+        state.entriesSaving = false
+
+        const payload = action.payload
+        if (!payload || typeof payload !== 'object') {
+          return
+        }
+
+        if (payload.content) {
+          state.content = payload.content
+        }
+
+        const nextTitle = payload.updatedEntry?.title || payload.title
+        if (typeof nextTitle === 'string' && nextTitle.trim()) {
+          state.title = nextTitle
         }
       })
       .addCase(saveNodeEntry.rejected, (state) => {

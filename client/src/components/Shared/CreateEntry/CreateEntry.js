@@ -8,6 +8,7 @@ import 'react-quill/dist/quill.snow.css'
 // Components
 import TextButton from '@components/Shared/TextButton/TextButton'
 import QuillDecorationSuggestionMenu from '@components/Shared/CreateEntry/QuillDecorationSuggestionMenu'
+import JournalSelectionMenu from '@components/Shared/CreateEntry/JournalSelectionMenu'
 
 // Constants
 import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
@@ -24,11 +25,16 @@ import {
   setCharCount,
   dismissShinyTextSuggestion,
   fetchShinyTextDismissals,
+  createNodeEntry,
+  autosaveCurrentEntryIfNeeded,
 } from '@redux/reducers/currentEntryReducer'
 import { createConnection } from '@redux/reducers/connectionsReducer'
 import { ENTRY_TYPES } from '@constants/entryTypes'
 import calculateWordCount from '@utils/calculateWordCount'
 import { registerQuillSelectionTracking } from '@utils/captureEditorSelection'
+import { deriveNodeFromSelectedText } from '@utils/deriveNodeFromSelectedText'
+import { showToast } from '@utils/toast'
+import { normalizeEntryId } from '@utils/normalizeEntryId'
 import {
   getTextDecorationModule,
   registerQuillTextDecorations,
@@ -67,6 +73,7 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
   const isMobile = useIsMobile()
   const lastSyncedRef = useRef({ entryId: null, content: null })
   const prevSidebarOpenRef = useRef(false)
+  const creatingNodeFromSelectionRef = useRef(false)
 
   const {
     content,
@@ -81,6 +88,7 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
 
   const [toolbarVisible, setToolbarVisible] = useState(false)
   const [suggestionMenu, setSuggestionMenu] = useState(null)
+  const [journalSelectionMenu, setJournalSelectionMenu] = useState(null)
 
   const allTitles = useMemo(
     () =>
@@ -244,6 +252,50 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
     },
     [dispatch, entryId]
   )
+
+  const handleCloseJournalSelectionMenu = useCallback(() => {
+    setJournalSelectionMenu(null)
+  }, [])
+
+  const handleCreateNodeFromSelection = useCallback(async () => {
+    if (creatingNodeFromSelectionRef.current) {
+      return
+    }
+
+    const derived = deriveNodeFromSelectedText(journalSelectionMenu?.text)
+    if (!derived) {
+      setJournalSelectionMenu(null)
+      return
+    }
+
+    creatingNodeFromSelectionRef.current = true
+    setJournalSelectionMenu(null)
+
+    try {
+      await dispatch(autosaveCurrentEntryIfNeeded())
+
+      const existingNode = nodeEntriesInfo?.find((node) => node.title?.toLowerCase() === derived.title.toLowerCase())
+      if (existingNode?.id != null) {
+        history.push(`/edit-node-entry?entryId=${existingNode.id}`)
+        return
+      }
+
+      const result = await dispatch(createNodeEntry({ title: derived.title, content: derived.content }))
+      if (createNodeEntry.rejected.match(result)) {
+        return
+      }
+
+      const newEntryId = normalizeEntryId(result.payload)
+      if (newEntryId == null) {
+        showToast('Failed to create node', 'error')
+        return
+      }
+
+      history.push(`/edit-node-entry?entryId=${newEntryId}`)
+    } finally {
+      creatingNodeFromSelectionRef.current = false
+    }
+  }, [dispatch, history, journalSelectionMenu, nodeEntriesInfo])
 
   useEffect(() => {
     if (!quillRef.current) {
@@ -503,6 +555,82 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
   }, [focusEmptyEditorCaret, handleDecorationClick, entryId])
 
   useEffect(() => {
+    if (entryType !== JOURNAL || !quillRef.current) {
+      return undefined
+    }
+
+    const quill = quillRef.current.getEditor()
+    let debounceId = null
+
+    const getMenuFromCurrentSelection = () => {
+      const range = quill.getSelection()
+      if (!range || range.length < 1) {
+        return null
+      }
+
+      const text = quill.getText(range.index, range.length).replace(/\n$/, '').trim()
+      if (!text) {
+        return null
+      }
+
+      const bounds = quill.getBounds(range.index, range.length)
+      const containerRect = quill.container.getBoundingClientRect()
+      const menuWidth = 230
+      const left = Math.min(Math.max(8, containerRect.left + bounds.left), window.innerWidth - menuWidth - 8)
+      const top = Math.min(Math.max(8, containerRect.top + bounds.bottom + 8), window.innerHeight - 72)
+
+      return { left, top, text }
+    }
+
+    const showMenu = () => {
+      const nextMenu = getMenuFromCurrentSelection()
+      if (nextMenu) {
+        setJournalSelectionMenu(nextMenu)
+      }
+    }
+
+    const handlePointerUp = () => {
+      window.requestAnimationFrame(showMenu)
+    }
+
+    const handleEditorPointerDown = () => {
+      setJournalSelectionMenu(null)
+    }
+
+    const handleSelectionChange = (range) => {
+      window.clearTimeout(debounceId)
+      if (!range || range.length < 1) {
+        return
+      }
+
+      debounceId = window.setTimeout(showMenu, 350)
+    }
+
+    const handleTextChange = (_delta, _oldDelta, source) => {
+      if (source === 'user') {
+        setJournalSelectionMenu(null)
+      }
+    }
+
+    quill.on('selection-change', handleSelectionChange)
+    quill.on('text-change', handleTextChange)
+    quill.root.addEventListener('mousedown', handleEditorPointerDown)
+    quill.root.addEventListener('touchstart', handleEditorPointerDown)
+    quill.root.addEventListener('mouseup', handlePointerUp)
+    quill.root.addEventListener('touchend', handlePointerUp)
+
+    return () => {
+      window.clearTimeout(debounceId)
+      quill.off('selection-change', handleSelectionChange)
+      quill.off('text-change', handleTextChange)
+      quill.root.removeEventListener('mousedown', handleEditorPointerDown)
+      quill.root.removeEventListener('touchstart', handleEditorPointerDown)
+      quill.root.removeEventListener('mouseup', handlePointerUp)
+      quill.root.removeEventListener('touchend', handlePointerUp)
+    }
+  }, [entryType, entryId])
+
+  useEffect(() => {
     const wasOpen = prevSidebarOpenRef.current
     prevSidebarOpenRef.current = sidebarOpen
 
@@ -565,6 +693,13 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
           onDismiss={handleDismissShinySuggestion}
           onCreateConnection={handleCreateConnectionFromSuggestion}
           onClose={() => setSuggestionMenu(null)}
+        />
+      )}
+      {entryType === JOURNAL && (
+        <JournalSelectionMenu
+          menuState={journalSelectionMenu}
+          onCreateNode={handleCreateNodeFromSelection}
+          onClose={handleCloseJournalSelectionMenu}
         />
       )}
     </div>

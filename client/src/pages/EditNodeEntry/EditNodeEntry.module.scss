@@ -9,6 +9,14 @@
   padding-top: 3.75rem;
 }
 
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  width: 100%;
+}
+
 .connectStarContainer {
   display: flex;
   justify-content: space-between;

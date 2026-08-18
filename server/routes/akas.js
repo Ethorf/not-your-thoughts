@@ -57,10 +57,79 @@ router.delete('/:entryId/akas/:akaId', authorize, async (req, res) => {
     await pool.query('DELETE FROM title_akas WHERE entry_id = $1 AND id = $2', [entryId, akaId])
 
     // Fetch the remaining aka values after deletion
-    const remainingAkas = await pool.query('SELECT aka_value FROM title_akas WHERE entry_id = $1', [entryId])
+    const remainingAkas = await pool.query('SELECT * FROM title_akas WHERE entry_id = $1', [entryId])
 
     // Return the remaining aka values in the response
     res.json({ message: 'Aka value deleted successfully', akas: remainingAkas.rows })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send('Server error')
+  }
+})
+
+// Promote an AKA to the node's canon title; demote the previous title to an AKA
+router.post('/:entryId/set_canon_title', authorize, async (req, res) => {
+  const { entryId } = req.params
+  const { akaId } = req.body
+  const userId = req.user.id
+
+  if (!akaId) {
+    return res.status(400).json({ message: 'akaId is required' })
+  }
+
+  try {
+    const entryResult = await pool.query('SELECT id, title FROM entries WHERE id = $1 AND user_id = $2', [
+      entryId,
+      userId,
+    ])
+
+    if (!entryResult.rows.length) {
+      return res.status(404).json({ message: 'Entry not found' })
+    }
+
+    const previousTitle = entryResult.rows[0].title || ''
+
+    const akaResult = await pool.query('SELECT id, aka_value FROM title_akas WHERE entry_id = $1 AND id = $2', [
+      entryId,
+      akaId,
+    ])
+
+    if (!akaResult.rows.length) {
+      return res.status(404).json({ message: 'AKA not found' })
+    }
+
+    const newTitle = akaResult.rows[0].aka_value
+
+    if (!newTitle || !String(newTitle).trim()) {
+      return res.status(400).json({ message: 'AKA value is empty' })
+    }
+
+    if (previousTitle && previousTitle.toLowerCase() === newTitle.toLowerCase()) {
+      return res.status(400).json({ message: 'AKA is already the canon title' })
+    }
+
+    const titleConflict = await pool.query('SELECT id FROM entries WHERE title = $1 AND id != $2', [newTitle, entryId])
+    if (titleConflict.rows.length > 0) {
+      return res.status(400).json({ message: 'Title already exists' })
+    }
+
+    await pool.query('UPDATE entries SET title = $1 WHERE id = $2 AND user_id = $3', [newTitle, entryId, userId])
+    await pool.query('DELETE FROM title_akas WHERE entry_id = $1 AND id = $2', [entryId, akaId])
+
+    if (previousTitle && previousTitle.trim()) {
+      const existingAka = await pool.query(
+        'SELECT id FROM title_akas WHERE entry_id = $1 AND LOWER(aka_value) = LOWER($2)',
+        [entryId, previousTitle]
+      )
+
+      if (!existingAka.rows.length) {
+        await pool.query('INSERT INTO title_akas (entry_id, aka_value) VALUES ($1, $2)', [entryId, previousTitle])
+      }
+    }
+
+    const remainingAkas = await pool.query('SELECT * FROM title_akas WHERE entry_id = $1 ORDER BY id ASC', [entryId])
+
+    res.json({ title: newTitle, akas: remainingAkas.rows, previousTitle })
   } catch (error) {
     console.error(error.message)
     res.status(500).send('Server error')

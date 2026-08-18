@@ -41,18 +41,22 @@ const EditNodeEntry = () => {
   const titleInputRef = useRef(null)
   const editorRegionRef = useRef(null)
   const hasAutoSelectedTitleRef = useRef(false)
+  const lastNonEmptyTitleRef = useRef('')
 
   const { wordCount, entryId, title, starred, isPrivate, entriesLoading } = useSelector((state) => state.currentEntry)
   const { user, isAuthenticated } = useSelector((state) => state.auth)
   const isMobile = useIsMobile()
   const params = useMemo(() => new URLSearchParams(location.search), [location.search])
+  const entryIdParam = useMemo(() => normalizeEntryId(params.get('entryId')), [params])
+  const loadedEntryId = normalizeEntryId(entryId)
+  // Hide the editor until the URL entry matches loaded state — prevents flashing the previous node.
+  const isLoadingEntry = entryIdParam != null && entryIdParam !== loadedEntryId
 
   useEffect(() => {
-    const entryIdParam = normalizeEntryId(params.get('entryId'))
     if (entryIdParam != null) {
       dispatch(setEntryById(entryIdParam))
     }
-  }, [dispatch, params])
+  }, [dispatch, entryIdParam])
 
   useEffect(() => {
     if (entryId) {
@@ -64,6 +68,12 @@ const EditNodeEntry = () => {
   useEffect(() => {
     hasAutoSelectedTitleRef.current = false
   }, [entryId])
+
+  useEffect(() => {
+    if (title?.trim()) {
+      lastNonEmptyTitleRef.current = title.trim()
+    }
+  }, [title])
 
   // After creating a node, focus the title and select "Untitled #…" so typing replaces it.
   useEffect(() => {
@@ -99,8 +109,14 @@ const EditNodeEntry = () => {
     if (entryId == null) {
       return
     }
+
+    if (!title?.trim()) {
+      const fallbackTitle = lastNonEmptyTitleRef.current || `Untitled #${entryId}`
+      dispatch(setTitle(fallbackTitle))
+    }
+
     dispatch(saveNodeEntry({ saveType: SAVE_TYPES.AUTO }))
-  }, [dispatch, entryId])
+  }, [dispatch, entryId, title])
 
   const handleTitleKeyDown = useCallback((e) => {
     if (e.key === 'Enter') {
@@ -172,6 +188,16 @@ const EditNodeEntry = () => {
       window.removeEventListener('keydown', handleShortcuts)
     }
   }, [handleOpenConnectionsWithSelectedText, handleSaveNode])
+
+  if (isLoadingEntry) {
+    return (
+      <div className={styles.wrapper}>
+        <div className={styles.loading}>
+          <SmallSpinner />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={styles.wrapper}>
