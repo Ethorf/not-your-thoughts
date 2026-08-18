@@ -1,13 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import classNames from 'classnames'
 
-// Redux - setEntryById not used in this component
+// Redux
+import { setContent, setWordCount } from '@redux/reducers/currentEntryReducer'
 
 // Utils
 import axiosInstance from '@utils/axiosInstance'
 import extractTextFromHTML from '@utils/extractTextFromHTML'
+import calculateWordCount from '@utils/calculateWordCount'
+import { showToast } from '@utils/toast'
 
 // Components
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
@@ -19,11 +22,13 @@ import sharedStyles from '@styles/sharedClassnames.module.scss'
 
 const History = () => {
   const history = useHistory()
+  const dispatch = useDispatch()
   const { entryId, title } = useSelector((state) => state.currentEntry)
 
   const [filteredContents, setFilteredContents] = useState([])
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [restoring, setRestoring] = useState(false)
   const [error, setError] = useState(null)
 
   // Helper function to check if two HTML contents are meaningfully different
@@ -114,6 +119,36 @@ const History = () => {
   const handleVersionSelect = (index) => {
     setSelectedIndex(index)
   }
+
+  const handleRestoreVersion = useCallback(async () => {
+    if (!entryId || restoring) {
+      return
+    }
+
+    const selectedVersion = filteredContents[selectedIndex]
+    if (!selectedVersion?.id || selectedIndex === 0) {
+      return
+    }
+
+    setRestoring(true)
+    try {
+      const response = await axiosInstance.post('/api/entries/restore_content_version', {
+        entryId,
+        contentId: selectedVersion.id,
+      })
+
+      const restoredContent = response.data?.content ?? selectedVersion.content ?? ''
+      dispatch(setContent(restoredContent))
+      dispatch(setWordCount(calculateWordCount(restoredContent)))
+      showToast('Restored as current version', 'success')
+      await fetchEntryContents()
+    } catch (err) {
+      console.error('Failed to restore content version:', err)
+      showToast('Failed to restore version', 'error')
+    } finally {
+      setRestoring(false)
+    }
+  }, [dispatch, entryId, fetchEntryContents, filteredContents, restoring, selectedIndex])
 
   const getDiffContent = () => {
     if (filteredContents.length === 0) return null
@@ -270,7 +305,20 @@ const History = () => {
         <h1>
           <span className={styles.historyTitle}>History:</span> {title}
         </h1>
-        <DefaultButton onClick={handleBackToEdit}>Back to Edit</DefaultButton>
+        <div className={styles.headerActions}>
+          <DefaultButton
+            onClick={handleRestoreVersion}
+            disabled={selectedIndex === 0 || restoring}
+            tooltip={
+              selectedIndex === 0
+                ? 'This is already the current version'
+                : 'Duplicate this version and set it as current. Later versions are kept.'
+            }
+          >
+            {restoring ? 'Restoring…' : 'Set as current'}
+          </DefaultButton>
+          <DefaultButton onClick={handleBackToEdit}>Back to Edit</DefaultButton>
+        </div>
       </div>
 
       <div className={styles.content}>

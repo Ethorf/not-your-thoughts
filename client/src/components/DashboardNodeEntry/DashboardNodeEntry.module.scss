@@ -24,6 +24,12 @@
   white-space: nowrap;
 }
 
+.connectionCount {
+  color: $silver-faded;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
 .deleteButton {
   font-size: 0.8rem;
   justify-self: end;
@@ -31,7 +37,7 @@
 
 @include mobile-all {
   .wrapper {
-    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-columns: auto minmax(0, 1fr) auto auto auto;
     gap: 0.375rem;
     width: 100%;
     padding: 0.375rem 0;
@@ -41,7 +47,8 @@
     display: none;
   }
 
-  .wordCount {
+  .wordCount,
+  .connectionCount {
     font-size: 0.65rem;
   }
 

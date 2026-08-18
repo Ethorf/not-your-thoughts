@@ -54,7 +54,7 @@ export const getNodeWordCount = (node) => {
 }
 
 export const DashboardNodeEntry = ({ node = {} }) => {
-  const { id = null, starred, title, pending, date_last_modified } = node
+  const { id = null, starred, title, pending, date_last_modified, connectionCount = 0 } = node
   const dispatch = useDispatch()
   const wordCount = getNodeWordCount(node)
 
@@ -62,6 +62,9 @@ export const DashboardNodeEntry = ({ node = {} }) => {
     await dispatch(setEntryById(id))
     await dispatch(openModal(MODAL_NAMES.ARE_YOU_SURE))
   }
+
+  const connectionLabel =
+    connectionCount === 1 ? '1 connection' : `${Number(connectionCount || 0).toLocaleString()} connections`
 
   return (
     <li className={styles.wrapper} key={id}>
@@ -78,6 +81,9 @@ export const DashboardNodeEntry = ({ node = {} }) => {
       </div>
       <div className={styles.wordCount} data-tooltip-id="main-tooltip" data-tooltip-content="word count">
         {pending ? '—' : `${wordCount.toLocaleString()} ${wordCount === 1 ? 'word' : 'words'}`}
+      </div>
+      <div className={styles.connectionCount} data-tooltip-id="main-tooltip" data-tooltip-content="connections">
+        {pending ? '—' : connectionLabel}
       </div>
       <DefaultButton className={styles.deleteButton} onClick={handleOpenAreYouSureModal}>
         X
