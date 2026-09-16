@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback, useRef } from 'react'
+import React, { useEffect, useMemo, useCallback, useRef, useState } from 'react'
 import classNames from 'classnames'
 import { useLocation, useHistory } from 'react-router-dom'
 import { unwrapResult } from '@reduxjs/toolkit'
@@ -27,6 +27,7 @@ import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner'
 import ConnectionLines from '@components/Shared/ConnectionLines/ConnectionLines'
 import NodeGoalProgressPanel from '@components/NodeGoalProgressPanel/NodeGoalProgressPanel'
 import { CogIcon } from '@components/Shared/CogIcon/CogIcon'
+import EditorSelectionContextMenu from '@components/Shared/CreateEntry/EditorSelectionContextMenu'
 import useIsMobile from '@hooks/useIsMobile'
 
 import styles from './EditNodeEntry.module.scss'
@@ -40,8 +41,10 @@ const EditNodeEntry = () => {
   const location = useLocation()
   const titleInputRef = useRef(null)
   const editorRegionRef = useRef(null)
+  const settingsCogRef = useRef(null)
   const hasAutoSelectedTitleRef = useRef(false)
   const lastNonEmptyTitleRef = useRef('')
+  const [nodeMenu, setNodeMenu] = useState(null)
 
   const { wordCount, entryId, title, starred, isPrivate, entriesLoading } = useSelector((state) => state.currentEntry)
   const { user, isAuthenticated } = useSelector((state) => state.auth)
@@ -180,6 +183,68 @@ const EditNodeEntry = () => {
     dispatch(openModal(MODAL_NAMES.ARE_YOU_SURE))
   }, [dispatch])
 
+  const handleCloseNodeMenu = useCallback(() => {
+    setNodeMenu(null)
+  }, [])
+
+  const handleToggleNodeMenu = useCallback(() => {
+    const cog = settingsCogRef.current
+    if (!cog) {
+      return
+    }
+
+    setNodeMenu((current) => {
+      if (current) {
+        return null
+      }
+
+      const rect = cog.getBoundingClientRect()
+      return {
+        left: rect.right - 220,
+        top: rect.bottom + 6,
+      }
+    })
+  }, [])
+
+  const nodeMenuOptions = useMemo(() => {
+    const options = [
+      {
+        id: 'private',
+        label: isPrivate ? 'Private ✓' : 'Private',
+        onClick: handleToggleIsPrivate,
+      },
+    ]
+
+    if (isAuthenticated && user?.id) {
+      options.push({
+        id: 'public-mode',
+        label: 'Public Mode',
+        onClick: () => history.push(`/show-node-entry?userId=${user.id}&entryId=${entryId}`),
+      })
+    }
+
+    options.push(
+      {
+        id: 'explore',
+        label: 'Explore',
+        onClick: () => history.push('/explore'),
+      },
+      {
+        id: 'history',
+        label: 'History',
+        onClick: () => history.push('/history'),
+      },
+      {
+        id: 'delete',
+        label: 'Delete',
+        danger: true,
+        onClick: handleOpenDeleteConfirm,
+      }
+    )
+
+    return options
+  }, [entryId, handleOpenDeleteConfirm, handleToggleIsPrivate, history, isAuthenticated, isPrivate, user?.id])
+
   useEffect(() => {
     const handleShortcuts = async (e) => {
       if (e.ctrlKey && e.metaKey && e.key === 'c') {
@@ -247,8 +312,21 @@ const EditNodeEntry = () => {
             </div>
           ) : (
             <>
-              <div className={styles.titleRow}>
-                <StarButton id={entryId} initialStarred={starred} />
+              <div className={styles.actionsRow}>
+                <div className={styles.actionsLeft}>
+                  {entriesLoading ? (
+                    <SmallSpinner />
+                  ) : (
+                    <DefaultButton
+                      onClick={() => handleSaveNode(SAVE_TYPES.MANUAL)}
+                      className={styles.actionButton}
+                    >
+                      Save Node
+                    </DefaultButton>
+                  )}
+                </div>
+                <div className={styles.titleCluster}>
+                  <StarButton id={entryId} initialStarred={starred} />
                   <DefaultInput
                     ref={titleInputRef}
                     className={classNames(styles.titleInput, sharedStyles.flexCenter, {
@@ -265,47 +343,29 @@ const EditNodeEntry = () => {
                     data-lpignore="true"
                     data-form-type="other"
                   />
-                <AkasDisplay />
-              </div>
-              <div className={styles.actionsRow}>
-                <div className={styles.actionsLeft}>
-                  <DefaultButton
-                    tooltip="Open connections menu"
-                    onMouseDown={captureEditorSelectionForModal}
-                    onClick={handleOpenConnectionsModal}
-                    className={styles.saveButton}
-                  >
-                    Connect
-                  </DefaultButton>
-                  <DefaultButton
-                    tooltip={isPrivate ? 'Make entry public' : 'Make entry private'}
-                    onClick={handleToggleIsPrivate}
-                    className={classNames(styles.saveButton, {
-                      [styles.topLevelActive]: isPrivate,
-                    })}
-                  >
-                    {isPrivate ? 'Private ✓' : 'Private'}
-                  </DefaultButton>
+                  <AkasDisplay />
                 </div>
                 <div className={styles.actionsRight}>
-                  {isAuthenticated && user?.id && (
-                    <DefaultButton
-                      tooltip="View public mode"
-                      onClick={() => history.push(`/show-node-entry?userId=${user.id}&entryId=${entryId}`)}
-                      className={styles.saveButton}
-                    >
-                      Public Mode
-                    </DefaultButton>
-                  )}
-                  <DefaultButton
-                    tooltip="Explore nodes"
-                    onClick={() => history.push(`/explore`)}
-                    className={styles.saveButton}
+                  <button
+                    ref={settingsCogRef}
+                    type="button"
+                    className={styles.settingsCog}
+                    onClick={handleToggleNodeMenu}
+                    data-tooltip-id="main-tooltip"
+                    data-tooltip-content="Node options"
+                    aria-label="Open node options"
+                    aria-expanded={nodeMenu != null}
                   >
-                    Explore
-                  </DefaultButton>
+                    <CogIcon className={styles.cogIcon} />
+                  </button>
                 </div>
               </div>
+              <EditorSelectionContextMenu
+                menuState={nodeMenu}
+                options={nodeMenuOptions}
+                onClose={handleCloseNodeMenu}
+                anchorRef={settingsCogRef}
+              />
             </>
           )}
         </div>
@@ -314,31 +374,27 @@ const EditNodeEntry = () => {
           <CreateEntry entryType={ENTRY_TYPES.NODE} fillHeight />
         </div>
         <div className={classNames(styles.grid3Columns, styles.bottomBar)}>
-          <span className={classNames(sharedStyles.flexStart, styles.historyCell, styles.wordsCell)}>
-            {!isMobile && (
-              <span className={styles.leftActions}>
-                <DefaultButton
-                  tooltip="View entry history and changes"
-                  onClick={() => history.push('/history')}
-                  className={styles.saveButton}
-                >
-                  History
-                </DefaultButton>
-                <DefaultButton tooltip="Delete node" className={styles.deleteButton} onClick={handleOpenDeleteConfirm}>
-                  X
-                </DefaultButton>
-              </span>
-            )}
-          </span>
+          <span className={classNames(sharedStyles.flexStart, styles.historyCell, styles.wordsCell)} />
           {!isMobile && (
             <span className={classNames(sharedStyles.flexCenter, styles.wordsCell)}>Words: {wordCount}</span>
           )}
           <span className={classNames(sharedStyles.flexCenter, styles.saveCell)}>
-            {entriesLoading ? (
-              <SmallSpinner />
+            {isMobile ? (
+              entriesLoading ? (
+                <SmallSpinner />
+              ) : (
+                <DefaultButton onClick={() => handleSaveNode(SAVE_TYPES.MANUAL)} className={styles.saveButton}>
+                  Save
+                </DefaultButton>
+              )
             ) : (
-              <DefaultButton onClick={() => handleSaveNode(SAVE_TYPES.MANUAL)} className={styles.saveButton}>
-                {isMobile ? 'Save' : 'Save Node'}
+              <DefaultButton
+                tooltip="Open connections menu"
+                onMouseDown={captureEditorSelectionForModal}
+                onClick={handleOpenConnectionsModal}
+                className={styles.saveButton}
+              >
+                Connect
               </DefaultButton>
             )}
           </span>

@@ -98,6 +98,8 @@ const WritingDataManager = ({ showDisplay = false, entryType, handleAutosave }) 
     return () => {
       window.removeEventListener('keydown', handleKeyPress)
       clearTimeout(timeoutRef.current)
+      // Flush the active session on leave so SPA navigation doesn't drop writing stats.
+      stopTimerRef.current?.(false)
     }
   }, [])
 

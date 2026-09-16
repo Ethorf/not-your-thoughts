@@ -3,10 +3,32 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { fetchJournalConfig } from '@redux/reducers/journalEntriesReducer'
 import { fetchAllWritingData } from '@redux/reducers/writingDataReducer'
+import { buildNodeGoalStatuses } from '@utils/buildNodeGoalStatuses'
 import { getGoalProgressPercent } from '@utils/getGoalProgressPercent'
 import { toNonNegativeInt } from '@utils/writingStatsHelpers'
 
 import styles from './NodeGoalStats.module.scss'
+
+const SECTION_TITLES = {
+  thisNode: 'This Node',
+  nodesToday: 'Nodes Today',
+  journals: 'Journals',
+}
+
+const groupGoalsBySection = (goals) => {
+  const sections = []
+
+  goals.forEach((goal) => {
+    const lastSection = sections[sections.length - 1]
+    if (!lastSection || lastSection.id !== goal.section) {
+      sections.push({ id: goal.section, goals: [goal] })
+      return
+    }
+    lastSection.goals.push(goal)
+  })
+
+  return sections
+}
 
 const GoalMeter = ({ label, current, goal, unit }) => {
   const safeCurrent = toNonNegativeInt(current)
@@ -51,49 +73,40 @@ const NodeGoalStats = () => {
     dispatch(fetchAllWritingData())
   }, [dispatch, isAuthenticated])
 
-  if (!journalConfig) {
+  const goals = buildNodeGoalStatuses({
+    journalConfig,
+    wordCount,
+    nodesWordCountToday,
+    nodesWritingTimeToday,
+    journalWordCountToday,
+    journalWritingTimeToday,
+    wordsAdded,
+    timeElapsed,
+    sessionActive,
+  })
+
+  if (!journalConfig || goals.length === 0) {
     return null
   }
 
-  const perNodeWordsGoal = toNonNegativeInt(journalConfig.node_word_count_goal ?? 500)
-  const currentNodeWords = toNonNegativeInt(wordCount)
-
-  const wordsGoal = toNonNegativeInt(journalConfig.node_daily_words_goal ?? 400)
-  const timeGoalMinutes = toNonNegativeInt(journalConfig.node_daily_time_goal ?? 5)
-
-  const savedWordsToday = toNonNegativeInt(nodesWordCountToday)
-  const savedTimeTodaySeconds = toNonNegativeInt(nodesWritingTimeToday)
-  const pendingWords = sessionActive ? toNonNegativeInt(wordsAdded) : 0
-  const pendingTimeSeconds = sessionActive ? toNonNegativeInt(timeElapsed) : 0
-
-  const currentWordsToday = savedWordsToday + pendingWords
-  const currentTimeTodayMinutes = Math.floor((savedTimeTodaySeconds + pendingTimeSeconds) / 60)
-
-  const journalUsesWordsGoal = journalConfig.journal_goal_preference !== 'time'
-  const journalWordsGoal = toNonNegativeInt(journalConfig.daily_words_goal ?? 400)
-  const journalTimeGoalMinutes = toNonNegativeInt(journalConfig.daily_time_goal ?? 5)
-  const journalWordsToday = toNonNegativeInt(journalWordCountToday)
-  const journalTimeTodayMinutes = Math.floor(toNonNegativeInt(journalWritingTimeToday) / 60)
+  const sections = groupGoalsBySection(goals)
 
   return (
     <div className={styles.stats}>
-      {perNodeWordsGoal > 0 && (
-        <>
-          <h4 className={styles.sectionTitle}>This Node</h4>
-          <GoalMeter label="Words" current={currentNodeWords} goal={perNodeWordsGoal} unit="words" />
-        </>
-      )}
-
-      <h4 className={styles.sectionTitle}>Nodes Today</h4>
-      <GoalMeter label="Words" current={currentWordsToday} goal={wordsGoal} unit="words" />
-      <GoalMeter label="Time" current={currentTimeTodayMinutes} goal={timeGoalMinutes} unit="min" />
-
-      <h4 className={styles.sectionTitle}>Journals</h4>
-      {journalUsesWordsGoal ? (
-        <GoalMeter label="Words" current={journalWordsToday} goal={journalWordsGoal} unit="words" />
-      ) : (
-        <GoalMeter label="Time" current={journalTimeTodayMinutes} goal={journalTimeGoalMinutes} unit="min" />
-      )}
+      {sections.map((section) => (
+        <React.Fragment key={section.id}>
+          <h4 className={styles.sectionTitle}>{SECTION_TITLES[section.id]}</h4>
+          {section.goals.map((goal) => (
+            <GoalMeter
+              key={goal.id}
+              label={goal.label}
+              current={goal.current}
+              goal={goal.goal}
+              unit={goal.unit}
+            />
+          ))}
+        </React.Fragment>
+      ))}
     </div>
   )
 }
