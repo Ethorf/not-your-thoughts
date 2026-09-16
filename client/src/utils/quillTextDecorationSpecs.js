@@ -11,6 +11,31 @@ const {
 
 const escapeRegExp = (string) => string?.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
+/** Leading articles we allow the typed phrase to omit when matching a node title. */
+const LEADING_ARTICLE_RE = /^(the|a|an)\s+/i
+
+/**
+ * Match phrases for a title: exact lowercased title, plus the title with a leading
+ * article stripped (e.g. "the inner lawyer" also matches "inner lawyer").
+ *
+ * @param {string} title
+ * @returns {string[]}
+ */
+export const getTitleMatchPhrases = (title) => {
+  const base = title?.trim().toLowerCase()
+  if (!base) {
+    return []
+  }
+
+  const phrases = [base]
+  const withoutArticle = base.replace(LEADING_ARTICLE_RE, '').trim()
+  if (withoutArticle && withoutArticle !== base) {
+    phrases.push(withoutArticle)
+  }
+
+  return phrases
+}
+
 const addTerm = (termMap, text, spec) => {
   if (!text) {
     return
@@ -34,6 +59,8 @@ const isCurrentEntryTitle = (text, currentTitleLower) => {
 
 /**
  * Builds prioritized decoration metadata for scanning Quill plain text.
+ * Exact title phrases are registered before article-stripped variants so a node
+ * titled "inner lawyer" wins over a variant of "the inner lawyer".
  */
 export const buildDecorationMatchSpecs = ({
   connections = [],
@@ -46,6 +73,15 @@ export const buildDecorationMatchSpecs = ({
   const termMap = new Map()
   const currentTitleLower = currentTitle?.trim().toLowerCase() ?? ''
   const currentEntryId = Number(entryId)
+  /** @type {Array<{ title: string, spec: Object }>} */
+  const pendingTitleSpecs = []
+
+  const queueTitleSpec = (title, spec) => {
+    if (!title || isCurrentEntryTitle(title, currentTitleLower)) {
+      return
+    }
+    pendingTitleSpecs.push({ title, spec })
+  }
 
   connections.forEach((connection) => {
     const {
@@ -55,12 +91,10 @@ export const buildDecorationMatchSpecs = ({
     } = connection
 
     if (connectionType === EXTERNAL && primarySource && foreignSource) {
-      if (!isCurrentEntryTitle(primarySource, currentTitleLower)) {
-        addTerm(termMap, primarySource, {
-          deco: 'connection-external',
-          href: foreignSource,
-        })
-      }
+      queueTitleSpec(primarySource, {
+        deco: 'connection-external',
+        href: foreignSource,
+      })
       return
     }
 
@@ -70,8 +104,8 @@ export const buildDecorationMatchSpecs = ({
     }
 
     const connectedTitle = resolveConnectedNodeTitle(connection, entryId, nodeEntriesInfo)
-    if (connectedTitle && !isCurrentEntryTitle(connectedTitle, currentTitleLower)) {
-      addTerm(termMap, connectedTitle, {
+    if (connectedTitle) {
+      queueTitleSpec(connectedTitle, {
         deco: 'connection-internal',
         nodeId: String(connectedNodeId),
         connectionType,
@@ -80,10 +114,9 @@ export const buildDecorationMatchSpecs = ({
 
     if (
       primarySource &&
-      !isCurrentEntryTitle(primarySource, currentTitleLower) &&
       (!connectedTitle || primarySource.toLowerCase() !== connectedTitle.toLowerCase())
     ) {
-      addTerm(termMap, primarySource, {
+      queueTitleSpec(primarySource, {
         deco: 'connection-internal',
         nodeId: String(connectedNodeId),
         connectionType,
@@ -92,7 +125,7 @@ export const buildDecorationMatchSpecs = ({
   })
 
   allTitles.forEach((titleLower) => {
-    if (isCurrentEntryTitle(titleLower, currentTitleLower) || termMap.has(titleLower)) {
+    if (isCurrentEntryTitle(titleLower, currentTitleLower)) {
       return
     }
 
@@ -102,7 +135,7 @@ export const buildDecorationMatchSpecs = ({
     }
 
     if (shinyCandidate) {
-      addTerm(termMap, titleLower, {
+      queueTitleSpec(titleLower, {
         deco: 'shiny-suggestion',
         nodeId: String(shinyCandidate.nodeId),
         candidateId: shinyCandidate.id,
@@ -115,13 +148,26 @@ export const buildDecorationMatchSpecs = ({
       return
     }
 
-    addTerm(termMap, titleLower, {
+    queueTitleSpec(titleLower, {
       deco: 'shiny',
       nodeId: String(nodeId),
     })
   })
 
-  const terms = [...termMap.keys()]
+  // Exact phrases first, then article-stripped variants (fill gaps only).
+  pendingTitleSpecs.forEach(({ title, spec }) => {
+    const [exact] = getTitleMatchPhrases(title)
+    addTerm(termMap, exact, spec)
+  })
+  pendingTitleSpecs.forEach(({ title, spec }) => {
+    getTitleMatchPhrases(title)
+      .slice(1)
+      .forEach((variant) => {
+        addTerm(termMap, variant, spec)
+      })
+  })
+
+  const terms = [...termMap.keys()].sort((a, b) => b.length - a.length)
   if (terms.length === 0) {
     return { termMap, pattern: null, terms }
   }

@@ -57,18 +57,43 @@
 }
 
 .actionsRow {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   width: 100%;
   gap: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .actionsLeft,
 .actionsRight {
   display: flex;
   align-items: center;
+  gap: 0.35rem;
+}
+
+.actionsLeft {
+  justify-self: start;
+}
+
+.actionsRight {
+  justify-self: end;
+}
+
+.titleCluster {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 0.5rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.actionButton {
+  margin: 0.15rem 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 1.2rem;
+  border-radius: 0.9375rem;
 }
 
 .saveButton {
@@ -118,15 +143,18 @@
 }
 
 .titleInput {
-  max-width: min(100%, 55vw);
-  width: fit-content;
+  width: auto;
+  max-width: 75vw;
   min-width: 8rem;
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   box-sizing: content-box;
-  font-size: 1.5rem;
+  font-size: 2rem;
   text-align: center;
   margin: 0;
   display: block;
+  // Sizes to the value. fit-content + ellipsis shrinks the box before max-width.
+  field-sizing: content;
+  text-overflow: ellipsis;
 }
 
 .topRightContainer {
@@ -170,7 +198,7 @@
 .connectionLinesWrapper {
   position: relative;
   width: 100%;
-  max-height: 80vh;
+  max-height: 75vh;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;

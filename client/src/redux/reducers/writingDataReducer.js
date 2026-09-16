@@ -3,6 +3,7 @@ import axiosInstance from '@utils/axiosInstance'
 import { ENTRY_TYPES } from '@constants/entryTypes'
 
 import { showToast } from '@utils/toast'
+import { getLocalDateKey, getLocalTimeZone } from '@utils/localDateKey'
 import { normalizeWritingStats, toNonNegativeInt } from '@utils/writingStatsHelpers'
 
 const initialState = {
@@ -22,7 +23,7 @@ export const createWritingData = createAsyncThunk(
       const safeWordCount = Math.max(0, wordsAdded)
       const safeDuration = Math.max(0, timeElapsed)
 
-      const response = await axiosInstance.post('api/writing_data/create_writing_data', {
+      await axiosInstance.post('api/writing_data/create_writing_data', {
         entry_id: entryId,
         entry_type: entryType,
         duration: safeDuration,
@@ -51,7 +52,12 @@ export const fetchAllWritingData = createAsyncThunk(
     }
 
     try {
-      const response = await axiosInstance.get('api/writing_data/all_writing_data')
+      const response = await axiosInstance.get('api/writing_data/all_writing_data', {
+        params: {
+          localDate: getLocalDateKey(),
+          timeZone: getLocalTimeZone(),
+        },
+      })
 
       return response.data
     } catch (error) {
@@ -78,6 +84,9 @@ const writingDataSlice = createSlice({
     setSessionActive: (state, action) => {
       state.sessionActive = Boolean(action.payload)
     },
+    setJournalWordCountToday: (state, action) => {
+      state.stats.journalWordCountToday = toNonNegativeInt(action.payload)
+    },
     resetWritingDataState: () => initialState,
   },
   extraReducers: (builder) => {
@@ -97,7 +106,7 @@ const writingDataSlice = createSlice({
           state.stats.nodesWordCountToday += safeWordCount
           state.stats.nodesWritingTimeToday += safeDuration
         } else if (entryType === ENTRY_TYPES.JOURNAL) {
-          state.stats.journalWordCountToday += safeWordCount
+          // Journal words today come from the journal entry's num_of_words, not session deltas.
           state.stats.journalWritingTimeToday += safeDuration
         }
 
@@ -108,6 +117,7 @@ const writingDataSlice = createSlice({
   },
 })
 
-export const { setTimeElapsed, setWordsAdded, setSessionActive } = writingDataSlice.actions
+export const { setTimeElapsed, setWordsAdded, setSessionActive, setJournalWordCountToday } =
+  writingDataSlice.actions
 
 export default writingDataSlice.reducer

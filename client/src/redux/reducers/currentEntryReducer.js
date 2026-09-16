@@ -10,6 +10,7 @@ import { resolvePublicUserId } from '@utils/resolvePublicUserId'
 import { normalizeEntryId } from '@utils/normalizeEntryId'
 import { getLocalDateKey, getLocalTimeZone } from '@utils/localDateKey'
 import { createDeduplicationCondition, clearPendingRequest } from '@utils/requestDeduplication'
+import { setJournalWordCountToday } from '@redux/reducers/writingDataReducer'
 
 const { NODE, JOURNAL } = ENTRY_TYPES
 
@@ -207,6 +208,8 @@ export const saveJournalEntry = createAsyncThunk(
       } else {
         dispatch(showToast('Journal Entry Saved', 'success'))
       }
+
+      dispatch(setJournalWordCountToday(wordCount))
 
       return response.data.entry_id
     } catch (error) {

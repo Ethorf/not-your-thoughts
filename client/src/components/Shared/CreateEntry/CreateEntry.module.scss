@@ -18,13 +18,25 @@
     border: $silver-border-active;
     transition: $default-transition;
   }
-}
 
-.toolbarToggleButton {
-  position: absolute;
-  top: 0;
-  right: 0.375rem;
-  z-index: $text-entry-z-index + 8;
+  .toolbarToggleButton {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    z-index: $text-entry-z-index + 8;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0.25rem;
+    width: 2rem;
+    height: 2rem;
+    line-height: 1;
+    font-size: 1.35rem;
+    box-sizing: border-box;
+    pointer-events: auto;
+    background-color: transparent;
+  }
 }
 
 .editorContainer {
@@ -48,6 +60,7 @@
 
 .journalWrapper {
   padding-top: 0.5rem;
+  height: 70vh;
 }
 
 .fillHeight {
@@ -72,11 +85,11 @@
     padding-top: 1.5rem;
     box-sizing: border-box;
     margin-top: 8px;
-  }
 
-  .toolbarToggleButton {
-    top: 0.375rem;
-    right: 0.5rem;
+    .toolbarToggleButton {
+      top: 0.375rem;
+      right: 0.375rem;
+    }
   }
 
   .editorContainer {

@@ -9,6 +9,7 @@ import 'react-quill/dist/quill.snow.css'
 import TextButton from '@components/Shared/TextButton/TextButton'
 import QuillDecorationSuggestionMenu from '@components/Shared/CreateEntry/QuillDecorationSuggestionMenu'
 import JournalSelectionMenu from '@components/Shared/CreateEntry/JournalSelectionMenu'
+import EditorSelectionContextMenu from '@components/Shared/CreateEntry/EditorSelectionContextMenu'
 
 // Constants
 import { CONNECTION_SOURCE_TYPES } from '@constants/connectionSourceTypes'
@@ -62,7 +63,7 @@ registerQuillListIndentPreservation()
 const { NODE: NODE_ENTRY_TYPE, JOURNAL } = ENTRY_TYPES
 const { DIRECT } = CONNECTION_SOURCE_TYPES
 const {
-  FRONTEND: { PARENT },
+  FRONTEND: { PARENT, SIBLING },
 } = CONNECTION_TYPES
 
 const CreateEntry = ({ entryType, fillHeight = false }) => {
@@ -89,6 +90,7 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
   const [toolbarVisible, setToolbarVisible] = useState(false)
   const [suggestionMenu, setSuggestionMenu] = useState(null)
   const [journalSelectionMenu, setJournalSelectionMenu] = useState(null)
+  const [selectionContextMenu, setSelectionContextMenu] = useState(null)
 
   const allTitles = useMemo(
     () =>
@@ -257,45 +259,164 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
     setJournalSelectionMenu(null)
   }, [])
 
+  const handleCloseSelectionContextMenu = useCallback(() => {
+    setSelectionContextMenu(null)
+  }, [])
+
+  const createNodeFromSelectedText = useCallback(
+    async (selectedText) => {
+      if (creatingNodeFromSelectionRef.current) {
+        return
+      }
+
+      const derived = deriveNodeFromSelectedText(selectedText)
+      if (!derived) {
+        return
+      }
+
+      creatingNodeFromSelectionRef.current = true
+      setJournalSelectionMenu(null)
+      setSelectionContextMenu(null)
+
+      try {
+        await dispatch(autosaveCurrentEntryIfNeeded())
+
+        const existingNode = nodeEntriesInfo?.find((node) => node.title?.toLowerCase() === derived.title.toLowerCase())
+        if (existingNode?.id != null) {
+          history.push(`/edit-node-entry?entryId=${existingNode.id}`)
+          return
+        }
+
+        const result = await dispatch(createNodeEntry({ title: derived.title, content: derived.content }))
+        if (createNodeEntry.rejected.match(result)) {
+          return
+        }
+
+        const newEntryId = normalizeEntryId(result.payload)
+        if (newEntryId == null) {
+          showToast('Failed to create node', 'error')
+          return
+        }
+
+        history.push(`/edit-node-entry?entryId=${newEntryId}`)
+      } finally {
+        creatingNodeFromSelectionRef.current = false
+      }
+    },
+    [dispatch, history, nodeEntriesInfo]
+  )
+
   const handleCreateNodeFromSelection = useCallback(async () => {
+    await createNodeFromSelectedText(journalSelectionMenu?.text)
+  }, [createNodeFromSelectedText, journalSelectionMenu])
+
+  const handleCreateNodeAndConnectFromContextMenu = useCallback(async () => {
     if (creatingNodeFromSelectionRef.current) {
       return
     }
 
-    const derived = deriveNodeFromSelectedText(journalSelectionMenu?.text)
+    const selectedText = selectionContextMenu?.text?.trim()
+    if (!selectedText || entryId == null || entryType !== NODE_ENTRY_TYPE) {
+      setSelectionContextMenu(null)
+      return
+    }
+
+    const derived = deriveNodeFromSelectedText(selectedText)
     if (!derived) {
-      setJournalSelectionMenu(null)
+      setSelectionContextMenu(null)
       return
     }
 
     creatingNodeFromSelectionRef.current = true
-    setJournalSelectionMenu(null)
+    setSelectionContextMenu(null)
 
     try {
       await dispatch(autosaveCurrentEntryIfNeeded())
 
-      const existingNode = nodeEntriesInfo?.find((node) => node.title?.toLowerCase() === derived.title.toLowerCase())
-      if (existingNode?.id != null) {
-        history.push(`/edit-node-entry?entryId=${existingNode.id}`)
+      let targetNodeId = normalizeEntryId(
+        nodeEntriesInfo?.find((node) => node.title?.toLowerCase() === derived.title.toLowerCase())?.id
+      )
+
+      if (targetNodeId == null) {
+        const result = await dispatch(createNodeEntry({ title: derived.title, content: derived.content }))
+        if (createNodeEntry.rejected.match(result)) {
+          return
+        }
+
+        targetNodeId = normalizeEntryId(result.payload)
+        if (targetNodeId == null) {
+          showToast('Failed to create node', 'error')
+          return
+        }
+      }
+
+      if (targetNodeId === normalizeEntryId(entryId)) {
+        showToast('Cannot connect a node to itself', 'error')
         return
       }
 
-      const result = await dispatch(createNodeEntry({ title: derived.title, content: derived.content }))
-      if (createNodeEntry.rejected.match(result)) {
-        return
-      }
-
-      const newEntryId = normalizeEntryId(result.payload)
-      if (newEntryId == null) {
-        showToast('Failed to create node', 'error')
-        return
-      }
-
-      history.push(`/edit-node-entry?entryId=${newEntryId}`)
+      await dispatch(
+        createConnection({
+          connection_type: SIBLING,
+          current_entry_id: entryId,
+          primary_entry_id: entryId,
+          foreign_entry_id: targetNodeId,
+          primary_source: selectedText,
+          foreign_source: derived.title,
+          source_type: DIRECT,
+        })
+      )
     } finally {
       creatingNodeFromSelectionRef.current = false
     }
-  }, [dispatch, history, journalSelectionMenu, nodeEntriesInfo])
+  }, [dispatch, entryId, entryType, nodeEntriesInfo, selectionContextMenu])
+
+  const handleSearchWikipediaFromContextMenu = useCallback(() => {
+    const selectedText = selectionContextMenu?.text?.trim()
+    setSelectionContextMenu(null)
+    if (!selectedText) {
+      return
+    }
+
+    const wikipediaUrl = `https://en.wikipedia.org/w/index.php?search=${encodeURIComponent(selectedText)}`
+    window.open(wikipediaUrl, '_blank', 'noopener,noreferrer')
+  }, [selectionContextMenu])
+
+  const selectionContextMenuOptions = useMemo(() => {
+    if (!selectionContextMenu?.text) {
+      return []
+    }
+
+    const options = []
+
+    if (entryType === NODE_ENTRY_TYPE) {
+      options.push({
+        id: 'create-node-and-connect',
+        label: 'Create node from selection and connect',
+        onClick: handleCreateNodeAndConnectFromContextMenu,
+      })
+    } else {
+      options.push({
+        id: 'create-node',
+        label: 'Create node from selection',
+        onClick: () => createNodeFromSelectedText(selectionContextMenu.text),
+      })
+    }
+
+    options.push({
+      id: 'search-wikipedia',
+      label: 'Search Wikipedia',
+      onClick: handleSearchWikipediaFromContextMenu,
+    })
+
+    return options
+  }, [
+    createNodeFromSelectedText,
+    entryType,
+    handleCreateNodeAndConnectFromContextMenu,
+    handleSearchWikipediaFromContextMenu,
+    selectionContextMenu,
+  ])
 
   useEffect(() => {
     if (!quillRef.current) {
@@ -555,6 +676,49 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
   }, [focusEmptyEditorCaret, handleDecorationClick, entryId])
 
   useEffect(() => {
+    if (!quillRef.current || isMobile) {
+      return undefined
+    }
+
+    const quill = quillRef.current.getEditor()
+
+    const getSelectedText = () => {
+      const range = quill.getSelection()
+      if (range && range.length > 0) {
+        return quill.getText(range.index, range.length).replace(/\n$/, '').trim()
+      }
+
+      const windowSelection = window.getSelection()
+      if (windowSelection?.rangeCount && !windowSelection.isCollapsed && quill.root.contains(windowSelection.anchorNode)) {
+        return windowSelection.toString().replace(/\u00a0/g, ' ').trim()
+      }
+
+      return ''
+    }
+
+    const handleContextMenu = (event) => {
+      const text = getSelectedText()
+      if (!text) {
+        return
+      }
+
+      event.preventDefault()
+      setSuggestionMenu(null)
+      setJournalSelectionMenu(null)
+      setSelectionContextMenu({
+        left: event.clientX,
+        top: event.clientY,
+        text,
+      })
+    }
+
+    quill.root.addEventListener('contextmenu', handleContextMenu)
+    return () => {
+      quill.root.removeEventListener('contextmenu', handleContextMenu)
+    }
+  }, [entryId, entryType, isMobile])
+
+  useEffect(() => {
     if (entryType !== JOURNAL || !quillRef.current) {
       return undefined
     }
@@ -702,6 +866,11 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
           onClose={handleCloseJournalSelectionMenu}
         />
       )}
+      <EditorSelectionContextMenu
+        menuState={selectionContextMenu}
+        options={selectionContextMenuOptions}
+        onClose={handleCloseSelectionContextMenu}
+      />
     </div>
   )
 }
