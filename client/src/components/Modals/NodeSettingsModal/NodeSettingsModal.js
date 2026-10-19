@@ -18,6 +18,7 @@ import { toggleEntryIsPrivate } from '@redux/reducers/currentEntryReducer'
 import { fetchConnections } from '@redux/reducers/connectionsReducer'
 import { openModal, closeModal } from '@redux/reducers/modalsReducer'
 import { setPendingEditorSelectionForModal } from '@utils/captureEditorSelection'
+import { openWebsterDictionary, openWikipediaSearch } from '@utils/openExternalLookups'
 
 import styles from './NodeSettingsModal.module.scss'
 
@@ -25,7 +26,7 @@ export const NodeSettingsModal = () => {
   const dispatch = useDispatch()
   const history = useHistory()
 
-  const { entryId, isPrivate, starred } = useSelector((state) => state.currentEntry)
+  const { entryId, isPrivate, starred, title } = useSelector((state) => state.currentEntry)
   const { user, isAuthenticated } = useSelector((state) => state.auth)
 
   const handleToggleIsPrivate = () => {
@@ -37,6 +38,11 @@ export const NodeSettingsModal = () => {
   const handleNavigate = (path) => {
     dispatch(closeModal())
     history.push(path)
+  }
+
+  const handleOpenLookup = (openLookup) => {
+    openLookup(title)
+    dispatch(closeModal())
   }
 
   const handleOpenConnections = async () => {
@@ -86,6 +92,18 @@ export const NodeSettingsModal = () => {
                 Public Mode
               </DefaultButton>
             )}
+            <DefaultButton
+              className={styles.settingsButton}
+              onClick={() => handleOpenLookup(openWebsterDictionary)}
+            >
+              Webster&apos;s Dictionary
+            </DefaultButton>
+            <DefaultButton
+              className={styles.settingsButton}
+              onClick={() => handleOpenLookup(openWikipediaSearch)}
+            >
+              Wikipedia
+            </DefaultButton>
             <DefaultButton className={styles.settingsButton} onClick={() => handleNavigate('/history')}>
               History
             </DefaultButton>

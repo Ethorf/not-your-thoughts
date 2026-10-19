@@ -15,7 +15,11 @@ const calculateWordCount = (source) => {
     return 0
   }
 
-  const trimmed = content.trim()
+  const plainText = content
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+  const trimmed = plainText.trim()
   if (!trimmed) {
     return 0
   }

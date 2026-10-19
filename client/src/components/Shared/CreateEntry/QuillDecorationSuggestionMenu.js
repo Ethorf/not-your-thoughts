@@ -73,6 +73,12 @@ const QuillDecorationSuggestionMenu = ({ menuState, candidate, matchedText, onDi
       style={{ left: menuState.left, top: menuState.top }}
       role="menu"
     >
+      {candidate.title ? (
+        <div className={menuStyles.readout}>
+          <span className={menuStyles.readoutLabel}>Connect to</span>
+          <span className={menuStyles.readoutTitle}>{candidate.title}</span>
+        </div>
+      ) : null}
       {CONNECTION_MENU_OPTIONS.map(({ type, label }) => (
         <button
           key={type}

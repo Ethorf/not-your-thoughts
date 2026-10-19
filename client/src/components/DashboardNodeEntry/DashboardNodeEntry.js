@@ -1,5 +1,6 @@
 import React from 'react'
-import { useDispatch } from 'react-redux'
+import classNames from 'classnames'
+import { useDispatch, useSelector } from 'react-redux'
 
 // Components
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
@@ -56,7 +57,9 @@ export const getNodeWordCount = (node) => {
 export const DashboardNodeEntry = ({ node = {} }) => {
   const { id = null, starred, title, pending, date_last_modified, connectionCount = 0 } = node
   const dispatch = useDispatch()
+  const nodeWordCountGoal = useSelector((state) => state.journalEntries.journalConfig?.node_word_count_goal ?? 500)
   const wordCount = getNodeWordCount(node)
+  const isOverWordGoal = !pending && nodeWordCountGoal > 0 && wordCount > nodeWordCountGoal
 
   const handleOpenAreYouSureModal = async () => {
     await dispatch(setEntryById(id))
@@ -79,7 +82,11 @@ export const DashboardNodeEntry = ({ node = {} }) => {
       <div className={styles.titleCell}>
         <EditNodeLink node={{ id, title }} />
       </div>
-      <div className={styles.wordCount} data-tooltip-id="main-tooltip" data-tooltip-content="word count">
+      <div
+        className={classNames(styles.wordCount, { [styles.wordCountOverGoal]: isOverWordGoal })}
+        data-tooltip-id="main-tooltip"
+        data-tooltip-content="word count"
+      >
         {pending ? '—' : `${wordCount.toLocaleString()} ${wordCount === 1 ? 'word' : 'words'}`}
       </div>
       <div className={styles.connectionCount} data-tooltip-id="main-tooltip" data-tooltip-content="connections">

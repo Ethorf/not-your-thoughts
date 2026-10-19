@@ -16,7 +16,7 @@
   top: 50%;
   left: 50%;
   transform-origin: 0 0;
-  z-index: $connection-lines-z-index;
+  z-index: $text-entry-z-index + 2;
   animation: fadeInLine 0.6s ease-out var(--line-delay, 0s) both;
   cursor: pointer;
   transition: opacity 0.3s ease;

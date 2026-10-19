@@ -10,6 +10,7 @@
   pointer-events: auto;
   box-sizing: $main-text-box-sizing;
   font-size: $main-text-font-size;
+
   ol li,
   ul li {
     font-size: $main-text-font-size;
@@ -63,8 +64,27 @@
   border-radius: 0.75rem;
 }
 
+.noScroll.textArea {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.noScroll .ql-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  min-height: 0;
+}
+
 .noScroll .ql-editor {
-  overflow: hidden;
+  flex: 1;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
 }
 
 .create-entry-fill {
@@ -114,6 +134,7 @@
   padding: 0;
   margin: 0;
   box-sizing: $main-text-box-sizing;
+  margin-bottom: 24px;
 
   strong,
   b {
