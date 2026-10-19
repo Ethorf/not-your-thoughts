@@ -23,6 +23,7 @@ import CreateEntry from '@components/Shared/CreateEntry/CreateEntry'
 import DefaultButton from '@components/Shared/DefaultButton/DefaultButton'
 import SmallSpinner from '@components/Shared/SmallSpinner/SmallSpinner.js'
 import WritingDataManager from '@components/Shared/WritingDataManager/WritingDataManager'
+import NodeGoalProgressPanel from '@components/NodeGoalProgressPanel/NodeGoalProgressPanel'
 
 // Hooks
 import useIsMobile from '@hooks/useIsMobile'
@@ -85,6 +86,7 @@ const CreateJournalEntry = () => {
   return (
     journalConfig && (
       <div className={styles.wrapper}>
+        {!isMobile && <NodeGoalProgressPanel />}
         {entryId ? (
           <WritingDataManager
             entryType={ENTRY_TYPES.JOURNAL}
@@ -95,7 +97,6 @@ const CreateJournalEntry = () => {
         {!isMobile && (
           <div className={styles.headerPromptContainer}>
             <Header />
-            <PromptsDisplay />
           </div>
         )}
         <div className={classNames(styles.pillarsAllContainer, { [styles.mobileLayout]: isMobile })}>

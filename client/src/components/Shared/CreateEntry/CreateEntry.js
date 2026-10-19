@@ -36,6 +36,7 @@ import { registerQuillSelectionTracking } from '@utils/captureEditorSelection'
 import { deriveNodeFromSelectedText } from '@utils/deriveNodeFromSelectedText'
 import { showToast } from '@utils/toast'
 import { normalizeEntryId } from '@utils/normalizeEntryId'
+import { openWikipediaSearch } from '@utils/openExternalLookups'
 import {
   getTextDecorationModule,
   registerQuillTextDecorations,
@@ -141,9 +142,18 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
     }
   }, [content, dispatch])
 
-  const handleContentChange = (html) => {
-    dispatch(setContent(normalizeQuillHtmlForLoad(stripDecorationFromHtml(html))))
-    setTotalWordCount()
+  const handleContentChange = (html, _delta, source, editor) => {
+    // Quill emits an api/silent change while mounting. Counting that overwrites
+    // the loaded entry with an empty document until the next keystroke.
+    if (source && source !== 'user') {
+      return
+    }
+
+    const nextHtml = normalizeQuillHtmlForLoad(stripDecorationFromHtml(html))
+    const plainText = typeof editor?.getText === 'function' ? editor.getText() : nextHtml
+    dispatch(setContent(nextHtml))
+    dispatch(setWordCount(calculateWordCount(plainText)))
+    dispatch(setCharCount(typeof plainText === 'string' ? plainText.length : 0))
   }
 
   useEffect(() => {
@@ -179,6 +189,9 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
             ['bold', 'italic', 'underline', 'strike', 'blockquote'],
             [{ list: 'ordered' }, { list: 'bullet' }],
           ],
+      // Decoration formats are silent. Without userOnly, Quill still records them
+      // and undo tries to reverse those spans, which crashes Parchment.
+      history: { userOnly: true },
       textDecorations: entryType === NODE_ENTRY_TYPE,
     }
 
@@ -378,8 +391,7 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
       return
     }
 
-    const wikipediaUrl = `https://en.wikipedia.org/w/index.php?search=${encodeURIComponent(selectedText)}`
-    window.open(wikipediaUrl, '_blank', 'noopener,noreferrer')
+    openWikipediaSearch(selectedText)
   }, [selectionContextMenu])
 
   const selectionContextMenuOptions = useMemo(() => {
@@ -542,6 +554,7 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
 
       assignOrderedListNumbers(quill.root)
       lastSyncedRef.current = { entryId, content }
+      dispatch(setWordCount(calculateWordCount(quill.getText())))
       decorationModule?.scheduleApply()
     }
   }, [entryId, content])

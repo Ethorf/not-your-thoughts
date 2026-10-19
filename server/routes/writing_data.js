@@ -80,118 +80,92 @@ router.get('/all_writing_data', authorize, async (req, res) => {
       : 'UTC'
 
   try {
-    // Query to get all the writing data for the user
-    const userWritingDataQuery = `
-      SELECT duration, word_count, "date", entry_type 
-      FROM entry_writing_data
-      WHERE user_id = $1
-    `
+    // Aggregate in SQL instead of shipping every writing session to the client path.
+    const todayStart = new Date(`${new Date().toISOString().split('T')[0]}T00:00:00.000Z`)
+    const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000)
 
-    const result = await pool.query(userWritingDataQuery, [user_id])
+    const result = await pool.query(
+      `SELECT entry_type,
+              COALESCE(SUM(GREATEST(duration, 0)), 0) AS total_duration,
+              COALESCE(SUM(GREATEST(word_count, 0)), 0) AS total_words,
+              COALESCE(SUM(GREATEST(duration, 0)) FILTER (WHERE "date" >= $2 AND "date" < $3), 0) AS today_duration,
+              COALESCE(SUM(GREATEST(word_count, 0)) FILTER (WHERE "date" >= $2 AND "date" < $3), 0) AS today_words
+       FROM entry_writing_data
+       WHERE user_id = $1
+       GROUP BY entry_type`,
+      [user_id, todayStart.toISOString(), todayEnd.toISOString()]
+    )
 
-    const writingData = result.rows
-
-    // Initialize the totals
     let allEntriesTotalWritingTime = 0
     let allEntriesWritingTimeToday = 0
     let allEntriesTotalWordCount = 0
     let allEntriesWordCountToday = 0
-
-    // Nodes
     let nodesTotalWritingTime = 0
     let nodesWritingTimeToday = 0
     let nodesTotalWordCount = 0
     let nodesWordCountToday = 0
-
-    // Journals
     let journalsTotalWritingTime = 0
     let journalWritingTimeToday = 0
     let journalsTotalWordCount = 0
     let journalWordCountToday = 0
 
-    // Get today's date in UTC (ignoring time) — used for writing-session day buckets
-    const today = new Date().toISOString().split('T')[0]
+    result.rows.forEach((row) => {
+      const totalDuration = Number(row.total_duration) || 0
+      const totalWords = Number(row.total_words) || 0
+      const todayDuration = Number(row.today_duration) || 0
+      const todayWords = Number(row.today_words) || 0
 
-    // Iterate over each writing data entry to calculate totals
-    writingData?.forEach((entry) => {
-      const entryDate = new Date(entry.date).toISOString().split('T')[0]
-      const duration = Math.max(0, Number(entry.duration) || 0)
-      const wordCount = Math.max(0, Number(entry.word_count) || 0)
+      allEntriesTotalWritingTime += totalDuration
+      allEntriesTotalWordCount += totalWords
+      allEntriesWritingTimeToday += todayDuration
+      allEntriesWordCountToday += todayWords
 
-      allEntriesTotalWritingTime += duration
-      allEntriesTotalWordCount += wordCount
-
-      if (entryDate === today) {
-        allEntriesWritingTimeToday += duration
-        allEntriesWordCountToday += wordCount
+      if (row.entry_type === 'node') {
+        nodesTotalWritingTime += totalDuration
+        nodesTotalWordCount += totalWords
+        nodesWritingTimeToday += todayDuration
+        nodesWordCountToday += todayWords
       }
 
-      if (entry.entry_type === 'node') {
-        nodesTotalWritingTime += duration
-        nodesTotalWordCount += wordCount
-
-        if (entryDate === today) {
-          nodesWritingTimeToday += duration
-          nodesWordCountToday += wordCount
-        }
-      }
-
-      if (entry.entry_type === 'journal') {
-        journalsTotalWritingTime += duration
-        journalsTotalWordCount += wordCount
-
-        if (entryDate === today) {
-          journalWritingTimeToday += duration
-        }
+      if (row.entry_type === 'journal') {
+        journalsTotalWritingTime += totalDuration
+        journalsTotalWordCount += totalWords
+        journalWritingTimeToday += todayDuration
       }
     })
 
-    // Journals "words today" = today's journal entry word count (matches the journal editor),
-    // not summed typing-session deltas which are often never flushed on navigation.
+    // Journals "words today" = today's journal entry word count (matches the journal editor).
+    // Compare against a timezone-bounded range so the date column can use an index.
+    const journalWordQuery = `SELECT num_of_words
+       FROM entries
+       WHERE user_id = $1
+         AND type = 'journal'
+         AND date_originally_created >= ($3::timestamp AT TIME ZONE $2)
+         AND date_originally_created < (($3::timestamp + interval '1 day') AT TIME ZONE $2)
+       ORDER BY id ASC
+       LIMIT 1`
+    const journalContentWordQuery = `SELECT e.num_of_words
+       FROM entries e
+       WHERE e.user_id = $1
+         AND e.type = 'journal'
+         AND EXISTS (
+           SELECT 1
+           FROM entry_contents ec
+           WHERE ec.entry_id = e.id
+             AND ec.date_created >= ($3::timestamp AT TIME ZONE $2)
+             AND ec.date_created < (($3::timestamp + interval '1 day') AT TIME ZONE $2)
+         )
+       ORDER BY e.id ASC
+       LIMIT 1`
+
     try {
-      const todaysJournal = await pool.query(
-        `SELECT num_of_words
-         FROM entries
-         WHERE user_id = $1
-           AND type = 'journal'
-           AND (
-             (timezone($2, COALESCE(date_originally_created, NOW())::timestamptz))::date = $3::date
-             OR EXISTS (
-               SELECT 1
-               FROM entry_contents ec
-               WHERE ec.entry_id = entries.id
-                 AND (timezone($2, ec.date_created::timestamptz))::date = $3::date
-             )
-           )
-         ORDER BY id ASC
-         LIMIT 1`,
-        [user_id, timeZone, localDate]
-      )
+      let todaysJournal = await pool.query(journalWordQuery, [user_id, timeZone, localDate])
+      if (!todaysJournal.rows.length) {
+        todaysJournal = await pool.query(journalContentWordQuery, [user_id, timeZone, localDate])
+      }
       journalWordCountToday = Math.max(0, Number(todaysJournal.rows[0]?.num_of_words) || 0)
     } catch (timezoneQueryError) {
-      console.warn(
-        'Timezone-aware journal word count lookup failed, falling back to UTC date match:',
-        timezoneQueryError.message
-      )
-      const todaysJournal = await pool.query(
-        `SELECT num_of_words
-         FROM entries
-         WHERE user_id = $1
-           AND type = 'journal'
-           AND (
-             COALESCE(date_originally_created, NOW())::date = $2::date
-             OR EXISTS (
-               SELECT 1
-               FROM entry_contents ec
-               WHERE ec.entry_id = entries.id
-                 AND ec.date_created::date = $2::date
-             )
-           )
-         ORDER BY id ASC
-         LIMIT 1`,
-        [user_id, localDate]
-      )
-      journalWordCountToday = Math.max(0, Number(todaysJournal.rows[0]?.num_of_words) || 0)
+      console.warn('Journal word count lookup failed:', timezoneQueryError.message)
     }
 
     res.status(200).json({

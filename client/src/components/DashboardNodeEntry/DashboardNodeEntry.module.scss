@@ -24,6 +24,11 @@
   white-space: nowrap;
 }
 
+.wordCountOverGoal {
+  font-weight: 700;
+  color: $silver-active;
+}
+
 .connectionCount {
   color: $silver-faded;
   font-size: 0.75rem;

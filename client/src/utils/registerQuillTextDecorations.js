@@ -27,6 +27,7 @@ const STABLE_FORMAT_KEYS = ['nyt-deco', 'nyt-node', 'nyt-href', 'nyt-conn', 'nyt
 
 const SHINY_ANIMATION_DURATION_SEC = 3
 const APPLY_DEBOUNCE_MS = 120
+const SIGNIFICANT_WORD_PATTERN = /\b[a-z0-9][a-z0-9'-]{5,}\b/gi
 const SELECTION_LOCK_MS = 320
 const SELECTION_LOCK_AFTER_FORMAT_MS = 500
 
@@ -103,6 +104,8 @@ class TextDecorationModule {
     this.hasDeferredDecorations = false
     this.isComposing = false
     this.isAppleTouch = isAppleTouchDevice()
+    this.cachedSpecs = null
+    this.cachedSpecKey = null
 
     this.quill.on('text-change', this.handleTextChange)
     this.quill.on('selection-change', this.handleSelectionChange)
@@ -416,32 +419,91 @@ class TextDecorationModule {
     })
   }
 
+  getDecorationSpecs() {
+    const context = this.context
+    const key = context
+      ? [
+          context.entryId,
+          context.currentTitle,
+          context.connections,
+          context.nodeEntriesInfo,
+          context.allTitles,
+          context.shinyCandidateMap,
+        ]
+      : null
+
+    if (
+      this.cachedSpecs &&
+      this.cachedSpecKey &&
+      key &&
+      this.cachedSpecKey[0] === key[0] &&
+      this.cachedSpecKey[1] === key[1] &&
+      this.cachedSpecKey[2] === key[2] &&
+      this.cachedSpecKey[3] === key[3] &&
+      this.cachedSpecKey[4] === key[4] &&
+      this.cachedSpecKey[5] === key[5]
+    ) {
+      return this.cachedSpecs
+    }
+
+    const specs = buildDecorationMatchSpecs(context)
+    this.cachedSpecs = specs
+    this.cachedSpecKey = key
+    return specs
+  }
+
   collectDesiredRanges(specs, searchableText) {
     const desiredRanges = []
     const occurrenceCounts = new Map()
     const { entryId } = this.context
 
-    specs.pattern.lastIndex = 0
-    let match = specs.pattern.exec(searchableText)
+    if (specs.pattern) {
+      specs.pattern.lastIndex = 0
+      let match = specs.pattern.exec(searchableText)
 
-    while (match) {
-      if (match.index === specs.pattern.lastIndex) {
-        specs.pattern.lastIndex += 1
+      while (match) {
+        if (match.index === specs.pattern.lastIndex) {
+          specs.pattern.lastIndex += 1
+        }
+
+        const word = match[0]
+        const spec = specs.termMap.get(word.toLowerCase())
+
+        if (spec) {
+          const formats = buildFormatsForDecorationSpec(spec, word.toLowerCase(), entryId, occurrenceCounts)
+          desiredRanges.push({
+            index: match.index,
+            length: word.length,
+            formats,
+          })
+        }
+
+        match = specs.pattern.exec(searchableText)
       }
+    }
 
-      const word = match[0]
-      const spec = specs.termMap.get(word.toLowerCase())
+    if (specs.wordMap?.size) {
+      SIGNIFICANT_WORD_PATTERN.lastIndex = 0
+      let wordMatch = SIGNIFICANT_WORD_PATTERN.exec(searchableText)
 
-      if (spec) {
-        const formats = buildFormatsForDecorationSpec(spec, word.toLowerCase(), entryId, occurrenceCounts)
-        desiredRanges.push({
-          index: match.index,
-          length: word.length,
-          formats,
-        })
+      while (wordMatch) {
+        const word = wordMatch[0]
+        const spec = specs.wordMap.get(word.toLowerCase())
+        const start = wordMatch.index
+        const end = start + word.length
+        const overlapsPhrase = desiredRanges.some((range) => start < range.index + range.length && end > range.index)
+
+        if (spec && !overlapsPhrase) {
+          const formats = buildFormatsForDecorationSpec(spec, word.toLowerCase(), entryId, occurrenceCounts)
+          desiredRanges.push({
+            index: start,
+            length: word.length,
+            formats,
+          })
+        }
+
+        wordMatch = SIGNIFICANT_WORD_PATTERN.exec(searchableText)
       }
-
-      match = specs.pattern.exec(searchableText)
     }
 
     return desiredRanges
@@ -452,14 +514,21 @@ class TextDecorationModule {
       return
     }
 
-    const specs = buildDecorationMatchSpecs(this.context)
+    const specs = this.getDecorationSpecs()
     const length = Math.max(0, this.quill.getLength() - 1)
     const appliedRanges = []
+    const history = this.quill.getModule('history')
+    const previousIgnoreChange = history?.ignoreChange
 
     this.isApplying = true
+    // Attribute-only wraps must not be recorded or transformed into undo deltas.
+    // Reversing them is what triggers Parchment's optimize loop and insertBefore errors.
+    if (history) {
+      history.ignoreChange = true
+    }
 
     try {
-      if (length === 0 || !specs.pattern) {
+      if (length === 0 || (!specs.pattern && !specs.wordMap?.size)) {
         this.clearDecorationsInRange(0, length)
         this.restoreSelectionIfNeeded(appliedRanges)
         return
@@ -474,8 +543,70 @@ class TextDecorationModule {
       this.syncDecorations(desiredRanges, length, appliedRanges)
       this.applyShinyAnimationDelays()
       this.restoreSelectionIfNeeded(appliedRanges)
+    } catch (error) {
+      console.error('Failed to apply text decorations', error)
     } finally {
+      if (history) {
+        history.ignoreChange = previousIgnoreChange
+      }
       this.isApplying = false
+    }
+  }
+
+  collectExistingDecorationRanges(docLength) {
+    const ops = this.quill.getContents()?.ops ?? []
+    const ranges = []
+    let index = 0
+
+    ops.forEach((op) => {
+      const length = typeof op.insert === 'string' ? op.insert.length : 1
+      const start = index
+      index += length
+
+      if (!op.attributes?.['nyt-deco'] || start >= docLength) {
+        return
+      }
+
+      const end = Math.min(index, docLength)
+      if (end <= start) {
+        return
+      }
+
+      ranges.push({
+        index: start,
+        end,
+        formats: op.attributes,
+      })
+    })
+
+    return ranges
+  }
+
+  applyFormatDelta(ranges) {
+    if (!ranges.length) {
+      return
+    }
+
+    const Delta = Quill.import('delta')
+    const sorted = [...ranges].sort((a, b) => a.index - b.index)
+    let delta = new Delta()
+    let cursor = 0
+
+    sorted.forEach((range) => {
+      if (range.index < cursor || range.length <= 0) {
+        return
+      }
+
+      if (range.index > cursor) {
+        delta = delta.retain(range.index - cursor)
+      }
+
+      delta = delta.retain(range.length, range.formats)
+      cursor = range.index + range.length
+    })
+
+    if (delta.ops.length > 0) {
+      this.quill.updateContents(delta, 'silent')
     }
   }
 
@@ -488,43 +619,26 @@ class TextDecorationModule {
       this.lockedSelection?.index ??
       null
 
-    // Clear first so we never wipe a freshly applied range in the same pass.
-    let index = 0
-    while (index < docLength) {
-      const formats = this.quill.getFormat(index, 1)
-      if (!formats['nyt-deco']) {
-        index += 1
-        continue
-      }
-
-      let end = index + 1
-      while (end < docLength) {
-        const nextFormats = this.quill.getFormat(end, 1)
-        const sameDecoration =
-          nextFormats['nyt-deco'] === formats['nyt-deco'] &&
-          nextFormats['nyt-node'] === formats['nyt-node'] &&
-          nextFormats['nyt-cand'] === formats['nyt-cand']
-
-        if (!sameDecoration) {
-          break
-        }
-        end += 1
-      }
-
+    const clearRanges = []
+    this.collectExistingDecorationRanges(docLength).forEach((existing) => {
       const matchingDesired = desiredRanges.find(
         (range) =>
-          range.index === index &&
-          range.index + range.length === end &&
-          stableFormatsMatch(formats, range.formats)
+          range.index === existing.index &&
+          range.index + range.length === existing.end &&
+          stableFormatsMatch(existing.formats, range.formats)
       )
 
       if (!matchingDesired) {
-        this.quill.formatText(index, end - index, CLEAR_FORMAT, 'silent')
+        clearRanges.push({
+          index: existing.index,
+          length: existing.end - existing.index,
+          formats: CLEAR_FORMAT,
+        })
       }
+    })
+    this.applyFormatDelta(clearRanges)
 
-      index = end
-    }
-
+    const formatsToApply = []
     desiredRanges.forEach((range) => {
       const rangeEnd = range.index + range.length
 
@@ -540,9 +654,10 @@ class TextDecorationModule {
         return
       }
 
-      this.quill.formatText(range.index, range.length, range.formats, 'silent')
+      formatsToApply.push(range)
       appliedRanges.push({ index: range.index, length: range.length })
     })
+    this.applyFormatDelta(formatsToApply)
   }
 
   clearDecorationsInRange(start, end) {

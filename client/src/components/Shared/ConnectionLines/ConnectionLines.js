@@ -1,27 +1,30 @@
 import React, { useMemo, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
+import { useHistory } from 'react-router-dom'
 import { transformConnection } from '@utils/transformConnection'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
 import useIsMobile from '@hooks/useIsMobile'
 import styles from './ConnectionLines.module.scss'
 
-import { setEntryById } from '@redux/reducers/currentEntryReducer'
-
 const { PARENT, CHILD, SIBLING, EXTERNAL } = CONNECTION_TYPES.FRONTEND
 
 const ConnectionLines = ({ entryId, onBeforeNavigate }) => {
   const { connections } = useSelector((state) => state.connections)
-  const dispatch = useDispatch()
+  const history = useHistory()
   const isMobile = useIsMobile()
   const [tooltip, setTooltip] = useState({ visible: false, content: '', x: 0, y: 0 })
 
   const handleConnectionLineClick = async (id) => {
-    // Save current node before navigating to a new one
+    if (id == null) {
+      return
+    }
+
     if (onBeforeNavigate) {
       await onBeforeNavigate()
     }
-    await dispatch(setEntryById(id))
+
+    history.push(`/edit-node-entry?entryId=${id}`)
   }
 
   // Helper function to extract text from HTML

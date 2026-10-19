@@ -490,11 +490,6 @@ router.get('/node_entries_info', async (req, res) => {
   }
 
   try {
-    await pool.query(`
-      ALTER TABLE entries
-        ADD COLUMN IF NOT EXISTS word_count_goal INT DEFAULT NULL
-    `)
-
     // Optimized query: only fetch latest content (LIMIT 1), use MIN/MAX for dates
     const nodeEntriesQuery = await pool.query(
       `SELECT 

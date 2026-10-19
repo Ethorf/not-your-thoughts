@@ -10,6 +10,7 @@ import { openModal } from '@redux/reducers/modalsReducer.js'
 import { fetchConnections } from '@redux/reducers/connectionsReducer'
 import { setPendingEditorSelectionForModal } from '@utils/captureEditorSelection'
 import { normalizeEntryId } from '@utils/normalizeEntryId'
+import { openWebsterDictionary, openWikipediaSearch } from '@utils/openExternalLookups'
 
 // Constants
 import { SAVE_TYPES } from '@constants/saveTypes'
@@ -225,6 +226,16 @@ const EditNodeEntry = () => {
 
     options.push(
       {
+        id: 'webster',
+        label: "Webster's Dictionary",
+        onClick: () => openWebsterDictionary(title),
+      },
+      {
+        id: 'wikipedia',
+        label: 'Wikipedia',
+        onClick: () => openWikipediaSearch(title),
+      },
+      {
         id: 'explore',
         label: 'Explore',
         onClick: () => history.push('/explore'),
@@ -243,7 +254,7 @@ const EditNodeEntry = () => {
     )
 
     return options
-  }, [entryId, handleOpenDeleteConfirm, handleToggleIsPrivate, history, isAuthenticated, isPrivate, user?.id])
+  }, [entryId, handleOpenDeleteConfirm, handleToggleIsPrivate, history, isAuthenticated, isPrivate, title, user?.id])
 
   useEffect(() => {
     const handleShortcuts = async (e) => {
@@ -314,16 +325,14 @@ const EditNodeEntry = () => {
             <>
               <div className={styles.actionsRow}>
                 <div className={styles.actionsLeft}>
-                  {entriesLoading ? (
-                    <SmallSpinner />
-                  ) : (
-                    <DefaultButton
-                      onClick={() => handleSaveNode(SAVE_TYPES.MANUAL)}
-                      className={styles.actionButton}
-                    >
-                      Save Node
-                    </DefaultButton>
-                  )}
+                  <DefaultButton
+                    tooltip="Open connections menu"
+                    onMouseDown={captureEditorSelectionForModal}
+                    onClick={handleOpenConnectionsModal}
+                    className={styles.actionButton}
+                  >
+                    Connect
+                  </DefaultButton>
                 </div>
                 <div className={styles.titleCluster}>
                   <StarButton id={entryId} initialStarred={starred} />
@@ -379,22 +388,11 @@ const EditNodeEntry = () => {
             <span className={classNames(sharedStyles.flexCenter, styles.wordsCell)}>Words: {wordCount}</span>
           )}
           <span className={classNames(sharedStyles.flexCenter, styles.saveCell)}>
-            {isMobile ? (
-              entriesLoading ? (
-                <SmallSpinner />
-              ) : (
-                <DefaultButton onClick={() => handleSaveNode(SAVE_TYPES.MANUAL)} className={styles.saveButton}>
-                  Save
-                </DefaultButton>
-              )
+            {entriesLoading ? (
+              <SmallSpinner />
             ) : (
-              <DefaultButton
-                tooltip="Open connections menu"
-                onMouseDown={captureEditorSelectionForModal}
-                onClick={handleOpenConnectionsModal}
-                className={styles.saveButton}
-              >
-                Connect
+              <DefaultButton onClick={() => handleSaveNode(SAVE_TYPES.MANUAL)} className={styles.saveButton}>
+                {isMobile ? 'Save' : 'Save Node'}
               </DefaultButton>
             )}
           </span>

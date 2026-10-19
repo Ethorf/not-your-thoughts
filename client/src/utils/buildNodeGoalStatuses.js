@@ -1,7 +1,8 @@
 import { toNonNegativeInt } from '@utils/writingStatsHelpers'
+import { ENTRY_TYPES } from '@constants/entryTypes'
 
 /**
- * Build the list of daily goal statuses shown in the node goals sidebar.
+ * Build the list of daily goal statuses shown in the goals sidebar.
  *
  * @returns {Array<{ id: string, section: string, label: string, current: number, goal: number, unit: string, complete: boolean }>}
  */
@@ -15,16 +16,20 @@ export const buildNodeGoalStatuses = ({
   wordsAdded = 0,
   timeElapsed = 0,
   sessionActive = false,
+  entryType = ENTRY_TYPES.NODE,
 }) => {
   if (!journalConfig) {
     return []
   }
 
   const goals = []
+  const isJournalContext = entryType === ENTRY_TYPES.JOURNAL
+  const pendingWords = sessionActive ? toNonNegativeInt(wordsAdded) : 0
+  const pendingTimeSeconds = sessionActive ? toNonNegativeInt(timeElapsed) : 0
 
   const perNodeWordsGoal = toNonNegativeInt(journalConfig.node_word_count_goal ?? 500)
-  const currentNodeWords = toNonNegativeInt(wordCount)
-  if (perNodeWordsGoal > 0) {
+  if (!isJournalContext && perNodeWordsGoal > 0) {
+    const currentNodeWords = toNonNegativeInt(wordCount)
     goals.push({
       id: 'this-node-words',
       section: 'thisNode',
@@ -38,11 +43,12 @@ export const buildNodeGoalStatuses = ({
 
   const wordsGoal = toNonNegativeInt(journalConfig.node_daily_words_goal ?? 400)
   const timeGoalMinutes = toNonNegativeInt(journalConfig.node_daily_time_goal ?? 5)
-  const pendingWords = sessionActive ? toNonNegativeInt(wordsAdded) : 0
-  const pendingTimeSeconds = sessionActive ? toNonNegativeInt(timeElapsed) : 0
-  const currentWordsToday = toNonNegativeInt(nodesWordCountToday) + pendingWords
+  // Only count an active typing session toward Nodes Today when editing a node.
+  const nodePendingWords = isJournalContext ? 0 : pendingWords
+  const nodePendingTimeSeconds = isJournalContext ? 0 : pendingTimeSeconds
+  const currentWordsToday = toNonNegativeInt(nodesWordCountToday) + nodePendingWords
   const currentTimeTodayMinutes = Math.floor(
-    (toNonNegativeInt(nodesWritingTimeToday) + pendingTimeSeconds) / 60
+    (toNonNegativeInt(nodesWritingTimeToday) + nodePendingTimeSeconds) / 60
   )
 
   goals.push({
@@ -68,7 +74,10 @@ export const buildNodeGoalStatuses = ({
   const journalUsesWordsGoal = journalConfig.journal_goal_preference !== 'time'
   if (journalUsesWordsGoal) {
     const journalWordsGoal = toNonNegativeInt(journalConfig.daily_words_goal ?? 400)
-    const journalWordsToday = toNonNegativeInt(journalWordCountToday)
+    // While editing today's journal, prefer the live editor word count.
+    const journalWordsToday = isJournalContext
+      ? Math.max(toNonNegativeInt(journalWordCountToday), toNonNegativeInt(wordCount))
+      : toNonNegativeInt(journalWordCountToday)
     goals.push({
       id: 'journal-words',
       section: 'journals',
@@ -80,7 +89,10 @@ export const buildNodeGoalStatuses = ({
     })
   } else {
     const journalTimeGoalMinutes = toNonNegativeInt(journalConfig.daily_time_goal ?? 5)
-    const journalTimeTodayMinutes = Math.floor(toNonNegativeInt(journalWritingTimeToday) / 60)
+    const journalPendingTimeSeconds = isJournalContext ? pendingTimeSeconds : 0
+    const journalTimeTodayMinutes = Math.floor(
+      (toNonNegativeInt(journalWritingTimeToday) + journalPendingTimeSeconds) / 60
+    )
     goals.push({
       id: 'journal-time',
       section: 'journals',

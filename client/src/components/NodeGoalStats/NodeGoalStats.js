@@ -6,6 +6,7 @@ import { fetchAllWritingData } from '@redux/reducers/writingDataReducer'
 import { buildNodeGoalStatuses } from '@utils/buildNodeGoalStatuses'
 import { getGoalProgressPercent } from '@utils/getGoalProgressPercent'
 import { toNonNegativeInt } from '@utils/writingStatsHelpers'
+import { ENTRY_TYPES } from '@constants/entryTypes'
 
 import styles from './NodeGoalStats.module.scss'
 
@@ -56,7 +57,7 @@ const NodeGoalStats = () => {
   const dispatch = useDispatch()
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated)
   const { journalConfig } = useSelector((state) => state.journalEntries)
-  const { wordCount } = useSelector((state) => state.currentEntry)
+  const { wordCount, type: entryType } = useSelector((state) => state.currentEntry)
   const {
     stats: { nodesWordCountToday, nodesWritingTimeToday, journalWordCountToday, journalWritingTimeToday },
     wordsAdded,
@@ -83,6 +84,7 @@ const NodeGoalStats = () => {
     wordsAdded,
     timeElapsed,
     sessionActive,
+    entryType: entryType || ENTRY_TYPES.NODE,
   })
 
   if (!journalConfig || goals.length === 0) {
