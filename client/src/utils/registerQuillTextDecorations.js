@@ -15,6 +15,7 @@ const DECORATION_ATTRS = [
   ['nyt-href', 'data-nyt-href'],
   ['nyt-conn', 'data-nyt-conn'],
   ['nyt-cand', 'data-nyt-cand-id'],
+  ['nyt-tip', 'data-nyt-tip'],
 ]
 
 const CLEAR_FORMAT = DECORATION_ATTRS.reduce((formats, [name]) => {
@@ -23,7 +24,7 @@ const CLEAR_FORMAT = DECORATION_ATTRS.reduce((formats, [name]) => {
 }, {})
 
 /** Format keys that affect visible decoration identity (ignore animation id churn). */
-const STABLE_FORMAT_KEYS = ['nyt-deco', 'nyt-node', 'nyt-href', 'nyt-conn', 'nyt-cand']
+const STABLE_FORMAT_KEYS = ['nyt-deco', 'nyt-node', 'nyt-href', 'nyt-conn', 'nyt-cand', 'nyt-tip']
 
 const SHINY_ANIMATION_DURATION_SEC = 3
 const APPLY_DEBOUNCE_MS = 120
@@ -542,6 +543,7 @@ class TextDecorationModule {
       // Avoids unwrap/rewrapping every shiny span on each keystroke (main iOS caret killer).
       this.syncDecorations(desiredRanges, length, appliedRanges)
       this.applyShinyAnimationDelays()
+      this.applyDecorationTooltips()
       this.restoreSelectionIfNeeded(appliedRanges)
     } catch (error) {
       console.error('Failed to apply text decorations', error)
@@ -686,6 +688,18 @@ class TextDecorationModule {
       })
   }
 
+  applyDecorationTooltips() {
+    this.quill.root.querySelectorAll('[data-nyt-deco][data-nyt-tip]').forEach((element) => {
+      const tip = element.getAttribute('data-nyt-tip')
+      if (!tip) {
+        return
+      }
+
+      element.setAttribute('data-tooltip-id', 'main-tooltip')
+      element.setAttribute('data-tooltip-content', tip)
+    })
+  }
+
   destroy() {
     clearTimeout(this.debounceId)
     clearTimeout(this.selectionLockTimeoutId)
@@ -722,7 +736,7 @@ export const registerQuillTextDecorations = () => {
 }
 
 const DECORATION_SELECTOR =
-  '[data-nyt-deco], [data-nyt-node-id], [data-nyt-anim], [data-nyt-href], [data-nyt-conn], [data-nyt-cand-id]'
+  '[data-nyt-deco], [data-nyt-node-id], [data-nyt-anim], [data-nyt-href], [data-nyt-conn], [data-nyt-cand-id], [data-nyt-tip]'
 
 /**
  * Removes ephemeral editor decorations before persisting note HTML.

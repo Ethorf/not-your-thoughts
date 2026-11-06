@@ -73,7 +73,11 @@ const normalizeInternalConnectionTypeLabel = (connectionType) => {
   return 'unknown'
 }
 
-const getInternalConnectionTooltip = (connectionType) => {
+const getInternalConnectionTooltip = (connectionType, destinationTitle) => {
+  if (destinationTitle) {
+    return destinationTitle
+  }
+
   const typeLabel = normalizeInternalConnectionTypeLabel(connectionType)
   return `internal ${typeLabel} connection`
 }
@@ -82,13 +86,14 @@ const createInternalConnectionElement = ({
   displayText,
   targetNodeId,
   connectionType,
+  destinationTitle,
   onInternalConnectionClick,
   styles,
 }) => (
   <span
     key={`${displayText}-${targetNodeId}`}
     data-tooltip-id="main-tooltip"
-    data-tooltip-content={getInternalConnectionTooltip(connectionType)}
+    data-tooltip-content={getInternalConnectionTooltip(connectionType, destinationTitle)}
     className={styles.internalConnection}
     onClick={() => onInternalConnectionClick(targetNodeId)}
     role="button"
@@ -179,6 +184,7 @@ export const createFormatRules = (
         displayText,
         targetNodeId: connectedNodeId,
         connectionType,
+        destinationTitle: connectedTitle,
         onInternalConnectionClick,
         styles,
       })
@@ -337,6 +343,9 @@ export const formatContentWithConnections = (
         } else if (allTitles.includes(word.toLowerCase())) {
           if (onUnconnectedNodeClick) {
             const nodeId = findIdByNodeTitle(nodeEntriesInfo, word)
+            const destinationTitle =
+              nodeEntriesInfo.find((node) => String(node?.id) === String(nodeId))?.title?.trim() ||
+              unconnectedNodeTooltip
             parts.push(
               <span
                 key={`${word}-${paragraphIndex}-${match.index}`}
@@ -347,7 +356,7 @@ export const formatContentWithConnections = (
                 }}
                 style={{ cursor: 'pointer' }}
                 data-tooltip-id="main-tooltip"
-                data-tooltip-content={unconnectedNodeTooltip}
+                data-tooltip-content={destinationTitle}
               >
                 {word}
               </span>

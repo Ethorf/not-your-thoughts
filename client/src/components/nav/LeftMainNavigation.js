@@ -189,15 +189,6 @@ const LeftMainNavigation = () => {
           })}
         >
           {isMobile && <div className={styles.dragHandle} />}
-          <NavLink
-            exact
-            to={user ? '/dashboard' : '/'}
-            activeClassName={styles.active}
-            className={mode === '-.light' ? styles.linkLight : styles.link}
-            onClick={handleNavItemClick}
-          >
-            Home
-          </NavLink>
           {!guestMode && user ? (
             <NavLink
               exact
@@ -292,7 +283,7 @@ const LeftMainNavigation = () => {
           )}
         </div>
       </div>
-      {canGoBack && (
+      {canGoBack && !isMobile && (
         <DefaultButton
           className={classNames(styles.backButton, {
             [styles.backButtonDisplaced]: leftSidebarOpen,
