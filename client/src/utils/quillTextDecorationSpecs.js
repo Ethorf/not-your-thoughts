@@ -52,8 +52,10 @@ export const getSignificantTitleWords = (title) => {
   return [...new Set(words.filter((word) => word.length >= MIN_SINGLE_WORD_MATCH_LENGTH))]
 }
 
+// Only unconnected title matches use single-word fuzzy highlighting.
+// Connected text must match the node title or the explicit primary_source phrase.
 const allowsSingleWordMatch = (spec) =>
-  spec?.deco === 'shiny' || spec?.deco === 'shiny-suggestion' || spec?.deco === 'connection-internal'
+  spec?.deco === 'shiny' || spec?.deco === 'shiny-suggestion'
 
 const addTerm = (termMap, text, spec) => {
   if (!text) {
@@ -95,22 +97,47 @@ export const buildDecorationMatchSpecs = ({
   const currentTitleLower = currentTitle?.trim().toLowerCase() ?? ''
   const currentEntryId = Number(entryId)
   const titleToId = new Map()
+  const idToTitle = new Map()
 
   ;(nodeEntriesInfo || []).forEach((node) => {
-    const titleKey = node?.title?.trim().toLowerCase()
-    if (!titleKey || node?.id == null || titleToId.has(titleKey)) {
+    if (node?.id == null) {
       return
     }
-    titleToId.set(titleKey, node.id)
+
+    const titleKey = node?.title?.trim().toLowerCase()
+    if (titleKey && !titleToId.has(titleKey)) {
+      titleToId.set(titleKey, node.id)
+    }
+
+    if (node?.title?.trim() && !idToTitle.has(String(node.id))) {
+      idToTitle.set(String(node.id), node.title.trim())
+    }
   })
   /** @type {Array<{ title: string, spec: Object }>} */
   const pendingTitleSpecs = []
+  /** Titles / sources already claimed by an explicit connection — no shiny single-word bleed. */
+  const connectedPhraseKeys = new Set()
+  const connectedNodeIds = new Set()
+
+  const resolveNodeTitle = (nodeId, fallbackTitle = '') => {
+    if (nodeId == null) {
+      return fallbackTitle?.trim() || ''
+    }
+
+    return idToTitle.get(String(nodeId)) || fallbackTitle?.trim() || ''
+  }
 
   const queueTitleSpec = (title, spec) => {
     if (!title || isCurrentEntryTitle(title, currentTitleLower)) {
       return
     }
-    pendingTitleSpecs.push({ title, spec })
+    pendingTitleSpecs.push({
+      title,
+      spec: {
+        ...spec,
+        nodeTitle: spec.nodeTitle || resolveNodeTitle(spec.nodeId, title),
+      },
+    })
   }
 
   connections.forEach((connection) => {
@@ -121,6 +148,7 @@ export const buildDecorationMatchSpecs = ({
     } = connection
 
     if (connectionType === EXTERNAL && primarySource && foreignSource) {
+      connectedPhraseKeys.add(primarySource.toLowerCase())
       queueTitleSpec(primarySource, {
         deco: 'connection-external',
         href: foreignSource,
@@ -133,8 +161,11 @@ export const buildDecorationMatchSpecs = ({
       return
     }
 
+    connectedNodeIds.add(String(connectedNodeId))
+
     const connectedTitle = resolveConnectedNodeTitle(connection, entryId, nodeEntriesInfo)
     if (connectedTitle) {
+      connectedPhraseKeys.add(connectedTitle.toLowerCase())
       queueTitleSpec(connectedTitle, {
         deco: 'connection-internal',
         nodeId: String(connectedNodeId),
@@ -146,6 +177,7 @@ export const buildDecorationMatchSpecs = ({
       primarySource &&
       (!connectedTitle || primarySource.toLowerCase() !== connectedTitle.toLowerCase())
     ) {
+      connectedPhraseKeys.add(primarySource.toLowerCase())
       queueTitleSpec(primarySource, {
         deco: 'connection-internal',
         nodeId: String(connectedNodeId),
@@ -156,6 +188,16 @@ export const buildDecorationMatchSpecs = ({
 
   allTitles.forEach((titleLower) => {
     if (isCurrentEntryTitle(titleLower, currentTitleLower)) {
+      return
+    }
+
+    // Connected titles are phrase-matched only via the connection specs above.
+    if (connectedPhraseKeys.has(titleLower)) {
+      return
+    }
+
+    const nodeId = titleToId.get(titleLower)
+    if (nodeId != null && connectedNodeIds.has(String(nodeId))) {
       return
     }
 
@@ -173,7 +215,6 @@ export const buildDecorationMatchSpecs = ({
       return
     }
 
-    const nodeId = titleToId.get(titleLower)
     if (!nodeId || Number(nodeId) === currentEntryId) {
       return
     }
@@ -230,6 +271,10 @@ export const buildFormatsForDecorationSpec = (spec, wordLower, entryId, occurren
 
   if (spec.nodeId) {
     formats['nyt-node'] = spec.nodeId
+  }
+
+  if (spec.nodeTitle) {
+    formats['nyt-tip'] = spec.nodeTitle
   }
 
   if (spec.href) {

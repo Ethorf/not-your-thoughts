@@ -11,6 +11,8 @@ import { fetchConnections } from '@redux/reducers/connectionsReducer'
 import { setPendingEditorSelectionForModal } from '@utils/captureEditorSelection'
 import { normalizeEntryId } from '@utils/normalizeEntryId'
 import { openWebsterDictionary, openWikipediaSearch } from '@utils/openExternalLookups'
+import { copyNodeHtmlWithConnectionLinks } from '@utils/copyNodeWithConnectionLinks'
+import { showToast } from '@utils/toast'
 
 // Constants
 import { SAVE_TYPES } from '@constants/saveTypes'
@@ -207,6 +209,16 @@ const EditNodeEntry = () => {
     })
   }, [])
 
+  const handleCopyForSubstack = useCallback(async () => {
+    const editorRoot = editorRegionRef.current?.querySelector('.ql-editor')
+    try {
+      await copyNodeHtmlWithConnectionLinks(editorRoot, user?.id, entryId)
+      showToast('Copied for Substack', 'success')()
+    } catch (error) {
+      showToast(error?.message || 'Could not copy node text', 'error')()
+    }
+  }, [entryId, user?.id])
+
   const nodeMenuOptions = useMemo(() => {
     const options = [
       {
@@ -225,6 +237,11 @@ const EditNodeEntry = () => {
     }
 
     options.push(
+      {
+        id: 'copy-for-substack',
+        label: 'Copy for Substack',
+        onClick: handleCopyForSubstack,
+      },
       {
         id: 'webster',
         label: "Webster's Dictionary",
@@ -254,7 +271,17 @@ const EditNodeEntry = () => {
     )
 
     return options
-  }, [entryId, handleOpenDeleteConfirm, handleToggleIsPrivate, history, isAuthenticated, isPrivate, title, user?.id])
+  }, [
+    entryId,
+    handleCopyForSubstack,
+    handleOpenDeleteConfirm,
+    handleToggleIsPrivate,
+    history,
+    isAuthenticated,
+    isPrivate,
+    title,
+    user?.id,
+  ])
 
   useEffect(() => {
     const handleShortcuts = async (e) => {
@@ -336,9 +363,9 @@ const EditNodeEntry = () => {
                 </div>
                 <div className={styles.titleCluster}>
                   <StarButton id={entryId} initialStarred={starred} />
-                  <DefaultInput
+                  <textarea
                     ref={titleInputRef}
-                    className={classNames(styles.titleInput, sharedStyles.flexCenter, {
+                    className={classNames(styles.titleInput, {
                       [styles.titleInputNoBorder]: (title ?? '').length,
                     })}
                     placeholder={'Enter Title'}
@@ -346,6 +373,7 @@ const EditNodeEntry = () => {
                     onChange={handleTitleChange}
                     onBlur={handleTitleBlur}
                     onKeyDown={handleTitleKeyDown}
+                    rows={1}
                     autoComplete="off"
                     autoCorrect="off"
                     data-1p-ignore="true"

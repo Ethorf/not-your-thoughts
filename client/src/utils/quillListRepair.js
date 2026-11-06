@@ -91,7 +91,14 @@ const shouldNumberAsTopLevelOrdered = (listItem, items, index, listElement) => {
     return false
   }
 
+  // Nested under a top-level ordered item (1. → a.) — keep nest.
   if (getListItemIndent(previous) === 0) {
+    return false
+  }
+
+  // Sibling / deeper nested ordered items (a. → b.) — keep nest.
+  // Only strip when Quill left indent after a nested bullet run.
+  if (!isBulletListItem(previous)) {
     return false
   }
 
