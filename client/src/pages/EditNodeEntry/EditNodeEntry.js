@@ -380,7 +380,7 @@ const EditNodeEntry = () => {
                     data-lpignore="true"
                     data-form-type="other"
                   />
-                  <AkasDisplay />
+                  <AkasDisplay className={styles.titleAka} />
                 </div>
                 <div className={styles.actionsRight}>
                   <button

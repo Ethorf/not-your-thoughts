@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import classNames from 'classnames'
 import { fetchAkas } from '@redux/reducers/currentEntryReducer.js'
 import { openModal } from '@redux/reducers/modalsReducer.js'
 import { normalizeEntryId } from '@utils/normalizeEntryId'
@@ -8,7 +9,7 @@ import { MODAL_NAMES } from '@constants/modalNames'
 
 import styles from './AkasDisplay.module.scss'
 
-function AkasDisplay() {
+function AkasDisplay({ className }) {
   const dispatch = useDispatch()
   const { entryId, akas } = useSelector((state) => state.currentEntry)
   const [akasListVisible, setAkasListVisible] = useState(false)
@@ -37,7 +38,7 @@ function AkasDisplay() {
   }, [cursorInsideList, akasListVisible])
 
   return (
-    <div className={styles.wrapper}>
+    <div className={classNames(styles.wrapper, className)}>
       <h3
         onMouseOver={() => setAkasListVisible(true)}
         onClick={handleOpenAkasModal}

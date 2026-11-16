@@ -97,8 +97,16 @@
   width: 100%;
 }
 
+.titleAka {
+  display: flex;
+  align-items: flex-end;
+  margin: 0;
+  padding-bottom: 0.1rem;
+  line-height: 1;
+}
+
 .actionButton {
-  margin: 0.15rem 0;
+  margin: 0.15rem 0 0;
   padding: 0.5rem 0.75rem;
   font-size: 1.2rem;
   border-radius: 0.9375rem;
@@ -164,7 +172,7 @@
   background-color: black;
   outline: none;
   margin: 0;
-  padding: 0.625rem 0.75rem;
+  padding: 0.5rem 0.75rem 0.1rem;
   display: block;
   border: 1px solid rgba(192, 192, 192, 0.2);
   border-radius: 0.5rem;
