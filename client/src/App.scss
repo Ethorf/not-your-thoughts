@@ -92,8 +92,9 @@ html {
 
 @include mobile-all {
   .App {
-    height: 100dvh;
-    max-height: 100dvh;
+    // Full locked height at rest; only shrinks while an editor is focused (see App.js).
+    height: calc(var(--nyt-app-height, 100svh) - var(--nyt-keyboard-inset, 0px));
+    max-height: calc(var(--nyt-app-height, 100svh) - var(--nyt-keyboard-inset, 0px));
     padding-bottom: env(safe-area-inset-bottom, 0px);
     box-sizing: border-box;
     overflow: hidden;

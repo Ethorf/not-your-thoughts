@@ -1,5 +1,6 @@
 import React from 'react'
 import { CONNECTION_TYPES } from '@constants/connectionTypes'
+import { assignOrderedListNumbers } from '@utils/quillListRepair'
 
 const {
   FRONTEND: { EXTERNAL },
@@ -238,6 +239,7 @@ export const formatContentWithConnections = (
 
   const parser = new DOMParser()
   const doc = parser.parseFromString(content, 'text/html')
+  assignOrderedListNumbers(doc.body)
 
   const formatKeys = Object.keys(formatRules)
   const allWords = [...new Set([...formatKeys, ...allTitles])]
@@ -285,6 +287,11 @@ export const formatContentWithConnections = (
     const orderedListNumber = node.getAttribute?.('data-nyt-ol-num')
     if (orderedListNumber) {
       props['data-nyt-ol-num'] = orderedListNumber
+    }
+
+    const orderedListMark = node.getAttribute?.('data-nyt-ol-mark')
+    if (orderedListMark) {
+      props['data-nyt-ol-mark'] = orderedListMark
     }
 
     return props

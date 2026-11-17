@@ -142,9 +142,12 @@ const SphereWithEffects = ({
     onHover?.(null)
   }, [onHover])
 
-  const handleClick = useCallback(() => {
-    onClick?.(id, conn)
-  }, [onClick, id, conn])
+  const handleClick = useCallback(
+    (event) => {
+      onClick?.(id, conn, event)
+    },
+    [onClick, id, conn]
+  )
 
   // Set mounted state when refs are available and DOM is ready
   useEffect(() => {

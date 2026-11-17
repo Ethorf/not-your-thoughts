@@ -101,6 +101,79 @@ const App = ({ loadUser }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, [])
 
+  // Lock the pre-keyboard layout height, and shrink only while an editor is focused.
+  useEffect(() => {
+    const root = document.documentElement
+
+    const setAppHeight = () => {
+      root.style.setProperty('--nyt-app-height', `${window.innerHeight}px`)
+    }
+
+    const isEditingText = () => {
+      const active = document.activeElement
+      if (!active) {
+        return false
+      }
+      const tag = active.tagName
+      return (
+        active.isContentEditable ||
+        tag === 'TEXTAREA' ||
+        tag === 'INPUT' ||
+        active.classList?.contains('ql-editor')
+      )
+    }
+
+    const clearKeyboardInset = () => {
+      root.style.setProperty('--nyt-keyboard-inset', '0px')
+      root.dataset.nytKeyboard = 'closed'
+    }
+
+    const setKeyboardInset = () => {
+      const vv = window.visualViewport
+      // Safari chrome alone can make visualViewport < innerHeight — ignore unless typing.
+      if (!vv || !isEditingText()) {
+        clearKeyboardInset()
+        return
+      }
+
+      const lockedHeight =
+        parseFloat(root.style.getPropertyValue('--nyt-app-height')) || window.innerHeight
+      const inset = Math.max(0, Math.round(lockedHeight - vv.height - vv.offsetTop))
+      // Real keyboards are large; small gaps are browser UI, not the keyboard.
+      if (inset < 140) {
+        clearKeyboardInset()
+        return
+      }
+
+      root.style.setProperty('--nyt-keyboard-inset', `${inset}px`)
+      root.dataset.nytKeyboard = 'open'
+    }
+
+    setAppHeight()
+    clearKeyboardInset()
+
+    const handleOrientationChange = () => {
+      window.setTimeout(() => {
+        setAppHeight()
+        setKeyboardInset()
+      }, 150)
+    }
+
+    window.addEventListener('orientationchange', handleOrientationChange)
+    document.addEventListener('focusin', setKeyboardInset)
+    document.addEventListener('focusout', setKeyboardInset)
+    window.visualViewport?.addEventListener('resize', setKeyboardInset)
+    window.visualViewport?.addEventListener('scroll', setKeyboardInset)
+
+    return () => {
+      window.removeEventListener('orientationchange', handleOrientationChange)
+      document.removeEventListener('focusin', setKeyboardInset)
+      document.removeEventListener('focusout', setKeyboardInset)
+      window.visualViewport?.removeEventListener('resize', setKeyboardInset)
+      window.visualViewport?.removeEventListener('scroll', setKeyboardInset)
+    }
+  }, [])
+
   const mode = useSelector((state) => state.modes.mode)
   const isMobile = useIsMobile()
 

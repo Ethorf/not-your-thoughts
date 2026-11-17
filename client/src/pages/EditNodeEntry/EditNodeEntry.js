@@ -362,7 +362,9 @@ const EditNodeEntry = () => {
                   </DefaultButton>
                 </div>
                 <div className={styles.titleCluster}>
-                  <StarButton id={entryId} initialStarred={starred} />
+                  <span className={styles.titleStar}>
+                    <StarButton id={entryId} initialStarred={starred} />
+                  </span>
                   <textarea
                     ref={titleInputRef}
                     className={classNames(styles.titleInput, {
@@ -417,7 +419,9 @@ const EditNodeEntry = () => {
           )}
           <span className={classNames(sharedStyles.flexCenter, styles.saveCell)}>
             {entriesLoading ? (
-              <SmallSpinner />
+              <span className={styles.saveSpinner}>
+                <SmallSpinner />
+              </span>
             ) : (
               <DefaultButton onClick={() => handleSaveNode(SAVE_TYPES.MANUAL)} className={styles.saveButton}>
                 {isMobile ? 'Save' : 'Save Node'}

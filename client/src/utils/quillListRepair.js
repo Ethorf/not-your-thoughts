@@ -1,5 +1,6 @@
 const LIST_ITEM_INDENT_CLASS_PREFIX = 'ql-indent-'
 const ORDERED_LIST_NUMBER_ATTR = 'data-nyt-ol-num'
+const ORDERED_LIST_MARK_ATTR = 'data-nyt-ol-mark'
 
 export const getListItemIndent = (element) => {
   const indentClass = [...element.classList].find((className) =>
@@ -116,6 +117,79 @@ const clearOrderedListNumber = (listItem) => {
   return false
 }
 
+const clearOrderedListMark = (listItem) => {
+  if (listItem.hasAttribute(ORDERED_LIST_MARK_ATTR)) {
+    listItem.removeAttribute(ORDERED_LIST_MARK_ATTR)
+    return true
+  }
+
+  return false
+}
+
+const toLowerAlpha = (value) => {
+  let num = value
+  let result = ''
+
+  while (num > 0) {
+    num -= 1
+    result = String.fromCharCode(97 + (num % 26)) + result
+    num = Math.floor(num / 26)
+  }
+
+  return result
+}
+
+const ROMAN_GLYPHS = [
+  [1000, 'm'],
+  [900, 'cm'],
+  [500, 'd'],
+  [400, 'cd'],
+  [100, 'c'],
+  [90, 'xc'],
+  [50, 'l'],
+  [40, 'xl'],
+  [10, 'x'],
+  [9, 'ix'],
+  [5, 'v'],
+  [4, 'iv'],
+  [1, 'i'],
+]
+
+const toLowerRoman = (value) => {
+  let num = value
+  let result = ''
+
+  ROMAN_GLYPHS.forEach(([amount, glyph]) => {
+    while (num >= amount) {
+      result += glyph
+      num -= amount
+    }
+  })
+
+  return result
+}
+
+/** Match Quill's indent marker cycle: a/b, i/ii, 1/2, a/b, ... */
+export const formatIndentListMark = (count, indent) => {
+  const cycle = ((indent - 1) % 3) + 1
+
+  if (cycle === 1) {
+    return toLowerAlpha(count)
+  }
+
+  if (cycle === 2) {
+    return toLowerRoman(count)
+  }
+
+  return String(count)
+}
+
+const resetDeeperLevelCounters = (levelCounters, indent) => {
+  for (let level = indent + 1; level <= 9; level += 1) {
+    levelCounters[level] = 0
+  }
+}
+
 /**
  * Remove empty paragraphs sandwiched between lists (Quill reload artifact).
  */
@@ -178,8 +252,8 @@ export const fixContinuedTopLevelOrderedItems = (root) => {
 }
 
 /**
- * Assign explicit ordered-list numbers so split <ol>/<ul> blocks and restarts
- * don't depend on fragile CSS counter scoping.
+ * Assign explicit ordered-list markers so split <ol> blocks and nested resets
+ * don't depend on fragile CSS counter scoping with Quill.
  */
 export const assignOrderedListNumbers = (root) => {
   if (!root) {
@@ -191,12 +265,15 @@ export const assignOrderedListNumbers = (root) => {
   root.querySelectorAll(`li[${ORDERED_LIST_NUMBER_ATTR}]`).forEach((listItem) => {
     changed = clearOrderedListNumber(listItem) || changed
   })
+  root.querySelectorAll(`li[${ORDERED_LIST_MARK_ATTR}]`).forEach((listItem) => {
+    changed = clearOrderedListMark(listItem) || changed
+  })
 
-  let counter = 0
+  let topLevelCounter = 0
 
   ;[...root.children].forEach((child) => {
     if (child.tagName === 'P' && isTopLevelContentParagraph(child)) {
-      counter = 0
+      topLevelCounter = 0
       return
     }
 
@@ -205,19 +282,46 @@ export const assignOrderedListNumbers = (root) => {
     }
 
     const items = [...child.children].filter((node) => node.tagName === 'LI')
+    const levelCounters = Array.from({ length: 10 }, () => 0)
 
     items.forEach((listItem, index) => {
-      if (!shouldNumberAsTopLevelOrdered(listItem, items, index, child)) {
+      if (isBulletListItem(listItem)) {
+        changed = clearOrderedListNumber(listItem) || changed
+        changed = clearOrderedListMark(listItem) || changed
         return
       }
 
-      counter += 1
-      const nextValue = String(counter)
+      const indent = getListItemIndent(listItem)
+      resetDeeperLevelCounters(levelCounters, indent)
 
-      if (listItem.getAttribute(ORDERED_LIST_NUMBER_ATTR) !== nextValue) {
-        listItem.setAttribute(ORDERED_LIST_NUMBER_ATTR, nextValue)
+      if (shouldNumberAsTopLevelOrdered(listItem, items, index, child)) {
+        resetDeeperLevelCounters(levelCounters, 0)
+        topLevelCounter += 1
+        const nextValue = String(topLevelCounter)
+
+        if (listItem.getAttribute(ORDERED_LIST_NUMBER_ATTR) !== nextValue) {
+          listItem.setAttribute(ORDERED_LIST_NUMBER_ATTR, nextValue)
+          changed = true
+        }
+
+        changed = clearOrderedListMark(listItem) || changed
+        return
+      }
+
+      if (indent <= 0) {
+        changed = clearOrderedListMark(listItem) || changed
+        return
+      }
+
+      levelCounters[indent] += 1
+      const nextMark = formatIndentListMark(levelCounters[indent], indent)
+
+      if (listItem.getAttribute(ORDERED_LIST_MARK_ATTR) !== nextMark) {
+        listItem.setAttribute(ORDERED_LIST_MARK_ATTR, nextMark)
         changed = true
       }
+
+      changed = clearOrderedListNumber(listItem) || changed
     })
   })
 
