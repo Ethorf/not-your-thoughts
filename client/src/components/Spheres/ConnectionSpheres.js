@@ -200,7 +200,7 @@ const ConnectionSpheres = ({
               title={transformed.title}
               size={subSphereSize}
               conn={sub}
-              onClick={() => handleConnectionSphereClick(transformed.id, conn)}
+              onClick={(_id, _conn, event) => handleConnectionSphereClick(transformed.id, conn, event)}
               rotation={rotation}
             />
             {shouldRecurse && (

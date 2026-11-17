@@ -454,9 +454,7 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
     editorRoot.setAttribute('enterkeyhint', 'done')
   }, [entryId, entryType, isMobile])
 
-  // Keep typed lines above the iOS keyboard + autofill accessory bar.
-  // iOS often shrinks both innerHeight and visualViewport together, so inset can
-  // read as ~0 — cache a baseline height while unfocused and always pad when focused.
+  // Keep the caret above the iPhone keyboard (visualViewport) while typing.
   useEffect(() => {
     if (!isMobile || !quillRef.current) {
       return undefined
@@ -468,63 +466,79 @@ const CreateEntry = ({ entryType, fillHeight = false }) => {
       return undefined
     }
 
-    const ACCESSORY_BAR_PX = 72
-    const FOCUSED_BASE_PAD_PX = 280
-    const baselineHeightRef = { current: null }
-    const isFocusedRef = { current: false }
+    editorRoot.style.removeProperty('padding-bottom')
 
-    const getVisibleHeight = () => {
-      const viewport = window.visualViewport
-      return viewport?.height ?? window.innerHeight
-    }
+    const scrollCaretIntoView = () => {
+      requestAnimationFrame(() => {
+        const range = quill.getSelection()
+        if (!range) {
+          return
+        }
 
-    const updateKeyboardInset = () => {
-      const viewport = window.visualViewport
-      const visibleHeight = getVisibleHeight()
+        const edgePad = 28
+        const vv = window.visualViewport
+        const visibleTop = vv ? vv.offsetTop + edgePad : edgePad
+        const visibleBottom = vv ? vv.offsetTop + vv.height - edgePad : window.innerHeight - edgePad
 
-      if (!isFocusedRef.current) {
-        baselineHeightRef.current = Math.max(
-          baselineHeightRef.current ?? 0,
-          visibleHeight,
-          window.innerHeight,
-          document.documentElement.clientHeight
-        )
-        editorRoot.style.removeProperty('padding-bottom')
-        return
-      }
+        const selection = window.getSelection()
+        let caretTop = null
+        let caretBottom = null
+        if (selection?.rangeCount) {
+          const rect = selection.getRangeAt(0).getBoundingClientRect()
+          if (rect && (rect.height > 0 || rect.width > 0 || range.length === 0)) {
+            caretTop = rect.top
+            caretBottom = rect.bottom || rect.top + 20
+          }
+        }
 
-      const baseline = baselineHeightRef.current ?? window.innerHeight
-      const keyboardInset = Math.max(0, baseline - visibleHeight - (viewport?.offsetTop ?? 0))
-      const paddingBottom = Math.max(FOCUSED_BASE_PAD_PX, keyboardInset + ACCESSORY_BAR_PX)
+        if (caretTop == null) {
+          try {
+            const bounds = quill.getBounds(range.index, range.length || 0)
+            if (bounds) {
+              const editorRect = editorRoot.getBoundingClientRect()
+              caretTop = editorRect.top + bounds.top - editorRoot.scrollTop
+              caretBottom = editorRect.top + bounds.bottom - editorRoot.scrollTop
+            }
+          } catch {
+            return
+          }
+        }
 
-      editorRoot.style.setProperty('padding-bottom', `${paddingBottom}px`, 'important')
+        if (caretTop == null || caretBottom == null) {
+          return
+        }
+
+        if (caretBottom > visibleBottom) {
+          editorRoot.scrollTop += caretBottom - visibleBottom
+        } else if (caretTop < visibleTop) {
+          editorRoot.scrollTop += caretTop - visibleTop
+        }
+      })
     }
 
     const handleFocus = () => {
-      isFocusedRef.current = true
-      updateKeyboardInset()
+      // Keyboard animation needs a beat before visualViewport settles.
+      scrollCaretIntoView()
+      window.setTimeout(scrollCaretIntoView, 50)
+      window.setTimeout(scrollCaretIntoView, 300)
     }
 
-    const handleBlur = () => {
-      isFocusedRef.current = false
-      updateKeyboardInset()
+    const handleSelectionChange = (nextRange) => {
+      if (nextRange) {
+        scrollCaretIntoView()
+      }
     }
 
-    updateKeyboardInset()
-
-    const viewport = window.visualViewport
-    viewport?.addEventListener('resize', updateKeyboardInset)
-    viewport?.addEventListener('scroll', updateKeyboardInset)
-    window.addEventListener('resize', updateKeyboardInset)
     editorRoot.addEventListener('focus', handleFocus)
-    editorRoot.addEventListener('blur', handleBlur)
+    quill.on('selection-change', handleSelectionChange)
+    window.visualViewport?.addEventListener('resize', scrollCaretIntoView)
+    window.visualViewport?.addEventListener('scroll', scrollCaretIntoView)
 
     return () => {
-      viewport?.removeEventListener('resize', updateKeyboardInset)
-      viewport?.removeEventListener('scroll', updateKeyboardInset)
-      window.removeEventListener('resize', updateKeyboardInset)
       editorRoot.removeEventListener('focus', handleFocus)
-      editorRoot.removeEventListener('blur', handleBlur)
+      quill.off('selection-change', handleSelectionChange)
+      window.visualViewport?.removeEventListener('resize', scrollCaretIntoView)
+      window.visualViewport?.removeEventListener('scroll', scrollCaretIntoView)
       editorRoot.style.removeProperty('padding-bottom')
     }
   }, [isMobile, entryId, entryType])

@@ -301,13 +301,23 @@ const LocalNodeNetworkView = ({
   }, [entryId, history, mainNodeGoesToEdit, publicOwnerUserId])
 
   const handleConnectionSphereClick = useCallback(
-    async (id, conn) => {
+    async (id, conn, event) => {
       if (conn.connection_type === EXTERNAL) {
         if (conn.foreign_source) {
           window.open(conn.foreign_source, '_blank', 'noopener,noreferrer')
         }
         return
       }
+
+      const nativeEvent = event?.nativeEvent ?? event
+      const isModifierClick = Boolean(nativeEvent?.metaKey || nativeEvent?.ctrlKey)
+
+      // Cmd/Ctrl-click opens the node in the local editor (own network only).
+      if (isModifierClick && id && !publicOwnerUserId) {
+        history.push(`/edit-node-entry?entryId=${id}`)
+        return
+      }
+
       if (publicOwnerUserId && id) {
         history.push(`/explore?userId=${publicOwnerUserId}&entryId=${id}`)
         return
@@ -415,7 +425,7 @@ const LocalNodeNetworkView = ({
                     title={transformed.title}
                     size={sphereSize}
                     conn={conn}
-                    onClick={() => handleConnectionSphereClick(transformed.id, conn)}
+                    onClick={(_id, _conn, event) => handleConnectionSphereClick(transformed.id, conn, event)}
                     rotation={[vRotation, hRotation, 0]}
                   />
 

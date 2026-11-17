@@ -43,17 +43,31 @@
   }
 
   ol {
+    // Attribute selectors avoid CSS-module hashing of .ql-indent-* class names.
     $not-indented: '';
     @for $i from 1 through 9 {
-      $not-indented: $not-indented + ':not(.ql-indent-#{$i})';
+      $not-indented: $not-indented + ':not([class~="ql-indent-#{$i}"])';
+    }
+
+    // Disable Quill CSS counters — markers come from data attrs in quillListRepair.js.
+    & > li {
+      counter-increment: none !important;
+      counter-reset: none !important;
     }
 
     // Top-level ordered items use explicit numbers from quillListRepair.js.
     & > li#{$not-indented}[data-nyt-ol-num] {
-      counter-increment: none !important;
-
       &::before {
         content: attr(data-nyt-ol-num) '.' !important;
+        width: auto;
+        min-width: 1.2em;
+      }
+    }
+
+    // Nested ordered items restart under each parent (1 → a.b, 2 → a.b).
+    & > li[data-nyt-ol-mark] {
+      &::before {
+        content: attr(data-nyt-ol-mark) '.' !important;
         width: auto;
         min-width: 1.2em;
       }
